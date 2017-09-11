@@ -1,5 +1,5 @@
 .vs/
-Degub/
+Debug/
 x64/
 *.obj
 *.log
