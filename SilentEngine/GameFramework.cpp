@@ -270,12 +270,16 @@ void CGameFramework::BuildObjects()
 	if (m_pScene)
 		m_pScene->BuildObjects(pd3Device.Get(), m_pd3dCommandList);
 
-	CCamera* t = new CCamera();
+	playerShader = new CPlayerShader();
+	playerShader->CreateShader(pd3Device.Get(), m_pScene->GetGraphicsRootSignature());
+	playerShader->BuildObjects(pd3Device.Get(), m_pd3dCommandList);
 
-	m_pPlayer = new CPlayer(1);
-	m_pCamera = new CThirdPersonCamera(t);
-	m_pPlayer->SetCamera(m_pCamera);
+	m_pPlayer = (CPlayer*)playerShader->GetObjects()[0];
+
+	m_pCamera = new CCamera();
+	m_pCamera = m_pPlayer->ChangeCamera((DWORD)(0x03), m_GameTimer.GetTimeElapsed());
 	m_pCamera->SetPlayer(m_pPlayer);
+
 	//m_pCamera = m_pPlayer->ChangeCamera((DWORD)(0x03), m_GameTimer.GetTimeElapsed());
 
 	/*m_pScene = new CScene();
@@ -502,6 +506,8 @@ void CGameFramework::AnimateObjects()
 {
 	if (m_pScene)
 		m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
+	if (playerShader)
+		m_pPlayer->Animate(m_GameTimer.GetTimeElapsed());
 }
 
 void CGameFramework::FrameAdvance()
@@ -562,7 +568,8 @@ void CGameFramework::FrameAdvance()
 	//·£´õ¸µ
 	if (m_pScene)
 		m_pScene->Render(m_pd3dCommandList, m_pCamera);
-
+	if (playerShader)
+		playerShader->Render(m_pd3dCommandList, m_pCamera);
 
 
 	////////////////////////////////////////////////

@@ -77,7 +77,7 @@ void CGameObject::OnPrepareRender() {
 }
 
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera) {
-	//OnPrepareRender();
+	OnPrepareRender();
 
 	UpdateShaderVariables(pd3dCommandList);
 	//게임 객체에 메쉬가 연결되어 있으면 메쉬를 렌더링한다. 
@@ -263,11 +263,12 @@ bool CGameObject::IsVisible(CCamera *pCamera)
 {
 	OnPrepareRender();
 	bool bIsVisible = false;
-	BoundingOrientedBox xmBoundingBox = m_ppMeshes[0]->GetBoundingBox();
-	//모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다. 
-	xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
+	//BoundingOrientedBox xmBoundingBox = m_ppMeshes[0]->GetBoundingBox();
+	//BoundingOrientedBox xmBoundingBox = m_xmOOBB;
+	////모델 좌표계의 바운딩 박스를 월드 좌표계로 변환한다. 
+	//xmBoundingBox.Transform(xmBoundingBox, XMLoadFloat4x4(&m_xmf4x4World));
 	if (pCamera)
-		bIsVisible = pCamera->IsInFrustum(xmBoundingBox);
+		bIsVisible = pCamera->IsInFrustum(m_xmOOBBTransformed);
 	return(bIsVisible);
 }
 

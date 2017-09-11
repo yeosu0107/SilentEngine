@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Shader.h"
+#include "Player.h"
 
 CShader::CShader()
 {
@@ -215,7 +216,6 @@ void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList) {
 
 void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera) {
 	OnPrepareRender(pd3dCommandList);
-
 }
 
 ObjectShader::ObjectShader() {}
@@ -228,11 +228,7 @@ void ObjectShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandL
 }
 void ObjectShader::AnimateObjects(float fTimeElapsed) {
 	CShader::AnimateObjects(fTimeElapsed);
-	/*for (int j = 0; j < m_nObjects; j++) {
 
-	m_ppObjects[j]->Animate(fTimeElapsed);
-
-	}*/
 }
 void ObjectShader::ReleaseObjects() {
 	CShader::ReleaseObjects();
@@ -406,21 +402,30 @@ void CInstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCom
 
 void CInstancingShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	m_nObjects = 1;
+	int xi = 10, yi =10, zi = 10;
+	m_nObjects = xi*yi*zi;
 	m_ppObjects = new CGameObject*[m_nObjects];
 
 	CRotatingObject *pTemp = nullptr;
 	CCube *pCube = new CCube(pd3dDevice, pd3dCommandList, 10, 10, 10);
+	
+	int tmp = 0;
+	for (int i = 0; i < xi; ++i) {
+		for (int j = 0; j < yi; ++j) {
+			for (int k = 0; k < zi; ++k) {
+				pTemp = new CRotatingObject();
+				pTemp->SetPosition(i *20,j*20, k*20);
+				pTemp->SetRotationSpeed(50.0f);
+				pTemp->SetRotationAxis(XMFLOAT3(0, 1, 0));
+				pTemp->SetOOBB(pCube->GetBoundingBox());
+				pTemp->SetLive(true);
+				m_ppObjects[tmp] = pTemp;
 
-	pTemp = new CRotatingObject();
-	pTemp->SetPosition(0, 0, 0);
-	pTemp->SetRotationSpeed(50.0f);
-	pTemp->SetRotationAxis(XMFLOAT3(0, 1, 0));
-
-	m_ppObjects[0] = pTemp;
+				tmp++;
+			}
+		}
+	}
 	m_ppObjects[0]->SetMesh(0, pCube);
-	m_ppObjects[0]->SetOOBB(pCube->GetBoundingBox());
-
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 void CInstancingShader::ReleaseObjects()
@@ -443,6 +448,81 @@ void CInstancingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCame
 void CInstancingShader::AnimateObjects(float fTimeElapsed)
 {
 	for (int j = 0; j < m_nObjects; j++) {
+		/*if (m_ppObjects[j]->GetLive() && m_ppObjects[j]->IsVisible(pCamera)) {
+			m_ppObjects[j]->Animate(fTimeElapsed);
+		}*/
 		m_ppObjects[j]->Animate(fTimeElapsed);
+	}
+}
+
+CPlayerShader::CPlayerShader() {
+}
+
+CPlayerShader::~CPlayerShader() {
+}
+
+D3D12_INPUT_LAYOUT_DESC CPlayerShader::CreateInputLayout() {
+	UINT nInputElementDescs = 2;
+	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs =
+		new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
+	pd3dInputElementDescs[0] = {
+		"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
+		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+	};
+
+	pd3dInputElementDescs[1] = {
+		"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12,
+		D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0
+	};
+
+	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
+	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
+	d3dInputLayoutDesc.NumElements = nInputElementDescs;
+
+	return(d3dInputLayoutDesc);
+}
+
+D3D12_SHADER_BYTECODE CPlayerShader::CreateVertexShader(ID3DBlob **ppd3dShaderBlob) {
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "VSDiffused", "vs_5_1", ppd3dShaderBlob));
+}
+
+D3D12_SHADER_BYTECODE CPlayerShader::CreatePixelShader(ID3DBlob **ppd3dShaderBlob) {
+	return(CShader::CompileShaderFromFile(L"Shaders.hlsl", "PSDiffused", "ps_5_1", ppd3dShaderBlob));
+}
+
+void CPlayerShader::CreateShader(ID3D12Device *pd3dDevice,
+	ID3D12RootSignature *pd3dGraphicsRootSignature) {
+	m_nPipelineStates = 1;
+	m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
+	CShader::CreateShader(pd3dDevice, pd3dGraphicsRootSignature);
+}
+
+void CPlayerShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList	*pd3dCommandList)
+{
+	m_nObjects = 1;
+	m_ppObjects = new CGameObject*[m_nObjects];
+
+	CMyPlayer* player = new CMyPlayer(pd3dDevice, pd3dCommandList);
+	m_ppObjects[0] = player;
+}
+void CPlayerShader::AnimateObjects(float fTimeElapsed)
+{
+	CShader::AnimateObjects(fTimeElapsed);
+}
+void CPlayerShader::ReleaseObjects()
+{
+	CShader::ReleaseObjects();
+}
+void CPlayerShader::ReleaseUploadBuffers()
+{
+	CShader::ReleaseUploadBuffers();
+}
+void CPlayerShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
+{
+	CShader::Render(pd3dCommandList, pCamera);
+	for (int j = 0; j < m_nObjects; j++) {
+		if (m_ppObjects[j]) {
+			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+		}
 	}
 }

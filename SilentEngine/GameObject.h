@@ -9,9 +9,9 @@ protected:
 	bool m_live = true;
 	XMFLOAT4 color;
 
-	float width = 0.0f;
-	float height = 0.0f;
-	float depth = 0.0f;
+	float m_width = 0.0f;
+	float m_height = 0.0f;
+	float m_depth = 0.0f;
 
 	XMFLOAT4X4 m_xmf4x4World;
 	CMesh **m_ppMeshes = NULL;

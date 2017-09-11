@@ -79,6 +79,8 @@ private:
 	bool						CameraCorrection;
 
 public:
+	CPlayerShader* playerShader = nullptr;
+
 	CPlayer* m_pPlayer = nullptr;
 	CCamera *m_pCamera = nullptr;
 	POINT m_ptOldCursorPos;
@@ -108,7 +110,6 @@ public:
 
 	void WaitForGpuComplete();
 
-	//따라하기 06
 	void MoveToNextFrame();
 
 	//마우스, 키보드 입출력

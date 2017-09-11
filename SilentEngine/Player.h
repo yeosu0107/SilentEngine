@@ -17,9 +17,9 @@ protected:
 	float m_fYaw;
 	float m_fRoll;
 
-	float width = 20.0f;
-	float height = 20.0f;
-	float depth = 4.0f;
+	//float width = 20.0f;
+	//float height = 20.0f;
+	//float depth = 4.0f;
 
 	XMFLOAT3 m_xmf3Velocity;
 	XMFLOAT3 m_xmf3Gravity;
@@ -30,11 +30,6 @@ protected:
 	//마찰력
 	float m_fFriction;
 
-	//플레이어의 위치가 바뀔 때마다 호출되는 OnPlayerUpdateCallback() 함수에서 사용하는 데이터이다.
-	LPVOID m_pPlayerUpdatedContext;
-
-	//카메라의 위치가 바뀔 때마다 호출되는 OnCameraUpdateCallback() 함수에서 사용하는 데이터이다. 
-	LPVOID m_pCameraUpdatedContext;
 public:
 	CPlayer(int nMeshes = 1);
 	virtual ~CPlayer();
@@ -74,13 +69,12 @@ public:
 
 	//플레이어 위치 갱신
 	virtual void OnPlayerUpdateCallback(float fTimeElapsed) { }
-	void SetPlayerUpdatedContext(LPVOID pContext) { m_pPlayerUpdatedContext = pContext; }
+	
 
 	//카메라 위치 갱신
 	virtual void OnCameraUpdateCallback(float fTimeElapsed) { }
 	virtual void OnCameraWallcrush(float fTimeElapsed) {}
 
-	void SetCameraUpdatedContext(LPVOID pContext) { m_pCameraUpdatedContext = pContext; }
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList
 		*pd3dCommandList);
 	virtual void ReleaseShaderVariables();
@@ -98,7 +92,14 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = nullptr);
 	virtual void Animate(float fTime);
 
-	/*void setPaticle(CPaticlesShader* object) {
-	paticle = object;
-	}*/
+};
+
+class CMyPlayer : public CPlayer
+{
+public:
+	CMyPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual ~CMyPlayer();
+	virtual CCamera *ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed);
+	//virtual void OnPlayerUpdateCallback(float fTimeElapsed);
+	//virtual void OnCameraUpdateCallback(float fTimeElapsed);
 };

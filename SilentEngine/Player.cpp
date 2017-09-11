@@ -17,8 +17,7 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 	m_fPitch = 0.0f;
 	m_fRoll = 0.0f;
 	m_fYaw = 0.0f;
-	m_pPlayerUpdatedContext = NULL;
-	m_pCameraUpdatedContext = NULL;
+
 }
 
 CPlayer::~CPlayer()
@@ -130,7 +129,6 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
-
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity,
 		fTimeElapsed, false));
 
@@ -152,15 +150,10 @@ void CPlayer::Update(float fTimeElapsed)
 
 	Move(m_xmf3Velocity, false);
 
-	if (m_pPlayerUpdatedContext)
-		OnPlayerUpdateCallback(fTimeElapsed);
 	DWORD nCameraMode = m_pCamera->GetMode();
-
 
 	if (nCameraMode == THIRD_PERSON_CAMERA) 
 		m_pCamera->Update(m_xmf3Position, fTimeElapsed);
-	if (m_pCameraUpdatedContext)
-		OnCameraUpdateCallback(fTimeElapsed);
 
 	if (nCameraMode == THIRD_PERSON_CAMERA)
 		m_pCamera->SetLookAt(m_xmf3Position);
@@ -227,3 +220,57 @@ void CPlayer::Animate(float fTime) {
 
 }
 
+CMyPlayer::CMyPlayer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	SetPosition(XMFLOAT3(0, 0, 0));
+
+	m_width = m_depth = 4.0f;	m_height = 12.0f;
+
+	CCube *pCubeMesh = new CCube(pd3dDevice, pd3dCommandList,
+		m_width, m_height, m_depth);
+	SetMesh(0, pCubeMesh);
+	SetOOBB(pCubeMesh->GetBoundingBox());
+
+	//m_pCamera = ChangeCamera(THIRD_PERSON_CAMERA, 0.0f);
+}
+
+CMyPlayer::~CMyPlayer()
+{
+
+}
+
+CCamera *CMyPlayer::ChangeCamera(DWORD nNewCameraMode, float fTimeElapsed)
+{
+	DWORD nCurrentCameraMode = (m_pCamera) ? m_pCamera->GetMode() : 0x00;
+	if (nCurrentCameraMode == nNewCameraMode) return(m_pCamera);
+	switch (nNewCameraMode)
+	{
+	case FIRST_PERSON_CAMERA:
+		SetFriction(250.0f);
+		//1인칭 카메라일 때 플레이어에 y-축 방향으로 중력이 작용한다. 
+		SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
+		SetMaxVelocityXZ(300.0f);
+		SetMaxVelocityY(400.0f);
+		m_pCamera = OnChangeCamera(FIRST_PERSON_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.0f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, 0.0f));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
+		break;
+	case THIRD_PERSON_CAMERA:
+		SetFriction(250.0f);
+		//3인칭 카메라일 때 플레이어에 y-축 방향으로 중력이 작용한다. 
+		//SetGravity(XMFLOAT3(0.0f, -250.0f, 0.0f));
+		SetMaxVelocityXZ(300.0f);
+		SetMaxVelocityY(400.0f);
+		m_pCamera = OnChangeCamera(THIRD_PERSON_CAMERA, nCurrentCameraMode);
+		m_pCamera->SetTimeLag(0.25f);
+		m_pCamera->SetOffset(XMFLOAT3(0.0f, 20.0f, -50.0f));
+		m_pCamera->GenerateProjectionMatrix(1.01f, 50000.0f, ASPECT_RATIO, 60.0f);
+		break;
+	default:
+		break;
+	}
+	m_pCamera->SetOOBB(m_pCamera->GetPosition(), XMFLOAT3(4, 7, 7), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f));
+	Update(fTimeElapsed);
+	return(m_pCamera);
+}
