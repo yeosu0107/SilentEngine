@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="winMain">
+      <UniqueIdentifier>{5720cc4f-7e45-4590-8f01-cf7e53f1fc8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="winMain\소스">
+      <UniqueIdentifier>{db17fd6b-3db7-48eb-8362-ffdfbb0bde69}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="winMain\헤더">
+      <UniqueIdentifier>{045b430a-2f73-4eab-8c18-1077a822a43a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameFrameWork">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Object">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="GameFrameWork\FrameWork">
+      <UniqueIdentifier>{c2e29f02-3cda-4ad7-81d2-ace4b7b78cf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameFrameWork\Timer">
+      <UniqueIdentifier>{b15840d8-3989-4ccf-b37d-fe0beca9be8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameFrameWork\Scene">
+      <UniqueIdentifier>{61e08474-f18d-4a2a-9b85-05d1af6e01bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameFrameWork\Camera">
+      <UniqueIdentifier>{84de8cae-f156-4eaf-8a71-b4b81bb681ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Mesh">
+      <UniqueIdentifier>{41ec23bf-708d-4348-92e6-44f11dcc3282}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\GameObject">
+      <UniqueIdentifier>{faa9b46b-7571-43b1-918e-de472fac8b44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{233d771c-53bb-41a5-8b5a-dc8cc4ed15fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Player">
+      <UniqueIdentifier>{5c5649ed-d122-4835-a5d5-f6880b00783d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="resource.h">
+      <Filter>winMain\헤더</Filter>
+    </ClInclude>
+    <ClInclude Include="SilentEngine.h">
+      <Filter>winMain\헤더</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>winMain\헤더</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>winMain\헤더</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFramework.h">
+      <Filter>GameFrameWork\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>GameFrameWork\Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>GameFrameWork\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>GameFrameWork\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Object\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Object\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Object\Player</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SilentEngine.cpp">
+      <Filter>winMain\소스</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>winMain\소스</Filter>
+    </ClCompile>
+    <ClCompile Include="GameFramework.cpp">
+      <Filter>GameFrameWork\FrameWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>GameFrameWork\Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>GameFrameWork\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>GameFrameWork\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Object\Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>Object\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Object\Player</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SilentEngine.rc">
+      <Filter>리소스 파일</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="SilentEngine.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="icon1.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
