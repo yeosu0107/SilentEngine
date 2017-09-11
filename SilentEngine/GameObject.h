@@ -6,7 +6,7 @@ class CGameObject
 {
 private:
 protected:
-	bool die = false;
+	bool m_live = true;
 	XMFLOAT4 color;
 
 	float width = 0.0f;
@@ -73,9 +73,6 @@ public:
 	BoundingOrientedBox* getOOBB() { return &m_xmOOBBTransformed; } //트랜스폼 oobb주소 반환
 	XMFLOAT4X4& getMatrix() { return m_xmf4x4World; }
 
-	bool getDie() const { return die; }
-	void setDie(bool type) { die = type; }
-
 
 	XMFLOAT4& getColor() { return color; }
 	void setColor(XMFLOAT4& t) { color = t; }
@@ -89,6 +86,8 @@ public:
 
 	bool IsVisible(CCamera *pCamera = NULL);
 
+	bool GetLive() const { return m_live; }
+	void SetLive(bool live) { m_live = live; }
 
 };
 

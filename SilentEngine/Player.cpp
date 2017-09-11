@@ -5,7 +5,7 @@
 CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 {
 	m_pCamera = NULL;
-	m_xmf3Position = XMFLOAT3(100.0f, 0.0f, 0.0f);
+	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
 	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
@@ -216,7 +216,7 @@ void CPlayer::OnPrepareRender()
 void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
 	DWORD nCameraMode = (pCamera) ? pCamera->GetMode() : 0x00;
-	if (nCameraMode == THIRD_PERSON_CAMERA && !die)
+	if (nCameraMode == THIRD_PERSON_CAMERA && m_live)
 		CGameObject::Render(pd3dCommandList, pCamera);
 
 
@@ -227,10 +227,3 @@ void CPlayer::Animate(float fTime) {
 
 }
 
-void CPlayer::Die()
-{
-	if (die)
-		return;
-	else
-		die = true;
-}

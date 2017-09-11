@@ -163,6 +163,7 @@ bool CCamera::IsInFrustum(BoundingOrientedBox& xmBoundingBox)
 CFirstPersonCamera::CFirstPersonCamera(CCamera *pCamera) : CCamera(pCamera)
 {
 	m_nMode = FIRST_PERSON_CAMERA;
+
 }
 
 void CFirstPersonCamera::Rotate(float x, float y, float z)

@@ -290,7 +290,7 @@ CGameObject *ObjectShader::PickObjectByRayIntersection(XMFLOAT3& xmf3PickPositio
 	CGameObject *pSelectedObject = NULL;
 	for (int j = 0; j < m_nObjects; j++)
 	{
-		if (m_ppObjects[j]->getDie())
+		if (!m_ppObjects[j]->GetLive())
 			continue;
 		nIntersected = m_ppObjects[j]->PickObjectByRayIntersection(xmf3PickPosition,
 			xmf4x4View, &fHitDistance);
@@ -390,7 +390,7 @@ void CInstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCom
 	int index = 0;
 	for (int j = 0; j < m_nObjects; j++)
 	{
-		if (!m_ppObjects[j]->getDie() && m_ppObjects[j]->IsVisible(pCamera)) {
+		if (m_ppObjects[j]->GetLive() && m_ppObjects[j]->IsVisible(pCamera)) {
 			m_pcbMappedGameObjects[index].m_xmcColor = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 			XMStoreFloat4x4(&m_pcbMappedGameObjects[index].m_xmf4x4Transform,
 				XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[j]->getMatrix())));

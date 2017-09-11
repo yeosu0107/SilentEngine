@@ -101,6 +101,4 @@ public:
 	/*void setPaticle(CPaticlesShader* object) {
 	paticle = object;
 	}*/
-	void Die();
-	bool getDie() const { return die; }
 };
