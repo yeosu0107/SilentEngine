@@ -1,7 +1,8 @@
-// stdafx.h : 자주 사용하지만 자주 변경되지는 않는
-// 표준 시스템 포함 파일 또는 프로젝트 관련 포함 파일이
-// 들어 있는 포함 파일입니다.
-//
+/* 
+	최근 수정 : 김건우
+	수정 시간 : 2017.09.13 02:27
+	수정 내용 : Vector3 namespace 내부에 Lerp 함수 추가
+*/
 
 #pragma once
 
@@ -200,6 +201,13 @@ namespace Vector3
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
 
+	inline XMFLOAT3 Lerp(XMFLOAT3& Vector1, XMFLOAT3& Vector2, const float x) {
+		XMFLOAT3 xmf3Result;
+
+		xmf3Result = Add(Vector1 , ScalarProduct( Subtract(Vector2, Vector1) , x, false));
+		
+		return xmf3Result;
+	}	
 	/*inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
 	if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
@@ -254,7 +262,6 @@ namespace Matrix4x4
 		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
 		return(xmmtx4x4Result);
 	}
-
 
 
 	inline XMFLOAT4X4 RotationYawPitchRoll(float fYaw, float fPitch, float fRoll)
