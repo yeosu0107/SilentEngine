@@ -12,6 +12,7 @@
 #include "Scene.h"
 #include "Camera.h"
 #include "Player.h"
+#include "Texture.h"
 
 class CGameFramework
 {
@@ -66,8 +67,6 @@ private:
 	UINT64 m_nFenceValue[m_nSwapChainBuffers];
 	//Ææ½º ÇÚµé
 	HANDLE m_hFenceEvent;
-
-
 
 #if defined(_DEBUG) 
 	ID3D12Debug *m_pd3dDebugController;

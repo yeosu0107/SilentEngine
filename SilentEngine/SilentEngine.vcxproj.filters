@@ -55,6 +55,9 @@
     <Filter Include="Utilty\헤더">
       <UniqueIdentifier>{215f7212-0769-463e-b9e0-5650edb43b71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Texture">
+      <UniqueIdentifier>{ef081ee1-451e-4c69-bae1-32592f59ba8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -99,6 +102,9 @@
     <ClInclude Include="ConsoleUtily.h">
       <Filter>Utilty\헤더</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Object\Texture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SilentEngine.cpp">
@@ -130,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Object\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

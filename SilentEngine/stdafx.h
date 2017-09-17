@@ -1,11 +1,5 @@
-/* 
-	최근 수정 : 김건우
-	수정 시간 : 2017.09.13 02:27
-	수정 내용 : Vector3 namespace 내부에 Lerp 함수 추가
-*/
-
 #pragma once
-
+#pragma warning(disable: 4819)
 #include "targetver.h"
 
 // 아래 지정된 플랫폼에 우선하는 플랫폼을 대상으로 하는 경우 다음 정의를 수정하십시오.
@@ -55,15 +49,23 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <d3d12.h>
-
+#include "header\DirectXTex.h"	// DirectXTex.lib 이용을 위한 header File  
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "d3dcompiler.lib") 
+#pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "d3d12.lib") 
 #pragma comment(lib, "dxgi.lib")
+
+#ifdef _DEBUG
+#pragma comment(lib, "DirectXTex64.lib")	// Debug 모드 전용 lib 
+#else
+#pragma comment(lib, "DirectXTex64re.lib")	// Release 모드 전용 lib
+#endif // DEBUG
+
 
 
 #define FRANDDOM		(rand() / float(RAND_MAX))
@@ -208,6 +210,12 @@ namespace Vector3
 		
 		return xmf3Result;
 	}	
+
+	inline XMFLOAT3 ComponentProduct(XMFLOAT3& Vector1, XMFLOAT3& Vector2) {
+
+		return XMFLOAT3(Vector1.x * Vector2.x, Vector1.y * Vector2.y, Vector1.z * Vector2.z);
+	
+	}
 	/*inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
 	if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))

@@ -1,8 +1,10 @@
 #pragma once
 /*
-	최근 수정 : 김건우
-	수정 시간 : 2017.09.13 02:27
-	수정 내용 : XMFLOAT3, XMFLOAT4, XMMATIRX, XMFLOAT4X4 같은 사용하는 일부 클래스 콘솔 유틸리티 함수 추가
+	프로그램 파일 이름	: ConsoleUtily.h
+		목	적			: Console환경에서 용이하게 사용하기 위한 함수
+	   최근 수정			: 김건우
+	   수정 시간			: 2017.09.13 20:41
+	   수정 내용			: 주석 추가
 */
 #include "stdafx.h"
 
