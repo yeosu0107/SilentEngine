@@ -125,9 +125,6 @@ D3D12_SHADER_BYTECODE CShader::CompileShaderFromFile(WCHAR *pszFileName,
 }
 
 void CShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGraphicsRootSignature) {
-	//그래픽스 파이프라인 상태 객체 배열을 생성한다. 
-	//m_nPipelineStates = 1; 
-	//m_ppd3dPipelineStates = new ID3D12PipelineState*[m_nPipelineStates];
 	ID3DBlob *pd3dVertexShaderBlob = NULL, *pd3dPixelShaderBlob = NULL;
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC d3dPipelineStateDesc;
@@ -160,22 +157,46 @@ void CShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGr
 
 void CShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
+	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255); //256의 배수
+	m_pd3dcbGameObject = CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = m_pd3dcbGameObject->GetGPUVirtualAddress();
+	m_pd3dcbGameObject->Map(0, NULL, (void **)&m_pcbMappedGameObject);
+
+	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
+	::ZeroMemory(&d3dDescriptorHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
+	d3dDescriptorHeapDesc.NumDescriptors = 1;
+	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	d3dDescriptorHeapDesc.NodeMask = 0;
+	pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_pd3dCbvSrvDescriptorHeap);
+	::gnCbvSrvDescriptorIncrementSize = pd3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dCbvSrvCpuDescriptorHandle = m_pd3dCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dcbvDesc;
+	d3dcbvDesc.BufferLocation = d3dGpuVirtualAddress;
+	d3dcbvDesc.SizeInBytes = ncbElementBytes;
+	pd3dDevice->CreateConstantBufferView(&d3dcbvDesc, d3dCbvSrvCpuDescriptorHandle);
 }
 
 void CShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
+	XMFLOAT4X4 xmf4x4World;
+	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[0]->getMatrix())));
+	::memcpy(&m_pcbMappedGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 }
 
 void CShader::UpdateShaderVariable(ID3D12GraphicsCommandList * pd3dCommandList, XMFLOAT4X4 * pxmf4x4World)
 {
 	XMFLOAT4X4 xmf4x4World;
 	XMStoreFloat4x4(&xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(pxmf4x4World)));
-	pd3dCommandList->SetGraphicsRoot32BitConstants(0, 16, &xmf4x4World, 0);
-
+	::memcpy(&m_pcbMappedGameObject->m_xmf4x4World, &xmf4x4World, sizeof(XMFLOAT4X4));
 }
 
 void CShader::ReleaseShaderVariables()
 {
+	if (m_pd3dCbvSrvDescriptorHeap) 
+		m_pd3dCbvSrvDescriptorHeap->Release();
 }
 
 void CShader::ReleaseUploadBuffers() {
@@ -211,6 +232,12 @@ void CShader::AnimateObjects(float fTimeElapsed) {
 void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList) {
 	//파이프라인에 그래픽스 상태 객체를 설정한다. 
 	pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);
+
+	ID3D12DescriptorHeap *ppd3dDescriptorHeaps[] = { m_pd3dCbvSrvDescriptorHeap };
+	pd3dCommandList->SetDescriptorHeaps(_countof(ppd3dDescriptorHeaps), ppd3dDescriptorHeaps);
+
+	D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvDescriptorHandle = m_pd3dCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	pd3dCommandList->SetGraphicsRootDescriptorTable(0, d3dCbvDescriptorHandle);
 }
 
 void CShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera) {
@@ -356,6 +383,7 @@ void CInstancingShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignatu
 void CInstancingShader::CreateShaderVariables(ID3D12Device *pd3dDevice,
 	ID3D12GraphicsCommandList *pd3dCommandList)
 {
+	CShader::CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	//인스턴스 정보를 저장할 정점 버퍼를 업로드 힙 유형으로 생성한다. 
 	m_pd3dcbGameObjects = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL,
 		sizeof(VS_VB_INSTANCE) * m_nObjects, D3D12_HEAP_TYPE_UPLOAD,
@@ -372,6 +400,7 @@ void CInstancingShader::CreateShaderVariables(ID3D12Device *pd3dDevice,
 }
 void CInstancingShader::ReleaseShaderVariables()
 {
+	CShader::ReleaseShaderVariables();
 	if (m_pd3dcbGameObjects)
 		m_pd3dcbGameObjects->Unmap(0, NULL);
 	if (m_pd3dcbGameObjects)
@@ -434,10 +463,10 @@ void CInstancingShader::ReleaseObjects()
 void CInstancingShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera
 	*pCamera)
 {
-	CShader::Render(pd3dCommandList, pCamera);
-
 	//모든 게임 객체의 인스턴싱 데이터를 버퍼에 저장한다.
 	UpdateShaderVariables(pd3dCommandList, pCamera);
+	
+	CShader::Render(pd3dCommandList, pCamera);
 
 	//하나의 정점 데이터를 사용하여 모든 게임 객체(인스턴스)들을 렌더링한다.
 	m_ppObjects[0]->Render(pd3dCommandList, pCamera, n_draw,
@@ -503,6 +532,7 @@ void CPlayerShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 
 	CMyPlayer* player = new CMyPlayer(pd3dDevice, pd3dCommandList);
 	m_ppObjects[0] = player;
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
 void CPlayerShader::AnimateObjects(float fTimeElapsed)
 {
@@ -518,7 +548,9 @@ void CPlayerShader::ReleaseUploadBuffers()
 }
 void CPlayerShader::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera)
 {
+	UpdateShaderVariables(pd3dCommandList);
 	CShader::Render(pd3dCommandList, pCamera);
+	
 	for (int j = 0; j < m_nObjects; j++) {
 		if (m_ppObjects[j]) {
 			m_ppObjects[j]->Render(pd3dCommandList, pCamera);

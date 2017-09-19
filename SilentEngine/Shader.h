@@ -22,9 +22,14 @@ protected:
 	CGameObject **m_ppObjects = NULL;
 	int m_nObjects = 0;
 	int m_nReferences = 0;
+
 	//파이프라인 상태 객체들의 리스트(배열)이다. 
 	ID3D12PipelineState **m_ppd3dPipelineStates = NULL;
 	int m_nPipelineStates = 0;
+
+	ID3D12DescriptorHeap			*m_pd3dCbvSrvDescriptorHeap = NULL;
+	ID3D12Resource					*m_pd3dcbGameObject = NULL;
+	CB_GAMEOBJECT_INFO		*m_pcbMappedGameObject = NULL;
 
 public:
 	CShader();

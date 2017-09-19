@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 
-
+UINT gnCbvSrvDescriptorIncrementSize;
 
 /*버퍼 리소스를 생성하는 함수*/
 ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice,
