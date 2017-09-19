@@ -46,6 +46,18 @@
     <Filter Include="Object\Player">
       <UniqueIdentifier>{5c5649ed-d122-4835-a5d5-f6880b00783d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utilty">
+      <UniqueIdentifier>{bcc3d9da-f189-415c-bcd1-c3536682ab21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilty\소스">
+      <UniqueIdentifier>{027c9604-b9bb-4429-b280-0cb544478a5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilty\헤더">
+      <UniqueIdentifier>{215f7212-0769-463e-b9e0-5650edb43b71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Texture">
+      <UniqueIdentifier>{ef081ee1-451e-4c69-bae1-32592f59ba8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -87,6 +99,12 @@
     <ClInclude Include="Player.h">
       <Filter>Object\Player</Filter>
     </ClInclude>
+    <ClInclude Include="ConsoleUtily.h">
+      <Filter>Utilty\헤더</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Object\Texture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SilentEngine.cpp">
@@ -118,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Object\Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

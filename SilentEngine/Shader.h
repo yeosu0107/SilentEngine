@@ -44,7 +44,8 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(ID3DBlob **ppd3dShaderBlob);
 
 	//셰이더 소스코드 컴파일 & 바이트 코드 구조체를 반환
-	D3D12_SHADER_BYTECODE CompileShaderFromFile(WCHAR *pszFileName,
+	D3D12_SHADER_BYTECODE CompileShaderFromFile
+	(WCHAR *pszFileName,
 		LPCSTR pszShaderName, LPCSTR pszShaderProfile, ID3DBlob **ppd3dShaderBlob);
 
 

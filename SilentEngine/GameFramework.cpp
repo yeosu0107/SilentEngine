@@ -311,6 +311,7 @@ void CGameFramework::BuildObjects()
 	//	playerShader->ReleaseUploadBuffers();
 
 	m_GameTimer.Reset();
+
 }
 
 void CGameFramework::ReleaseObjects()

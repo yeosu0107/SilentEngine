@@ -1,10 +1,5 @@
-// stdafx.h : 자주 사용하지만 자주 변경되지는 않는
-// 표준 시스템 포함 파일 또는 프로젝트 관련 포함 파일이
-// 들어 있는 포함 파일입니다.
-//
-
 #pragma once
-
+#pragma warning(disable: 4819)
 #include "targetver.h"
 
 // 아래 지정된 플랫폼에 우선하는 플랫폼을 대상으로 하는 경우 다음 정의를 수정하십시오.
@@ -54,15 +49,23 @@
 #include <DirectXColors.h>
 #include <DirectXCollision.h>
 #include <d3d12.h>
-
+#include "header\DirectXTex.h"	// DirectXTex.lib 이용을 위한 header File  
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 
 using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "d3dcompiler.lib") 
+#pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "d3d12.lib") 
 #pragma comment(lib, "dxgi.lib")
+
+#ifdef _DEBUG
+#pragma comment(lib, "DirectXTex64.lib")	// Debug 모드 전용 lib 
+#else
+#pragma comment(lib, "DirectXTex64re.lib")	// Release 모드 전용 lib
+#endif // DEBUG
+
 
 
 #define FRANDDOM		(rand() / float(RAND_MAX))
@@ -202,6 +205,19 @@ namespace Vector3
 		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
 	}
 
+	inline XMFLOAT3 Lerp(XMFLOAT3& Vector1, XMFLOAT3& Vector2, const float x) {
+		XMFLOAT3 xmf3Result;
+
+		xmf3Result = Add(Vector1 , ScalarProduct( Subtract(Vector2, Vector1) , x, false));
+		
+		return xmf3Result;
+	}	
+
+	inline XMFLOAT3 ComponentProduct(XMFLOAT3& Vector1, XMFLOAT3& Vector2) {
+
+		return XMFLOAT3(Vector1.x * Vector2.x, Vector1.y * Vector2.y, Vector1.z * Vector2.z);
+	
+	}
 	/*inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
 	if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
@@ -256,7 +272,6 @@ namespace Matrix4x4
 		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
 		return(xmmtx4x4Result);
 	}
-
 
 
 	inline XMFLOAT4X4 RotationYawPitchRoll(float fYaw, float fPitch, float fRoll)
