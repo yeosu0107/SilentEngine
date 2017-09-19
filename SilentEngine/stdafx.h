@@ -71,6 +71,8 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_WIDTH	1280
 #define FRAME_BUFFER_HEIGHT	720
 
+
+
 extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice,
 	ID3D12GraphicsCommandList *pd3dCommandList, void *pData, UINT nBytes,
 	D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD,

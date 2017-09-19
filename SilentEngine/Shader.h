@@ -126,8 +126,8 @@ public:
 	void updatePlayerPos(XMFLOAT3& player) { playerPos = player; }
 protected:
 	//인스턴스 정점 버퍼와 정점 버퍼 뷰이다. 
-	ID3D12Resource *m_pd3dcbGameObjects = NULL;
-	VS_VB_INSTANCE *m_pcbMappedGameObjects = NULL;
+	ID3D12Resource *m_pd3dcbGameObjects = nullptr;
+	VS_VB_INSTANCE *m_pcbMappedGameObjects = nullptr;
 	D3D12_VERTEX_BUFFER_VIEW m_d3dInstancingBufferView;
 };
 
