@@ -13,7 +13,8 @@ protected:
 	CShader** m_ppShaders = nullptr;
 	int m_nShaders = 0;
 
-	
+	CGameObject** m_ppObjects = nullptr;
+	int m_nObjects = 0;
 
 
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = nullptr;
@@ -36,6 +37,8 @@ public:
 
 	void ReleaseUploadBuffers();
 
+
+	void CrashObject(BoundingOrientedBox& player);
 
 	//루트 시그너쳐 생성
 	ID3D12RootSignature *CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);

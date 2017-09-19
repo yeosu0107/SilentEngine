@@ -505,8 +505,10 @@ LRESULT CALLBACK CGameFramework::OnProcessingWindowMessage(HWND hWnd, UINT nMess
 
 void CGameFramework::AnimateObjects()
 {
-	if (m_pScene)
+	if (m_pScene) {
+		m_pScene->CrashObject(*m_pPlayer->getOOBB());
 		m_pScene->AnimateObjects(m_GameTimer.GetTimeElapsed());
+	}
 	if (playerShader)
 		m_pPlayer->Animate(m_GameTimer.GetTimeElapsed());
 }

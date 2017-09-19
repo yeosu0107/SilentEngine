@@ -26,8 +26,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	tshader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	tshader->BuildObjects(pd3dDevice, pd3dCommandList);
 
+	m_ppObjects = tshader->GetObjects();
+	m_nObjects = tshader->getObjectsNum();
 	m_ppShaders[0] = tshader;
-
+	
 }
 
 void CScene::ReleaseObjects()
@@ -151,3 +153,15 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	return(pd3dGraphicsRootSignature);
 }
 
+
+void CScene::CrashObject(BoundingOrientedBox& player)
+{
+	for (int i = 0; i < m_nObjects; ++i) {
+		if (!m_ppObjects[i]->GetLive())
+			continue;
+
+		if (m_ppObjects[i]->getOOBB()->Intersects(player)) {
+			printf("Crash! %d번째 오브젝트\n", i);
+		}
+	}
+}
