@@ -58,6 +58,21 @@
     <Filter Include="Object\Texture">
       <UniqueIdentifier>{ef081ee1-451e-4c69-bae1-32592f59ba8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameFrameWork\Mode">
+      <UniqueIdentifier>{7debbd34-d90f-48c8-b790-ce2859b08bd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{e12366f4-c54f-4862-826f-e1fbaabc15f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Stage">
+      <UniqueIdentifier>{de5e4b95-f156-492e-aae8-0e1421ac2473}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Main">
+      <UniqueIdentifier>{3785eac1-59c3-4052-8746-52d622f6503f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Rule">
+      <UniqueIdentifier>{a34ff5d6-0f9f-4af8-8ec1-2d146daf6d3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -105,6 +120,12 @@
     <ClInclude Include="Texture.h">
       <Filter>Object\Texture</Filter>
     </ClInclude>
+    <ClInclude Include="NetWorkManager.h">
+      <Filter>GameFrameWork\Mode</Filter>
+    </ClInclude>
+    <ClInclude Include="MapGenerator.h">
+      <Filter>Scene\Rule</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SilentEngine.cpp">
@@ -139,6 +160,12 @@
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Object\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWorkManager.cpp">
+      <Filter>GameFrameWork\Mode</Filter>
+    </ClCompile>
+    <ClCompile Include="MapGenerator.cpp">
+      <Filter>Scene\Rule</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
