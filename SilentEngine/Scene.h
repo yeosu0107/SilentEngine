@@ -16,7 +16,6 @@ protected:
 	CGameObject** m_ppObjects = nullptr;
 	int m_nObjects = 0;
 
-
 	ID3D12RootSignature* m_pd3dGraphicsRootSignature = nullptr;
 
 

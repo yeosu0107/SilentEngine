@@ -167,7 +167,7 @@ void CScene::CrashObject(BoundingOrientedBox& player)
 			continue;
 
 		if (m_ppObjects[i]->getOOBB()->Intersects(player)) {
-			printf("Crash! %d번째 오브젝트\n", i);
+			//printf("Crash! %d번째 오브젝트\n", i);
 		}
 	}
 }

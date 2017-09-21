@@ -218,6 +218,12 @@ namespace Vector3
 		return XMFLOAT3(Vector1.x * Vector2.x, Vector1.y * Vector2.y, Vector1.z * Vector2.z);
 	
 	}
+
+	inline XMFLOAT3 Zero() {
+
+		return XMFLOAT3(0.0f, 0.0f, 0.0f);
+	
+	}
 	/*inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
 	if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))

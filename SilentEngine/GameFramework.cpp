@@ -307,6 +307,11 @@ void CGameFramework::BuildObjects()
 	//그래픽 리소스들을 생성하는 과정에 생성된 업로드 버퍼들을 소멸시킨다. 
 	if (m_pScene)
 		m_pScene->ReleaseUploadBuffers();
+	
+	// 초기 마우스 위치를 화면 중앙으로 잡고 마우스커서를 감춘다.
+	m_ptOldCursorPos.x = FRAME_BUFFER_WIDTH / 2; m_ptOldCursorPos.y = FRAME_BUFFER_HEIGHT / 2;
+	::ShowCursor(false);
+
 	//if (playerShader)
 	//	playerShader->ReleaseUploadBuffers();
 
@@ -370,26 +375,24 @@ void CGameFramework::ProcessInput()
 	float cxDelta = 0.0f, cyDelta = 0.0f;
 	POINT ptCursorPos;
 	
-	if (::GetCapture() == m_hWnd)
-	{
-		::SetCursor(NULL);
-		::GetCursorPos(&ptCursorPos);
-		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-		//if (m_pSelectedObject)
-		//{
-		//	ProcessSelectedObject(dwDirection, cxDelta, cyDelta);
-		//}
-	}
+	/* 마우스 입력에 따른 행동 변화 */
+	
+	
+	//if (m_pSelectedObject)
+	//{
+	//	ProcessSelectedObject(dwDirection, cxDelta, cyDelta);
+	//}
+	
+	::GetCursorPos(&ptCursorPos);
+	cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+	cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+	::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		
 
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
 		if (cxDelta || cyDelta) {
-			if (pKeyBuffer[VK_RBUTTON] & 0xF0)
-				m_pPlayer->Rotate(cyDelta, 0.0f, -cxDelta);
-			else
-				m_pPlayer->Rotate(cyDelta, cxDelta, 0.0f);
+				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 		}
 
 		if (dwDirection && m_pPlayer->GetLive()) {
@@ -413,7 +416,7 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 		::SetCapture(hWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
+		//::GetCursorPos(&m_ptOldCursorPos);
 		break;
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
