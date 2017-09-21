@@ -310,6 +310,7 @@ void CGameFramework::BuildObjects()
 	
 	// 초기 마우스 위치를 화면 중앙으로 잡고 마우스커서를 감춘다.
 	m_ptOldCursorPos.x = FRAME_BUFFER_WIDTH / 2; m_ptOldCursorPos.y = FRAME_BUFFER_HEIGHT / 2;
+	m_bMouseCapture = true;
 	::ShowCursor(false);
 
 	//if (playerShader)
@@ -383,11 +384,13 @@ void CGameFramework::ProcessInput()
 	//	ProcessSelectedObject(dwDirection, cxDelta, cyDelta);
 	//}
 	
-	::GetCursorPos(&ptCursorPos);
-	cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-	cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-	::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-		
+	if (m_bMouseCapture)
+	{
+		::GetCursorPos(&ptCursorPos);
+		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+	}
 
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
@@ -445,6 +448,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			::PostQuitMessage(0);
 			break;
 		case VK_RETURN:
+			m_bMouseCapture = !m_bMouseCapture;
+			::ShowCursor(!m_bMouseCapture);
 			break;
 		case VK_F1:
 		case VK_F2:
