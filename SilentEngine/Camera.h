@@ -178,5 +178,5 @@ public:
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
 
 public:
-	void RotateLock(XMFLOAT3& xmf3Direction);
+	bool RotateLock(XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3CameraPos);
 };

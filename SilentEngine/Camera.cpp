@@ -2,7 +2,7 @@
 #include "Player.h"
 #include "Camera.h"
 #include "ConsoleUtily.h"
-
+#include <math.h>
 
 CCamera::CCamera()
 {
@@ -208,6 +208,7 @@ void CFirstPersonCamera::Rotate(float x, float y, float z)
 		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
 	}
 
+
 	
 }
 
@@ -220,7 +221,9 @@ CThirdPersonCamera::CThirdPersonCamera(CCamera *pCamera) : CCamera(pCamera)
 
 void CThirdPersonCamera::Rotate(float x, float y, float z) {
 
-	XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
+	XMFLOAT4X4	xmf4x4Rotate = Matrix4x4::Identity();
+
+	x = min(x, 30.0f);
 
 	if (x != 0.0f)
 	{
@@ -265,7 +268,18 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 		xmf4x4Rotate = Matrix4x4::Multiply(xmf4x4Rotate, xmmtxRotate);
 	}
 
-	m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
+	//카메라 오프셋 벡터를 회전 행렬로 변환(회전)한다. 
+	XMFLOAT3 xmf3Offset = Vector3::TransformCoord(m_xmf3Offset, Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate));
+	//회전한 카메라의 위치는 플레이어의 위치에 회전한 카메라 오프셋 벡터를 더한 것이다.
+	XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+	XMFLOAT3 xmf3Direction = Vector3::Subtract(m_pPlayer->GetPosition(), xmf3Position);
+
+	if (RotateLock(xmf3Direction, xmf3Position))
+	{
+		m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
+	}
+
+	//m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
 }
 
 void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
@@ -273,14 +287,14 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 	if (m_pPlayer)
 	{
 		XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
-		XMFLOAT3 xmf3Right = GetRightVector();
-		XMFLOAT3 xmf3Up = GetUpVector();
-		XMFLOAT3 xmf3Look = GetLookVector();
+		//XMFLOAT3 xmf3Right = GetRightVector();
+		//XMFLOAT3 xmf3Up = GetUpVector();
+		//XMFLOAT3 xmf3Look = GetLookVector();
 
-		//플레이어의 로컬 x-축, y-축, z-축 벡터로부터 회전 행렬(플레이어와 같은 방향을 나타내는 행렬)을 생성한다.
-		xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
-		xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
-		xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
+		////플레이어의 로컬 x-축, y-축, z-축 벡터로부터 회전 행렬(플레이어와 같은 방향을 나타내는 행렬)을 생성한다.
+		//xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
+		//xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
+		//xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 
 		//카메라 오프셋 벡터를 회전 행렬로 변환(회전)한다. 
 		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(m_xmf3Offset, m_xmf4x4Rotate);
@@ -315,17 +329,24 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	m_xmf3Look = XMFLOAT3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
 }
 
-void CThirdPersonCamera::RotateLock(XMFLOAT3& xmf3Direction)
+bool CThirdPersonCamera::RotateLock(XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3CameraPos)
 {
-	XMFLOAT3 xmfPlayerpos =	m_pPlayer->GetPosition();
-	XMFLOAT3 xmfCamerapos = GetPosition();
+	XMFLOAT3 xmf3tmpCamerapos = xmf3CameraPos;
+	XMFLOAT3 xmf3Playerpos = m_pPlayer->GetPosition();
+	XMFLOAT3 xmf3ToCameraNorm = Vector3::Normalize(Vector3::ScalarProduct(xmf3Direction, -1));
+	XMFLOAT3 xmf3ToCameraY0;
 
-	xmfPlayerpos.z = 0.0f; xmf3Direction.z = 0.0f;
+	// 카메라와 플레이어의 x ,z 차이에 대한 값만 갖고 있는 벡터를 생성
 
-	//if(Vector3::Angle())
+	xmf3Playerpos.y = 0.0f;
+	xmf3tmpCamerapos.y = 0.0f;
 
-		// 카메라와 플레이어의 위치가 같은 y크기를 갖고 있다고 가정하고 
-		// 카메라에서 플레이어를 향하는 벡터를 구하고
-		// 해당 벡터와 Direction 벡터를 angle함수를 이용하고 절대 값을 계산 60.0이 넘을 경우 기존 값으로 롤 백 시킨다.
+	xmf3ToCameraY0 = Vector3::Normalize(Vector3::Subtract(xmf3tmpCamerapos, xmf3Playerpos));
 
+	float fLimitAngle = 60.0f;
+
+	// xmf3ToCameraY0와 xmf3ToCameraNorm의 차이는 사실상 y값밖에 없다. 정규화된 이 두개의 값을 이용하여 값을 추출
+	float fAngle = Vector3::Angle(xmf3ToCameraY0, xmf3ToCameraNorm);
+
+	return fAngle < fLimitAngle ? true : false;
 }
