@@ -72,5 +72,6 @@ public:
 	void SetMap(int x, int y);
 	bool MapFullyAccessed(bool** obstacleMap, int curObstacleCount);
 	void printMap();
+	void printMap(bool** tmp);
 };
 

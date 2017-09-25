@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Scene.h"
+#include "MapGenerator.h"
 
 CScene::CScene()
 {
@@ -30,6 +31,9 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	m_nObjects = tshader->getObjectsNum();
 	m_ppShaders[0] = tshader;
 	
+	MapGenerator ttt;
+	ttt.SetMap(9, 6);
+	ttt.printMap();
 }
 
 void CScene::ReleaseObjects()

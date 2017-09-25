@@ -17,7 +17,7 @@ MapGenerator::~MapGenerator() {
 void MapGenerator::SetMap(int x, int y) {
 	//random_device seed;
 	default_random_engine dre;
-	uniform_int_distribution<int> ui(30, 50);
+	uniform_int_distribution<int> ui(40, 60);
 	uniform_int_distribution<int> index(0, x*y - 1);
 
 
@@ -104,7 +104,7 @@ bool MapGenerator::MapFullyAccessed(bool** xroomMap, int curObstacleCount) {
 						if (!mapFlags[tmp_y][tmp_x] && !xroomMap[tmp_y][tmp_x])
 						{
 							mapFlags[tmp_y][tmp_x] = true;
-							xroom.push(Room(tmp_y, tmp_x));
+							xroom.push(Room(tmp_x, tmp_y));
 							accessibleTileCount++;
 						}
 					}
@@ -112,6 +112,8 @@ bool MapGenerator::MapFullyAccessed(bool** xroomMap, int curObstacleCount) {
 			}
 		}
 	}
+	
+	
 	int targetAccessibleTileCount = (currentMap.GetSize().xPos * currentMap.GetSize().yPos - curObstacleCount);
 	return targetAccessibleTileCount == accessibleTileCount;
 }
@@ -126,4 +128,17 @@ void MapGenerator::printMap() {
 		}
 		cout << endl;
 	}
+}
+
+void MapGenerator::printMap(bool** tmp) {
+	for (int i = 0; i < currentMap.GetSize().yPos; ++i) {
+		for (int j = 0; j < currentMap.GetSize().xPos; ++j) {
+			if (tmp[i][j])
+				cout << "бр";
+			else
+				cout << "бс";
+		}
+		cout << endl;
+	}
+	cout << "-----------------------" << endl;
 }
