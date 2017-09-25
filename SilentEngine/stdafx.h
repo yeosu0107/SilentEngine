@@ -83,21 +83,19 @@ extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice,
 	ID3D12Resource **ppd3dUploadBuffer = NULL);
 
 //조작키
-const int VK_Q = 0x51;
-const int VK_W = 0x57;
-const int VK_E = 0x45;
-const int VK_A = 0x41;
-const int VK_S = 0x53;
-const int VK_D = 0x44;
+const int VK_Q		= 0x51;
+const int VK_W		= 0x57;
+const int VK_E		= 0x45;
+const int VK_A		= 0x41;
+const int VK_S		= 0x53;
+const int VK_D		= 0x44;
 
-//조작키
-#define DIR_FORWARD 0x01
-#define DIR_BACKWARD 0x02
-#define DIR_LEFT 0x04
-#define DIR_RIGHT 0x08
-#define DIR_UP 0x10
-#define DIR_DOWN 0x20
-
+const int DIR_FORWARD = 0x01;
+const int DIR_BACKWARD = 0x02;
+const int DIR_LEFT = 0x04;
+const int DIR_RIGHT = 0x08;
+const int DIR_UP = 0x10;
+const int DIR_DOWN = 0x20;
 
 namespace Vector3
 {

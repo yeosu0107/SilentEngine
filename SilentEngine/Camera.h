@@ -179,4 +179,5 @@ public:
 
 public:
 	bool RotateLock(XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3CameraPos);
+
 };

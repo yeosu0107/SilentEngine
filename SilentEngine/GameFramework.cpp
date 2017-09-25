@@ -9,8 +9,6 @@ CGameFramework::CGameFramework()
 	m_hWnd = NULL;
 
 	_tcscpy_s(m_pszFrameRate, _T("SileEngine ("));
-
-
 	//d3d 제어
 	pdxgiSwapChain = NULL;
 	m_pd3dCommandAllocator = NULL;
@@ -33,6 +31,8 @@ CGameFramework::CGameFramework()
 
 	client_width = FRAME_BUFFER_WIDTH;
 	client_height = FRAME_BUFFER_HEIGHT;
+
+	m_fMouseSensitive = 4.5f; // Default 마우스 민감도
 }
 
 CGameFramework::~CGameFramework()
@@ -231,7 +231,6 @@ void CGameFramework::CreateDepthStencilView() {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dDsvCPUDescriptorHandle = m_pd3dDsvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	//깊이-스텐실 버퍼 뷰를 생성한다. 
 	pd3Device->CreateDepthStencilView(m_pd3dDepthStencilBuffer, NULL, d3dDsvCPUDescriptorHandle);
-
 }
 
 //백버퍼 리사이즈
@@ -370,7 +369,7 @@ void CGameFramework::ProcessInput()
 		if (pKeyBuffer[VK_D] & 0xF0) dwDirection |= DIR_RIGHT;
 		if (pKeyBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
 		if (pKeyBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;
-		
+
 	}
 
 	float cxDelta = 0.0f, cyDelta = 0.0f;
@@ -387,15 +386,15 @@ void CGameFramework::ProcessInput()
 	if (m_bMouseCapture)
 	{
 		::GetCursorPos(&ptCursorPos);
-		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / m_fMouseSensitive;
+		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / m_fMouseSensitive;
 		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 	}
 
 	if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
 		if (cxDelta || cyDelta) {
-				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+				m_pCamera->Rotate(cyDelta , cxDelta , 0.0f);
 		}
 
 		if (dwDirection && m_pPlayer->GetLive()) {
@@ -440,7 +439,12 @@ void CGameFramework::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM
 
 void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
 {
+
 	BOOL fullScreenState = FALSE;
+	float fMinMouseSensitive = 2.0f;
+	float fMaxMouseSensitive = 10.0f;
+	float fMouseSensitiveOffset = 0.5f;
+
 	switch (nMessageID) {
 	case WM_KEYUP:
 		switch (wParam) {
@@ -476,6 +480,12 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 			pdxgiSwapChain->SetFullscreenState(!fullScreenState, NULL);
 
 			OnResizeBackBuffers();
+			break;
+		case VK_OEM_PLUS:
+			m_fMouseSensitive = max(fMinMouseSensitive, m_fMouseSensitive - fMouseSensitiveOffset);
+			break;
+		case VK_OEM_MINUS:
+			m_fMouseSensitive = min(fMaxMouseSensitive, m_fMouseSensitive + fMouseSensitiveOffset);
 			break;
 		default:
 			break;
@@ -566,7 +576,7 @@ void CGameFramework::FrameAdvance()
 
 
 	//float pfClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };/*Colors::Azure*/
-	float pfClearColor[4] = { 1,1,1,1 };
+	float pfClearColor[4] = { 1.0f , 1.0f , 1.0f, 1.0f };
 	//원하는 색상으로 렌더 타겟(뷰)을 지운다.
 	m_pd3dCommandList->ClearRenderTargetView(d3dRtvCPUDescriptorHandle,
 		pfClearColor, 0, NULL);

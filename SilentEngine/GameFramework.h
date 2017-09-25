@@ -24,6 +24,8 @@ private:
 	int							client_width;
 	int							client_height;
 
+	float						m_fMouseSensitive;	// 마우스 민감도
+
 	//D3D 변수
 	//팩토리 인터페이스 포인터
 	ComPtr<IDXGIFactory4>		pdxgiFactory;

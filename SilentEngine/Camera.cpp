@@ -348,4 +348,5 @@ bool CThirdPersonCamera::RotateLock(XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3Camer
 	float fAngle = Vector3::Angle(xmf3ToCameraY0, xmf3ToCameraNorm);
 
 	return fAngle < fLimitAngle ? true : false;
+
 }
