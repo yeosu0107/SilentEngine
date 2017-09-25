@@ -222,6 +222,23 @@ namespace Vector3
 		return XMFLOAT3(0.0f, 0.0f, 0.0f);
 	
 	}
+
+	// Y를 0으로 만들어 XZ좌표계에서의 방향벡터를 얻는 함수
+	inline XMFLOAT3 SubtractYZero(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool bNomalize = true)
+	{
+		XMFLOAT3 xmf3Result;
+		XMFLOAT3 xmf3Vector1tmp = xmf3Vector1;
+		XMFLOAT3 xmf3Vector2tmp = xmf3Vector2;
+
+		xmf3Vector1tmp.y = xmf3Vector2tmp.y = 0.0f;
+
+		if(bNomalize)
+			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector1tmp) - XMLoadFloat3(&xmf3Vector2tmp)));
+		else
+			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1tmp) - XMLoadFloat3(&xmf3Vector2tmp));
+
+		return(xmf3Result);
+	}
 	/*inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{
 	if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z))
