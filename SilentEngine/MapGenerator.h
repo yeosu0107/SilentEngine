@@ -1,7 +1,6 @@
 #pragma once
 
-const int MAX_X_AXIS = 9;
-const int MAX_Y_AXIS = 6;
+
 
 struct Room
 {
@@ -57,6 +56,7 @@ public:
 	}
 
 	bool** getMapFlags() { return mapFlags; }
+	int getMapSize() const { return mapSize.xPos * mapSize.yPos; }
 };
 
 
@@ -73,5 +73,7 @@ public:
 	bool MapFullyAccessed(bool** obstacleMap, int curObstacleCount);
 	void printMap();
 	void printMap(bool** tmp);
+
+	Map getCurrentMap() const { return currentMap; }
 };
 

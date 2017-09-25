@@ -164,6 +164,7 @@
     <ClInclude Include="ConsoleUtily.h" />
     <ClInclude Include="NetWorkManager.h" />
     <ClInclude Include="MapGenerator.h" />
+    <ClInclude Include="Stage.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="GameFramework.h" />
     <ClInclude Include="GameObject.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="NetWorkManager.cpp" />
     <ClCompile Include="MapGenerator.cpp" />
+    <ClCompile Include="Stage.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="GameFramework.cpp" />

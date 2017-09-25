@@ -126,6 +126,9 @@
     <ClInclude Include="MapGenerator.h">
       <Filter>Scene\Rule</Filter>
     </ClInclude>
+    <ClInclude Include="Stage.h">
+      <Filter>Scene\Stage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SilentEngine.cpp">
@@ -166,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="MapGenerator.cpp">
       <Filter>Scene\Rule</Filter>
+    </ClCompile>
+    <ClCompile Include="Stage.cpp">
+      <Filter>Scene\Stage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
