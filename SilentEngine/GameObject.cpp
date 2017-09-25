@@ -79,7 +79,7 @@ void CGameObject::OnPrepareRender() {
 void CGameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera) {
 	OnPrepareRender();
 
-	UpdateShaderVariables(pd3dCommandList);
+	//UpdateShaderVariables(pd3dCommandList);
 	//게임 객체에 메쉬가 연결되어 있으면 메쉬를 렌더링한다. 
 	if (m_ppMeshes)
 	{

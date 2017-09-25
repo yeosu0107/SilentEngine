@@ -74,6 +74,8 @@ using Microsoft::WRL::ComPtr;
 #define FRAME_BUFFER_WIDTH	1280
 #define FRAME_BUFFER_HEIGHT	720
 
+extern UINT gnCbvSrvDescriptorIncrementSize;
+
 extern ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice,
 	ID3D12GraphicsCommandList *pd3dCommandList, void *pData, UINT nBytes,
 	D3D12_HEAP_TYPE d3dHeapType = D3D12_HEAP_TYPE_UPLOAD,
@@ -214,6 +216,12 @@ namespace Vector3
 	inline XMFLOAT3 ComponentProduct(XMFLOAT3& Vector1, XMFLOAT3& Vector2) {
 
 		return XMFLOAT3(Vector1.x * Vector2.x, Vector1.y * Vector2.y, Vector1.z * Vector2.z);
+	
+	}
+
+	inline XMFLOAT3 Zero() {
+
+		return XMFLOAT3(0.0f, 0.0f, 0.0f);
 	
 	}
 	/*inline bool IsZero(XMFLOAT3& xmf3Vector)

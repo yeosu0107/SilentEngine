@@ -46,6 +46,9 @@ protected:
 	XMFLOAT4X4 m_xmf4x4View;
 	//투영 변환 행렬 
 	XMFLOAT4X4 m_xmf4x4Projection;
+	// 카메라 회전 행렬
+	XMFLOAT4X4 m_xmf4x4Rotate;
+
 	//뷰포트
 	D3D12_VIEWPORT m_d3dViewport;
 	//씨저 사각형 
@@ -172,4 +175,8 @@ public:
 	virtual ~CThirdPersonCamera() { }
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed);
 	virtual void SetLookAt(XMFLOAT3& vLookAt);
+	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
+
+public:
+	void RotateLock(XMFLOAT3& xmf3Direction);
 };

@@ -26,8 +26,10 @@ void CScene::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	tshader->CreateShader(pd3dDevice, m_pd3dGraphicsRootSignature);
 	tshader->BuildObjects(pd3dDevice, pd3dCommandList);
 
+	m_ppObjects = tshader->GetObjects();
+	m_nObjects = tshader->getObjectsNum();
 	m_ppShaders[0] = tshader;
-
+	
 }
 
 void CScene::ReleaseObjects()
@@ -97,13 +99,19 @@ ID3D12RootSignature *CScene::GetGraphicsRootSignature() {
 ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevice) {
 	ID3D12RootSignature *pd3dGraphicsRootSignature = NULL;
 
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
+	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	pd3dDescriptorRanges[0].NumDescriptors = 1;
+	pd3dDescriptorRanges[0].BaseShaderRegister = 0;
+	pd3dDescriptorRanges[0].RegisterSpace = 0;
+	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = 0;
+
 	//루트 파라미터 설정
 	D3D12_ROOT_PARAMETER pd3dRootParameters[3];
 
-	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
-	pd3dRootParameters[0].Constants.Num32BitValues = 16;
-	pd3dRootParameters[0].Constants.ShaderRegister = 0; //b0: Player
-	pd3dRootParameters[0].Constants.RegisterSpace = 0;
+	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = pd3dDescriptorRanges;
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
@@ -151,3 +159,15 @@ ID3D12RootSignature *CScene::CreateGraphicsRootSignature(ID3D12Device *pd3dDevic
 	return(pd3dGraphicsRootSignature);
 }
 
+
+void CScene::CrashObject(BoundingOrientedBox& player)
+{
+	for (int i = 0; i < m_nObjects; ++i) {
+		if (!m_ppObjects[i]->GetLive())
+			continue;
+
+		if (m_ppObjects[i]->getOOBB()->Intersects(player)) {
+			//printf("Crash! %d번째 오브젝트\n", i);
+		}
+	}
+}

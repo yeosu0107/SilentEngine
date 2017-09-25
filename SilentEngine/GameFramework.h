@@ -76,6 +76,7 @@ private:
 	_TCHAR						m_pszFrameRate[50];
 
 	bool						CameraCorrection;
+	bool						m_bMouseCapture;
 
 public:
 	CPlayerShader* playerShader = nullptr;
