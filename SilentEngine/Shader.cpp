@@ -402,7 +402,7 @@ void CInstancingShader::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCom
 
 void CInstancingShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	int xi = 10, yi =10, zi = 10;
+	int xi = 5, yi =5, zi = 40;
 	m_nObjects = xi*yi*zi;
 	m_ppObjects = new CGameObject*[m_nObjects];
 
@@ -414,7 +414,7 @@ void CInstancingShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 		for (int j = 0; j < yi; ++j) {
 			for (int k = 0; k < zi; ++k) {
 				pTemp = new CRotatingObject();
-				pTemp->SetPosition(i *20,j*20, k*20);
+				pTemp->SetPosition(i*20, j*20, k*20);	
 				pTemp->SetRotationSpeed(50.0f);
 				pTemp->SetRotationAxis(XMFLOAT3(0, 1, 0));
 				pTemp->SetOOBB(pCube->GetBoundingBox());
