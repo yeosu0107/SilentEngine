@@ -70,7 +70,7 @@ using Microsoft::WRL::ComPtr;
 
 #define FRANDDOM		(rand() / float(RAND_MAX))
 #define RANDOM_COLOR	XMFLOAT4(FRANDDOM, FRANDDOM, FRANDDOM, FRANDDOM)
-
+#define EPSILON					1.0e-10f
 #define FRAME_BUFFER_WIDTH	1280
 #define FRAME_BUFFER_HEIGHT	720
 
