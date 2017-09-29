@@ -272,6 +272,8 @@ bool CGameObject::IsVisible(CCamera *pCamera)
 	return(bIsVisible);
 }
 
+///////////////////////////////////////////////////////////////////
+
 CRotatingObject::CRotatingObject(int nMeshes) {
 	//m_xmf3RotationAxis = XMFLOAT3(1.0f, 5.0f, -5.0f);
 	//m_fRotationSpeed = 90.0f;

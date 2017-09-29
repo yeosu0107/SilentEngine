@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 #include "Player.h"
 #include "Camera.h"
-#include "ConsoleUtily.h"
 #include <math.h>
 
 CCamera::CCamera()
@@ -334,7 +333,7 @@ bool CThirdPersonCamera::RotateLock(XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3Camer
 	XMFLOAT3 xmf3Playerpos = m_pPlayer->GetPosition();
 	XMFLOAT3 xmf3ToCameraNorm = Vector3::Normalize(Vector3::ScalarProduct(xmf3Direction, -1));
 	// 카메라와 플레이어의 x ,z 차이에 대한 값만 갖고 있는 벡터를 생성
-	XMFLOAT3 xmf3ToCameraY0 = Vector3::SubtractYZero(xmf3tmpCamerapos, xmf3Playerpos);
+	XMFLOAT3 xmf3ToCameraY0 = Vector3::SubtractAxisZero(xmf3tmpCamerapos, xmf3Playerpos, RotY);
 
 	float fLimitAngle = 60.0f;
 

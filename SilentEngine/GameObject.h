@@ -7,6 +7,8 @@ class CGameObject
 private:
 protected:
 	bool m_live = true;
+	bool m_bIsLotate = false;
+
 	XMFLOAT4 color;
 
 	float m_width = 0.0f;
@@ -56,6 +58,7 @@ public:
 	void SetPosition(XMFLOAT3 xmf3Position);
 	virtual void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
+
 	void Scale(float num);
 	void setScale(float num);
 
@@ -88,6 +91,9 @@ public:
 
 	bool GetLive() const { return m_live; }
 	void SetLive(bool live) { m_live = live; }
+
+	bool GetIsRotate() const { return m_bIsLotate; }
+	void SetIsRotate(const bool bRotate) { m_bIsLotate = bRotate; }
 
 };
 

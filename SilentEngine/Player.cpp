@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 #include "Shader.h"
+#include "ConsoleUtily.h"
 
 CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 {
@@ -11,6 +12,7 @@ CPlayer::CPlayer(int nMeshes) : CGameObject(nMeshes)
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_xmf3Velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_xmf3Gravity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_xmf3LookDist = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_fMaxVelocityXZ = 0.0f;
 	m_fMaxVelocityY = 0.0f;
 	m_fFriction = 0.0f;
@@ -45,15 +47,15 @@ void CPlayer::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 {
 	// 카메라와 플레이어의 x ,z 차이에 대한 값만 갖고 있는 벡터를 생성
-	XMFLOAT3 xmf3PlayerMoveForward = Vector3::SubtractYZero(m_xmf3Position, m_pCamera->GetPosition());
+	XMFLOAT3 xmf3PlayerMoveForward = Vector3::SubtractAxisZero(m_xmf3Position, m_pCamera->GetPosition(), RotY);
 	XMFLOAT3 xmf3PlayerMoveRight = m_pCamera->GetRightVector();
 
 	if (dwDirection)
 	{
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 
-		//if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
-		//if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
+		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDistance);
+		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDistance);
 		if (dwDirection & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, xmf3PlayerMoveForward, fDistance);
 		if (dwDirection & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, xmf3PlayerMoveForward, -fDistance);
 		if (dwDirection & DIR_RIGHT) xmf3Shift = Vector3::Add(xmf3Shift, xmf3PlayerMoveRight, fDistance);
@@ -61,7 +63,15 @@ void CPlayer::Move(DWORD dwDirection, float fDistance, bool bUpdateVelocity)
 		if (dwDirection & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDistance);
 		if (dwDirection & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDistance);
 
-		Move(xmf3Shift, bUpdateVelocity);
+		if (Vector3::AngleAxisZero(m_xmf3Look, xmf3Shift, RotY) > 5.0f)
+		{
+			m_bIsLotate = true;
+			m_xmf3LookDist = xmf3Shift;
+		}
+
+		//else
+			Move(m_xmf3Look, bUpdateVelocity);
+
 	}
 
 
@@ -135,6 +145,9 @@ void CPlayer::Rotate(float x, float y, float z)
 
 void CPlayer::Update(float fTimeElapsed)
 {
+	if (m_bIsLotate)
+		RotateLookAt(fTimeElapsed);
+
 	m_xmf3Velocity = Vector3::Add(m_xmf3Velocity, Vector3::ScalarProduct(m_xmf3Gravity,
 		fTimeElapsed, false));
 
@@ -223,6 +236,30 @@ void CPlayer::Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamer
 
 void CPlayer::Animate(float fTime) {
 	CGameObject::Animate(fTime);
+
+}
+
+void CPlayer::RotateLookAt(float fTimeElapsed) 
+{
+	XMFLOAT3 xmf3PlayerLook;
+	XMFLOAT3 xmf3DistVector = m_xmf3LookDist;
+
+	float fAngle = Vector3::Angle(Vector3::Normalize(m_xmf3Look), Vector3::Normalize(xmf3DistVector));
+
+	if(fAngle > 5.0f)
+		xmf3PlayerLook = Vector3::Add(m_xmf3Look, Vector3::Lerp(m_xmf3Look, xmf3DistVector, fTimeElapsed * 2));
+
+	else {
+		xmf3PlayerLook = xmf3DistVector;
+
+		m_bIsLotate = false;
+	}
+
+	fAngle = Vector3::AngleAxisZero(m_xmf3Look, xmf3PlayerLook, RotY);
+	fAngle *= Vector3::TripleProduct(m_xmf3Look, m_xmf3Up, m_xmf3LookDist) >= 0 ? -1 : 1;
+
+	std::cout << fAngle << std::endl;
+	Rotate(0.0f, fAngle, 0.0f);
 
 }
 

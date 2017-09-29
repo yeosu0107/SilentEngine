@@ -97,6 +97,9 @@ const int DIR_RIGHT = 0x08;
 const int DIR_UP = 0x10;
 const int DIR_DOWN = 0x20;
 
+//
+typedef enum {RotX, RotY, RotZ} RotateAxis;
+
 namespace Vector3
 {
 	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)
@@ -223,21 +226,57 @@ namespace Vector3
 	
 	}
 
-	// Y를 0으로 만들어 XZ좌표계에서의 방향벡터를 얻는 함수
-	inline XMFLOAT3 SubtractYZero(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool bNomalize = true)
+	inline float AngleAxisZero(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, const RotateAxis eAxis)
 	{
 		XMFLOAT3 xmf3Result;
 		XMFLOAT3 xmf3Vector1tmp = xmf3Vector1;
 		XMFLOAT3 xmf3Vector2tmp = xmf3Vector2;
 
-		xmf3Vector1tmp.y = xmf3Vector2tmp.y = 0.0f;
+		switch (eAxis)
+		{
+		case RotX:
+			xmf3Vector1tmp.x = xmf3Vector2tmp.x = 0.0f;
+			break;
+		case RotY:
+			xmf3Vector1tmp.y = xmf3Vector2tmp.y = 0.0f;
+			break;
+		case RotZ:
+			xmf3Vector1tmp.z = xmf3Vector2tmp.z = 0.0f;
+			break;
+		}
 
+		return Angle(Normalize(xmf3Vector1tmp), Normalize(xmf3Vector2tmp));
+	}
+
+	inline XMFLOAT3 SubtractAxisZero(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, const RotateAxis eAxis, const bool bNomalize = true)
+	{
+		XMFLOAT3 xmf3Result;
+		XMFLOAT3 xmf3Vector1tmp = xmf3Vector1;
+		XMFLOAT3 xmf3Vector2tmp = xmf3Vector2;
+
+		switch (eAxis)
+		{
+		case RotX:
+			xmf3Vector1tmp.x = xmf3Vector2tmp.x = 0.0f;
+			break;
+		case RotY:
+			xmf3Vector1tmp.y = xmf3Vector2tmp.y = 0.0f;
+			break;
+		case RotZ:
+			xmf3Vector1tmp.z = xmf3Vector2tmp.z = 0.0f;
+			break;
+		}
 		if(bNomalize)
 			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector1tmp) - XMLoadFloat3(&xmf3Vector2tmp)));
 		else
 			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1tmp) - XMLoadFloat3(&xmf3Vector2tmp));
 
 		return(xmf3Result);
+	}
+
+	inline float TripleProduct(XMFLOAT3& xmf3Look, XMFLOAT3& xmf3Up, XMFLOAT3& xmf3PlayerToDist)
+	{
+		return (DotProduct(xmf3Up, CrossProduct(xmf3PlayerToDist, xmf3Look)));
 	}
 	/*inline bool IsZero(XMFLOAT3& xmf3Vector)
 	{

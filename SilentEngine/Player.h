@@ -1,6 +1,6 @@
 #pragma once
 #include "GameObject.h"
-
+#include "Camera.h"
 
 class CPlayer : public CGameObject
 {
@@ -12,6 +12,8 @@ protected:
 	XMFLOAT3 m_xmf3Right;
 	XMFLOAT3 m_xmf3Up;
 	XMFLOAT3 m_xmf3Look;
+
+	XMFLOAT3 m_xmf3LookDist;
 
 	float m_fPitch;
 	float m_fYaw;
@@ -38,12 +40,14 @@ public:
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
+	XMFLOAT3 GetLookDist() const { return(m_xmf3LookDist); }
 
 	void SetFriction(float fFriction) { m_fFriction = fFriction; }
 	void SetGravity(XMFLOAT3& xmf3Gravity) { m_xmf3Gravity = xmf3Gravity; }
 	void SetMaxVelocityXZ(float fMaxVelocity) { m_fMaxVelocityXZ = fMaxVelocity; }
 	void SetMaxVelocityY(float fMaxVelocity) { m_fMaxVelocityY = fMaxVelocity; }
 	void SetVelocity(XMFLOAT3& xmf3Velocity) { m_xmf3Velocity = xmf3Velocity; }
+	void SetLookDist(XMFLOAT3& xmf3LookDist) { m_xmf3LookDist = xmf3LookDist; }
 
 	void SetPosition(XMFLOAT3& xmf3Position) {
 		Move(XMFLOAT3(xmf3Position.x -
@@ -64,6 +68,7 @@ public:
 	void Move(XMFLOAT3& xmf3Shift, bool bVelocity = false);
 
 	void Rotate(float x, float y, float z);
+	void RotateLookAt(float fTimeElapsed);	// 해당 벡터를 바라보게 회전하는 함수
 
 	void Update(float fTimeElapsed);
 

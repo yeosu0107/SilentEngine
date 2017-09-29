@@ -129,7 +129,7 @@ void CGameFramework::CreateDirect3DDevice() {
 		//특성 레벨 12.0을 지원하는 하드웨어 디바이스를 
 		//생성할 수 없으면 WARP 디바이스를 생성한다.
 		pdxgiFactory->EnumWarpAdapter(_uuidof(IDXGIFactory4), (void **)&pd3dAdapter);
-		D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, _uuidof(ID3D12Device), (void **)&pd3Device);
+		D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), (void **)&pd3Device);
 	}
 	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
 	d3dMsaaQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -442,8 +442,8 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 	BOOL fullScreenState = FALSE;
 	float fMinMouseSensitive = 2.0f;
-	float fMaxMouseSensitive = 10.0f;
-	float fMouseSensitiveOffset = 0.5f;
+	float fMaxMouseSensitive = 20.0f;
+	float fMouseSensitiveOffset = 1.0f;
 
 	switch (nMessageID) {
 	case WM_KEYUP:
