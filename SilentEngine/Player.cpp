@@ -246,12 +246,12 @@ void CPlayer::RotateLookAt(float fTimeElapsed)
 
 	float fAngle = Vector3::Angle(Vector3::Normalize(m_xmf3Look), Vector3::Normalize(xmf3DistVector));
 
-	if (abs(fAngle - 180.0f) <= EPSILON) {
+	if (fAngle - 180.0f <= EPSILON && fAngle - 180.0f >= -EPSILON ) {
 		XMFLOAT3 xmf3CrossLookUp = Vector3::CrossProduct(m_xmf3Look, m_xmf3Up);
-		xmf3PlayerLook = Vector3::Add(m_xmf3Look, Vector3::Lerp(m_xmf3Look, xmf3CrossLookUp, fTimeElapsed * 4.0f));
+		xmf3PlayerLook = Vector3::Add(m_xmf3Look, Vector3::Lerp(m_xmf3Look, xmf3CrossLookUp, fTimeElapsed * 5.0f));
 	}
 	else if (fAngle > 5.0f) {
-		xmf3PlayerLook = Vector3::Add(m_xmf3Look, Vector3::Lerp(m_xmf3Look, xmf3DistVector, fTimeElapsed * 4.0f));
+		xmf3PlayerLook = Vector3::Add(m_xmf3Look, Vector3::Lerp(m_xmf3Look, xmf3DistVector, fTimeElapsed * 5.0f));
 	}
 	else {
 		xmf3PlayerLook = xmf3DistVector;
