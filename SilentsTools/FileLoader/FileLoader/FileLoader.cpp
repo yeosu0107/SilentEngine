@@ -15,10 +15,9 @@
 
 #include "stdafx.h"
 #include "Stage.h"
-#include "InputModel.h"
 
 
-
+#pragma comment(lib, "assimp.lib")
 #pragma comment(lib, "SilentsTools.lib")
 
 
@@ -27,18 +26,15 @@ using namespace STAGE;
 
 int main()
 {
-	InputModel model;
-	model.LoadAsset("Cross.fbx");
-	model.printVertices();
 	//LoadAsset("idle.fbx");
-	/*MapGenerator* map;
+	MapGenerator* map;
 	for (int i = 0; i < 5; ++i) {
 		map = new MapGenerator(i);
 		map->SetMap(7, 5);
 		map->printMap();
 		printf("\n");
 		delete map;
-	}*/
+	}
 
 	return 0;
 }
