@@ -11,13 +11,3 @@
 #include "assimp\scene.h"
 #include <stdio.h>
 #include <tchar.h>
-
-const struct aiScene* scene = nullptr;
-
-// TODO: 프로그램에 필요한 추가 헤더는 여기에서 참조합니다.
-
-extern void LoadAsset(const char* path);
-
-extern void showMesh(const struct aiScene* sc, const struct aiNode* nd);
-
-extern void LoadBorn(const struct aiScene* sc, const struct aiNode* nd);
