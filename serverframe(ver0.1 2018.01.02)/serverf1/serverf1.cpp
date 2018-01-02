@@ -115,7 +115,7 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 			delete ptr;
 			continue;
 		}
-
+		//111
 		if (ptr->recvbytes == 0) {
 			ptr->recvbytes = cbTransferred;
 			ptr->sendbytes = 0;
