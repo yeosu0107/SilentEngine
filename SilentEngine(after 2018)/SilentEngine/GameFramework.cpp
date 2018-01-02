@@ -13,7 +13,7 @@ CGameFramework::CGameFramework()
 	m_fMouseSensitive = 4.5f; // Default 마우스 민감도
 	m_nRtvDescriptorIncrementSize = 0;
 	m_nMaxScene = 3;
-	m_nNowScene = 1;
+	m_nNowScene = 0;
 
 	m_hFenceEvent = NULL;
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
@@ -659,10 +659,11 @@ void CGameFramework::FrameAdvance()
 
 	//D3D12_CPU_DESCRIPTOR_HANDLE pd3dRtvRenderTargetBufferCPUHandles[m_nRenderTargetBuffers] = { NULL, NULL };
 
-	hResult = m_pd3dCommandAllocator->Reset();
-	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator , NULL);
 
 	if (m_nNowScene == GAMESCENE) {
+		hResult = m_pd3dCommandAllocator->Reset();
+		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator , NULL);
+
 		// 렌더 타겟 버퍼를 리소스로 만든다.
 		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dRenderTargetBuffers[0], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
 		::SynchronizeResourceTransition(m_pd3dCommandList, m_ppd3dRenderTargetBuffers[1], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -680,11 +681,12 @@ void CGameFramework::FrameAdvance()
 		m_pd3dCommandList->ClearDepthStencilView(m_d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 #endif
 		m_pPlayer->Render(m_pd3dCommandList , m_pCamera );
+	
+		hResult = m_pd3dCommandList->Close();
+		m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+		WaitForGpuComplete();
 	}
 
-	hResult = m_pd3dCommandList->Close();
-	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
-	WaitForGpuComplete();
 
 	
 
