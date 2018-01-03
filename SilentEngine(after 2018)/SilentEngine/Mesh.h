@@ -198,6 +198,14 @@ public:
 	virtual ~CCubeMeshIlluminatedTextured();
 };
 
+class CBoardMeshIlluminatedTextured : public CMeshIlluminatedTextured
+{
+public:
+	CBoardMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth
+		, float fxPosition, float fyPosition, float fzPosition);
+	virtual ~CBoardMeshIlluminatedTextured();
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 class CUIMeshTextured : public CMeshDiffused

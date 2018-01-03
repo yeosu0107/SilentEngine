@@ -626,7 +626,7 @@ void CGameFramework::FrameAdvance()
 		m_bEndScene = false;
 	}
 	
-	float pfClearColor[4] = { 1.0f, 0.0f, 1.0f, 1.0f };
+	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	switch (m_nNowScene)
 	{

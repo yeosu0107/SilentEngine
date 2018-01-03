@@ -441,6 +441,18 @@ ID3D12RootSignature * GameScene::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
+	//pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	//pd3dDescriptorRanges[2].NumDescriptors = 1;
+	//pd3dDescriptorRanges[2].BaseShaderRegister = 4; // BillBoard
+	//pd3dDescriptorRanges[2].RegisterSpace = 0;
+	//pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
+	//
+	//pd3dDescriptorRanges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	//pd3dDescriptorRanges[3].NumDescriptors = 1;
+	//pd3dDescriptorRanges[3].BaseShaderRegister = 5; // BillBoardTexture
+	//pd3dDescriptorRanges[3].RegisterSpace = 0;
+	//pd3dDescriptorRanges[3].OffsetInDescriptorsFromTableStart = 0;
+
 	D3D12_ROOT_PARAMETER pd3dRootParameters[5];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -467,6 +479,16 @@ ID3D12RootSignature * GameScene::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dRootParameters[4].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[4].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //Texture2DArray
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	//pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	//pd3dRootParameters[5].DescriptorTable.NumDescriptorRanges = 1;
+	//pd3dRootParameters[5].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //BillBoard
+	//pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	//
+	//pd3dRootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	//pd3dRootParameters[6].DescriptorTable.NumDescriptorRanges = 1;
+	//pd3dRootParameters[6].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[3]; //BillBoardTexture
+	//pd3dRootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -508,22 +530,31 @@ void GameScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_ppd3dGraphicsRootSignature = new ID3D12RootSignature*[m_nRootSignature];
 	m_ppd3dGraphicsRootSignature[0] = CreateGraphicsRootSignature(pd3dDevice);
 
-	m_nShaders = 2;
+	m_nShaders = 3;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CObjectsShader *pObjectShader = new CObjectsShader();
 	pObjectShader->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
 	pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 	m_ppShaders[0] = pObjectShader;
+	
+	m_pPlayer = new CMyPlayer(pd3dDevice, pd3dCommandList, GetGraphicsRootSignature(), (void*)NULL, 1);
+
+	CBillboardShader* pBillboard;
+	pBillboard = new CBillboardShader();
+	pBillboard->CreateGraphicsRootSignature(pd3dDevice);
+	pBillboard->CreateShader(pd3dDevice, pBillboard->GetGraphicsRootSignature(), 2);
+	pBillboard->SetCamera(m_pPlayer->GetCamera());
+	pBillboard->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+
+	m_ppShaders[1] = pBillboard;
 
 	CStaticUITexturedShader* pUITexture;
 	pUITexture = new CStaticUITexturedShader();
 	pUITexture->CreateGraphicsRootSignature(pd3dDevice);
 	pUITexture->CreateShader(pd3dDevice, pUITexture->GetGraphicsRootSignature());
 	pUITexture->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
-	m_ppShaders[1] = pUITexture;
-
-	m_pPlayer = new CMyPlayer(pd3dDevice, pd3dCommandList, GetGraphicsRootSignature(), (void*)NULL, 1);
+	m_ppShaders[2] = pUITexture;
 
 	BuildLightsAndMaterials();
 
@@ -623,7 +654,12 @@ bool GameScene::ProcessInput(UCHAR * pKeysBuffer)
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
-	CScene::AnimateObjects(fTimeElapsed);
+	//CScene::AnimateObjects(fTimeElapsed);
+
+	for (int i = 0; i < m_nShaders; i++)
+	{
+		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
+	}
 
 	if (m_pLights)
 	{

@@ -303,3 +303,46 @@ float3 PSDynamicUiTextured(VS_UITEXTURED_OUTPUT input, uint nPrimitiveID : SV_Pr
 	if (cColor.r == 1.0f && cColor.g == 100.0f / 255.0f && cColor.b == 100.0f / 255.0f) discard;
 	return(cColor);
 }
+
+
+////////////////////////////////////////////////////////////
+
+struct VS_BILLBOARD_INPUT
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;		// Á¤Á¡ÀÇ ³ë¸» º¤ÅÍ
+	float2 uv : TEXCOORD;		// UVÁÂÇ¥
+};
+
+struct VS_BILLBOARD_OUTPUT
+{
+	float4 position : POSITION;
+	float3 normal : NORMAL;
+	//	nointerpolation float3 normalW : NORMAL;
+	float2 uv : TEXCOORD;
+};
+
+cbuffer cbBillBoardInfo : register(b4)
+{
+	matrix		gmtxBillBoard : packoffset(c0);
+	uint		gnBillBoardMaterial : packoffset(c4);
+};
+
+Texture2D gBillBoardTextures : register(t5);
+
+VS_BILLBOARD_OUTPUT VSBillBoardDiffused(VS_BILLBOARD_INPUT input)
+{
+	VS_BILLBOARD_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxBillBoard), gmtxView), gmtxProjection);
+	output.normal = input.normal;
+	output.uv = input.uv;
+
+	return(output);
+}
+
+float4 PSBillBoardDiffused(VS_BILLBOARD_OUTPUT input) : SV_TARGET
+{
+	float4 color = gBillBoardTextures.Sample(gSamplerState,input.uv);
+	return(color);
+}

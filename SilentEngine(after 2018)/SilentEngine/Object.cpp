@@ -288,6 +288,18 @@ void CGameObject::SetPosition(XMFLOAT3 xmf3Position)
 	SetPosition(xmf3Position.x, xmf3Position.y, xmf3Position.z);
 }
 
+void CGameObject::SetLookAt(XMFLOAT3& xmf3Target)
+{
+	XMFLOAT3 xmf3Up(0.0f, 1.0f, 0.0f);
+	XMFLOAT3 xmf3Position(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43);
+	XMFLOAT3 xmf3Look = Vector3::Subtract(xmf3Target, xmf3Position, true);
+	XMFLOAT3 xmf3Right = Vector3::CrossProduct(xmf3Up, xmf3Look, true);
+
+	m_xmf4x4World._11 = xmf3Right.x; m_xmf4x4World._12 = xmf3Right.y; m_xmf4x4World._13 = xmf3Right.z;
+	m_xmf4x4World._21 = xmf3Up.x; m_xmf4x4World._12 = xmf3Up.y; m_xmf4x4World._13 = xmf3Up.z;
+	m_xmf4x4World._31 = xmf3Look.x; m_xmf4x4World._12 = xmf3Look.y; m_xmf4x4World._13 = xmf3Look.z;
+}
+
 XMFLOAT3 CGameObject::GetPosition()
 {
 	return(XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43));
@@ -384,3 +396,26 @@ void CRevolvingObject::Animate(float fTimeElapsed)
 	m_xmf4x4World = Matrix4x4::Multiply(m_xmf4x4World, mtxRotate);
 }
 
+///////////////////////////////////////////////////////
+
+CBillboardObject::CBillboardObject(int nMeshes)
+{
+	m_pCamera = NULL;
+}
+
+CBillboardObject::~CBillboardObject()
+{
+}
+
+void CBillboardObject::Animate(float fTimeElapsed)
+{
+	if (m_pCamera) {
+		XMFLOAT3 xmf3CameraPosition = m_pCamera->GetPosition();
+		SetLookAt(xmf3CameraPosition);
+	}
+}
+
+void CBillboardObject::SetCamera(CCamera* pCamera)
+{
+	m_pCamera = pCamera;
+}

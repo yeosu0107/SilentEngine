@@ -1,4 +1,4 @@
-cbuffer CB_MainFade_Info : register(b3)
+cbuffer CB_MainFade_Info : register(b5)
 {
 	uint  gTextureNumber : packoffset(c0.x);
 	float gTimeElapsed : packoffset(c0.y);

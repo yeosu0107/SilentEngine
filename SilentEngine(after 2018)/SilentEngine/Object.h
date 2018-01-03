@@ -172,6 +172,7 @@ public:
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
+	void SetLookAt(XMFLOAT3& xmf3Target);
 
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
@@ -216,3 +217,15 @@ public:
 	virtual void Animate(float fTimeElapsed);
 };
 
+class CBillboardObject : public CGameObject
+{
+public:
+	CBillboardObject(int nMeshes = 1);
+	virtual ~CBillboardObject();
+
+public:
+	virtual void Animate(float fTimeElapsed);
+	void SetCamera(CCamera* pCamera);
+protected:
+	CCamera* m_pCamera;
+};
