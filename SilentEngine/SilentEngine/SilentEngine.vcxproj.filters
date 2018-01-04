@@ -75,35 +75,35 @@
     <ClInclude Include="SilentEngine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Timer.h">
+    <ClInclude Include="Code\FrameWork\GameFramework.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="d3dx12.h">
+    <ClInclude Include="Code\FrameWork\Timer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="GameFramework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Shaders\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Objects\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Objects\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Objects\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Mesh\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSTextureLoader12.h">
+    <ClInclude Include="Code\FrameWork\DDSTextureLoader12.h">
       <Filter>Util\Header</Filter>
     </ClInclude>
-    <ClInclude Include="Scene.h">
+    <ClInclude Include="Code\FrameWork\d3dx12.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Shaders\Shader.h">
+      <Filter>Shaders\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Scene\Scene.h">
       <Filter>Scene\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Object\Camera.h">
+      <Filter>Objects\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Object\Object.h">
+      <Filter>Objects\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Object\Player.h">
+      <Filter>Objects\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Object\Mesh\Mesh.h">
+      <Filter>Mesh\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -113,32 +113,32 @@
     <ClCompile Include="SilentEngine.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="GameFramework.cpp">
+    <ClCompile Include="Code\FrameWork\GameFramework.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Timer.cpp">
+    <ClCompile Include="Code\FrameWork\Timer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Shaders\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Objects\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Objects\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Objects\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Mesh\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="DDSTextureLoader12.cpp">
+    <ClCompile Include="Code\FrameWork\DDSTextureLoader12.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
+    <ClCompile Include="Code\Scene\Scene.cpp">
       <Filter>Scene\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Object\Camera.cpp">
+      <Filter>Objects\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Object\Object.cpp">
+      <Filter>Objects\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Object\Player.cpp">
+      <Filter>Objects\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Object\Mesh\Mesh.cpp">
+      <Filter>Mesh\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Shaders\Shader.cpp">
+      <Filter>Shaders\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -155,13 +155,13 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Light.hlsl">
+    <FxCompile Include="hlsl\Light.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="MainSceneShaders.hlsl">
+    <FxCompile Include="hlsl\MainSceneShaders.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders.hlsl">
+    <FxCompile Include="hlsl\Shaders.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>
