@@ -17,7 +17,7 @@
 #include "Stage.h"
 #include "InputModel.h"
 
-
+#include <time.h>
 
 #pragma comment(lib, "SilentsTools.lib")
 
@@ -27,9 +27,15 @@ using namespace STAGE;
 
 int main()
 {
+	clock_t begin, end;
+	begin = clock();
 	InputModel model;
-	model.LoadAsset("Cross.fbx");
-	model.printVertices();
+	for(int i=0; i<1; ++i)
+		model.LoadAsset("fbxsample/idle.fbx");
+	end = clock();
+
+	cout << "수행시간 : " << (end - begin) / CLOCKS_PER_SEC << endl;
+
 	//LoadAsset("idle.fbx");
 	/*MapGenerator* map;
 	for (int i = 0; i < 5; ++i) {
