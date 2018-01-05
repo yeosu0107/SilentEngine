@@ -310,15 +310,12 @@ float3 PSDynamicUiTextured(VS_UITEXTURED_OUTPUT input, uint nPrimitiveID : SV_Pr
 struct VS_BILLBOARD_INPUT
 {
 	float3 position : POSITION;
-	float3 normal : NORMAL;		// Á¤Á¡ÀÇ ³ë¸» º¤ÅÍ
 	float2 uv : TEXCOORD;		// UVÁÂÇ¥
 };
 
 struct VS_BILLBOARD_OUTPUT
 {
-	float4 position : POSITION;
-	float3 normal : NORMAL;
-	//	nointerpolation float3 normalW : NORMAL;
+	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
 };
 
@@ -335,7 +332,6 @@ VS_BILLBOARD_OUTPUT VSBillBoardDiffused(VS_BILLBOARD_INPUT input)
 	VS_BILLBOARD_OUTPUT output;
 
 	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxBillBoard), gmtxView), gmtxProjection);
-	output.normal = input.normal;
 	output.uv = input.uv;
 
 	return(output);

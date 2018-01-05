@@ -486,15 +486,14 @@ CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3d
 
 	XMFLOAT3 pxmf3Positions[6];
 	int i = 0;
-
 	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, 0.0f);	// 1 , -1
 	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, 0.0f);	// 1 , 1
 	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, 0.0f);	// 0 , 0 
 
-	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, 0.0f);
-	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, 0.0f);
 	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, 0.0f);
-
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, 0.0f);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, 0.0f);
+		
 	XMFLOAT2 pxmf2TexCoords[6];
 	i = 0;
 	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
@@ -504,7 +503,137 @@ CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3d
 	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
 	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
 	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	//if (fWidth == 0.0f) {
+	//	if (fxPosition > 0.0f) {
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, -fz);	// 1 , -1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	//		
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, -fz);	// 1 , 1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
 
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, +fz);	// 0 , 0 
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, -fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	//	}
+
+	//	else {
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);	// 1 , -1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, +fz);	// 1 , 1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, -fz);	// 0 , 0 
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, -fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, -fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	//	}
+	//}
+
+	//else if (fHeight == 0.0f) {
+	//	if (fyPosition > 0.0f) {
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, -fz);	// 1 , -1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);	// 1 , 1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, +fz);	// 0 , 0 
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, -fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, -fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	//	}
+
+	//	else {
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);	// 1 , -1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, -fz);	// 1 , 1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, -fz);	// 0 , 0 
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, -fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	//	}
+	//}
+
+	//else if (fDepth == 0.0f) {
+	//	if (fzPosition > 0.0f) {
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);	// 1 , -1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, +fz);	// 1 , 1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, -fy, +fz);	// 0 , 0 
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, -fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	//	}
+
+	//	else {
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, +fz);	// 1 , -1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, -fy, +fz);	// 1 , 1
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, +fz);	// 0 , 0 
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, -fy, -fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(+fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	//		pxmf3Positions[i] = XMFLOAT3(-fx, +fy, +fz);
+	//		pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	//	}
+	//}
 
 	XMFLOAT3 pxmf3Normals[6];
 	CalculateVertexNormals(pxmf3Normals, pxmf3Positions, m_nVertices, NULL, 0);

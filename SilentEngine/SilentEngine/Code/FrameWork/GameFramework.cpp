@@ -221,7 +221,7 @@ void CGameFramework::CreateRenderTargetViews()
 {
 	CTexture *pTexture = new CTexture(m_nRenderTargetBuffers, RESOURCE_TEXTURE2D_ARRAY, 0);
 
-	D3D12_CLEAR_VALUE d3dClearValue ={ DXGI_FORMAT_R8G8B8A8_UNORM,{ 0.0f, 0.0f, 0.0f, 1.0f } };
+	D3D12_CLEAR_VALUE d3dClearValue ={ DXGI_FORMAT_R8G8B8A8_UNORM,{ 1.0f, 1.0f, 1.0f, 1.0f } };
 	for (UINT i = 0; i < m_nRenderTargetBuffers; i++)
 	{
 		m_ppd3dRenderTargetBuffers[i] =pTexture->CreateTexture(m_pd3dDevice , m_pd3dCommandList , m_nWndClientWidth, m_nWndClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dClearValue, i);
@@ -626,7 +626,7 @@ void CGameFramework::FrameAdvance()
 		m_bEndScene = false;
 	}
 	
-	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	switch (m_nNowScene)
 	{
