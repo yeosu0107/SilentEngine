@@ -67,7 +67,10 @@ struct MeshData {
 	unsigned int StartIndex;
 	unsigned int MaterialIndex;
 
-	
+	vector<vertexData> m_Vertices;
+	vector<int>	 m_pnIndices;
+	vector<VertexBoneData> m_Bones;
+	//vector<BoneInfo> m_BoneInfo;
 	
 
 	MeshData() {
@@ -83,9 +86,9 @@ class InputModel
 private:
 	vector<MeshData> m_Meshes;
 	
-	vector<vertexData> m_Vertices;
-	vector<int>	 m_pnIndices;
-	vector<VertexBoneData> m_Bones;
+	//vector<vertexData> m_Vertices;
+	//vector<int>	 m_pnIndices;
+	//vector<VertexBoneData> m_Bones;
 	vector<BoneInfo> m_BoneInfo;
 	map<string, unsigned int> m_BoneMapping; //ª¿¿Ã∏ß∞˙ ¿Œµ¶Ω∫ ∏≈«Œ
 

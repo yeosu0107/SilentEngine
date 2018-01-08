@@ -41,6 +41,12 @@ bool InputModel::LoadAsset(const string & fileName)
 		cout << p.first <<"\t"<<p.second<< endl;
 	}
 
+	for (auto& p : m_Meshes) {
+		for (auto& t : p.m_Vertices) {
+			printf("%f %f %f\n", t.m_pos.x, t.m_pos.y, t.m_pos.z);
+		}
+	}
+
 	return true;
 }
 
@@ -60,9 +66,9 @@ void InputModel::InitScene(const aiScene * pScene)
 		NumIndices += pScene->mMeshes[i]->mNumFaces * 3;
 		
 	}
-	m_Vertices.reserve(NumVertices);
-	m_pnIndices.reserve(NumIndices);
-	m_Bones.resize(NumVertices);
+	/*m_Vertices.reserve(NumVertices);
+	m_pnIndices.reserve(NumIndices);*/
+	//m_Bones.resize(NumVertices);
 
 	for (int i = 0; i < m_Meshes.size(); ++i) {
 		const aiMesh* pMesh = pScene->mMeshes[i];
@@ -75,6 +81,8 @@ void InputModel::InitMesh(unsigned int index, const aiMesh * pMesh)
 {
 	const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 
+	m_Meshes[index].m_Vertices.reserve(pMesh->mNumVertices);
+	m_Meshes[index].m_pnIndices.reserve(pMesh->mNumFaces * 3);
 
 	for (int i = 0; i < pMesh->mNumVertices; ++i) {
 		const aiVector3D* pPos = &(pMesh->mVertices[i]);
@@ -85,16 +93,16 @@ void InputModel::InitMesh(unsigned int index, const aiMesh * pMesh)
 			XMFLOAT2(pTexCoord->x, pTexCoord->y),
 			XMFLOAT3(pNormal->x, pNormal->y, pNormal->z));
 
-		m_Vertices.push_back(data);
+		m_Meshes[index].m_Vertices.push_back(data);
 	}
 
 	InitBones(index, pMesh);
 
 	for (int i = 0; i < pMesh->mNumFaces; ++i) {
 		const aiFace& face = pMesh->mFaces[i];
-		m_pnIndices.push_back(face.mIndices[0]);
-		m_pnIndices.push_back(face.mIndices[1]);
-		m_pnIndices.push_back(face.mIndices[2]);
+		m_Meshes[index].m_pnIndices.push_back(face.mIndices[0]);
+		m_Meshes[index].m_pnIndices.push_back(face.mIndices[1]);
+		m_Meshes[index].m_pnIndices.push_back(face.mIndices[2]);
 	}
 
 }
@@ -132,6 +140,7 @@ void InputModel::InitMaterial(const aiScene * pScene, const string & fileName)
 
 void InputModel::InitBones(unsigned int meshIndex, const aiMesh * pMesh)
 {
+	m_Meshes[meshIndex].m_Bones.resize(pMesh->mNumVertices);
 	for (int i = 0; i < pMesh->mNumBones; ++i) {
 		int BoneIndex = 0;
 		string BoneName(pMesh->mBones[i]->mName.data);
@@ -148,9 +157,10 @@ void InputModel::InitBones(unsigned int meshIndex, const aiMesh * pMesh)
 		}
 
 		for (unsigned int b = 0; b < pMesh->mBones[i]->mNumWeights; ++b) {
-			unsigned int vertexID=m_Meshes[meshIndex].StartVertex + pMesh->mBones[i]->mWeights[b].mVertexId;
+			//unsigned int vertexID=m_Meshes[meshIndex].StartVertex + pMesh->mBones[i]->mWeights[b].mVertexId;
+			unsigned int vertexID = pMesh->mBones[i]->mWeights[b].mVertexId;
 			float weight = pMesh->mBones[i]->mWeights[b].mWeight;
-			m_Bones[vertexID].AddBoneData(BoneIndex, weight);
+			m_Meshes[meshIndex].m_Bones[vertexID].AddBoneData(BoneIndex, weight);
 		}
 	}
 }
