@@ -269,9 +269,12 @@ void CShader::ReleaseUploadBuffers()
 
 void CShader::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	if (m_pd3dGraphicsRootSignature) pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);	// 루트 시그니쳐를 Set한뒤
+	if (m_pd3dGraphicsRootSignature) 
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);	// 루트 시그니쳐를 Set한뒤
 
-	if (m_ppd3dPipelineStates) pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);						// 파이프 라인을 셋한 뒤
+	if (m_ppd3dPipelineStates) 
+		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);			// 파이프 라인을 셋한 뒤
+
 	pd3dCommandList->SetDescriptorHeaps(1, &m_pd3dCbvSrvDescriptorHeap);										// 서술자를 Set한다.
 
 	UpdateShaderVariables(pd3dCommandList);
@@ -505,7 +508,7 @@ void CObjectsShader::ReleaseShaderVariables()
 
 void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
 {
-	int xObjects = 5, yObjects = 5, zObjects = 5, i = 0;
+	int xObjects = 0, yObjects = 0, zObjects = 0, i = 0;
 
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
 
@@ -1202,7 +1205,7 @@ void CMainTextureShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 3; // 
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
@@ -1235,7 +1238,7 @@ void CMainTextureShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	ID3DBlob *pd3dSignatureBlob = NULL;
 	ID3DBlob *pd3dErrorBlob = NULL;
-	D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
+	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
 	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void **)&m_pd3dGraphicsRootSignature);
 	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
 	if (pd3dErrorBlob) pd3dErrorBlob->Release();
@@ -1364,7 +1367,7 @@ void CBillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
-	pd3dDescriptorRanges[0].BaseShaderRegister = 4; //Game Objects
+	pd3dDescriptorRanges[0].BaseShaderRegister = 6; //Game Objects
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = 0;
 
@@ -1496,6 +1499,7 @@ void CBillboardShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12Gr
 	
 	// Map함수를 통해 적제 포인터를 획득
 	m_pd3dcbGameObjects->Map(0, NULL, (void **)&m_pcbMappedGameObjects);
+
 }
 
 void CBillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
