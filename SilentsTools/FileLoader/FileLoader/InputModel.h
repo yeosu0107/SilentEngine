@@ -6,6 +6,7 @@
 #include "assimp\scene.h"
 
 #include <iostream>
+
 #include <vector>
 #include <map>
 #include <DirectXMath.h>
@@ -79,13 +80,15 @@ struct MeshData {
 		MaterialIndex = 0;
 	}
 
+
+	
 };
 
 class InputModel
 {
 private:
 	vector<MeshData> m_Meshes;
-	
+	const aiScene* m_pScene;
 	//vector<vertexData> m_Vertices;
 	//vector<int>	 m_pnIndices;
 	//vector<VertexBoneData> m_Bones;
@@ -96,7 +99,9 @@ private:
 	int m_NumBones;
 	int m_nowMeshIndex;
 public:
-	InputModel() {}
+	InputModel() {
+		m_pScene = nullptr;
+	}
 	~InputModel() {}
 
 	bool LoadAsset(const string& fileName);
@@ -106,6 +111,16 @@ public:
 
 	void InitBones(unsigned int meshIndex, const aiMesh* pMesh);
 
+	void BoneTransform(float time, vector<XMFLOAT4X4>& transforms);
+	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const XMMATRIX& ParentTransform);
+	const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
 
+	void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+	void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+	void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+	unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+	unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 };
 

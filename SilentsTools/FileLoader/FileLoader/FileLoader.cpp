@@ -27,14 +27,17 @@ using namespace STAGE;
 
 int main()
 {
-	clock_t begin, end;
-	begin = clock();
+	//clock_t begin, end;
+	//begin = clock();
 	InputModel model;
-	for(int i=0; i<1; ++i)
-		model.LoadAsset("fbxsample/idle.fbx");
-	end = clock();
+	//for(int i=0; i<1; ++i)
+	//model.LoadAsset("fbxsample/Idle_Warrior_01_blue.FBX");
+	model.LoadAsset("idle.fbx");
+	//end = clock();
+	vector<XMFLOAT4X4> Transforms;
 
-	cout << "수행시간 : " << (end - begin) / CLOCKS_PER_SEC << endl;
+	model.BoneTransform(0, Transforms);
+	//cout << "수행시간 : " << (end - begin) / CLOCKS_PER_SEC << endl;
 
 	//LoadAsset("idle.fbx");
 	/*MapGenerator* map;
