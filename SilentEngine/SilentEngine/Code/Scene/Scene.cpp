@@ -295,7 +295,7 @@ void MainScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_pFadeEffectShader->CreateShader(pd3dDevice, m_pFadeEffectShader->GetGraphicsRootSignature(), 2);
 	m_pFadeEffectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 	m_pFadeEffectShader->SetColor(XMFLOAT3(0.0f, 0.0f, 0.0f));
-	m_pFadeEffectShader->EffectOn(5.0f, true);
+	m_pFadeEffectShader->EffectOn(7.0f, true);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -314,6 +314,8 @@ void MainScene::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandLis
 
 void MainScene::ReleaseShaderVariables()
 {
+	for (int i = 0; i < m_nShaders; ++i)
+		m_ppShaders[i]->ReleaseShaderVariables();
 }
 
 bool MainScene::ProcessInput(UCHAR * pKeysBuffer)
@@ -454,9 +456,6 @@ ID3D12RootSignature * GameScene::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
-	
-
-
 	D3D12_ROOT_PARAMETER pd3dRootParameters[5];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -483,16 +482,6 @@ ID3D12RootSignature * GameScene::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dRootParameters[4].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[4].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //Texture2DArray
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	//pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//pd3dRootParameters[5].DescriptorTable.NumDescriptorRanges = 1;
-	//pd3dRootParameters[5].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //BillBoard
-	//pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	//
-	//pd3dRootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	//pd3dRootParameters[6].DescriptorTable.NumDescriptorRanges = 1;
-	//pd3dRootParameters[6].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[3]; //BillBoardTexture
-	//pd3dRootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));

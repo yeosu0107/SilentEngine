@@ -45,20 +45,6 @@ FadeEffectShader::~FadeEffectShader()
 {
 }
 
-D3D12_INPUT_LAYOUT_DESC FadeEffectShader::CreateInputLayout()
-{
-	UINT nInputElementDescs = 1;
-	D3D12_INPUT_ELEMENT_DESC *pd3dInputElementDescs = new D3D12_INPUT_ELEMENT_DESC[nInputElementDescs];
-
-	pd3dInputElementDescs[0] = { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-
-	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
-	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
-	d3dInputLayoutDesc.NumElements = nInputElementDescs;
-
-	return(d3dInputLayoutDesc);
-}
-
 D3D12_DEPTH_STENCIL_DESC FadeEffectShader::CreateDepthStencilState()
 {
 	D3D12_DEPTH_STENCIL_DESC d3dDepthStencilDesc;
@@ -108,7 +94,7 @@ D3D12_SHADER_BYTECODE FadeEffectShader::CreatePixelShader(ID3DBlob ** ppd3dShade
 
 D3D12_SHADER_BYTECODE FadeEffectShader::CreateVertexShader(ID3DBlob **ppd3dShaderBlob)
 {
-	return(CShader::CompileShaderFromFile(L"./hlsl/Shaders.hlsl", "VSTextureToFullScreen", "vs_5_1", ppd3dShaderBlob));
+	return(CShader::CompileShaderFromFile(L"./hlsl/Effects.hlsl", "VSFadeeffect", "vs_5_1", ppd3dShaderBlob));
 }
 
 void FadeEffectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
@@ -130,20 +116,12 @@ void FadeEffectShader::CreateShader(ID3D12Device * pd3dDevice, ID3D12RootSignatu
 
 void FadeEffectShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
-
-	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	pd3dDescriptorRanges[0].NumDescriptors = 1;
-	pd3dDescriptorRanges[0].BaseShaderRegister = 7; 
-	pd3dDescriptorRanges[0].RegisterSpace = 0;
-	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = 0;
 
 	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
-
-	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0];
-	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[0].Descriptor.ShaderRegister = 7;
+	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
@@ -168,10 +146,7 @@ void FadeEffectShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12Gr
 {
 	UINT ncbElementBytes = ((sizeof(XMFLOAT4) + 255) & ~255); //256의 배수
 	m_pd3dcbFadeColor = ::CreateBufferResource(pd3dDevice, pd3dCommandList, NULL, ncbElementBytes, D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, NULL);
-
-	m_pd3dcbFadeColor->Map(0, NULL, (void **)&m_xmf4FadeColor);
-	m_xmf4TestFloat4 = (XMFLOAT4*)((UINT8*)m_pd3dcbFadeColor);
-	
+	m_pd3dcbFadeColor->Map(0, NULL, reinterpret_cast<void**>(&m_mappedxmf44FadeColor));
 }
 
 void FadeEffectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
@@ -180,31 +155,63 @@ void FadeEffectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 
 	m_xmf4FadeColor->w = m_fElapsedTime / m_fExistTime;
 
-	XMFLOAT4* pbMappedFadeColor = (XMFLOAT4*)((UINT8*)m_pd3dcbFadeColor);
-	pbMappedFadeColor->x = m_xmf4FadeColor->x; 
-	pbMappedFadeColor->y = m_xmf4FadeColor->y;
-	pbMappedFadeColor->z = m_xmf4FadeColor->z;
-	pbMappedFadeColor->w = m_xmf4FadeColor->w;
+	XMFLOAT4* pbMappedFadeColor = m_mappedxmf44FadeColor;
+	memcpy(pbMappedFadeColor, m_xmf4FadeColor, ncbElementBytes);
 
-	
-	m_xmf4TestFloat4 = (XMFLOAT4*)(&m_pd3dcbFadeColor);
 }
 
 void FadeEffectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pCamera)
 {
 	if (!m_bEffectOn) 
 		return;
+
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 
-	CShader::Render(pd3dCommandList, pCamera);
+	if (m_pd3dGraphicsRootSignature)
+		pd3dCommandList->SetGraphicsRootSignature(m_pd3dGraphicsRootSignature);	// 루트 시그니쳐를 Set한뒤
+
+	if (m_ppd3dPipelineStates)
+		pd3dCommandList->SetPipelineState(m_ppd3dPipelineStates[0]);			// 파이프 라인을 셋한 뒤
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbFadeColorGpuVirtualAddress = m_pd3dcbFadeColor->GetGPUVirtualAddress();
+	pd3dCommandList->SetGraphicsRootConstantBufferView(0, d3dcbFadeColorGpuVirtualAddress); //Materials
+
+	UpdateShaderVariables(pd3dCommandList);
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void FadeEffectShader::ReleaseUploadBuffers()
+{
+}
+
+void FadeEffectShader::ReleaseShaderVariables()
+{
+	if (m_pd3dcbFadeColor)
+	{
+		m_pd3dcbFadeColor->Unmap(0, NULL);
+		m_pd3dcbFadeColor->Release();
+	}
 }
 
 void FadeEffectShader::EffectOn(float fExistTime, bool bFadeIn)
 {
 	m_bFadeIn = bFadeIn;
 	m_fExistTime = fExistTime;
+	m_fElapsedTime = m_bFadeIn ? fExistTime : 0.0f;
 	m_bEffectOn = true;
+}
+
+void FadeEffectShader::Update(float fElapsedTime)
+{
+	if (!m_bEffectOn) return;
+
+	if (m_bFadeIn)
+		m_fElapsedTime -= fElapsedTime;
+	else
+		m_fElapsedTime += fElapsedTime;
+
+	if (m_fElapsedTime > m_fExistTime)
+		m_bEffectOn = false;
 }

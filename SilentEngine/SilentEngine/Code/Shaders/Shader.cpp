@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "Shader.h"
+#include "DxException.h"
 #include "DDSTextureLoader12.h"
 
 CShader::CShader()
@@ -50,7 +51,7 @@ D3D12_SHADER_BYTECODE CShader::CompileShaderFromFile(WCHAR *pszFileName, LPCSTR 
 
 	ID3DBlob *pd3dErrorBlob = NULL;
 	::D3DCompileFromFile(pszFileName, NULL, D3D_COMPILE_STANDARD_FILE_INCLUDE, pszShaderName, pszShaderProfile, nCompileFlags, 0, ppd3dShaderBlob, NULL);
-	//	char *pErrorString = (char *)pd3dErrorBlob->GetBufferPointer();
+	//char *pErrorString = (char *)pd3dErrorBlob->GetBufferPointer();
 
 	D3D12_SHADER_BYTECODE d3dShaderByteCode;
 	d3dShaderByteCode.BytecodeLength = (*ppd3dShaderBlob)->GetBufferSize();
@@ -1200,17 +1201,12 @@ void CMainTextureShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = 0;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
 
-	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[0].Descriptor.ShaderRegister = 3; // 
-	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[1].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0];
-	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0];
+	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1232,13 +1228,23 @@ void CMainTextureShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
 	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
 	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
-	d3dRootSignatureDesc.NumStaticSamplers = 2;
+	d3dRootSignatureDesc.NumStaticSamplers = 1;
 	d3dRootSignatureDesc.pStaticSamplers = &d3dSamplerDesc;
 	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
 
 	ID3DBlob *pd3dSignatureBlob = NULL;
 	ID3DBlob *pd3dErrorBlob = NULL;
-	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
+
+	try
+	{
+		HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &pd3dSignatureBlob, &pd3dErrorBlob);
+		ThrowIfFailed(hr);
+	}
+	catch (DxException& e)
+	{
+		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
+	}
+
 	pd3dDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), __uuidof(ID3D12RootSignature), (void **)&m_pd3dGraphicsRootSignature);
 	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
 	if (pd3dErrorBlob) pd3dErrorBlob->Release();
@@ -1254,16 +1260,15 @@ void CMainTextureShader::CreateShader(ID3D12Device *pd3dDevice, ID3D12RootSignat
 
 void CMainTextureShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
 {
-	float fHPMPSize = 164.0f;
 	m_nMeshes = 1;
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Assets/Image/Miscellaneous/StaticUI.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"../Assets/Image/Miscellaneous/SiN_White.dds", 0);
 
 	UINT ncbElementBytes = ((sizeof(CB_MAINTEXTURED_INFO) + 255) & ~255);
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nMeshes, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nMeshes, m_pd3dcbMainTextures, ncbElementBytes);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, 0, m_pd3dcbMainTextures, ncbElementBytes);
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 0, false);
 
 #ifdef _WITH_BATCH_MATERIAL

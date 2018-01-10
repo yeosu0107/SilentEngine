@@ -111,6 +111,9 @@
     <ClInclude Include="NormalShaders.h">
       <Filter>Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="DxException.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -151,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="NormalShaders.cpp">
       <Filter>Shaders\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DxException.cpp">
+      <Filter>Util\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

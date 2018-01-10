@@ -1,8 +1,3 @@
-cbuffer CB_MainFade_Info : register(b5)
-{
-	uint  gTextureNumber : packoffset(c0.x);
-	float gTimeElapsed : packoffset(c0.y);
-};
 
 struct VS_MAINTEXTURED_INPUT
 {
@@ -14,10 +9,9 @@ struct VS_MAINTEXTURED_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
-
 };
 
-Texture2DArray gMaintxTextures : register(t4);
+Texture2D gMaintxTexture : register(t4);
 SamplerState gMainSamplerState : register(s2);
 
 VS_MAINTEXTURED_OUTPUT VSMainTextured(VS_MAINTEXTURED_INPUT input)
@@ -32,9 +26,7 @@ VS_MAINTEXTURED_OUTPUT VSMainTextured(VS_MAINTEXTURED_INPUT input)
 
 float4 PSMainTextured(VS_MAINTEXTURED_OUTPUT input) : SV_TARGET
 {
-	float3 uvw = float3(input.uv , gTextureNumber);
-	//float4 cColor = gUItxTextures.Sample(gUISamplerState, uvw);
-	float4 cColor = float4(0.0f, 0.0f, 1.0f, 1.0f);
+	float4 cColor = gMaintxTexture.Sample(gMainSamplerState, input.uv);
 	cColor = cColor * 1.0f;
 
 	return(cColor);

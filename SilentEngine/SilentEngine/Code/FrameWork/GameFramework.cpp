@@ -13,7 +13,7 @@ CGameFramework::CGameFramework()
 	m_fMouseSensitive = 4.5f; // Default 마우스 민감도
 	m_nRtvDescriptorIncrementSize = 0;
 	m_nMaxScene = 3;
-	m_nNowScene = 1;
+	m_nNowScene = 0;
 
 	m_hFenceEvent = NULL;
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
@@ -496,9 +496,9 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator , NULL);
 	m_ppScene = new CScene*[m_nMaxScene];
 
-	//MainScene* pMainScene = new MainScene();
-	//pMainScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-	m_ppScene[0] = NULL;
+	MainScene* pMainScene = new MainScene();
+	pMainScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
+	m_ppScene[0] = pMainScene;
 
 	GameScene* pGameScene = new GameScene();
 	pGameScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);

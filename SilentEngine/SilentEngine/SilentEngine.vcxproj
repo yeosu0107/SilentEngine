@@ -157,6 +157,7 @@
     <ClInclude Include="Code\Object\Player.h" />
     <ClInclude Include="Code\Scene\Scene.h" />
     <ClInclude Include="Code\Shaders\Shader.h" />
+    <ClInclude Include="DxException.h" />
     <ClInclude Include="EffectShaders.h" />
     <ClInclude Include="NormalShaders.h" />
     <ClInclude Include="resource.h" />
@@ -174,6 +175,7 @@
     <ClCompile Include="Code\Object\Player.cpp" />
     <ClCompile Include="Code\Scene\Scene.cpp" />
     <ClCompile Include="Code\Shaders\Shader.cpp" />
+    <ClCompile Include="DxException.cpp" />
     <ClCompile Include="EffectShaders.cpp" />
     <ClCompile Include="NormalShaders.cpp" />
     <ClCompile Include="SilentEngine.cpp" />
