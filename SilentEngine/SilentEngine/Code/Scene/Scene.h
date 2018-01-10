@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Shader.h"
+#include "EffectShaders.h"
 #include "Player.h"
 
 struct LIGHT
@@ -79,6 +79,7 @@ protected:
 	int							m_nShaders = 0;
 
 	ID3D12Resource				*m_pd3dcbMaterials = NULL;
+	FadeEffectShader*			m_pFadeEffectShader;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

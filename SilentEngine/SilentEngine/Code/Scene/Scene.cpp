@@ -285,9 +285,17 @@ void MainScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CMainTextureShader *pMainTextureShader = new CMainTextureShader();
-	pMainTextureShader->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
+	pMainTextureShader->CreateGraphicsRootSignature(pd3dDevice);
+	pMainTextureShader->CreateShader(pd3dDevice, pMainTextureShader->GetGraphicsRootSignature(), 2);
 	pMainTextureShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 	m_ppShaders[0] = pMainTextureShader;
+
+	m_pFadeEffectShader = new FadeEffectShader();
+	m_pFadeEffectShader->CreateGraphicsRootSignature(pd3dDevice);
+	m_pFadeEffectShader->CreateShader(pd3dDevice, m_pFadeEffectShader->GetGraphicsRootSignature(), 2);
+	m_pFadeEffectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	m_pFadeEffectShader->SetColor(XMFLOAT3(0.0f, 0.0f, 0.0f));
+	m_pFadeEffectShader->EffectOn(5.0f, true);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 }
@@ -315,6 +323,7 @@ bool MainScene::ProcessInput(UCHAR * pKeysBuffer)
 
 void MainScene::AnimateObjects(float fTimeElapsed)
 {
+	m_pFadeEffectShader->Update(fTimeElapsed);
 }
 
 void MainScene::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pCamera)
@@ -323,7 +332,6 @@ void MainScene::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pC
 	pd3dCommandList->SetGraphicsRootSignature(m_ppd3dGraphicsRootSignature[0]);
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-	pCamera->UpdateShaderVariables(pd3dCommandList);
 
 	UpdateShaderVariables(pd3dCommandList);
 
@@ -333,11 +341,16 @@ void MainScene::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pC
 	}
 
 	m_ppShaders[i]->Render(pd3dCommandList, pCamera); // UI
+
+	m_pFadeEffectShader->Render(pd3dCommandList, pCamera);
 }
 
 void MainScene::ReleaseUploadBuffers()
 {
-	//for (int i = 0; i < m_nShaders; i++) m_ppShaders[i]->ReleaseUploadBuffers();
+	for (int i = 0; i < m_nShaders; i++) 
+		m_ppShaders[i]->ReleaseUploadBuffers();
+
+	m_pFadeEffectShader->ReleaseUploadBuffers();
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -403,14 +416,14 @@ void GameScene::BuildLightsAndMaterials()
 	m_pMaterials = new MATERIALS;
 	::ZeroMemory(m_pMaterials, sizeof(MATERIALS));
 
-	m_pMaterials->m_pReflections[0] = { XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[1] = { XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[2] = { XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[3] = { XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[4] = { XMFLOAT4(0.0f, 0.5f, 1.0f, 1.0f), XMFLOAT4(0.5f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 25.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[5] = { XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 30.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[6] = { XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f), XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
-	m_pMaterials->m_pReflections[7] = { XMFLOAT4(1.0f, 0.5f, 1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[0] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[1] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[2] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[3] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[4] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 25.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[5] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 30.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[6] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[7] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 }
 
 bool GameScene::OnProcessingMouseMessage(HWND hWnd, UINT nMessageID, WPARAM wParam, LPARAM lParam)
@@ -441,17 +454,8 @@ ID3D12RootSignature * GameScene::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
-	//pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	//pd3dDescriptorRanges[2].NumDescriptors = 1;
-	//pd3dDescriptorRanges[2].BaseShaderRegister = 4; // BillBoard
-	//pd3dDescriptorRanges[2].RegisterSpace = 0;
-	//pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
-	//
-	//pd3dDescriptorRanges[3].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//pd3dDescriptorRanges[3].NumDescriptors = 1;
-	//pd3dDescriptorRanges[3].BaseShaderRegister = 5; // BillBoardTexture
-	//pd3dDescriptorRanges[3].RegisterSpace = 0;
-	//pd3dDescriptorRanges[3].OffsetInDescriptorsFromTableStart = 0;
+	
+
 
 	D3D12_ROOT_PARAMETER pd3dRootParameters[5];
 

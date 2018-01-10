@@ -1,22 +1,4 @@
-cbuffer cbPlayerInfo : register(b0)
-{
-	matrix		gmtxPlayerWorld : packoffset(c0);
-};
-
-cbuffer cbCameraInfo : register(b1)
-{
-	matrix		gmtxView : packoffset(c0);
-	matrix		gmtxProjection : packoffset(c4);
-	float3		gvCameraPosition : packoffset(c8);
-};
-
-cbuffer cbGameObjectInfo : register(b2)
-{
-	matrix		gmtxGameObject : packoffset(c0);
-	uint		gnMaterial : packoffset(c4);
-};
-
-
+#include "Common.hlsl"
 #include "Light.hlsl"
 
 struct VS_DIFFUSED_INPUT
@@ -266,11 +248,6 @@ struct VS_UITEXTURED_OUTPUT
 	float texturenumber : TEXTURENUM;
 };
 
-cbuffer cbStaticUIInfo : register(b3)
-{
-	float	texturenumber : packoffset(c0.x);
-	float	texturescale  : packoffset(c0.y);
-}
 
 Texture2DArray gUItxTextures : register(t3);
 SamplerState gUISamplerState : register(s1);
@@ -295,15 +272,6 @@ float4 PSUiTextured(VS_UITEXTURED_OUTPUT input, uint nPrimitiveID : SV_Primitive
 	return(cColor);
 }
 
-float3 PSDynamicUiTextured(VS_UITEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
-{
-	float3 uvw = float3(input.uv , texturenumber);
-	float4 cColor = gUItxTextures.Sample(gUISamplerState, uvw);
-
-	if (cColor.r == 1.0f && cColor.g == 100.0f / 255.0f && cColor.b == 100.0f / 255.0f) discard;
-	return(cColor);
-}
-
 
 ////////////////////////////////////////////////////////////
 
@@ -317,12 +285,6 @@ struct VS_BILLBOARD_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
-};
-
-cbuffer cbBillBoardInfo : register(b4)
-{
-	matrix		gmtxBillBoard : packoffset(c0);
-	uint		gnBillBoardMaterial : packoffset(c4);
 };
 
 Texture2D gBillBoardTextures : register(t5);

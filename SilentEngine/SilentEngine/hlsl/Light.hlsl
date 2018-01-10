@@ -18,6 +18,11 @@ struct MATERIAL
 	float4				m_cEmissive;
 };
 
+struct MATERIALDATA
+{
+
+};
+
 struct LIGHT
 {
 	float4				m_cAmbient;
