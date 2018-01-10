@@ -16,6 +16,10 @@ cbuffer cbGameObjectInfo : register(b2)
 	uint		gnMaterial : packoffset(c4);
 };
 
+cbuffer cbSkinned : register(b5)
+{
+	float4x4 gBoneTransforms[96];
+}
 
 #include "Light.hlsl"
 
@@ -108,6 +112,8 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 #define _WITH_VERTEX_LIGHTING
+
+
 
 struct VS_TEXTURED_LIGHTING_INPUT
 {
@@ -252,93 +258,3 @@ float4 PSTextureToFullScreenByLaplacianEdge(float4 position : SV_POSITION) : SV_
 
 //////////////////////////////////////////////
 
-struct VS_UITEXTURED_INPUT
-{
-	float3 position : POSITION;			// Á¤Á¡ ÁÂÇ¥
-	float2 uv : TEXCOORD;				// ÅØ½ºÃÄ ÁÂÇ¥
-	float  texturenumber : TEXTURENUM;	// ÅØ½ºÃÄ ¹øÈ£
-};
-
-struct VS_UITEXTURED_OUTPUT
-{
-	float4 position : SV_POSITION;
-	float2 uv : TEXCOORD;
-	float texturenumber : TEXTURENUM;
-};
-
-cbuffer cbStaticUIInfo : register(b3)
-{
-	float	texturenumber : packoffset(c0.x);
-	float	texturescale  : packoffset(c0.y);
-}
-
-Texture2DArray gUItxTextures : register(t3);
-SamplerState gUISamplerState : register(s1);
-
-VS_UITEXTURED_OUTPUT VSUiTextured(VS_UITEXTURED_INPUT input)
-{
-	VS_UITEXTURED_OUTPUT output;
-
-	output.position = float4(input.position, 1.0f);
-	output.uv = input.uv;
-	output.texturenumber = input.texturenumber;
-
-	return(output);
-};
-
-float4 PSUiTextured(VS_UITEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
-{
-	float3 uvw = float3(input.uv , input.texturenumber);
-	float4 cColor = gUItxTextures.Sample(gUISamplerState, uvw);
-
-	if (cColor.r == 1.0f && cColor.g == 100.0f/255.0f && cColor.b == 100.0f / 255.0f) discard;
-	return(cColor);
-}
-
-float3 PSDynamicUiTextured(VS_UITEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
-{
-	float3 uvw = float3(input.uv , texturenumber);
-	float4 cColor = gUItxTextures.Sample(gUISamplerState, uvw);
-
-	if (cColor.r == 1.0f && cColor.g == 100.0f / 255.0f && cColor.b == 100.0f / 255.0f) discard;
-	return(cColor);
-}
-
-
-////////////////////////////////////////////////////////////
-
-struct VS_BILLBOARD_INPUT
-{
-	float3 position : POSITION;
-	float2 uv : TEXCOORD;		// UVÁÂÇ¥
-};
-
-struct VS_BILLBOARD_OUTPUT
-{
-	float4 position : SV_POSITION;
-	float2 uv : TEXCOORD;
-};
-
-cbuffer cbBillBoardInfo : register(b4)
-{
-	matrix		gmtxBillBoard : packoffset(c0);
-	uint		gnBillBoardMaterial : packoffset(c4);
-};
-
-Texture2D gBillBoardTextures : register(t5);
-
-VS_BILLBOARD_OUTPUT VSBillBoardDiffused(VS_BILLBOARD_INPUT input)
-{
-	VS_BILLBOARD_OUTPUT output;
-
-	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxBillBoard), gmtxView), gmtxProjection);
-	output.uv = input.uv;
-
-	return(output);
-}
-
-float4 PSBillBoardDiffused(VS_BILLBOARD_OUTPUT input) : SV_TARGET
-{
-	float4 color = gBillBoardTextures.Sample(gSamplerState,input.uv);
-	return(color);
-}

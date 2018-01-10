@@ -601,7 +601,6 @@ void GameScene::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 
 void GameScene::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pCamera)
 {
-	int i = 0;
 	pd3dCommandList->SetGraphicsRootSignature(m_ppd3dGraphicsRootSignature[0]);
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
@@ -615,7 +614,7 @@ void GameScene::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pC
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_MATERIAL, d3dcbMaterialsGpuVirtualAddress); //Materials
 
-	for (i = 0; i < m_nShaders; i++)
+	for (int i = 0; i < m_nShaders; i++)
 	{
 		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
 	}

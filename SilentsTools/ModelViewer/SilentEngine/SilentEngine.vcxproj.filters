@@ -167,9 +167,6 @@
     <FxCompile Include="hlsl\Light.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="hlsl\MainSceneShaders.hlsl">
-      <Filter>Shaders\hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="hlsl\Shaders.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>

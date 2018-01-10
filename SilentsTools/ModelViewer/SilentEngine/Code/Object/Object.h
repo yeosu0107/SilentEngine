@@ -28,12 +28,6 @@ struct CB_GAMEOBJECT_INFO
 	UINT							m_nMaterial;
 };
 
-// CB_DYNAMICUI_INFO는 좀 더 생각이 필요한 부분
-struct CB_DYNAMICUI_INFO
-{
-	float							m_nTexturedNum;
-	float							m_fTextureScale;
-};
 
 struct CB_MAINTEXTURED_INFO
 {

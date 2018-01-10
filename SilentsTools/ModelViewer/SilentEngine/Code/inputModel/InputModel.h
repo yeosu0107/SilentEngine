@@ -85,17 +85,15 @@ struct MeshData {
 class InputModel
 {
 private:
+	const aiScene* m_pScene;
+	
 	vector<MeshData> m_Meshes;
 	
-	//vector<vertexData> m_Vertices;
-	//vector<int>	 m_pnIndices;
-	//vector<VertexBoneData> m_Bones;
 	vector<BoneInfo> m_BoneInfo;
 	map<string, unsigned int> m_BoneMapping; //ª¿¿Ã∏ß∞˙ ¿Œµ¶Ω∫ ∏≈«Œ
 
 	int m_NumVertices;
 	int m_NumBones;
-	int m_nowMeshIndex;
 public:
 	InputModel() {}
 	~InputModel() {}
@@ -106,6 +104,18 @@ public:
 	void InitMaterial(const aiScene* pScene, const string& fileName);
 
 	void InitBones(unsigned int meshIndex, const aiMesh* pMesh);
+
+	void BoneTransform(float time, vector<XMFLOAT4X4>& transforms);
+	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const XMMATRIX& ParentTransform);
+	const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
+
+	void CalcInterpolatedScaling(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+	void CalcInterpolatedRotation(aiQuaternion& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+	void CalcInterpolatedPosition(aiVector3D& Out, float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+	unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
+	unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
+	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 
 	vector<MeshData>& getMeshes() { return m_Meshes; }
 };
