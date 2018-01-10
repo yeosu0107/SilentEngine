@@ -28,32 +28,45 @@ int main()
 		err_quit("connect");
 	}
 
-	char buf[BUFSIZE + 1];
+	//char buf[BUFSIZE + 1];
+
+	float buf[150];
+
+	for (int i = 0; i < 150; ++i) {
+		buf[i] = rand() % 1000;
+	}
+
 	int len;
 
 	while (1) {
 
-		printf("\n[보낼 데이터] ");
-		if (fgets(buf, BUFSIZE + 1, stdin) == NULL) {
-			break;
-		}
+		printf("\n[보낼 데이터] : (%f, %f, %f, ...)",buf[0],buf[1],buf[2]);
 
-		len = strlen(buf);
-		if (buf[len - 1] == '\n') {
-			buf[len - 1] = '\0';
-		}
-		if (strlen(buf) == 0) {
-			break;
-		}
 
-		retval = send(sock, buf, strlen(buf), 0);
+
+		//if (fgets(buf, BUFSIZE + 1, stdin) == NULL) {
+		//	break;
+		//}
+
+		//len = strlen(buf);
+		//if (buf[len - 1] == '\n') {
+		//	buf[len - 1] = '\0';
+		//}
+		//if (strlen(buf) == 0) {
+		//	break;
+		//}
+
+		//retval = send(sock, buf, strlen(buf), 0);
+
+		retval = send(sock, (char*)buf, sizeof(tPacket1), 0);
+
 		if (retval == SOCKET_ERROR) {
 			err_display("send()");
 			break;
 		}
 		printf("[TCP 클라이언트] %d바이트를 보냈습니다.\n", retval);
 
-		retval = recvn(sock, buf, retval, 0);
+		retval = recvn(sock, (char*)buf, retval, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
 			break;
