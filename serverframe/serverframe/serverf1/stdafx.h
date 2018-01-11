@@ -12,11 +12,15 @@
 #include <tchar.h>
 #include <WinSock2.h>
 #include <stdlib.h>
-//#include <arpa/inet.h>
 #include <WS2tcpip.h>
 
 #define SERVERPORT 9000
 #define BUFSIZE 512
+
+DWORD WINAPI WorkerThread(LPVOID arg);
+
+void err_quit(char *msg);
+void err_display(char *msg);
 
 struct SOCKETINFO {
 	OVERLAPPED overlapped;
@@ -27,9 +31,13 @@ struct SOCKETINFO {
 	WSABUF wsabuf;
 };
 
-DWORD WINAPI WorkerThread(LPVOID arg);
+struct Pos {
+	int x;
+	int y;
+};
 
-void err_quit(char *msg);
-void err_display(char *msg);
-
-
+struct Player {
+	Pos p;
+	int hp;
+	int id;
+};
