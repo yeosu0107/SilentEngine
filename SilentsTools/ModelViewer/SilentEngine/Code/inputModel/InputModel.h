@@ -15,6 +15,8 @@
 
 using namespace std;
 
+
+
 inline XMFLOAT4X4 convertAIMatrixToXMFloat(aiMatrix4x4 m) {
 	XMMATRIX source = XMLoadFloat4x4(&XMFLOAT4X4(&m.a1));
 	XMFLOAT4X4 dst;
@@ -24,8 +26,10 @@ inline XMFLOAT4X4 convertAIMatrixToXMFloat(aiMatrix4x4 m) {
 
 struct vertexData {
 	XMFLOAT3 m_pos;
-	XMFLOAT2 m_tex;
 	XMFLOAT3 m_normal;
+	XMFLOAT2 m_tex;
+	int m_boneIndex;
+	float m_weight;
 
 	vertexData() { }
 
@@ -33,6 +37,10 @@ struct vertexData {
 		m_pos = pos;
 		m_tex = tex;
 		m_normal = normal;
+	}
+	void AddBoneData(unsigned int BoneID, float weight) {
+		m_boneIndex = BoneID;
+		m_weight = weight;
 	}
 };
 
@@ -46,19 +54,19 @@ struct BoneInfo {
 	}
 };
 
-struct VertexBoneData {
-#define NUM_BONES_PER_VEREX 4
-	
-	unsigned int IDs[NUM_BONES_PER_VEREX];
-	float Weights[NUM_BONES_PER_VEREX];
-
-	VertexBoneData() {
-		memset(IDs, 0, sizeof(unsigned int) * NUM_BONES_PER_VEREX);
-		memset(Weights, 0.0, sizeof(float) * NUM_BONES_PER_VEREX);
-	}
-
-	void AddBoneData(unsigned int BoneID, float weight);
-};
+//struct VertexBoneData {
+//#define NUM_BONES_PER_VEREX 4
+//	
+//	unsigned int IDs;
+//	float Weights;
+//
+//	VertexBoneData() {
+//		//memset(IDs, 0, sizeof(unsigned int) * NUM_BONES_PER_VEREX);
+//		//memset(Weights, 0.0, sizeof(float) * NUM_BONES_PER_VEREX);
+//	}
+//
+//	void AddBoneData(unsigned int BoneID, float weight);
+//};
 
 struct MeshData {
 	unsigned int StartVertex;
@@ -67,7 +75,7 @@ struct MeshData {
 
 	vector<vertexData> m_Vertices;
 	vector<int>	 m_pnIndices;
-	vector<VertexBoneData> m_Bones;
+	//vector<VertexBoneData> m_Bones;
 	//vector<BoneInfo> m_BoneInfo;
 	
 
@@ -124,7 +132,7 @@ class ModelMesh : public CMesh
 {
 public:
 	ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, 
-		int indexsize, int vertexsize, int* index, vertexData* vertex);
+		MeshData* meshData);
 	virtual ~ModelMesh() {}
 };
 
@@ -134,18 +142,21 @@ private:
 	string m_fileName;
 	vector<ModelMesh*> m_ModelMeshes;
 	int m_NumOfMeshes;
+	InputModel model;
 public:
 	CModelData(string fileName, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~CModelData();
 
 	ModelMesh** Meshes() { return m_ModelMeshes.data(); }
 	int& NumOfMeshes() { return m_NumOfMeshes; }
+	void Animate(float time, vector<XMFLOAT4X4> bone);
 };
 
 class CModelObject : public CGameObject
 {
 private:
 	float m_fRotationSpeed;
+	CModelData* model;
 public:
 	CModelObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~CModelObject();

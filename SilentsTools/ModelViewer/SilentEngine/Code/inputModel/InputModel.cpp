@@ -3,16 +3,18 @@
 #include "InputModel.h"
 
 
-void VertexBoneData::AddBoneData(unsigned int BoneID, float weight)
-{
-	for (unsigned int i = 0; i < NUM_BONES_PER_VEREX; ++i) {
-		if (Weights[i] == 0.0) {
-			IDs[i] = BoneID;
-			Weights[i] = weight;
-			return;
-		}
-	}
-}
+//void VertexBoneData::AddBoneData(unsigned int BoneID, float weight)
+//{
+//	IDs = BoneID;
+//	Weights = weight;
+//	/*for (unsigned int i = 0; i < NUM_BONES_PER_VEREX; ++i) {
+//		if (Weights[i] == 0.0) {
+//			IDs[i] = BoneID;
+//			Weights[i] = weight;
+//			return;
+//		}
+//	}*/
+//}
 
 
 
@@ -59,9 +61,6 @@ void InputModel::InitScene(const aiScene * pScene)
 		NumIndices += pScene->mMeshes[i]->mNumFaces * 3;
 		
 	}
-	/*m_Vertices.reserve(NumVertices);
-	m_pnIndices.reserve(NumIndices);*/
-	//m_Bones.resize(NumVertices);
 
 	for (int i = 0; i < m_Meshes.size(); ++i) {
 		const aiMesh* pMesh = pScene->mMeshes[i];
@@ -133,7 +132,8 @@ void InputModel::InitMaterial(const aiScene * pScene, const string & fileName)
 
 void InputModel::InitBones(unsigned int meshIndex, const aiMesh * pMesh)
 {
-	m_Meshes[meshIndex].m_Bones.resize(pMesh->mNumVertices);
+	//m_Meshes[meshIndex].m_Bones.resize(pMesh->mNumVertices);
+
 	for (UINT i = 0; i < pMesh->mNumBones; ++i) {
 		int BoneIndex = 0;
 		string BoneName(pMesh->mBones[i]->mName.data);
@@ -153,7 +153,7 @@ void InputModel::InitBones(unsigned int meshIndex, const aiMesh * pMesh)
 			//unsigned int vertexID=m_Meshes[meshIndex].StartVertex + pMesh->mBones[i]->mWeights[b].mVertexId;
 			unsigned int vertexID = pMesh->mBones[i]->mWeights[b].mVertexId;
 			float weight = pMesh->mBones[i]->mWeights[b].mWeight;
-			m_Meshes[meshIndex].m_Bones[vertexID].AddBoneData(BoneIndex, weight);
+			m_Meshes[meshIndex].m_Vertices[vertexID].AddBoneData(BoneIndex, weight);
 		}
 	}
 }
@@ -362,25 +362,20 @@ unsigned int InputModel::FindPosition(float AnimationTime, const aiNodeAnim * pN
 }
 
 ModelMesh::ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
-	int indexsize, int vertexsize, int* index, vertexData* vertex)
+	MeshData* meshData)
 	: CMesh(pd3dDevice, pd3dCommandList)
 { 
-	m_nVertices = vertexsize;
-	m_nIndices = indexsize;
+	m_nVertices = meshData->m_Vertices.size();
+	m_nIndices = meshData->m_pnIndices.size();
 
-	m_nStride = sizeof(CIlluminatedTexturedVertex);
+	m_nStride = sizeof(vertexData);
 	m_nOffset = 0;
 	m_nSlot = 0;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 
-	CIlluminatedTexturedVertex* pVertices = new CIlluminatedTexturedVertex[m_nVertices];
-
-	for (UINT i = 0; i < m_nVertices; ++i) {
-		pVertices[i] = CIlluminatedTexturedVertex(vertex[i].m_pos, vertex[i].m_normal, vertex[i].m_tex);
-	}
 	//버텍스 버퍼
-	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, 
+	m_pd3dVertexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, meshData->m_Vertices.data(), m_nStride * m_nVertices,
 		D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER, &m_pd3dVertexUploadBuffer);
 
 	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
@@ -388,7 +383,7 @@ ModelMesh::ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCo
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 
 	//인덱스 버퍼
-	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, index, sizeof(int)*m_nIndices, D3D12_HEAP_TYPE_DEFAULT,
+	m_pd3dIndexBuffer = ::CreateBufferResource(pd3dDevice, pd3dCommandList, meshData->m_pnIndices.data(), sizeof(int)*m_nIndices, D3D12_HEAP_TYPE_DEFAULT,
 		D3D12_RESOURCE_STATE_INDEX_BUFFER, &m_pd3dIndexUploadBuffer);
 
 	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
@@ -400,7 +395,6 @@ ModelMesh::ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCo
 CModelData::CModelData(string fileName, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	m_fileName = fileName;
-	InputModel model;
 	model.LoadAsset(m_fileName);
 
 	vector<MeshData> meshes = model.getMeshes();
@@ -409,9 +403,7 @@ CModelData::CModelData(string fileName, ID3D12Device *pd3dDevice, ID3D12Graphics
 	m_ModelMeshes.reserve(m_NumOfMeshes);
 
 	for (int i = 0; i < m_NumOfMeshes; ++i) {
-		ModelMesh* modelmesh=new ModelMesh(pd3dDevice, pd3dCommandList,
-			(int)meshes[i].m_pnIndices.size(), (int)meshes[i].m_Vertices.size(),
-			meshes[i].m_pnIndices.data(), meshes[i].m_Vertices.data());
+		ModelMesh* modelmesh=new ModelMesh(pd3dDevice, pd3dCommandList, &meshes[i]);
 
 		m_ModelMeshes.push_back(modelmesh);
 	}
@@ -421,9 +413,14 @@ CModelData::~CModelData()
 {
 }
 
+void CModelData::Animate(float time, vector<XMFLOAT4X4> bone)
+{
+	model.BoneTransform(time, bone);
+}
+
 CModelObject::CModelObject(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : CGameObject()
 {
-	CModelData* model = new CModelData("idle.FBX", pd3dDevice, pd3dCommandList);
+	model = new CModelData("idle.FBX", pd3dDevice, pd3dCommandList);
 	m_nMeshes = model->NumOfMeshes();
 
 	m_ppMeshes = NULL;
