@@ -7,6 +7,7 @@
 int main()
 {
 	int retval;
+	int count = 0;
 
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
@@ -40,7 +41,7 @@ int main()
 
 	while (1) {
 
-		printf("\n[보낼 데이터] : (%f, %f, %f, ...)",buf[0],buf[1],buf[2]);
+		printf("\n[보낼 데이터] : %f",buf[0]);
 
 
 
@@ -57,15 +58,16 @@ int main()
 		//}
 
 		//retval = send(sock, buf, strlen(buf), 0);
+		if (count == 1000) {
+			retval = send(sock, (char*)buf, sizeof(tPacket1), 0);
 
-		retval = send(sock, (char*)buf, sizeof(tPacket1), 0);
-
-		if (retval == SOCKET_ERROR) {
-			err_display("send()");
-			break;
+			if (retval == SOCKET_ERROR) {
+				err_display("send()");
+				break;
+			}
+			printf("[TCP 클라이언트] %d바이트를 보냈습니다.\n", retval);
+			count = 0;
 		}
-		printf("[TCP 클라이언트] %d바이트를 보냈습니다.\n", retval);
-
 		retval = recvn(sock, (char*)buf, retval, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
@@ -74,7 +76,9 @@ int main()
 
 		buf[retval] = '\0';
 		printf("[TCP 클라이언트] %d바이트를 받았습니다.\n", retval);
-		printf("[받은 데이터] %s\n", buf);
+		printf("[받은 데이터] %f\n", buf[0]);
+
+		count++;
 	}
 
 	closesocket(sock);
