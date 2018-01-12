@@ -1,153 +1,132 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{95508ee5-dac1-42e1-9157-b0d402e04731}</UniqueIdentifier>
+    <Filter Include="winMain">
+      <UniqueIdentifier>{5720cc4f-7e45-4590-8f01-cf7e53f1fc8b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Objects">
-      <UniqueIdentifier>{5bd86630-0190-420a-802c-48de9dd1b2d8}</UniqueIdentifier>
+    <Filter Include="winMain\소스">
+      <UniqueIdentifier>{db17fd6b-3db7-48eb-8362-ffdfbb0bde69}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\Header">
-      <UniqueIdentifier>{e717977c-0408-4823-b47c-e32f8ed32171}</UniqueIdentifier>
+    <Filter Include="winMain\헤더">
+      <UniqueIdentifier>{045b430a-2f73-4eab-8c18-1077a822a43a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\Source">
-      <UniqueIdentifier>{5dcd8086-46a8-4dab-8c44-94144a68e0dd}</UniqueIdentifier>
+    <Filter Include="GameFrameWork">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Objects\Header">
-      <UniqueIdentifier>{68ded3a0-22a1-4cfa-9321-85b9c4676622}</UniqueIdentifier>
+    <Filter Include="Object">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Objects\Source">
-      <UniqueIdentifier>{e73e55e3-08e7-4fd0-9e32-c4c40cbfe3ac}</UniqueIdentifier>
+    <Filter Include="GameFrameWork\FrameWork">
+      <UniqueIdentifier>{c2e29f02-3cda-4ad7-81d2-ace4b7b78cf8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders\hlsl">
-      <UniqueIdentifier>{2f33546d-34eb-4f1e-b40c-6a43b37ef6bf}</UniqueIdentifier>
+    <Filter Include="GameFrameWork\Timer">
+      <UniqueIdentifier>{b15840d8-3989-4ccf-b37d-fe0beca9be8c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mesh">
-      <UniqueIdentifier>{bce42952-2bbe-4141-9b25-071114b37e3b}</UniqueIdentifier>
+    <Filter Include="GameFrameWork\Scene">
+      <UniqueIdentifier>{61e08474-f18d-4a2a-9b85-05d1af6e01bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mesh\Source">
-      <UniqueIdentifier>{be342765-96fc-4443-837b-7e1c87d759de}</UniqueIdentifier>
+    <Filter Include="GameFrameWork\Camera">
+      <UniqueIdentifier>{84de8cae-f156-4eaf-8a71-b4b81bb681ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Mesh\Header">
-      <UniqueIdentifier>{ea5f531c-d5ed-4efa-8b51-70de004bf8e6}</UniqueIdentifier>
+    <Filter Include="Object\Mesh">
+      <UniqueIdentifier>{41ec23bf-708d-4348-92e6-44f11dcc3282}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util">
-      <UniqueIdentifier>{fef786fb-7d31-4a69-aad1-5b0c0e817557}</UniqueIdentifier>
+    <Filter Include="Object\GameObject">
+      <UniqueIdentifier>{faa9b46b-7571-43b1-918e-de472fac8b44}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util\Source">
-      <UniqueIdentifier>{e19a371d-1497-4e54-a013-ebfcb667a266}</UniqueIdentifier>
+    <Filter Include="Shader">
+      <UniqueIdentifier>{233d771c-53bb-41a5-8b5a-dc8cc4ed15fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Util\Header">
-      <UniqueIdentifier>{fcc41a3b-8280-4519-95da-5c1d8d36c613}</UniqueIdentifier>
+    <Filter Include="Object\Player">
+      <UniqueIdentifier>{5c5649ed-d122-4835-a5d5-f6880b00783d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scene">
-      <UniqueIdentifier>{e9552983-845c-41cf-aa36-d3447d25018a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene\Header">
-      <UniqueIdentifier>{b653bded-8d77-453f-b7a5-621cbca5a7f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene\Source">
-      <UniqueIdentifier>{be7a5c7c-3a5a-457c-ad38-c56da0f3cc1b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="InputModel">
-      <UniqueIdentifier>{e1c21b06-a43b-4266-82f0-86bee310ae19}</UniqueIdentifier>
+    <Filter Include="inputModel">
+      <UniqueIdentifier>{5f44b0e6-5f78-495f-9327-ff6c17ed8f08}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="resource.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>winMain\헤더</Filter>
     </ClInclude>
-    <ClInclude Include="SilentEngine.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="src\Camera.h">
+      <Filter>GameFrameWork\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Code\FrameWork\GameFramework.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="src\GameFramework.h">
+      <Filter>GameFrameWork\FrameWork</Filter>
     </ClInclude>
-    <ClInclude Include="Code\FrameWork\Timer.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="src\Scene.h">
+      <Filter>GameFrameWork\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Code\FrameWork\DDSTextureLoader12.h">
-      <Filter>Util\Header</Filter>
+    <ClInclude Include="src\Timer.h">
+      <Filter>GameFrameWork\Timer</Filter>
     </ClInclude>
-    <ClInclude Include="Code\FrameWork\d3dx12.h">
-      <Filter>Util\Header</Filter>
+    <ClInclude Include="src\GameObject.h">
+      <Filter>Object\GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Shaders\Shader.h">
-      <Filter>Shaders\Header</Filter>
+    <ClInclude Include="src\Mesh.h">
+      <Filter>Object\Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Scene\Scene.h">
-      <Filter>Scene\Header</Filter>
+    <ClInclude Include="src\Player.h">
+      <Filter>Object\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Object\Camera.h">
-      <Filter>Objects\Header</Filter>
+    <ClInclude Include="src\Shader.h">
+      <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Object\Object.h">
-      <Filter>Objects\Header</Filter>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>winMain\헤더</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Object\Player.h">
-      <Filter>Objects\Header</Filter>
+    <ClInclude Include="src\SilentEngine.h">
+      <Filter>winMain\헤더</Filter>
     </ClInclude>
-    <ClInclude Include="Code\Object\Mesh\Mesh.h">
-      <Filter>Mesh\Header</Filter>
+    <ClInclude Include="src\targetver.h">
+      <Filter>winMain\헤더</Filter>
     </ClInclude>
-    <ClInclude Include="Code\inputModel\InputModel.h">
-      <Filter>InputModel</Filter>
+    <ClInclude Include="inputModel\InputModel.h">
+      <Filter>inputModel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="src\Camera.cpp">
+      <Filter>GameFrameWork\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="SilentEngine.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="src\GameFramework.cpp">
+      <Filter>GameFrameWork\FrameWork</Filter>
     </ClCompile>
-    <ClCompile Include="Code\FrameWork\GameFramework.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="src\Scene.cpp">
+      <Filter>GameFrameWork\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Code\FrameWork\Timer.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="src\Timer.cpp">
+      <Filter>GameFrameWork\Timer</Filter>
     </ClCompile>
-    <ClCompile Include="Code\FrameWork\DDSTextureLoader12.cpp">
-      <Filter>Util\Source</Filter>
+    <ClCompile Include="src\GameObject.cpp">
+      <Filter>Object\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Scene\Scene.cpp">
-      <Filter>Scene\Source</Filter>
+    <ClCompile Include="src\Mesh.cpp">
+      <Filter>Object\Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Object\Camera.cpp">
-      <Filter>Objects\Source</Filter>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>Object\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Object\Object.cpp">
-      <Filter>Objects\Source</Filter>
+    <ClCompile Include="src\Shader.cpp">
+      <Filter>Shader</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Object\Player.cpp">
-      <Filter>Objects\Source</Filter>
+    <ClCompile Include="src\SilentEngine.cpp">
+      <Filter>winMain\소스</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Object\Mesh\Mesh.cpp">
-      <Filter>Mesh\Source</Filter>
+    <ClCompile Include="src\stdafx.cpp">
+      <Filter>winMain\소스</Filter>
     </ClCompile>
-    <ClCompile Include="Code\Shaders\Shader.cpp">
-      <Filter>Shaders\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\inputModel\InputModel.cpp">
-      <Filter>InputModel</Filter>
+    <ClCompile Include="inputModel\InputModel.cpp">
+      <Filter>inputModel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -162,13 +141,13 @@
     <Image Include="SilentEngine.ico">
       <Filter>리소스 파일</Filter>
     </Image>
+    <Image Include="icon1.ico">
+      <Filter>리소스 파일</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="hlsl\Light.hlsl">
-      <Filter>Shaders\hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="hlsl\Shaders.hlsl">
-      <Filter>Shaders\hlsl</Filter>
+    <FxCompile Include="Shaders.hlsl">
+      <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
