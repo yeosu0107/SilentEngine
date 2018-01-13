@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "GameFramework.h"
 #include "Shader.h"
+#include "DxException.h"
 
 CGameFramework::CGameFramework()
 {
@@ -13,7 +14,7 @@ CGameFramework::CGameFramework()
 	m_fMouseSensitive = 4.5f; // Default 마우스 민감도
 	m_nRtvDescriptorIncrementSize = 0;
 	m_nMaxScene = 3;
-	m_nNowScene = 1;
+	m_nNowScene = 0;
 
 	m_hFenceEvent = NULL;
 	for (int i = 0; i < m_nSwapChainBuffers; i++) m_nFenceValues[i] = 0;
@@ -467,9 +468,9 @@ void CGameFramework::BuildObjects()
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator.Get() , NULL);
 	m_ppScene = new CScene*[m_nMaxScene];
 
-	//MainScene* pMainScene = new MainScene();
-	//pMainScene->BuildObjects(m_pd3dDevice, m_pd3dCommandList);
-	m_ppScene[0] = NULL;
+	MainScene* pMainScene = new MainScene();
+	pMainScene->BuildObjects(m_pd3dDevice.Get(), m_pd3dCommandList.Get());
+	m_ppScene[0] = pMainScene;
 
 	GameScene* pGameScene = new GameScene();
 	pGameScene->BuildObjects(m_pd3dDevice.Get(), m_pd3dCommandList.Get());
@@ -558,11 +559,18 @@ void CGameFramework::WaitForGpuComplete()
 {
 	const UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
 	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence.Get() , nFenceValue);
-
-	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
+	try
 	{
-		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
-		::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		if (m_pd3dFence->GetCompletedValue() < nFenceValue)
+		{
+			hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
+			::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		}
+		ThrowIfFailed(hResult);
+	}
+	catch (DxException& e)
+	{
+		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
 	}
 }
 
@@ -573,15 +581,23 @@ void CGameFramework::MoveToNextFrame()
 
 	UINT64 nFenceValue = ++m_nFenceValues[m_nSwapChainBufferIndex];
 	HRESULT hResult = m_pd3dCommandQueue->Signal(m_pd3dFence.Get() , nFenceValue);
-
-	if (m_pd3dFence->GetCompletedValue() < nFenceValue)
+	try
 	{
-		hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
-		::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		if (m_pd3dFence->GetCompletedValue() < nFenceValue)
+		{
+			hResult = m_pd3dFence->SetEventOnCompletion(nFenceValue, m_hFenceEvent);
+			::WaitForSingleObject(m_hFenceEvent, INFINITE);
+		}
+		ThrowIfFailed(hResult);
+	}
+	catch (DxException& e)
+	{
+		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
 	}
 }
 
 #define _WITH_PLAYER_TOP
+#define _GRAPHICS_DEBUG
 
 void CGameFramework::FrameAdvance()
 {    
@@ -600,6 +616,29 @@ void CGameFramework::FrameAdvance()
 	
 	float pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+#ifdef _GRAPHICS_DEBUG
+	
+	::SynchronizeResourceTransition(m_pd3dCommandList.Get(), m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+	if (m_nNowScene == GAMESCENE) {
+		m_pd3dCommandList->ClearDepthStencilView(m_d3dDsvDepthStencilBufferCPUHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+		m_pd3dCommandList->ClearRenderTargetView(m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], Colors::White/*Colors::Azure*/, 0, NULL);
+	}
+	m_pd3dCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBufferIndex], TRUE, &m_d3dDsvDepthStencilBufferCPUHandle);
+	
+	m_ppScene[m_nNowScene]->Render(m_pd3dCommandList.Get(), m_pCamera);
+
+	ID3D12CommandList *ppd3dCommandLists[] = { m_pd3dCommandList.Get() };
+
+	//D3D12_CPU_DESCRIPTOR_HANDLE pd3dRtvRenderTargetBufferCPUHandles[m_nRenderTargetBuffers] = { NULL, NULL };
+	
+	hResult = m_pd3dCommandList->Close();
+	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	WaitForGpuComplete();
+
+	hResult = m_pd3dCommandAllocator->Reset();
+	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator.Get(), NULL);
+	
+#else
 	switch (m_nNowScene)
 	{
 	case MAINSCENE:
@@ -627,10 +666,15 @@ void CGameFramework::FrameAdvance()
 
 	//D3D12_CPU_DESCRIPTOR_HANDLE pd3dRtvRenderTargetBufferCPUHandles[m_nRenderTargetBuffers] = { NULL, NULL };
 
+	hResult = m_pd3dCommandList->Close();
+	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
+	WaitForGpuComplete();
+
+	hResult = m_pd3dCommandAllocator->Reset();
+	hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator.Get() , NULL);
+	
 
 	if (m_nNowScene == GAMESCENE) {
-		/*hResult = m_pd3dCommandAllocator->Reset();
-		hResult = m_pd3dCommandList->Reset(m_pd3dCommandAllocator , NULL);*/
 
 		// 렌더 타겟 버퍼를 리소스로 만든다.
 		::SynchronizeResourceTransition(m_pd3dCommandList.Get(), m_ppd3dRenderTargetBuffers[0].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ);
@@ -651,6 +695,8 @@ void CGameFramework::FrameAdvance()
 		m_pPlayer->Render(m_pd3dCommandList.Get(), m_pCamera );
 	
 	}
+#endif
+	::SynchronizeResourceTransition(m_pd3dCommandList.Get(), m_ppd3dSwapChainBackBuffers[m_nSwapChainBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 
 	hResult = m_pd3dCommandList->Close();
 	m_pd3dCommandQueue->ExecuteCommandLists(1, ppd3dCommandLists);
@@ -667,10 +713,18 @@ void CGameFramework::FrameAdvance()
 #ifdef _WITH_SYNCH_SWAPCHAIN
 	m_pdxgiSwapChain->Present(1, 0);
 #else
-	m_pdxgiSwapChain->Present(0, 0);
+	try
+	{
+		HRESULT hr = m_pdxgiSwapChain->Present(0, 0);
+		ThrowIfFailed(hr);
+	}
+	catch (DxException& e)
+	{
+		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
+	}
+	
 #endif
 #endif
-
 //	m_nSwapChainBufferIndex = m_pdxgiSwapChain->GetCurrentBackBufferIndex();
 	MoveToNextFrame();
 
