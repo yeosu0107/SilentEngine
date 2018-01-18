@@ -122,18 +122,18 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (m_bMinimized) {
 				m_bAppPaused = false;
 				m_bMinimized = false;
-				OnResize();
+				//OnResize();
 			}
 			else if (m_bMaximized) {
 				m_bAppPaused = false;
 				m_bMaximized = false;
-				OnResize();
+				//OnResize();
 			}
 			else if (m_bResizing) {
 			}
 
 			else {
-				OnResize();
+				//OnResize();
 			}
 		}
 		return 0;
@@ -298,6 +298,14 @@ void Framework::OnResize()
 	m_ScreenViewport.MaxDepth			= 1.0f;
 
 	m_ScissorRect = { 0, 0, m_nClientWidth, m_nClientHeight };
+}
+
+void Framework::Update(const Timer & gt)
+{
+}
+
+void Framework::Render(const Timer & gt)
+{
 }
 
 bool Framework::InitMainWindow()
@@ -607,5 +615,30 @@ void Framework::LogOutputDisplayModes(IDXGIOutput* poutput, DXGI_FORMAT format)
 			L"\n";
 
 		::OutputDebugString(sText.c_str());
+	}
+}
+
+
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
+	PSTR cmdLine, int showCmd)
+{
+	// Enable run-time memory check for debug builds.
+#if defined(DEBUG) | defined(_DEBUG)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
+	try
+	{
+		Framework theApp(hInstance);
+		if (!theApp.Initialize())
+			return 0;
+
+		return theApp.Run();
+	}
+	catch (DxException& e)
+	{
+		MessageBox(nullptr, e.ToString().c_str(), L"HR Failed", MB_OK);
+		return 0;
 	}
 }

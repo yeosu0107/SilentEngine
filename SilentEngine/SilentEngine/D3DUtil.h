@@ -19,7 +19,7 @@
 #include <fstream>
 #include <sstream>
 #include "d3dx12.h"
-#include "DDSTextureLoader12.h"
+#include "DDSTextureLoader.h"
 #include "D3DMath.h"
 
 extern const int gNumFrameResources;
