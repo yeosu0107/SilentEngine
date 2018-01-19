@@ -151,8 +151,11 @@
     <ClInclude Include="Code\FrameWork\DDSTextureLoader12.h" />
     <ClInclude Include="Code\FrameWork\GameFramework.h" />
     <ClInclude Include="Code\FrameWork\Timer.h" />
+    <ClInclude Include="Code\InputModel\Animation.h" />
     <ClInclude Include="Code\InputModel\InputModel.h" />
     <ClInclude Include="Code\InputModel\ModelShader.h" />
+    <ClInclude Include="Code\Model\LoadAnimation.h" />
+    <ClInclude Include="Code\Model\LoadModel.h" />
     <ClInclude Include="Code\Object\Camera.h" />
     <ClInclude Include="Code\Object\Mesh\Mesh.h" />
     <ClInclude Include="Code\Object\Object.h" />
@@ -171,8 +174,11 @@
     <ClCompile Include="Code\FrameWork\DDSTextureLoader12.cpp" />
     <ClCompile Include="Code\FrameWork\GameFramework.cpp" />
     <ClCompile Include="Code\FrameWork\Timer.cpp" />
+    <ClCompile Include="Code\InputModel\Animation.cpp" />
     <ClCompile Include="Code\InputModel\InputModel.cpp" />
     <ClCompile Include="Code\InputModel\ModelShader.cpp" />
+    <ClCompile Include="Code\Model\LoadAnimation.cpp" />
+    <ClCompile Include="Code\Model\LoadModel.cpp" />
     <ClCompile Include="Code\Object\Camera.cpp" />
     <ClCompile Include="Code\Object\Mesh\Mesh.cpp" />
     <ClCompile Include="Code\Object\Object.cpp" />
@@ -198,12 +204,6 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Code\InputModel\model.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
     <FxCompile Include="Common.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

@@ -64,6 +64,9 @@
     <Filter Include="InputModel">
       <UniqueIdentifier>{c934aceb-3240-46bb-9ad6-bacd265fba36}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{d54183ca-d4c1-40e6-9903-77bc3a5f53e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -123,6 +126,15 @@
     <ClInclude Include="Code\InputModel\ModelShader.h">
       <Filter>InputModel</Filter>
     </ClInclude>
+    <ClInclude Include="Code\InputModel\Animation.h">
+      <Filter>InputModel</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Model\LoadAnimation.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Model\LoadModel.h">
+      <Filter>Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -173,6 +185,15 @@
     <ClCompile Include="Code\InputModel\ModelShader.cpp">
       <Filter>InputModel</Filter>
     </ClCompile>
+    <ClCompile Include="Code\InputModel\Animation.cpp">
+      <Filter>InputModel</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Model\LoadAnimation.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Model\LoadModel.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -205,9 +226,6 @@
     </FxCompile>
     <FxCompile Include="Common.hlsl">
       <Filter>Shaders\hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="Code\InputModel\model.hlsl">
-      <Filter>InputModel</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

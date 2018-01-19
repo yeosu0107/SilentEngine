@@ -8,6 +8,7 @@
 #include "..\Object\Mesh\Mesh.h"
 #include "..\Object\Object.h"
 
+#include "Animation.h"
 #include <map>
 
 
@@ -22,19 +23,19 @@ struct CB_OBJECT_INFO
 	UINT					m_nMaterial;
 };
 
-inline XMFLOAT4X4 convertAIMatrixToXMFloat(aiMatrix4x4 m) {
+
+
+inline XMFLOAT4X4 convertAIMatrixToXMFloat2(aiMatrix4x4 m) {
 	XMMATRIX source = XMLoadFloat4x4(&XMFLOAT4X4(&m.a1));
 	XMFLOAT4X4 dst;
 	XMStoreFloat4x4(&dst, XMMatrixTranspose(source));
 	return dst;
 }
 
-//inline XMFLOAT4X4 convertAiQuaternionToXmfloat(aiQuaternion q) {
-//	XMVECTOR source = XMLoadFloat4(&XMFLOAT4(q.x, q.y, q.z, q.w));
-//	XMFLOAT4X4 dst;
-//	XMStoreFloat4x4(&dst, XMMatrixRotationQuaternion(source));
-//	return dst;
-//}
+inline XMFLOAT4X4 convertAIMatrixToXMFloat(aiMatrix4x4 m) {
+	return XMFLOAT4X4(&m.a1);
+}
+
 
 struct vertexData {
 #define NUM_BONES_PER_VEREX 4
@@ -81,28 +82,16 @@ struct vertexData {
 };
 
 struct BoneInfo {
+	string				Name;
 	XMFLOAT4X4 BoneOffset;
 	XMFLOAT4X4 FinalTranformation;
 
 	BoneInfo() {
+		Name = "";
 		XMStoreFloat4x4(&BoneOffset, XMMatrixIdentity());
 		XMStoreFloat4x4(&FinalTranformation, XMMatrixIdentity());
 	}
 };
-
-//struct VertexBoneData {
-//#define NUM_BONES_PER_VEREX 4
-//	
-//	unsigned int IDs;
-//	float Weights;
-//
-//	VertexBoneData() {
-//		//memset(IDs, 0, sizeof(unsigned int) * NUM_BONES_PER_VEREX);
-//		//memset(Weights, 0.0, sizeof(float) * NUM_BONES_PER_VEREX);
-//	}
-//
-//	void AddBoneData(unsigned int BoneID, float weight);
-//};
 
 struct MeshData {
 	unsigned int StartVertex;
@@ -128,6 +117,9 @@ private:
 	
 	vector<MeshData> m_Meshes;
 	
+	vector<AnimationClip> m_AnimationClip;
+	AnimationData	m_AnimationData;
+
 	vector<BoneInfo> m_BoneInfo;
 	map<string, unsigned int> m_BoneMapping; //ª¿¿Ã∏ß∞˙ ¿Œµ¶Ω∫ ∏≈«Œ
 
@@ -158,6 +150,8 @@ public:
 	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 
 	vector<MeshData>& getMeshes() { return m_Meshes; }
+
+	void extractAnimationData();
 };
 
 class ModelMesh : public CMesh
@@ -200,6 +194,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);
 
 	virtual XMFLOAT4X4* GetBoneData() { return m_boneTraform.data(); }
-	virtual int GetBoneNum() const { return m_boneTraform.size(); }
+	virtual int GetBoneNum() const { return (int)m_boneTraform.size(); }
 
 };

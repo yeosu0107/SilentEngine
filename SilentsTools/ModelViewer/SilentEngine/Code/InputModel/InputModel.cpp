@@ -3,11 +3,12 @@
 #include "InputModel.h"
 
 
-//void VertexBoneData::AddBoneData(unsigned int BoneID, float weight)
+
+//void VertexBoneData::AddBoneData(UINT BoneID, float weight)
 //{
 //	IDs = BoneID;
 //	Weights = weight;
-//	/*for (unsigned int i = 0; i < NUM_BONES_PER_VEREX; ++i) {
+//	/*for (UINT i = 0; i < NUM_BONES_PER_VEREX; ++i) {
 //		if (Weights[i] == 0.0) {
 //			IDs[i] = BoneID;
 //			Weights[i] = weight;
@@ -24,8 +25,20 @@ bool InputModel::LoadAsset(const string & fileName)
 	m_NumVertices = 0;
 	m_NumBones = 0;
 
-	m_pScene = aiImportFile(fileName.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals |
-		aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+	//m_pScene = aiImportFile(fileName.c_str(),aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+	//	aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices |
+	//	aiProcess_ConvertToLeftHanded /*| aiProcess_CalcTangentSpace |
+	//	aiProcess_RemoveComponent |
+	//	aiProcess_SplitLargeMeshes |
+	//	aiProcess_ValidateDataStructure |
+	//	aiProcess_RemoveRedundantMaterials |
+	//	aiProcess_SortByPType |
+	//	aiProcess_FindInvalidData |
+	//	aiProcess_GenUVCoords |
+	//	aiProcess_TransformUVCoords |
+	//	aiProcess_OptimizeMeshes |
+	//	aiProcess_OptimizeGraph*/);
+
 	/*
 	aiProcess_Triangulate - 비 삼각형 폴리곤으로 만들어진 모델을 삼각형 기반 메쉬로 변환합니다. (쿼드는 삼각형 2개)
 	aiProcess_GenSmoothNormals - 원래 모델에 이미 포함되어 있지 않은 경우 정점 법선을 생성합니다.
@@ -33,16 +46,36 @@ bool InputModel::LoadAsset(const string & fileName)
 	aiProcess_JoinIdenticalVertices - 각 꼭지점마다 하나의 사본을 사용하고 필요할 경우 여러 색인에서 참조하십시오. 메모리를 절약하는 데 도움이됩니다.
 	*/
 
+	m_pScene = aiImportFile(fileName.c_str(), aiProcess_JoinIdenticalVertices |		// join identical vertices/ optimize indexing
+		aiProcess_ValidateDataStructure |		// perform a full validation of the loader's output
+		aiProcess_ImproveCacheLocality |		// improve the cache locality of the output vertices
+		aiProcess_RemoveRedundantMaterials |	// remove redundant materials
+		aiProcess_GenUVCoords |					// convert spherical, cylindrical, box and planar mapping to proper UVs
+		aiProcess_TransformUVCoords |			// pre-process UV transformations (scaling, translation ...)
+		aiProcess_FindInstances |				// search for instanced meshes and remove them by references to one master
+		aiProcess_LimitBoneWeights |			// limit bone weights to 4 per vertex
+		aiProcess_OptimizeMeshes |				// join small meshes, if possible;
+		aiProcess_GenSmoothNormals |			// generate smooth normal vectors if not existing
+		aiProcess_SplitLargeMeshes |			// split large, unrenderable meshes into sub-meshes
+		aiProcess_Triangulate |					// triangulate polygons with more than 3 edges
+		aiProcess_ConvertToLeftHanded |			// convert everything to D3D left handed space
+		aiProcess_SortByPType);					// make 'clean' meshes which consist of a single type of primitives);
+	
+
 	m_Meshes.resize(m_pScene->mNumMeshes);
 	m_GlobalInverseTransform = convertAIMatrixToXMFloat(m_pScene->mRootNode->mTransformation);
 
 	InitScene(m_pScene);
+
+	if (m_pScene->HasAnimations()) {
+		extractAnimationData();
+	}
 	//InitMaterial(m_pScene, fileName);
 
-#ifdef _DEBUG
-	cout << "Load Success\t\< " << fileName <<" >"<<endl;
-	cout << "Num of Mash : " << m_Meshes.size() << endl;
-#endif 
+//#ifdef _DEBUG
+//	cout << "Load Success\t\< " << fileName <<" >"<<endl;
+//	cout << "Num of Mash : " << m_Meshes.size() << endl;
+//#endif 
 
 
 	return true;
@@ -52,8 +85,8 @@ void InputModel::InitScene(const aiScene * pScene)
 {
 	m_Meshes.resize(pScene->mNumMeshes);
 
-	unsigned int NumVertices = 0;
-	unsigned int NumIndices = 0;
+	UINT NumVertices = 0;
+	UINT NumIndices = 0;
 
 	for (int i = 0; i < m_Meshes.size(); ++i) {
 		m_Meshes[i].MaterialIndex = pScene->mMeshes[i]->mMaterialIndex;
@@ -72,7 +105,7 @@ void InputModel::InitScene(const aiScene * pScene)
 
 }
 
-void InputModel::InitMesh(unsigned int index, const aiMesh * pMesh)
+void InputModel::InitMesh(UINT index, const aiMesh * pMesh)
 {
 	const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
 
@@ -114,7 +147,7 @@ void InputModel::InitMaterial(const aiScene * pScene, const string & fileName)
 	else
 		Dir = fileName.substr(0, slashIndex);
 
-	for (unsigned int i = 0; i < pScene->mNumMaterials; ++i) {
+	for (UINT i = 0; i < pScene->mNumMaterials; ++i) {
 		const aiMaterial* pMat = pScene->mMaterials[i];
 
 		if (pMat->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
@@ -133,7 +166,7 @@ void InputModel::InitMaterial(const aiScene * pScene, const string & fileName)
 	
 }
 
-void InputModel::InitBones(unsigned int meshIndex, const aiMesh * pMesh)
+void InputModel::InitBones(UINT meshIndex, const aiMesh * pMesh)
 {
 	//m_Meshes[meshIndex].m_Bones.resize(pMesh->mNumVertices);
 
@@ -144,18 +177,18 @@ void InputModel::InitBones(unsigned int meshIndex, const aiMesh * pMesh)
 		if (m_BoneMapping.find(BoneName) == m_BoneMapping.end()) {
 			BoneIndex = m_NumBones++;
 			BoneInfo bi;
+			bi.Name = BoneName;
 			bi.BoneOffset = convertAIMatrixToXMFloat(pMesh->mBones[i]->mOffsetMatrix);
 			m_BoneInfo.push_back(bi);
+			//m_BoneMapping.insert(make_pair(BoneName, BoneIndex));
 			m_BoneMapping[BoneName] = BoneIndex;
 		}
 		else {
 			BoneIndex = m_BoneMapping[BoneName];
 		}
-
-		for (unsigned int b = 0; b < pMesh->mBones[i]->mNumWeights; ++b) {
-			//unsigned int vertexID=m_Meshes[meshIndex].StartVertex + pMesh->mBones[i]->mWeights[b].mVertexId;
-			unsigned int vertexID = pMesh->mBones[i]->mWeights[b].mVertexId;
-			float weight = pMesh->mBones[i]->mWeights[b].mWeight;
+		for (UINT b = 0; b < pMesh->mBones[BoneIndex]->mNumWeights; ++b) {
+			UINT vertexID = pMesh->mBones[BoneIndex]->mWeights[b].mVertexId;
+			float weight = pMesh->mBones[BoneIndex]->mWeights[b].mWeight;
 			m_Meshes[meshIndex].m_Vertices[vertexID].AddBoneData(BoneIndex, weight);
 		}
 	}
@@ -170,15 +203,18 @@ void InputModel::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 	float TimeInTicks = time*TicksPerSecond;
 	float AnimationTime = fmod(TimeInTicks, (float)m_pScene->mAnimations[0]->mDuration);
 
-	//ReadNode(m_pScene->mRootNode);
-
+	
 	ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
 
 	//transforms.clear();
 	transforms.resize(m_NumBones);
-
-	for (unsigned int i = 0; i < m_NumBones; ++i) {
-		transforms[i] = m_BoneInfo[i].FinalTranformation;
+	m_AnimationData.SetCurrentClip("AnimStack::Take 001");
+	m_AnimationData.GetFinalTransforms(10000, transforms, true);
+	for (int i = 0; i < m_NumBones; ++i) {
+		
+		XMMATRIX tmp = XMMatrixTranspose(XMLoadFloat4x4(&m_BoneInfo[i].FinalTranformation));
+		XMStoreFloat4x4(&transforms[i], tmp);
+		//transforms[i] = m_BoneInfo[i].FinalTranformation;
 	}
 }
 
@@ -202,41 +238,54 @@ void InputModel::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, co
 		aiQuaternion RotationQ;
 		CalcInterpolatedRotation(RotationQ, AnimationTime, pNodeAnim);
 		aiMatrix3x3& save = RotationQ.GetMatrix();
-		XMFLOAT4X4 RotationM;/*convertAiQuaternionToXmfloat(RotationQ);*/
-		RotationM._11 = save.a1; RotationM._12 = save.a2; RotationM._13 = save.a3;
-		RotationM._21 = save.b1; RotationM._22 = save.b2; RotationM._23 = save.b3;
-		RotationM._31 = save.c1; RotationM._32 = save.c2; RotationM._33 = save.c3;
-		RotationM._14 = 0.0f; RotationM._24 = 0.0f; RotationM._34 = 0.0f;
+		XMFLOAT4X4 RotationM;
+		RotationM._11 = save.a1; RotationM._12 = save.a2; RotationM._13 = save.a3; RotationM._14 = 0.0f;
+		RotationM._21 = save.b1; RotationM._22 = save.b2; RotationM._23 = save.b3; RotationM._24 = 0.0f;
+		RotationM._31 = save.c1; RotationM._32 = save.c2; RotationM._33 = save.c3; RotationM._34 = 0.0f;
 		RotationM._41 = 0.0f; RotationM._42 = 0.0f; RotationM._43 = 0.0f; RotationM._44 = 1.0f;
 		XMMATRIX RotationMatrix = XMLoadFloat4x4(&RotationM);
-		
 
-		aiVector3D Tranlation;
-		CalcInterpolatedPosition(Tranlation, AnimationTime, pNodeAnim);
-		XMMATRIX TranlationMatrix = XMMatrixTranslation(Tranlation.x, Tranlation.y, Tranlation.z);
 
-		NodeTransformation = TranlationMatrix * RotationMatrix * SclingMatrix;
+		aiVector3D Translation;
+		CalcInterpolatedPosition(Translation, AnimationTime, pNodeAnim);
+		XMFLOAT4X4 TranslationM;
+		TranslationM._11 = 1.0f; TranslationM._12 = 0.0f; TranslationM._13 = 0.0f; TranslationM._14 = Translation.x;
+		TranslationM._21 = 0.0f; TranslationM._22 = 1.0f; TranslationM._23 = 0.0f; TranslationM._24 = Translation.y;
+		TranslationM._31 = 0.0f; TranslationM._32 = 0.0f; TranslationM._33 = 1.0f; TranslationM._34 = Translation.z;
+		TranslationM._41 = 0.0f; TranslationM._42 = 0.0f; TranslationM._43 = 0.0f; TranslationM._44 = 1.0f;
+		XMMATRIX TranslationMatrix = XMLoadFloat4x4(&TranslationM);
+
+		/*XMVECTOR S = XMLoadFloat3(&XMFLOAT3(&Scaling.x));
+		XMVECTOR P = XMLoadFloat3(&XMFLOAT3(&Translation.x));
+		XMVECTOR Q = XMLoadFloat4(&XMFLOAT4(RotationQ.w, RotationQ.x, RotationQ.y, RotationQ.z));
+		XMVECTOR zero = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+
+		NodeTransformation = XMMatrixAffineTransformation(S, zero, Q, P);*/
+
+		NodeTransformation = XMMatrixMultiply(TranslationMatrix, RotationMatrix);
+		NodeTransformation = XMMatrixMultiply(NodeTransformation, SclingMatrix);
 	}
 
 
 	XMMATRIX GlobalTransformation = ParentTransform * NodeTransformation;
 
 	if (m_BoneMapping.find(NodeName) != m_BoneMapping.end()) {
-		unsigned int BoneIndex = m_BoneMapping[NodeName];
-
+		UINT BoneIndex = m_BoneMapping[NodeName];
 
 		XMStoreFloat4x4(&m_BoneInfo[BoneIndex].FinalTranformation,
-			XMLoadFloat4x4(&m_GlobalInverseTransform) * GlobalTransformation * XMLoadFloat4x4(&m_BoneInfo[BoneIndex].BoneOffset));
+			XMLoadFloat4x4(&m_GlobalInverseTransform) * 
+			GlobalTransformation * 
+			XMLoadFloat4x4(&m_BoneInfo[BoneIndex].BoneOffset));
 	}
 
-	for (unsigned int i = 0; i < pNode->mNumChildren; ++i) {
+	for (UINT i = 0; i < pNode->mNumChildren; ++i) {
 		ReadNodeHeirarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
 }
 
 const aiNodeAnim * InputModel::FindNodeAnim(const aiAnimation * pAnimation, const string NodeName)
 {
-	for (unsigned int i = 0; i < pAnimation->mNumChannels; ++i) {
+	for (UINT i = 0; i < pAnimation->mNumChannels; ++i) {
 		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
 
 		if (string(pNodeAnim->mNodeName.data) == NodeName)
@@ -253,8 +302,8 @@ void InputModel::CalcInterpolatedScaling(aiVector3D & Out, float AnimationTime, 
 		return;
 	}
 
-	unsigned int ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
-	unsigned int NextScalingIndex = ScalingIndex + 1;
+	UINT ScalingIndex = FindScaling(AnimationTime, pNodeAnim);
+	UINT NextScalingIndex = ScalingIndex + 1;
 
 
 	assert(NextScalingIndex < pNodeAnim->mNumScalingKeys);
@@ -280,8 +329,8 @@ void InputModel::CalcInterpolatedRotation(aiQuaternion & Out, float AnimationTim
 		return;
 	}
 
-	unsigned int RotationIndex = FindRotation(AnimationTime, pNodeAnim);
-	unsigned int NextRotationIndex = (RotationIndex + 1);
+	UINT RotationIndex = FindRotation(AnimationTime, pNodeAnim);
+	UINT NextRotationIndex = (RotationIndex + 1);
 
 	assert(NextRotationIndex < pNodeAnim->mNumRotationKeys);
 
@@ -306,8 +355,8 @@ void InputModel::CalcInterpolatedPosition(aiVector3D & Out, float AnimationTime,
 		return;
 	}
 
-	unsigned int PositionIndex = FindPosition(AnimationTime, pNodeAnim);
-	unsigned int NextPositionIndex = (PositionIndex + 1);
+	UINT PositionIndex = FindPosition(AnimationTime, pNodeAnim);
+	UINT NextPositionIndex = (PositionIndex + 1);
 
 
 	assert(NextPositionIndex < pNodeAnim->mNumPositionKeys);
@@ -324,13 +373,13 @@ void InputModel::CalcInterpolatedPosition(aiVector3D & Out, float AnimationTime,
 	Out = Start + Factor * Delta;
 }
 
-unsigned int InputModel::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAnim)
+UINT InputModel::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
 
 	assert(pNodeAnim->mNumScalingKeys > 0);
 
 
-	for (unsigned int i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
+	for (UINT i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime) {
 			return i;
 		}
@@ -340,11 +389,11 @@ unsigned int InputModel::FindScaling(float AnimationTime, const aiNodeAnim * pNo
 	return 0;
 }
 
-unsigned int InputModel::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim)
+UINT InputModel::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
 	assert(pNodeAnim->mNumRotationKeys > 0);
 
-	for (unsigned int i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
+	for (UINT i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime) {
 			return i;
 		}
@@ -354,9 +403,9 @@ unsigned int InputModel::FindRotation(float AnimationTime, const aiNodeAnim * pN
 	return 0;
 }
 
-unsigned int InputModel::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim)
+UINT InputModel::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
-	for (unsigned int i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
+	for (UINT i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime) {
 			return i;
 		}
@@ -366,12 +415,57 @@ unsigned int InputModel::FindPosition(float AnimationTime, const aiNodeAnim * pN
 	return 0;
 }
 
+void InputModel::extractAnimationData()
+{
+	for (size_t index = 0; index < m_pScene->mNumAnimations; ++index) {
+		const aiAnimation* sourceAnimation = m_pScene->mAnimations[index];
+
+		AnimationClip animation;
+
+		animation.TicksPerSecond = (float)sourceAnimation->mTicksPerSecond;
+		animation.Duration = (float)sourceAnimation->mDuration;
+		animation.name = sourceAnimation->mName.data;
+
+		for (UINT channel = 0; channel < sourceAnimation->mNumChannels; ++channel) {
+			BoneAnimation boneAnimation;
+
+			string tmp(sourceAnimation->mChannels[channel]->mNodeName.data);
+			boneAnimation.name = tmp;
+
+			for (UINT i = 0; i < sourceAnimation->mChannels[channel]->mNumPositionKeys; ++i) {
+				KeyFrame keyFrame;
+
+				keyFrame.Translation.x = sourceAnimation->mChannels[channel]->mPositionKeys[i].mValue.x;
+				keyFrame.Translation.y = sourceAnimation->mChannels[channel]->mPositionKeys[i].mValue.y;
+				keyFrame.Translation.z = sourceAnimation->mChannels[channel]->mPositionKeys[i].mValue.z;
+
+				keyFrame.RotationQuat.x = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.x;
+				keyFrame.RotationQuat.y = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.y;
+				keyFrame.RotationQuat.z = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.z;
+				keyFrame.RotationQuat.w = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.w;
+
+				keyFrame.Scale.x = sourceAnimation->mChannels[channel]->mScalingKeys[i].mValue.x;
+				keyFrame.Scale.y = sourceAnimation->mChannels[channel]->mScalingKeys[i].mValue.y;
+				keyFrame.Scale.z = sourceAnimation->mChannels[channel]->mScalingKeys[i].mValue.z;
+
+				keyFrame.timePos = (float)sourceAnimation->mChannels[channel]->mPositionKeys[i].mTime;
+
+				boneAnimation.m_keyFrame.push_back(keyFrame);
+			}
+			animation.m_BoneAnimation.push_back(boneAnimation);
+		}
+		m_AnimationClip.push_back(animation);
+		m_AnimationData.m_animations.insert(make_pair(animation.name, animation));
+	}
+	
+}
+
 ModelMesh::ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
 	MeshData* meshData)
 	: CMesh(pd3dDevice, pd3dCommandList)
 { 
-	m_nVertices = meshData->m_Vertices.size();
-	m_nIndices = meshData->m_pnIndices.size();
+	m_nVertices = (int)meshData->m_Vertices.size();
+	m_nIndices = (int)meshData->m_pnIndices.size();
 
 	m_nStride = sizeof(vertexData);
 	m_nOffset = 0;
@@ -455,7 +549,7 @@ void CModelObject::Animate(float fTime)
 {
 	// time =(현재 - 시작)/1000.0f
 	model->Animate(tmp/1000.0f, m_boneTraform);
-	cout << tmp << endl;
+	//cout << tmp << endl;
 	tmp += 15.0f;
 	//if (tmp >= 1000.0f)
 	//	tmp = 0.0f;
