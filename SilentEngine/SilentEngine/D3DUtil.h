@@ -19,7 +19,7 @@
 #include <fstream>
 #include <sstream>
 #include "d3dx12.h"
-#include "DDSTextureLoader12.h"
+#include "DDSTextureLoader.h"
 #include "D3DMath.h"
 
 extern const int gNumFrameResources;
@@ -203,3 +203,7 @@ struct Texture
 	if(FAILED(hr__)) { throw DxException(hr__, L#x, wfn, __LINE__); } \
 }
 #endif // !ThrowIfFailed
+
+#ifndef ReleaseCom
+#define ReleaseCom(x) { if(x) { x->Release(); x = 0; }}
+#endif
