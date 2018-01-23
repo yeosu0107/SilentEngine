@@ -311,7 +311,7 @@ struct VS_MODEL_INPUT
 	float3 normal : NORMAL;
 	float2 uv : TEXCOORD;
 	uint4 index : BORNINDEX;
-	float4 weight : WEIGHT;
+	float3 weight : WEIGHT;
 };
 
 VS_TEXTURED_LIGHTING_OUTPUT VSModel(VS_MODEL_INPUT input)
@@ -321,15 +321,22 @@ VS_TEXTURED_LIGHTING_OUTPUT VSModel(VS_MODEL_INPUT input)
 	float3 posL = float3(0.0f, 0.0f, 0.0f);
 	float3 normalL = float3(0.0f, 0.0f, 0.0f);
 
+	float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	weights[0] = input.weight.x;
+	weights[1] = input.weight.y;
+	weights[2] = input.weight.z;
+	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
 	for (int i = 0; i < 4; ++i) {
-		posL += input.weight[i] * mul(float4(input.pos, 1.0f), gBoneTransforms[input.index[i]]).xyz;
+		posL += weights[i] * mul(float4(input.pos, 1.0f), 
+			gBoneTransforms[input.index[i]]).xyz;
 	}
 
-	//output.normalW = mul(normalL, (float3x3)gmtxGameObject);
-	//output.positionW = (float3)posL;
-	output.positionW = (float3)mul(float4(posL, 1.0f), gmtxGameObject);
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	//output.positionW = (float3)mul(float4(input.pos, 1.0f), gmtxGameObject);
+	output.positionW = (float3)mul(float4(posL, 1.0f), gmtxGameObject);
+	
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	//output.normalW = mul(normalL, (float3x3)gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 #ifdef _WITH_VERTEX_LIGHTING

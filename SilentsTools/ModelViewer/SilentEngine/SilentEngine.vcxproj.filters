@@ -61,11 +61,11 @@
     <Filter Include="Scene\Source">
       <UniqueIdentifier>{be7a5c7c-3a5a-457c-ad38-c56da0f3cc1b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="InputModel">
-      <UniqueIdentifier>{c934aceb-3240-46bb-9ad6-bacd265fba36}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Model">
       <UniqueIdentifier>{d54183ca-d4c1-40e6-9903-77bc3a5f53e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InputModel%28사용안함%29">
+      <UniqueIdentifier>{c934aceb-3240-46bb-9ad6-bacd265fba36}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -121,18 +121,18 @@
       <Filter>Shaders\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\InputModel\InputModel.h">
-      <Filter>InputModel</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\InputModel\ModelShader.h">
-      <Filter>InputModel</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\InputModel\Animation.h">
-      <Filter>InputModel</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\Model\LoadAnimation.h">
-      <Filter>Model</Filter>
+      <Filter>InputModel%28사용안함%29</Filter>
     </ClInclude>
     <ClInclude Include="Code\Model\LoadModel.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Model\ModelObject.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\Model\Animation.h">
+      <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\InputModel\ModelShader.h">
       <Filter>Model</Filter>
     </ClInclude>
   </ItemGroup>
@@ -180,18 +180,18 @@
       <Filter>Util\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\InputModel\InputModel.cpp">
-      <Filter>InputModel</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\InputModel\ModelShader.cpp">
-      <Filter>InputModel</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\InputModel\Animation.cpp">
-      <Filter>InputModel</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\Model\LoadAnimation.cpp">
-      <Filter>Model</Filter>
+      <Filter>InputModel%28사용안함%29</Filter>
     </ClCompile>
     <ClCompile Include="Code\Model\LoadModel.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Model\ModelObject.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Model\Animation.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\InputModel\ModelShader.cpp">
       <Filter>Model</Filter>
     </ClCompile>
   </ItemGroup>
@@ -227,5 +227,10 @@
     <FxCompile Include="Common.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="walking.FBX">
+      <Filter>Model</Filter>
+    </None>
   </ItemGroup>
 </Project>

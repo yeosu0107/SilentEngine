@@ -2,6 +2,7 @@
 
 #include "..\Shaders\Shader.h"
 #include "InputModel.h"
+#include "..\Model\ModelObject.h"
 
 class ModelShader : public CShader
 {

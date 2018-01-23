@@ -20,7 +20,7 @@ D3D12_INPUT_LAYOUT_DESC ModelShader::CreateInputLayout()
 	pd3dInputElementDescs[1] = { "NORMAL",		0, DXGI_FORMAT_R32G32B32_FLOAT, 0,			12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[2] = { "TEXCOORD",	0, DXGI_FORMAT_R32G32_FLOAT, 0,				24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 	pd3dInputElementDescs[3] = { "BORNINDEX",	0, DXGI_FORMAT_R32G32B32A32_UINT, 0,		32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
-	pd3dInputElementDescs[4] = { "WEIGHT",		0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0,	48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
+	pd3dInputElementDescs[4] = { "WEIGHT",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0,		48, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 };
 
 	D3D12_INPUT_LAYOUT_DESC d3dInputLayoutDesc;
 	d3dInputLayoutDesc.pInputElementDescs = pd3dInputElementDescs;
@@ -70,16 +70,17 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	pCubeMaterial->SetTexture(pTexture);
 	pCubeMaterial->SetReflection(1);
 #endif
-
-	CModelData* model = new CModelData("walking.FBX", pd3dDevice, pd3dCommandList);
+	LoadModel* model= new LoadModel("walking.FBX");
+	model->SetMeshes(pd3dDevice, pd3dCommandList);
 
 	m_ppObjects = new CGameObject*[m_nObjects];
 
 	for (int i = 0; i < m_nObjects; ++i) {
-		CModelObject* object = new CModelObject(pd3dDevice, pd3dCommandList, model);
+		ModelObject* object = new ModelObject(model, pd3dDevice, pd3dCommandList);
 		object->SetPosition(i * 10, 0, 0);
 		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		m_ppObjects[i] = object;
+
 	}
 }
 
@@ -114,7 +115,7 @@ void ModelShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12Graphic
 
 void ModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	UINT ncbElementBytes = ((sizeof(CB_GAMEOBJECT_INFO) + 255) & ~255);
+	UINT ncbElementBytes = ((sizeof(CB_OBJECT_INFO) + 255) & ~255);
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		//À§Ä¡

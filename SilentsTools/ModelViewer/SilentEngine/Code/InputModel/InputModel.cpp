@@ -68,7 +68,7 @@ bool InputModel::LoadAsset(const string & fileName)
 	InitScene(m_pScene);
 
 	if (m_pScene->HasAnimations()) {
-		extractAnimationData();
+
 	}
 	//InitMaterial(m_pScene, fileName);
 
@@ -208,8 +208,8 @@ void InputModel::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 
 	//transforms.clear();
 	transforms.resize(m_NumBones);
-	m_AnimationData.SetCurrentClip("AnimStack::Take 001");
-	m_AnimationData.GetFinalTransforms(10000, transforms, true);
+
+
 	for (int i = 0; i < m_NumBones; ++i) {
 		
 		XMMATRIX tmp = XMMatrixTranspose(XMLoadFloat4x4(&m_BoneInfo[i].FinalTranformation));
@@ -415,52 +415,9 @@ UINT InputModel::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAnim)
 	return 0;
 }
 
-void InputModel::extractAnimationData()
-{
-	for (size_t index = 0; index < m_pScene->mNumAnimations; ++index) {
-		const aiAnimation* sourceAnimation = m_pScene->mAnimations[index];
 
-		AnimationClip animation;
 
-		animation.TicksPerSecond = (float)sourceAnimation->mTicksPerSecond;
-		animation.Duration = (float)sourceAnimation->mDuration;
-		animation.name = sourceAnimation->mName.data;
-
-		for (UINT channel = 0; channel < sourceAnimation->mNumChannels; ++channel) {
-			BoneAnimation boneAnimation;
-
-			string tmp(sourceAnimation->mChannels[channel]->mNodeName.data);
-			boneAnimation.name = tmp;
-
-			for (UINT i = 0; i < sourceAnimation->mChannels[channel]->mNumPositionKeys; ++i) {
-				KeyFrame keyFrame;
-
-				keyFrame.Translation.x = sourceAnimation->mChannels[channel]->mPositionKeys[i].mValue.x;
-				keyFrame.Translation.y = sourceAnimation->mChannels[channel]->mPositionKeys[i].mValue.y;
-				keyFrame.Translation.z = sourceAnimation->mChannels[channel]->mPositionKeys[i].mValue.z;
-
-				keyFrame.RotationQuat.x = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.x;
-				keyFrame.RotationQuat.y = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.y;
-				keyFrame.RotationQuat.z = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.z;
-				keyFrame.RotationQuat.w = sourceAnimation->mChannels[channel]->mRotationKeys[i].mValue.w;
-
-				keyFrame.Scale.x = sourceAnimation->mChannels[channel]->mScalingKeys[i].mValue.x;
-				keyFrame.Scale.y = sourceAnimation->mChannels[channel]->mScalingKeys[i].mValue.y;
-				keyFrame.Scale.z = sourceAnimation->mChannels[channel]->mScalingKeys[i].mValue.z;
-
-				keyFrame.timePos = (float)sourceAnimation->mChannels[channel]->mPositionKeys[i].mTime;
-
-				boneAnimation.m_keyFrame.push_back(keyFrame);
-			}
-			animation.m_BoneAnimation.push_back(boneAnimation);
-		}
-		m_AnimationClip.push_back(animation);
-		m_AnimationData.m_animations.insert(make_pair(animation.name, animation));
-	}
-	
-}
-
-ModelMesh::ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
+CModelMesh::CModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
 	MeshData* meshData)
 	: CMesh(pd3dDevice, pd3dCommandList)
 { 
@@ -502,7 +459,7 @@ CModelData::CModelData(string fileName, ID3D12Device *pd3dDevice, ID3D12Graphics
 	m_ModelMeshes.reserve(m_NumOfMeshes);
 
 	for (int i = 0; i < m_NumOfMeshes; ++i) {
-		ModelMesh* modelmesh=new ModelMesh(pd3dDevice, pd3dCommandList, &meshes[i]);
+		CModelMesh* modelmesh=new CModelMesh(pd3dDevice, pd3dCommandList, &meshes[i]);
 
 		m_ModelMeshes.push_back(modelmesh);
 	}

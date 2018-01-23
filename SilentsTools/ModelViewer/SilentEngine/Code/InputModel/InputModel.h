@@ -8,7 +8,7 @@
 #include "..\Object\Mesh\Mesh.h"
 #include "..\Object\Object.h"
 
-#include "Animation.h"
+
 #include <map>
 
 
@@ -16,12 +16,7 @@
 
 using namespace std;
 
-struct CB_OBJECT_INFO
-{
-	XMFLOAT4X4		m_xmf4x4World;
-	XMFLOAT4X4		m_bone[96];
-	UINT					m_nMaterial;
-};
+
 
 
 
@@ -117,8 +112,8 @@ private:
 	
 	vector<MeshData> m_Meshes;
 	
-	vector<AnimationClip> m_AnimationClip;
-	AnimationData	m_AnimationData;
+
+
 
 	vector<BoneInfo> m_BoneInfo;
 	map<string, unsigned int> m_BoneMapping; //ª¿¿Ã∏ß∞˙ ¿Œµ¶Ω∫ ∏≈«Œ
@@ -151,29 +146,28 @@ public:
 
 	vector<MeshData>& getMeshes() { return m_Meshes; }
 
-	void extractAnimationData();
 };
 
-class ModelMesh : public CMesh
+class CModelMesh : public CMesh
 {
 public:
-	ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, 
+	CModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, 
 		MeshData* meshData);
-	virtual ~ModelMesh() {}
+	virtual ~CModelMesh() {}
 };
 
 class CModelData
 {
 private:
 	string m_fileName;
-	vector<ModelMesh*> m_ModelMeshes;
+	vector<CModelMesh*> m_ModelMeshes;
 	int m_NumOfMeshes;
 	InputModel model;
 public:
 	CModelData(string fileName, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~CModelData();
 
-	ModelMesh** Meshes() { return m_ModelMeshes.data(); }
+	CModelMesh** Meshes() { return m_ModelMeshes.data(); }
 	int& NumOfMeshes() { return m_NumOfMeshes; }
 	void Animate(float time, vector<XMFLOAT4X4>& bone);
 };
