@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <DirectXMath.h>
 #include <vector>
+#include "D3DUtil.h"
 
 using namespace DirectX;
 using namespace std;
