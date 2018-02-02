@@ -7,6 +7,7 @@
 
 #include "D3DUtil.h"
 #include "Timer.h"
+#include "Scene.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")
@@ -116,6 +117,11 @@ protected:
 	DXGI_FORMAT m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	int m_nClientWidth = 800;
 	int m_nClientHeight = 600;
+
+	const UINT m_nMaxScene = 3;
+	UINT m_nNowScene = 0;
+
+	unique_ptr<TestScene> m_pTestScene;
 
 };
 

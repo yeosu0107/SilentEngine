@@ -66,6 +66,8 @@ public:
 
 private:
 	void Subdivide(MeshData& meshData);
-	Vertex MidPoint(const Vertex& v0, const Vertex& v1);
+	Vertex MidPoint(const Vertex& v0, const Vertex& v1) {
+		return v0;
+	};
 };
 

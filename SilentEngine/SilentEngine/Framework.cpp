@@ -87,6 +87,8 @@ bool Framework::Initialize()
 	if (!InitDirect3D())
 		return false;
 
+	m_pTestScene = make_unique<TestScene>();
+	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
 	OnResize();
 
 	return true;

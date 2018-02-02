@@ -53,9 +53,10 @@ struct MaterialData
 struct Vertex
 {
 	XMFLOAT3 xmf3Pos;
-	XMFLOAT3 xmf3Normal;
-	XMFLOAT2 xmf2TexCoord;
-	XMFLOAT3 xmf3TangentU;
+	XMFLOAT4 xmf2Colors;
+	//XMFLOAT3 xmf3Normal;
+	//XMFLOAT2 xmf2TexCoord;
+	//XMFLOAT3 xmf3TangentU;
 };
 
 struct SkinnedVertex

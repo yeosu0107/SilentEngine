@@ -150,6 +150,7 @@
     <ClInclude Include="FrameResouce.h" />
     <ClInclude Include="Framework.h" />
     <ClInclude Include="GameObjects.h" />
+    <ClInclude Include="GlobalObjects.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="Framework.cpp" />
     <ClCompile Include="GameObjects.cpp" />
+    <ClCompile Include="GlobalObjects.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shaders.cpp" />
