@@ -70,7 +70,6 @@ ComPtr<ID3D12Resource> D3DUtil::CreateDefaultBuffer(
 	);
 
 	D3D12_SUBRESOURCE_DATA subResourceData = {};
-
 	subResourceData.pData = initData;
 	subResourceData.RowPitch = byteSize;
 	subResourceData.SlicePitch = subResourceData.RowPitch;
@@ -78,6 +77,7 @@ ComPtr<ID3D12Resource> D3DUtil::CreateDefaultBuffer(
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(d3dResourcedefaultBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST)
 	);
+	
 	UpdateSubresources<1>(cmdList, d3dResourcedefaultBuffer.Get(), uploadBuffer.Get(), 0, 0, 1, &subResourceData);
 	cmdList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(d3dResourcedefaultBuffer.Get(),
 		D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ)

@@ -53,6 +53,7 @@ protected:
 
 	bool InitMainWindow();
 	bool InitDirect3D();
+	void BuildObjects();
 	void CreateCommandObjects();
 	void CreateSwapChain();
 

@@ -20,6 +20,7 @@ void Scene::BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pComman
 
 void Scene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	
 }
 
 void TestScene::BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -127,7 +128,13 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 
 void TestScene::BuildDescriptorHeaps(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-
+	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
+	cbvHeapDesc.NumDescriptors = 1;
+	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	cbvHeapDesc.NodeMask = 0;
+	ThrowIfFailed(pDevice->CreateDescriptorHeap(&cbvHeapDesc,
+		IID_PPV_ARGS(&m_SrvDescriptorHeap)));
 }
 
 void TestScene::BuildShadersAndInputLayout(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -188,7 +195,20 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	pCommandList->SetPipelineState(m_PSOs["Cube"].Get());
+	
+	ID3D12DescriptorHeap* descriptorHeaps[] = { m_SrvDescriptorHeap.Get() };
+	pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+
+	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
+
+	pCommandList->IASetVertexBuffers(0, 1, &m_Geometries["boxGeo"]->VertexBufferView());
+	pCommandList->IASetIndexBuffer(&m_Geometries["boxGeo"]->IndexBufferView());
+	pCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	pCommandList->SetGraphicsRootDescriptorTable(0, m_SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
+
 	pCommandList->DrawIndexedInstanced(
-		m_Geometries["Box"]->DrawArgs["box"].IndexCount,
+		m_Geometries["boxGeo"]->DrawArgs["box"].IndexCount,
 		1, 0, 0, 0);
 }

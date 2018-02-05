@@ -87,8 +87,6 @@ bool Framework::Initialize()
 	if (!InitDirect3D())
 		return false;
 
-	m_pTestScene = make_unique<TestScene>();
-	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
 	OnResize();
 
 	return true;
@@ -289,7 +287,7 @@ void Framework::OnResize()
 
 	ThrowIfFailed(m_pCommandList->Close());
 	ID3D12CommandList* cmdList[] = { m_pCommandList.Get() };
-
+	m_pCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
 	FlushCommandQueue();
 
 	m_ScreenViewport.TopLeftX			= 0;
@@ -312,33 +310,17 @@ void Framework::Render(const Timer & gt)
 	ThrowIfFailed(m_pDirectCmdListAlloc->Reset());
 	ThrowIfFailed(m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr));
 
-	//m_pCommandList->RSSetViewports(1, &m_pScreenViewport);
-	//m_pCommandList->RSSetScissorRects(1, &m_pScissorRect);
+	m_pCommandList->RSSetViewports(1, &m_ScreenViewport);
+	m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	m_pCommandList->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
 	m_pCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
-
-	// Specify the buffers we are going to render to.
 	m_pCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-	//ID3D12DescriptorHeap* descriptorHeaps[] = { m_pCbvHeap.Get() };
-	//m_pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
-	//mCommandList->SetGraphicsRootSignature(mRootSignature.Get());
-
-	/*mCommandList->IASetVertexBuffers(0, 1, &mBoxGeo->VertexBufferView());*/
-	/*mCommandList->IASetIndexBuffer(&mBoxGeo->IndexBufferView());*/
-	/*mCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	mCommandList->SetGraphicsRootDescriptorTable(0, mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-
-	mCommandList->DrawIndexedInstanced(
-		mBoxGeo->DrawArgs["box"].IndexCount,
-		1, 0, 0, 0);
-		*/
+	m_pTestScene->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -464,8 +446,22 @@ bool Framework::InitDirect3D()
 	CreateCommandObjects();
 	CreateSwapChain();
 	CreateRtvAndDsvDescriptorHeaps();
+	BuildObjects();
 
 	return true;
+}
+
+void Framework::BuildObjects()
+{
+	m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr);
+
+	m_pTestScene = make_unique<TestScene>();
+	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
+
+	ID3D12CommandList* cmdsLists[] = { m_pCommandList.Get() };
+	m_pCommandList->Close();
+	m_pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+	FlushCommandQueue();
 }
 
 void Framework::CreateCommandObjects()
