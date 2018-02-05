@@ -8,11 +8,19 @@
 #include "..\Object\Mesh\Mesh.h"
 #include "..\Object\Object.h"
 
+#pragma comment(lib, "assimp.lib")
 using namespace std;
 
-inline XMFLOAT4X4 convertAIMatrixToXMFloatt(aiMatrix4x4 m) {
-	return XMFLOAT4X4(&m.a1);
+inline XMMATRIX aiMatrixToXMMatrix(const aiMatrix4x4& offset)
+{
+	return XMMatrixTranspose(XMMATRIX(
+		offset.a1, offset.a2, offset.a3, offset.a4,
+		offset.b1, offset.b2, offset.b3, offset.b4,
+		offset.c1, offset.c2, offset.c3, offset.c4,
+		offset.d1, offset.d2, offset.d3, offset.d4
+	));
 }
+
 
 struct vertexDatas
 {
@@ -74,6 +82,18 @@ struct Bone
 	}
 };
 
+//struct Bone2
+//{
+//	string name;
+//	XMFLOAT4X4 offset;
+//	XMFLOAT4X4 toParent;
+//	
+//	Bone2* parent;
+//	vector<Bone*> child;
+//
+//	XMFLOAT4X4 toRoot;
+//};
+
 class ModelMesh : public CMesh
 {
 public:
@@ -90,7 +110,7 @@ private:
 	vector<mesh>				m_meshes;			//매쉬 정보
 	vector<ModelMesh*>	m_ModelMeshes;	//매쉬 정보 리소스(for 랜더링)
 	vector<pair<string, Bone>> m_Bones;	//뼈 정보
-
+	//vector<Bone2> mBones;
 
 	UINT							m_numVertices;
 	UINT							m_numMaterial;

@@ -13,59 +13,62 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{95508ee5-dac1-42e1-9157-b0d402e04731}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Objects">
-      <UniqueIdentifier>{5bd86630-0190-420a-802c-48de9dd1b2d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Header">
-      <UniqueIdentifier>{e717977c-0408-4823-b47c-e32f8ed32171}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Source">
-      <UniqueIdentifier>{5dcd8086-46a8-4dab-8c44-94144a68e0dd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Objects\Header">
-      <UniqueIdentifier>{68ded3a0-22a1-4cfa-9321-85b9c4676622}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Objects\Source">
-      <UniqueIdentifier>{e73e55e3-08e7-4fd0-9e32-c4c40cbfe3ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\hlsl">
-      <UniqueIdentifier>{2f33546d-34eb-4f1e-b40c-6a43b37ef6bf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mesh">
-      <UniqueIdentifier>{bce42952-2bbe-4141-9b25-071114b37e3b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mesh\Source">
-      <UniqueIdentifier>{be342765-96fc-4443-837b-7e1c87d759de}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Mesh\Header">
-      <UniqueIdentifier>{ea5f531c-d5ed-4efa-8b51-70de004bf8e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Util">
-      <UniqueIdentifier>{fef786fb-7d31-4a69-aad1-5b0c0e817557}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Util\Source">
-      <UniqueIdentifier>{e19a371d-1497-4e54-a013-ebfcb667a266}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Util\Header">
-      <UniqueIdentifier>{fcc41a3b-8280-4519-95da-5c1d8d36c613}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene">
-      <UniqueIdentifier>{e9552983-845c-41cf-aa36-d3447d25018a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene\Header">
-      <UniqueIdentifier>{b653bded-8d77-453f-b7a5-621cbca5a7f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene\Source">
-      <UniqueIdentifier>{be7a5c7c-3a5a-457c-ad38-c56da0f3cc1b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Model">
       <UniqueIdentifier>{d54183ca-d4c1-40e6-9903-77bc3a5f53e4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="InputModel%28사용안함%29">
-      <UniqueIdentifier>{c934aceb-3240-46bb-9ad6-bacd265fba36}</UniqueIdentifier>
+    <Filter Include="Origin">
+      <UniqueIdentifier>{6ffc8716-d3cc-4f60-ac40-58936f0c17e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Mesh">
+      <UniqueIdentifier>{bce42952-2bbe-4141-9b25-071114b37e3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Mesh\Source">
+      <UniqueIdentifier>{be342765-96fc-4443-837b-7e1c87d759de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Mesh\Header">
+      <UniqueIdentifier>{ea5f531c-d5ed-4efa-8b51-70de004bf8e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Objects">
+      <UniqueIdentifier>{5bd86630-0190-420a-802c-48de9dd1b2d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Objects\Header">
+      <UniqueIdentifier>{68ded3a0-22a1-4cfa-9321-85b9c4676622}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Objects\Source">
+      <UniqueIdentifier>{e73e55e3-08e7-4fd0-9e32-c4c40cbfe3ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Scene">
+      <UniqueIdentifier>{e9552983-845c-41cf-aa36-d3447d25018a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Scene\Header">
+      <UniqueIdentifier>{b653bded-8d77-453f-b7a5-621cbca5a7f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Scene\Source">
+      <UniqueIdentifier>{be7a5c7c-3a5a-457c-ad38-c56da0f3cc1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Shaders">
+      <UniqueIdentifier>{95508ee5-dac1-42e1-9157-b0d402e04731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Shaders\Header">
+      <UniqueIdentifier>{e717977c-0408-4823-b47c-e32f8ed32171}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Shaders\Source">
+      <UniqueIdentifier>{5dcd8086-46a8-4dab-8c44-94144a68e0dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Shaders\hlsl">
+      <UniqueIdentifier>{2f33546d-34eb-4f1e-b40c-6a43b37ef6bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Util">
+      <UniqueIdentifier>{fef786fb-7d31-4a69-aad1-5b0c0e817557}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Util\Source">
+      <UniqueIdentifier>{e19a371d-1497-4e54-a013-ebfcb667a266}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Origin\Util\Header">
+      <UniqueIdentifier>{fcc41a3b-8280-4519-95da-5c1d8d36c613}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model2">
+      <UniqueIdentifier>{f093036e-2fac-44b1-9ab4-3d64ed782a59}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -88,40 +91,37 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Code\FrameWork\DDSTextureLoader12.h">
-      <Filter>Util\Header</Filter>
+      <Filter>Origin\Util\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\FrameWork\d3dx12.h">
-      <Filter>Util\Header</Filter>
+      <Filter>Origin\Util\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\Shaders\Shader.h">
-      <Filter>Shaders\Header</Filter>
+      <Filter>Origin\Shaders\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\Scene\Scene.h">
-      <Filter>Scene\Header</Filter>
+      <Filter>Origin\Scene\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\Object\Camera.h">
-      <Filter>Objects\Header</Filter>
+      <Filter>Origin\Objects\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\Object\Object.h">
-      <Filter>Objects\Header</Filter>
+      <Filter>Origin\Objects\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\Object\Player.h">
-      <Filter>Objects\Header</Filter>
+      <Filter>Origin\Objects\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\Object\Mesh\Mesh.h">
-      <Filter>Mesh\Header</Filter>
+      <Filter>Origin\Mesh\Header</Filter>
     </ClInclude>
     <ClInclude Include="EffectShaders.h">
-      <Filter>Shaders\Header</Filter>
+      <Filter>Origin\Shaders\Header</Filter>
     </ClInclude>
     <ClInclude Include="DxException.h">
-      <Filter>Util\Header</Filter>
+      <Filter>Origin\Util\Header</Filter>
     </ClInclude>
     <ClInclude Include="NormalShaders.h">
-      <Filter>Shaders\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\InputModel\InputModel.h">
-      <Filter>InputModel%28사용안함%29</Filter>
+      <Filter>Origin\Shaders\Header</Filter>
     </ClInclude>
     <ClInclude Include="Code\Model\LoadModel.h">
       <Filter>Model</Filter>
@@ -134,6 +134,15 @@
     </ClInclude>
     <ClInclude Include="Code\InputModel\ModelShader.h">
       <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\test\tAnimation.h">
+      <Filter>Model2</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\test\tMesh.h">
+      <Filter>Model2</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\test\tModel.h">
+      <Filter>Model2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -150,37 +159,34 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Code\FrameWork\DDSTextureLoader12.cpp">
-      <Filter>Util\Source</Filter>
+      <Filter>Origin\Util\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Scene\Scene.cpp">
-      <Filter>Scene\Source</Filter>
+      <Filter>Origin\Scene\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Object\Camera.cpp">
-      <Filter>Objects\Source</Filter>
+      <Filter>Origin\Objects\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Object\Object.cpp">
-      <Filter>Objects\Source</Filter>
+      <Filter>Origin\Objects\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Object\Player.cpp">
-      <Filter>Objects\Source</Filter>
+      <Filter>Origin\Objects\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Object\Mesh\Mesh.cpp">
-      <Filter>Mesh\Source</Filter>
+      <Filter>Origin\Mesh\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Shaders\Shader.cpp">
-      <Filter>Shaders\Source</Filter>
+      <Filter>Origin\Shaders\Source</Filter>
     </ClCompile>
     <ClCompile Include="EffectShaders.cpp">
-      <Filter>Shaders\Source</Filter>
+      <Filter>Origin\Shaders\Source</Filter>
     </ClCompile>
     <ClCompile Include="NormalShaders.cpp">
-      <Filter>Shaders\Source</Filter>
+      <Filter>Origin\Shaders\Source</Filter>
     </ClCompile>
     <ClCompile Include="DxException.cpp">
-      <Filter>Util\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\InputModel\InputModel.cpp">
-      <Filter>InputModel%28사용안함%29</Filter>
+      <Filter>Origin\Util\Source</Filter>
     </ClCompile>
     <ClCompile Include="Code\Model\LoadModel.cpp">
       <Filter>Model</Filter>
@@ -193,6 +199,15 @@
     </ClCompile>
     <ClCompile Include="Code\InputModel\ModelShader.cpp">
       <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\test\tAnimation.cpp">
+      <Filter>Model2</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\test\tMesh.cpp">
+      <Filter>Model2</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\test\tModel.cpp">
+      <Filter>Model2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -210,26 +225,29 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Light.hlsl">
-      <Filter>Shaders\hlsl</Filter>
+      <Filter>Origin\Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\MainSceneShaders.hlsl">
-      <Filter>Shaders\hlsl</Filter>
+      <Filter>Origin\Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\Shaders.hlsl">
-      <Filter>Shaders\hlsl</Filter>
+      <Filter>Origin\Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\Effects.hlsl">
-      <Filter>Shaders\hlsl</Filter>
+      <Filter>Origin\Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="NormalMapShaders.hlsl">
-      <Filter>Shaders\hlsl</Filter>
+      <Filter>Origin\Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="Common.hlsl">
-      <Filter>Shaders\hlsl</Filter>
+      <Filter>Origin\Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="walking.FBX">
+      <Filter>Model</Filter>
+    </None>
+    <None Include="angle.FBX">
       <Filter>Model</Filter>
     </None>
   </ItemGroup>

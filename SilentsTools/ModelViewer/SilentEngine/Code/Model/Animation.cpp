@@ -7,7 +7,7 @@ LoadAnimation::LoadAnimation(string filename)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
 	m_pAnim = m_pScene->mAnimations[0];
-	m_GlobalInverse = XMMATRIX(&m_pScene->mRootNode->mTransformation.a1);
+	m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
 	
 
 }
@@ -24,12 +24,18 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 
 	ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
 
-	//transforms.clear();
+	/*for (auto& p : m_Bones) {
+		if (p.first == "Bone002") {
+			XMMATRIX rot = XMMatrixRotationRollPitchYaw(0, 1 * AnimationTime, 0);
+			p.second.FinalTransformation =
+				m_GlobalInverse * rot *  p.second.BoneOffset;
+
+		}
+	}*/
+
 	transforms.resize(m_NumBones);
 
-
 	for (int i = 0; i < m_NumBones; ++i) {
-		//transforms[i] = m_Bones[i].second.FinalTransformation;
 		XMStoreFloat4x4(&transforms[i], m_Bones[i].second.FinalTransformation);
 	}
 }
@@ -40,42 +46,39 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 
 	const aiAnimation* pAnim = m_pScene->mAnimations[0];
 
-	XMMATRIX NodeTransformation = XMMATRIX(&pNode->mTransformation.a1);
+	XMMATRIX NodeTransformation = aiMatrixToXMMatrix(pNode->mTransformation);
 
 	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, NodeName);
 
 	if (pNodeAnim) {
-		aiVector3D scaling;
-		CalcInterpolatedScaling(scaling, AnimationTime, pNodeAnim);
-		XMMATRIX ScalingM = XMMatrixScaling(scaling.x, scaling.y, scaling.z);
-		ScalingM = XMMatrixTranspose(ScalingM);
+		aiVector3D s;
+		CalcInterpolatedScaling(s, AnimationTime, pNodeAnim);
+		XMMATRIX ScalingM = XMMatrixScaling(s.x, s.y, s.z);
+
 
 		aiQuaternion q;
 		CalcInterpolatedRotation(q, AnimationTime, pNodeAnim);
 		XMMATRIX RotationM = XMMatrixRotationQuaternion(XMVectorSet(q.x, q.y, q.z, q.w));
-		RotationM = XMMatrixTranspose(RotationM);
+
 
 		aiVector3D t;
 		CalcInterpolatedPosition(t, AnimationTime, pNodeAnim);
 		XMMATRIX TranslationM = XMMatrixTranslation(t.x, t.y, t.z);
-		TranslationM = XMMatrixTranspose(TranslationM);
 
-		NodeTransformation = TranslationM * RotationM * ScalingM;
-		//NodeTransformation = RotationM * ScalingM * TranslationM;
-		//NodeTransformation = ScalingM * RotationM  * TranslationM;
-		//or r s t
+
+
+		NodeTransformation = TranslationM* RotationM  * ScalingM;
+
 	}
 
-	XMMATRIX GlobalTransformation = ParentTransform * NodeTransformation;
+	XMMATRIX GlobalTransformation = ParentTransform * NodeTransformation  ;
 
-	int tmp = 0;
 	for (auto& p : m_Bones) {
 		if (p.first == NodeName) {
-			p.second.FinalTransformation = XMMatrixTranspose(
-				m_GlobalInverse *  GlobalTransformation * p.second.BoneOffset);
+			p.second.FinalTransformation = 
+				m_GlobalInverse *  GlobalTransformation * p.second.BoneOffset;
 			break;
 		}
-		tmp += 1;
 	}
 
 	for (UINT i = 0; i < pNode->mNumChildren; ++i) {

@@ -8,10 +8,10 @@ ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12Graph
 	for (UINT i = 0; i < m_nMeshes; ++i) {
 		SetMesh(i, m_model->getMeshes()[i]);
 	}
-	m_ani = new LoadAnimation("walking.FBX");
+	m_ani = new LoadAnimation("angle.FBX");
 	m_ani->setBones(m_model->GetBones());
 	
-	Rotate(0, 180, 180);
+	//Rotate(90 ,0, 0);
 }
 ModelObject::~ModelObject() 
 {

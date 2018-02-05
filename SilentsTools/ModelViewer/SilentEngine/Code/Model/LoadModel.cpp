@@ -48,16 +48,17 @@ LoadModel::LoadModel(const string& fileName)
 		aiProcess_ConvertToLeftHanded |			// convert everything to D3D left handed space
 		aiProcess_SortByPType);					// make 'clean' meshes which consist of a single type of primitives);
 
-	m_meshes.resize(m_pScene->mNumMeshes);
-	m_numMaterial = m_pScene->mNumMaterials;
-	m_numBones = 0;
+	if (m_pScene) {
+		m_meshes.resize(m_pScene->mNumMeshes);
+		m_numMaterial = m_pScene->mNumMaterials;
+		m_numBones = 0;
 
-
-	InitScene();
-	for (const auto& p : m_Bones) {
-		cout << p.first << endl;
+		InitScene();
+		for (const auto& p : m_Bones) {
+			cout << p.first << endl;
+		}
+		m_ModelMeshes.resize(m_meshes.size());
 	}
-	m_ModelMeshes.resize(m_meshes.size());
 }
 
 
@@ -72,8 +73,8 @@ void LoadModel::InitScene()
 	for (UINT i = 0; i < m_meshes.size(); ++i) {
 		const aiMesh* pMesh = m_pScene->mMeshes[i];
 		InitMesh(i, pMesh);
-		InitBones(i, pMesh);
-		
+		if(pMesh->HasBones())
+			InitBones(i, pMesh);
 		m_numVertices += (UINT)m_meshes[i].m_vertices.size();
 	}
 	m_numBones = (UINT)m_Bones.size();
@@ -115,6 +116,7 @@ void LoadModel::SetMeshes(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *p
 	}
 }
 
+
 void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 {
 	for (UINT i = 0; i < pMesh->mNumBones; ++i) {
@@ -138,7 +140,7 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 			//인덱스는 현재 뼈의 개수 (0개일 경우 0부터 시작)
 
 			Bone bone;
-			bone.BoneOffset = XMMATRIX(&pMesh->mBones[BoneIndex]->mOffsetMatrix.a1);
+			bone.BoneOffset = aiMatrixToXMMatrix(pMesh->mBones[BoneIndex]->mOffsetMatrix);
 			m_Bones.emplace_back(make_pair(BoneName, bone));
 		}
 
@@ -149,4 +151,6 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 			m_meshes[index].m_vertices[vertexID].AddBoneData(BoneIndex, weight);
 		}
 	}
+
+
 }

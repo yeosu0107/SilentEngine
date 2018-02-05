@@ -59,18 +59,18 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_pd3dcbGameObjects, ncbElementBytes);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, ROOT_PARAMETER_TEXTURE, false);
+	//CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, ROOT_PARAMETER_TEXTURE, false);
 
 #ifdef _WITH_BATCH_MATERIAL
-	m_pMaterial = new CMaterial();
-	m_pMaterial->SetTexture(pTexture);
-	m_pMaterial->SetReflection(1);
+	//m_pMaterial = new CMaterial();
+	//m_pMaterial->SetTexture(pTexture);
+	//m_pMaterial->SetReflection(1);
 #else
 	CMaterial *pCubeMaterial = new CMaterial();
 	pCubeMaterial->SetTexture(pTexture);
 	pCubeMaterial->SetReflection(1);
 #endif
-	LoadModel* model= new LoadModel("walking.FBX");
+	LoadModel* model= new LoadModel("angle.FBX");
 	model->SetMeshes(pd3dDevice, pd3dCommandList);
 
 	m_ppObjects = new CGameObject*[m_nObjects];
