@@ -67,9 +67,6 @@
     <Filter Include="Origin\Util\Header">
       <UniqueIdentifier>{fcc41a3b-8280-4519-95da-5c1d8d36c613}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Model2">
-      <UniqueIdentifier>{f093036e-2fac-44b1-9ab4-3d64ed782a59}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -135,15 +132,6 @@
     <ClInclude Include="Code\InputModel\ModelShader.h">
       <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="Code\test\tAnimation.h">
-      <Filter>Model2</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\test\tMesh.h">
-      <Filter>Model2</Filter>
-    </ClInclude>
-    <ClInclude Include="Code\test\tModel.h">
-      <Filter>Model2</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -199,15 +187,6 @@
     </ClCompile>
     <ClCompile Include="Code\InputModel\ModelShader.cpp">
       <Filter>Model</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\test\tAnimation.cpp">
-      <Filter>Model2</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\test\tMesh.cpp">
-      <Filter>Model2</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\test\tModel.cpp">
-      <Filter>Model2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

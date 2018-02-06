@@ -22,16 +22,13 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 	float AnimationTime = fmod(TimeInTicks, (float)m_pScene->mAnimations[0]->mDuration);
 
 
-	ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
-
-	/*for (auto& p : m_Bones) {
-		if (p.first == "Bone002") {
-			XMMATRIX rot = XMMatrixRotationRollPitchYaw(0, 1 * AnimationTime, 0);
-			p.second.FinalTransformation =
-				m_GlobalInverse * rot *  p.second.BoneOffset;
-
+	if(ApplyAnimation)
+		ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
+	else {
+		for (auto& p : m_Bones) {
+			p.second.FinalTransformation = XMMatrixIdentity();
 		}
-	}*/
+	}
 
 	transforms.resize(m_NumBones);
 

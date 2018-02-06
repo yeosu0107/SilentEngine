@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -23,7 +23,7 @@
     <ProjectGuid>{66348CA8-185A-4705-B75B-DFF32E4DE8BD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>SilentEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -161,9 +161,6 @@
     <ClInclude Include="Code\Object\Player.h" />
     <ClInclude Include="Code\Scene\Scene.h" />
     <ClInclude Include="Code\Shaders\Shader.h" />
-    <ClInclude Include="Code\test\tAnimation.h" />
-    <ClInclude Include="Code\test\tMesh.h" />
-    <ClInclude Include="Code\test\tModel.h" />
     <ClInclude Include="DxException.h" />
     <ClInclude Include="EffectShaders.h" />
     <ClInclude Include="NormalShaders.h" />
@@ -186,9 +183,6 @@
     <ClCompile Include="Code\Object\Player.cpp" />
     <ClCompile Include="Code\Scene\Scene.cpp" />
     <ClCompile Include="Code\Shaders\Shader.cpp" />
-    <ClCompile Include="Code\test\tAnimation.cpp" />
-    <ClCompile Include="Code\test\tMesh.cpp" />
-    <ClCompile Include="Code\test\tModel.cpp" />
     <ClCompile Include="DxException.cpp" />
     <ClCompile Include="EffectShaders.cpp" />
     <ClCompile Include="NormalShaders.cpp" />
