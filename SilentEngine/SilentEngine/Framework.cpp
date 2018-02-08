@@ -302,6 +302,7 @@ void Framework::OnResize()
 
 void Framework::Update(const Timer & gt)
 {
+	m_pTestScene->Update(gt);
 }
 
 void Framework::Render(const Timer & gt)

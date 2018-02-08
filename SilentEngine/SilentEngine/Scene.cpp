@@ -184,23 +184,75 @@ void TestScene::BuildPSOs(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pC
 	ThrowIfFailed(pDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_PSOs["Cube"])));
 }
 
+void TestScene::BuildConstantBuffers(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+	m_ObjectCB = make_unique<UploadBuffer<ObjectConstants>>(pDevice, 1, true);
+
+	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_ObjectCB->Resource()->GetGPUVirtualAddress();
+	
+	int boxCBufIndex = 0;
+	cbAddress += boxCBufIndex * objCBByteSize;
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
+	cbvDesc.BufferLocation = cbAddress;
+	cbvDesc.SizeInBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+
+	pDevice->CreateConstantBufferView(
+		&cbvDesc,
+		m_SrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+}
+
+void TestScene::Update(const Timer & gt)
+{
+	float mTheta = 1.5f*XM_PI;
+	float mPhi = XM_PIDIV4;
+	float mRadius = 5.0f;
+
+	float x = mRadius*sinf(mPhi)*cosf(mTheta);
+	float z = mRadius*sinf(mPhi)*sinf(mTheta);
+	float y = mRadius*cosf(mPhi);
+
+	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
+	XMVECTOR target = XMVectorZero();
+	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+	//XMStoreFloat4x4(&mView, view);
+
+	XMMATRIX world = XMLoadFloat4x4(&D3DMath::Identity4x4());
+	XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f*D3DMath::Pi, m_Camera->AspectRatio(), 1.0f, 1000.0f);
+	XMMATRIX worldViewProj = world * view * proj;
+
+	ObjectConstants objConstants;
+	XMStoreFloat4x4(&objConstants.m_WorldViewProj, XMMatrixTranspose(worldViewProj));
+	m_ObjectCB->CopyData(0, objConstants);
+}
+
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	BuildSceneGeometry(pDevice, pCommandList);
+	m_Camera = make_unique<Camera>();
+	m_Camera->SetScissorRect(0, 0, 800, 600);
+	m_Camera->SetViewport(0, 0, 800, 600, 0.0f, 1.0f);
+	
 	BuildDescriptorHeaps(pDevice, pCommandList);
+	BuildConstantBuffers(pDevice, pCommandList);
 	BuildRootSignature(pDevice, pCommandList);
 	BuildShadersAndInputLayout(pDevice, pCommandList);
+	BuildSceneGeometry(pDevice, pCommandList);
 	BuildPSOs(pDevice, pCommandList);
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
 	pCommandList->SetPipelineState(m_PSOs["Cube"].Get());
 	
+	m_Camera->SetViewportsAndScissorRects(pCommandList);
+
 	ID3D12DescriptorHeap* descriptorHeaps[] = { m_SrvDescriptorHeap.Get() };
 	pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
-
-	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
 
 	pCommandList->IASetVertexBuffers(0, 1, &m_Geometries["boxGeo"]->VertexBufferView());
 	pCommandList->IASetIndexBuffer(&m_Geometries["boxGeo"]->IndexBufferView());

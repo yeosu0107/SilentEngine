@@ -597,7 +597,7 @@ void CGameFramework::MoveToNextFrame()
 }
 
 #define _WITH_PLAYER_TOP
-#define _GRAPHICS_DEBUG
+//#define _GRAPHICS_DEBUG
 
 void CGameFramework::FrameAdvance()
 {    

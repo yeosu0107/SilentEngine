@@ -3,6 +3,8 @@
 #include "Mesh.h"
 #include "Shaders.h"
 #include "FrameResouce.h"
+#include "Camera.h"
+#include "Timer.h"
 
 // Scene 
 class Scene
@@ -17,6 +19,7 @@ public:
 	virtual void BuildShadersAndInputLayout(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
 	virtual void BuildSceneGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
 	virtual void BuildPSOs(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
+	virtual void Update(const Timer& gt) = 0;
 	//virtual void BuildFrameResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	//virtual void BuildMaterials(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	//virtual void BuildRenderItems(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
@@ -56,6 +59,8 @@ public:
 	virtual void BuildShadersAndInputLayout(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildSceneGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildPSOs(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	virtual void BuildConstantBuffers(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	virtual void Update(const Timer& gt);
 	//virtual void BuildFrameResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	//virtual void BuildMaterials(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	//virtual void BuildRenderItems(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
@@ -63,7 +68,8 @@ public:
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 		
 protected:
-
+	unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
+	unique_ptr<Camera> m_Camera = nullptr;
 };
 
 class GameScene : public Scene

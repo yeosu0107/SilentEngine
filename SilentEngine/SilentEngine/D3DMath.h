@@ -81,6 +81,7 @@ public:
 
 		return I;
 	}
+
 	static XMVECTOR RandUnitVec3();
 	static XMVECTOR RandHemisphereUnitVec3(XMVECTOR v);
 
