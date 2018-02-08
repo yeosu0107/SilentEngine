@@ -140,11 +140,11 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 			//인덱스는 현재 뼈의 개수 (0개일 경우 0부터 시작)
 
 			Bone bone;
-			bone.BoneOffset = aiMatrixToXMMatrix(pMesh->mBones[BoneIndex]->mOffsetMatrix);
+			bone.BoneOffset = aiMatrixToXMMatrix(pMesh->mBones[i]->mOffsetMatrix);
 			m_Bones.emplace_back(make_pair(BoneName, bone));
 		}
 
-		const aiBone* pBone = pMesh->mBones[BoneIndex];
+		const aiBone* pBone = pMesh->mBones[i];
 		for (UINT b = 0; b < pBone->mNumWeights; ++b) {
 			UINT vertexID = pBone->mWeights[b].mVertexId;
 			float weight = pBone->mWeights[b].mWeight;

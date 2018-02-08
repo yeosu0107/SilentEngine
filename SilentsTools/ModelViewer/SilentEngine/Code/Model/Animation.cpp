@@ -23,6 +23,7 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 
 
 	if(ApplyAnimation)
+		//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
 		ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
 	else {
 		for (auto& p : m_Bones) {
@@ -33,6 +34,7 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 	transforms.resize(m_NumBones);
 
 	for (int i = 0; i < m_NumBones; ++i) {
+		//뼈의 최종변환을 반환
 		XMStoreFloat4x4(&transforms[i], m_Bones[i].second.FinalTransformation);
 	}
 }
@@ -79,6 +81,7 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	}
 
 	for (UINT i = 0; i < pNode->mNumChildren; ++i) {
+		//자식노드로 이동
 		ReadNodeHeirarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
 }
