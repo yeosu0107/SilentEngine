@@ -240,6 +240,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\..\..\..\..\Downloads\FBXExporter-master\FBXExporter-master\Release\attack01.fbx" />
     <None Include="angle.FBX" />
     <None Include="walking.FBX" />
   </ItemGroup>

@@ -42,13 +42,13 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, const XMMATRIX& ParentTransform)
 {
 	string NodeName(pNode->mName.data);
-
 	const aiAnimation* pAnim = m_pScene->mAnimations[0];
 
-	XMMATRIX NodeTransformation = aiMatrixToXMMatrix(pNode->mTransformation);
+	XMMATRIX NodeTransformation = XMMATRIX(&pNode->mTransformation.a1);
 
 	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, NodeName);
 
+	XMMATRIX anim = XMMatrixIdentity();
 	if (pNodeAnim) {
 		aiVector3D s;
 		CalcInterpolatedScaling(s, AnimationTime, pNodeAnim);
@@ -66,11 +66,12 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 
 
 
-		NodeTransformation = TranslationM* RotationM  * ScalingM;
-
+		NodeTransformation = ScalingM * RotationM * TranslationM;
+		NodeTransformation = XMMatrixTranspose(NodeTransformation);
 	}
 
-	XMMATRIX GlobalTransformation = ParentTransform * NodeTransformation  ;
+
+	XMMATRIX GlobalTransformation = ParentTransform  *  NodeTransformation;
 
 	for (auto& p : m_Bones) {
 		if (p.first == NodeName) {

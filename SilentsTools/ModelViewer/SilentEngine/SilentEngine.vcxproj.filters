@@ -229,5 +229,8 @@
     <None Include="angle.FBX">
       <Filter>Model</Filter>
     </None>
+    <None Include="..\..\..\..\..\..\..\Downloads\FBXExporter-master\FBXExporter-master\Release\attack01.fbx">
+      <Filter>Model</Filter>
+    </None>
   </ItemGroup>
 </Project>

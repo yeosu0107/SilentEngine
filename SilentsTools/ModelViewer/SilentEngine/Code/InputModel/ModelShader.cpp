@@ -70,7 +70,7 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	pCubeMaterial->SetTexture(pTexture);
 	pCubeMaterial->SetReflection(1);
 #endif
-	LoadModel* model= new LoadModel("angle2.FBX");
+	LoadModel* model= new LoadModel("make a hole-snow.FBX");
 	model->SetMeshes(pd3dDevice, pd3dCommandList);
 
 	m_ppObjects = new CGameObject*[m_nObjects];

@@ -40,3 +40,14 @@ public:
 	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 };
 
+inline void printMatrix(XMMATRIX& mat) {
+	cout << fixed;
+	cout.precision(3);
+	for (UINT i = 0; i < 4; ++i) {
+		for (UINT j = 0; j < 4; ++j) {
+			cout << mat.r[i].m128_f32[j] << "\t\t";
+		}
+		cout << endl;
+	}
+	cout << endl;
+}
