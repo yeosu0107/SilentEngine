@@ -103,7 +103,7 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 
 	CD3DX12_DESCRIPTOR_RANGE cbvTable;
 	cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-	slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
+	slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);	// Camera
 
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr,
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
@@ -206,42 +206,19 @@ void TestScene::BuildConstantBuffers(ID3D12Device * pDevice, ID3D12GraphicsComma
 
 void TestScene::Update(const Timer & gt)
 {
-	float mTheta = 1.5f*XM_PI;
-	float mPhi = XM_PIDIV4;
-	float mRadius = 5.0f;
-
-	float x = mRadius*sinf(mPhi)*cosf(mTheta);
-	float z = mRadius*sinf(mPhi)*sinf(mTheta);
-	float y = mRadius*cosf(mPhi);
-
-	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-	XMVECTOR target = XMVectorZero();
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-	//XMStoreFloat4x4(&mView, view);
-
-	XMMATRIX world = XMLoadFloat4x4(&D3DMath::Identity4x4());
-	XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f*D3DMath::Pi, m_Camera->AspectRatio(), 1.0f, 1000.0f);
-	XMMATRIX worldViewProj = world * view * proj;
-
-	ObjectConstants objConstants;
-	XMStoreFloat4x4(&objConstants.m_WorldViewProj, XMMatrixTranspose(worldViewProj));
-	m_ObjectCB->CopyData(0, objConstants);
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_Camera = make_unique<Camera>();
-	m_Camera->SetScissorRect(0, 0, 800, 600);
-	m_Camera->SetViewport(0, 0, 800, 600, 0.0f, 1.0f);
-	
 	BuildDescriptorHeaps(pDevice, pCommandList);
 	BuildConstantBuffers(pDevice, pCommandList);
 	BuildRootSignature(pDevice, pCommandList);
 	BuildShadersAndInputLayout(pDevice, pCommandList);
 	BuildSceneGeometry(pDevice, pCommandList);
 	BuildPSOs(pDevice, pCommandList);
+
+	m_Camera = make_unique<Camera>();
+	m_Camera->InitCamera(pDevice, pCommandList);
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -250,15 +227,11 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	pCommandList->SetPipelineState(m_PSOs["Cube"].Get());
 	
 	m_Camera->SetViewportsAndScissorRects(pCommandList);
-
-	ID3D12DescriptorHeap* descriptorHeaps[] = { m_SrvDescriptorHeap.Get() };
-	pCommandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps);
+	m_Camera->UpdateShaderVariables(pCommandList);
 
 	pCommandList->IASetVertexBuffers(0, 1, &m_Geometries["boxGeo"]->VertexBufferView());
 	pCommandList->IASetIndexBuffer(&m_Geometries["boxGeo"]->IndexBufferView());
 	pCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	pCommandList->SetGraphicsRootDescriptorTable(0, m_SrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
 	pCommandList->DrawIndexedInstanced(
 		m_Geometries["boxGeo"]->DrawArgs["box"].IndexCount,
