@@ -6,10 +6,9 @@
 LoadAnimation::LoadAnimation(string filename)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
-	m_pAnim = m_pScene->mAnimations[0];
-	m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
-	
-
+	m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
+	//m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
+	m_GlobalInverse = XMMatrixIdentity();
 }
 
 void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
@@ -21,18 +20,10 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 	float TimeInTicks = time*TicksPerSecond;
 	float AnimationTime = fmod(TimeInTicks, (float)m_pScene->mAnimations[0]->mDuration);
 
+	//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
+	ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
 
-	if(ApplyAnimation)
-		//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
-		ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
-	else {
-		for (auto& p : m_Bones) {
-			p.second.FinalTransformation = XMMatrixIdentity();
-		}
-	}
-
-	transforms.resize(m_NumBones);
-
+	//transforms.resize(m_NumBones);
 	for (int i = 0; i < m_NumBones; ++i) {
 		//뼈의 최종변환을 반환
 		XMStoreFloat4x4(&transforms[i], m_Bones[i].second.FinalTransformation);
@@ -44,11 +35,10 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	string NodeName(pNode->mName.data);
 	const aiAnimation* pAnim = m_pScene->mAnimations[0];
 
-	XMMATRIX NodeTransformation = XMMATRIX(&pNode->mTransformation.a1);
+	XMMATRIX NodeTransformation = aiMatrixToXMMatrix(pNode->mTransformation);
 
 	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, NodeName);
-
-	XMMATRIX anim = XMMatrixIdentity();
+	//현재 노드가 animation channel 에 속한지 확인
 	if (pNodeAnim) {
 		aiVector3D s;
 		CalcInterpolatedScaling(s, AnimationTime, pNodeAnim);
@@ -65,14 +55,14 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 		XMMATRIX TranslationM = XMMatrixTranslation(t.x, t.y, t.z);
 
 
-
-		NodeTransformation = ScalingM * RotationM * TranslationM;
+		NodeTransformation = ScalingM * RotationM * TranslationM; //스케일 * 회전 * 이동 변환
 		NodeTransformation = XMMatrixTranspose(NodeTransformation);
+		//transpos 안시켜주면 모델 깨짐
 	}
-
-
+	//부모노드에 변환값 중첩해서 곱하기
 	XMMATRIX GlobalTransformation = ParentTransform  *  NodeTransformation;
 
+	//현재노드가 뼈 노드이면 변환정보를 뼈에 적용
 	for (auto& p : m_Bones) {
 		if (p.first == NodeName) {
 			p.second.FinalTransformation = 
@@ -82,7 +72,7 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	}
 
 	for (UINT i = 0; i < pNode->mNumChildren; ++i) {
-		//자식노드로 이동
+		//계층구조를 이룸. 자식노드 탐색 및 변환
 		ReadNodeHeirarchy(AnimationTime, pNode->mChildren[i], GlobalTransformation);
 	}
 }
@@ -117,7 +107,7 @@ void LoadAnimation::CalcInterpolatedScaling(aiVector3D & Out, float AnimationTim
 	float Factor = (AnimationTime - (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime) / DeltaTime;
 
 
-	assert(Factor >= 0.0f && Factor <= 1.0f);
+	//assert(Factor >= 0.0f && Factor <= 1.0f);
 
 
 	const aiVector3D& Start = pNodeAnim->mScalingKeys[ScalingIndex].mValue;
@@ -143,7 +133,7 @@ void LoadAnimation::CalcInterpolatedRotation(aiQuaternion & Out, float Animation
 	float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
 
 
-	assert(Factor >= 0.0f && Factor <= 1.0f);
+	//assert(Factor >= 0.0f && Factor <= 1.0f);
 
 
 	const aiQuaternion& StartRotationQ = pNodeAnim->mRotationKeys[RotationIndex].mValue;
@@ -169,7 +159,7 @@ void LoadAnimation::CalcInterpolatedPosition(aiVector3D & Out, float AnimationTi
 	float DeltaTime = (float)(pNodeAnim->mPositionKeys[NextPositionIndex].mTime - pNodeAnim->mPositionKeys[PositionIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mPositionKeys[PositionIndex].mTime) / DeltaTime;
 
-	assert(Factor >= 0.0f && Factor <= 1.0f);
+	//assert(Factor >= 0.0f && Factor <= 1.0f);
 
 	const aiVector3D& Start = pNodeAnim->mPositionKeys[PositionIndex].mValue;
 	const aiVector3D& End = pNodeAnim->mPositionKeys[NextPositionIndex].mValue;
@@ -179,9 +169,7 @@ void LoadAnimation::CalcInterpolatedPosition(aiVector3D & Out, float AnimationTi
 
 UINT LoadAnimation::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
-
-	assert(pNodeAnim->mNumScalingKeys > 0);
-
+	//assert(pNodeAnim->mNumScalingKeys > 0);
 
 	for (UINT i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime) {
@@ -189,13 +177,13 @@ UINT LoadAnimation::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAni
 		}
 	}
 
-	assert(0);
+	//assert(0);
 	return 0;
 }
 
 UINT LoadAnimation::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
-	assert(pNodeAnim->mNumRotationKeys > 0);
+	//assert(pNodeAnim->mNumRotationKeys > 0);
 
 	for (UINT i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime) {
@@ -203,7 +191,7 @@ UINT LoadAnimation::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAn
 		}
 	}
 
-	assert(0);
+	//assert(0);
 	return 0;
 }
 
@@ -215,6 +203,6 @@ UINT LoadAnimation::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAn
 		}
 	}
 
-	assert(0);
+	//assert(0);
 	return 0;
 }

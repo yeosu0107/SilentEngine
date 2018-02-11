@@ -11,12 +11,12 @@ using namespace std;
 class LoadAnimation
 {
 private:
-	const aiScene*						m_pScene;
-	const aiAnimation*					m_pAnim;
-	vector<pair<string, Bone>>		m_Bones;	//»À Á¤º¸
-	UINT										m_NumBones;
+	const aiScene*						m_pScene;	//Model info
+	const aiAnimation*					m_pAnim;	//Animation Info
+	vector<pair<string, Bone>>		m_Bones;	//Bone Info
+	UINT										m_NumBones; //Num of Bones
 
-	XMMATRIX								m_GlobalInverse;
+	XMMATRIX								m_GlobalInverse; //Model Global Matrix
 
 public:
 	LoadAnimation(string filename);
@@ -39,15 +39,3 @@ public:
 	unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
 	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 };
-
-inline void printMatrix(XMMATRIX& mat) {
-	cout << fixed;
-	cout.precision(3);
-	for (UINT i = 0; i < 4; ++i) {
-		for (UINT j = 0; j < 4; ++j) {
-			cout << mat.r[i].m128_f32[j] << "\t\t";
-		}
-		cout << endl;
-	}
-	cout << endl;
-}

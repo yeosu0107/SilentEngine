@@ -372,6 +372,9 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					WaitForGpuComplete();
 					break;
 				case VK_F1:
+					AnimIndex += 1;
+					if (AnimIndex >= 5)
+						AnimIndex = 0;
 				case VK_F2:
 				case VK_F3:
 					break;

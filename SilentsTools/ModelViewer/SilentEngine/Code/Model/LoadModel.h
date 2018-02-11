@@ -13,12 +13,7 @@ using namespace std;
 
 inline XMMATRIX aiMatrixToXMMatrix(const aiMatrix4x4& offset)
 {
-	return XMMatrixTranspose(XMMATRIX(
-		offset.a1, offset.a2, offset.a3, offset.a4,
-		offset.b1, offset.b2, offset.b3, offset.b4,
-		offset.c1, offset.c2, offset.c3, offset.c4,
-		offset.d1, offset.d2, offset.d3, offset.d4
-	));
+	return XMMATRIX(&offset.a1);
 }
 
 

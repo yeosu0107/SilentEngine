@@ -129,7 +129,7 @@
     <ClInclude Include="Code\Model\Animation.h">
       <Filter>Model</Filter>
     </ClInclude>
-    <ClInclude Include="Code\InputModel\ModelShader.h">
+    <ClInclude Include="Code\Model\ModelShader.h">
       <Filter>Model</Filter>
     </ClInclude>
   </ItemGroup>
@@ -185,7 +185,7 @@
     <ClCompile Include="Code\Model\Animation.cpp">
       <Filter>Model</Filter>
     </ClCompile>
-    <ClCompile Include="Code\InputModel\ModelShader.cpp">
+    <ClCompile Include="Code\Model\ModelShader.cpp">
       <Filter>Model</Filter>
     </ClCompile>
   </ItemGroup>
@@ -221,16 +221,5 @@
     <FxCompile Include="Common.hlsl">
       <Filter>Origin\Shaders\hlsl</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="walking.FBX">
-      <Filter>Model</Filter>
-    </None>
-    <None Include="angle.FBX">
-      <Filter>Model</Filter>
-    </None>
-    <None Include="..\..\..\..\..\..\..\Downloads\FBXExporter-master\FBXExporter-master\Release\attack01.fbx">
-      <Filter>Model</Filter>
-    </None>
   </ItemGroup>
 </Project>

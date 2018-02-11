@@ -52,7 +52,7 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	m_nObjects = 1;
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"snow.DDS", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"pirate.DDS", 0);
 
 	UINT ncbElementBytes = ((sizeof(CB_OBJECT_INFO) + 255) & ~255);
 
@@ -70,17 +70,25 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	pCubeMaterial->SetTexture(pTexture);
 	pCubeMaterial->SetReflection(1);
 #endif
-	LoadModel* model= new LoadModel("make a hole-snow.FBX");
+	LoadModel* model= new LoadModel("testModelData\\P_standing.FBX");
 	model->SetMeshes(pd3dDevice, pd3dCommandList);
+
+	UINT numAnim = 5;
+	LoadAnimation** Anim = new LoadAnimation*[numAnim];
+	Anim[0] = new LoadAnimation("testModelData\\P_standing.FBX");
+	Anim[1] = new LoadAnimation("testModelData\\P_Walk.FBX");
+	Anim[2] = new LoadAnimation("testModelData\\P_Attack.FBX");
+	Anim[3] = new LoadAnimation("testModelData\\P_MakeAHole.FBX");
+	Anim[4] = new LoadAnimation("testModelData\\P_Hitted.FBX");
 
 	m_ppObjects = new CGameObject*[m_nObjects];
 
 	for (int i = 0; i < m_nObjects; ++i) {
 		ModelObject* object = new ModelObject(model, pd3dDevice, pd3dCommandList);
-		object->SetPosition(i * 10, 0, 0);
+		object->SetPosition(i * 10, -20, 0);
+		object->SetAnimations(numAnim, Anim);
 		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		m_ppObjects[i] = object;
-
 	}
 }
 

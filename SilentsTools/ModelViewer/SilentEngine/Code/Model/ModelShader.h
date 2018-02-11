@@ -1,8 +1,7 @@
 #pragma once
 
 #include "..\Shaders\Shader.h"
-
-#include "..\Model\ModelObject.h"
+#include "ModelObject.h"
 
 class ModelShader : public CShader
 {

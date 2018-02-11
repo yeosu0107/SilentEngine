@@ -95,6 +95,7 @@ extern ID3D12Resource *CreateTexture2DResource(ID3D12Device *pd3dDevice, ID3D12G
 extern void SynchronizeResourceTransition(ID3D12GraphicsCommandList *pd3dCommandList, ID3D12Resource *pd3dResource, D3D12_RESOURCE_STATES d3dStateBefore, D3D12_RESOURCE_STATES d3dStateAfter);
 
 extern BOOL ApplyAnimation;
+extern UINT  AnimIndex;
 
 #define RANDOM_COLOR	XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))
 

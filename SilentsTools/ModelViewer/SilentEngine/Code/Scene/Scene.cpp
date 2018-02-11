@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "Scene.h"
-#include "..\InputModel\ModelShader.h"
+#include "..\Model\ModelShader.h"
 
 CScene::CScene()
 {
