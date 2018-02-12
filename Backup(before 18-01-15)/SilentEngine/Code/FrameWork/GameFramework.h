@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
+#include "NetWork.h"
 #include <memory>
 
 using namespace std;
@@ -111,5 +112,8 @@ private:
 	bool							CameraCorrection;
 	bool							m_bMouseCapture;
 	float							m_fMouseSensitive;	// 마우스 민감도
+
+//
+	NetWork							m_Network;
 };
 

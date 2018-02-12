@@ -114,6 +114,9 @@
     <ClInclude Include="DxException.h">
       <Filter>Util\Header</Filter>
     </ClInclude>
+    <ClInclude Include="NetWork.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -157,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="DxException.cpp">
       <Filter>Util\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="NetWork.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
