@@ -16,7 +16,6 @@ inline XMMATRIX aiMatrixToXMMatrix(const aiMatrix4x4& offset)
 	return XMMATRIX(&offset.a1);
 }
 
-
 struct vertexDatas
 {
 #define BONES_PER_VERTEX 4
@@ -33,7 +32,6 @@ struct vertexDatas
 	{
 		m_weights = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_bornIndex = XMUINT4(0, 0, 0, 0);
-		//memset(m_bornIndex, 0, sizeof(BYTE) * BONES_PER_VERTEX);
 	}
 
 	void AddBoneData(UINT index, float weight) {
@@ -77,18 +75,6 @@ struct Bone
 	}
 };
 
-//struct Bone2
-//{
-//	string name;
-//	XMFLOAT4X4 offset;
-//	XMFLOAT4X4 toParent;
-//	
-//	Bone2* parent;
-//	vector<Bone*> child;
-//
-//	XMFLOAT4X4 toRoot;
-//};
-
 class ModelMesh : public CMesh
 {
 public:
@@ -105,7 +91,6 @@ private:
 	vector<mesh>				m_meshes;			//매쉬 정보
 	vector<ModelMesh*>	m_ModelMeshes;	//매쉬 정보 리소스(for 랜더링)
 	vector<pair<string, Bone>> m_Bones;	//뼈 정보
-	//vector<Bone2> mBones;
 
 	UINT							m_numVertices;
 	UINT							m_numMaterial;

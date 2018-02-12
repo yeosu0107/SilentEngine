@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "ModelShader.h"
 
-
 ModelShader::ModelShader()
 {
+	
 }
 
 

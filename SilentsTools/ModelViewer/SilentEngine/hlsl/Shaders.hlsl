@@ -330,13 +330,15 @@ VS_TEXTURED_LIGHTING_OUTPUT VSModel(VS_MODEL_INPUT input)
 	for (int i = 0; i < 4; ++i) {
 		posL += weights[i] * mul(float4(input.pos, 1.0f), 
 			gBoneTransforms[input.index[i]]).xyz;
+		normalL += weights[i] * mul(input.normal,
+			(float3x3)gBoneTransforms[input.index[i]]);
 	}
 
 	//output.positionW = (float3)mul(float4(input.pos, 1.0f), gmtxGameObject);
 	output.positionW = (float3)mul(float4(posL, 1.0f), gmtxGameObject);
 	
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	//output.normalW = mul(normalL, (float3x3)gmtxGameObject);
+	//output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.normalW = mul(normalL, (float3x3)gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 #ifdef _WITH_VERTEX_LIGHTING
