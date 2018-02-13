@@ -159,6 +159,7 @@
     <ClInclude Include="Code\Shaders\Shader.h" />
     <ClInclude Include="DxException.h" />
     <ClInclude Include="EffectShaders.h" />
+    <ClInclude Include="NetWork.h" />
     <ClInclude Include="NormalShaders.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SilentEngine.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="Code\Shaders\Shader.cpp" />
     <ClCompile Include="DxException.cpp" />
     <ClCompile Include="EffectShaders.cpp" />
+    <ClCompile Include="NetWork.cpp" />
     <ClCompile Include="NormalShaders.cpp" />
     <ClCompile Include="SilentEngine.cpp" />
     <ClCompile Include="stdafx.cpp">
