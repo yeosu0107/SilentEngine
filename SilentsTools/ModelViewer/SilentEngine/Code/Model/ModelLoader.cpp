@@ -13,6 +13,7 @@ ModelLoader::ModelLoader(string fileName)
 	ifstream in(fileName);
 
 	string tmpName;
+	wstring matName;
 	UINT animCount;
 
 	while (!in.eof()) {
@@ -23,6 +24,10 @@ ModelLoader::ModelLoader(string fileName)
 
 		vector<LoadAnimation*>* animStack = new vector<LoadAnimation*>;
 		animStack->reserve(animCount);
+
+		in >> tmpName;
+		matList.emplace_back(tmpName);
+
 		for (UINT i = 0; i < animCount; ++i) {
 			in >> tmpName;
 			LoadAnimation* tmpAnim = new LoadAnimation(tmpName);

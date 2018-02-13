@@ -15,10 +15,11 @@ protected:
 #ifdef _WITH_BATCH_MATERIAL
 	CMaterial						*m_pMaterial = NULL;
 #endif
-
+	UINT modelIndex;
 
 public:
 	ModelShader();
+	ModelShader(UINT index);
 	~ModelShader();
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();

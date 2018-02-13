@@ -90,7 +90,7 @@ private:
 	const aiScene*			m_pScene;				//모델 정보
 	vector<mesh>				m_meshes;			//매쉬 정보
 	vector<ModelMesh*>	m_ModelMeshes;	//매쉬 정보 리소스(for 랜더링)
-	vector<pair<string, Bone>> m_Bones;	//뼈 정보
+	vector<pair<string, Bone>> m_Bones;		//뼈 정보
 
 	UINT							m_numVertices;
 	UINT							m_numMaterial;

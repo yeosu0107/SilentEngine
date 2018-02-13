@@ -23,6 +23,9 @@ CGameFramework::CGameFramework()
 	m_nWndClientHeight = FRAME_BUFFER_HEIGHT;
 
 	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
+
+	models = new ModelLoader("fileList.txt");
+	globalModels = models;
 }
 
 CGameFramework::~CGameFramework()
@@ -472,6 +475,8 @@ void CGameFramework::BuildObjects()
 {
 	m_pd3dCommandList->Reset(m_pd3dCommandAllocator.Get() , NULL);
 	m_ppScene = new CScene*[m_nMaxScene];
+
+	models->LodingModels(m_pd3dDevice.Get(), m_pd3dCommandList.Get());
 
 	MainScene* pMainScene = new MainScene();
 	pMainScene->BuildObjects(m_pd3dDevice.Get(), m_pd3dCommandList.Get());

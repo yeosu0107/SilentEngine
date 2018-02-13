@@ -509,7 +509,7 @@ void CObjectsShader::ReleaseShaderVariables()
 
 void CObjectsShader::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext)
 {
-	int xObjects = 0, yObjects = 0, zObjects = 0, i = 0;
+	int xObjects = 1, yObjects = 1, zObjects = 1, i = 0;
 
 	m_nObjects = (xObjects * 2 + 1) * (yObjects * 2 + 1) * (zObjects * 2 + 1);
 

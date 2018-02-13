@@ -54,9 +54,6 @@ LoadModel::LoadModel(const string& fileName)
 		m_numBones = 0;
 
 		InitScene();
-		for (const auto& p : m_Bones) {
-			cout << p.first << endl;
-		}
 		m_ModelMeshes.resize(m_meshes.size());
 	}
 }
@@ -78,7 +75,6 @@ void LoadModel::InitScene()
 		m_numVertices += (UINT)m_meshes[i].m_vertices.size();
 	}
 	m_numBones = (UINT)m_Bones.size();
-
 }
 
 void LoadModel::InitMesh(UINT index, const aiMesh * pMesh)

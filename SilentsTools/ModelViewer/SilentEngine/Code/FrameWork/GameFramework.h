@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "Player.h"
 #include "Scene.h"
+#include "..\Model\ModelLoader.h"
 #include <memory>
 
 using namespace std;
@@ -45,7 +46,6 @@ public:
 	void ReleaseObjects();
 	void ProcessInput();
 	void AnimateObjects();
-
 private:
 	HINSTANCE							m_hInstance;
 	HWND								m_hWnd; 
@@ -111,5 +111,7 @@ private:
 	bool							CameraCorrection;
 	bool							m_bMouseCapture;
 	float							m_fMouseSensitive;	// 마우스 민감도
+
+	ModelLoader* models;
 };
 

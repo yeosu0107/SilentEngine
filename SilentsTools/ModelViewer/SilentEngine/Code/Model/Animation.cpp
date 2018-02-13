@@ -6,9 +6,12 @@
 LoadAnimation::LoadAnimation(string filename)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
-	m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
-	//m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
-	m_GlobalInverse = XMMatrixIdentity();
+	
+	if (m_pScene) {
+		m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
+		//m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
+		m_GlobalInverse = XMMatrixIdentity();
+	}
 }
 
 void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
@@ -23,7 +26,6 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 	//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
 	ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
 
-	//transforms.resize(m_NumBones);
 	for (int i = 0; i < m_NumBones; ++i) {
 		//뼈의 최종변환을 반환
 		XMStoreFloat4x4(&transforms[i], m_Bones[i].second.FinalTransformation);
@@ -61,6 +63,10 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	}
 	//부모노드에 변환값 중첩해서 곱하기
 	XMMATRIX GlobalTransformation = ParentTransform  *  NodeTransformation;
+
+	if (NodeName == "Object010") {
+		m_grab = GlobalTransformation;
+	}
 
 	//현재노드가 뼈 노드이면 변환정보를 뼈에 적용
 	for (auto& p : m_Bones) {

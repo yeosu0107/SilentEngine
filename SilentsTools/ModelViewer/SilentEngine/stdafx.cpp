@@ -9,6 +9,7 @@
 UINT gnCbvSrvDescriptorIncrementSize = 0;
 BOOL ApplyAnimation = FALSE;
 UINT AnimIndex = 0;
+ModelLoader* globalModels;
 // TODO: 필요한 추가 헤더는
 // 이 파일이 아닌 STDAFX.H에서 참조합니다.
 	
@@ -99,7 +100,7 @@ ID3D12Resource *CreateBufferResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCom
 	return(pd3dBuffer);
 }
 
-ID3D12Resource *CreateTextureResourceFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, wchar_t *pszFileName, ID3D12Resource **ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates)
+ID3D12Resource *CreateTextureResourceFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, const wchar_t *pszFileName, ID3D12Resource **ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates)
 {
 	ID3D12Resource *pd3dTexture = NULL;
 	std::unique_ptr<uint8_t[]> ddsData;

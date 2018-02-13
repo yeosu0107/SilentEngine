@@ -17,7 +17,7 @@ private:
 	UINT										m_NumBones; //Num of Bones
 
 	XMMATRIX								m_GlobalInverse; //Model Global Matrix
-
+	XMMATRIX								m_grab;
 public:
 	LoadAnimation(string filename);
 	~LoadAnimation() {}
