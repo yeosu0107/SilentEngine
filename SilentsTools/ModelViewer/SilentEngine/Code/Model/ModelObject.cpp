@@ -48,5 +48,3 @@ void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * 
 {
 	CGameObject::Render(pd3dCommandList, pCamera);
 }
-
-

@@ -132,6 +132,9 @@
     <ClInclude Include="Code\Model\ModelShader.h">
       <Filter>Model</Filter>
     </ClInclude>
+    <ClInclude Include="Code\Model\ModelLoader.h">
+      <Filter>Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -186,6 +189,9 @@
       <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="Code\Model\ModelShader.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\Model\ModelLoader.cpp">
       <Filter>Model</Filter>
     </ClCompile>
   </ItemGroup>

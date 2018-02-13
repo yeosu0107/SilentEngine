@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ModelShader.h"
+#include "ModelLoader.h"
 
 ModelShader::ModelShader()
 {
@@ -70,6 +71,9 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	pCubeMaterial->SetTexture(pTexture);
 	pCubeMaterial->SetReflection(1);
 #endif
+	ModelLoader t("fileList.txt");
+	t.LodingModels(pd3dDevice, pd3dCommandList);
+
 	LoadModel* model= new LoadModel("testModelData\\P_standing.FBX");
 	model->SetMeshes(pd3dDevice, pd3dCommandList);
 
@@ -84,9 +88,12 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	m_ppObjects = new CGameObject*[m_nObjects];
 
 	for (int i = 0; i < m_nObjects; ++i) {
-		ModelObject* object = new ModelObject(model, pd3dDevice, pd3dCommandList);
+		/*ModelObject* object = new ModelObject(model, pd3dDevice, pd3dCommandList);
 		object->SetPosition(i * 10, -20, 0);
-		object->SetAnimations(numAnim, Anim);
+		object->SetAnimations(numAnim, Anim);*/
+		ModelObject* object = new ModelObject(t.getModel(0), pd3dDevice, pd3dCommandList);
+		object->SetPosition(i * 10, -20, 0);
+		object->SetAnimations(t.getAnimCount(0), t.getAnim(0));
 		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		m_ppObjects[i] = object;
 	}

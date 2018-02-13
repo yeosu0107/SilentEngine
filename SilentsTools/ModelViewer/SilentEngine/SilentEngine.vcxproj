@@ -153,6 +153,7 @@
     <ClInclude Include="Code\FrameWork\Timer.h" />
     <ClInclude Include="Code\Model\Animation.h" />
     <ClInclude Include="Code\Model\LoadModel.h" />
+    <ClInclude Include="Code\Model\ModelLoader.h" />
     <ClInclude Include="Code\Model\ModelObject.h" />
     <ClInclude Include="Code\Model\ModelShader.h" />
     <ClInclude Include="Code\Object\Camera.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="Code\FrameWork\Timer.cpp" />
     <ClCompile Include="Code\Model\Animation.cpp" />
     <ClCompile Include="Code\Model\LoadModel.cpp" />
+    <ClCompile Include="Code\Model\ModelLoader.cpp" />
     <ClCompile Include="Code\Model\ModelObject.cpp" />
     <ClCompile Include="Code\Model\ModelShader.cpp" />
     <ClCompile Include="Code\Object\Camera.cpp" />
