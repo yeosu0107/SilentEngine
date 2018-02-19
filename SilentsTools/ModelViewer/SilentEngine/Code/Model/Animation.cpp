@@ -18,10 +18,17 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 {
 	XMMATRIX Identity = XMMatrixIdentity();
 
-	float TicksPerSecond = (float)(m_pScene->mAnimations[0]->mTicksPerSecond != 0 ?
-		m_pScene->mAnimations[0]->mTicksPerSecond : 25.0f);
+	if (!m_pScene) {
+		for (int i = 0; i < m_NumBones; ++i) {
+			XMStoreFloat4x4(&transforms[i], Identity);
+		}
+		return;
+	}
+
+	float TicksPerSecond = (float)(m_pAnim->mTicksPerSecond != 0 ?
+		m_pAnim->mTicksPerSecond : 25.0f);
 	float TimeInTicks = time*TicksPerSecond;
-	float AnimationTime = fmod(TimeInTicks, (float)m_pScene->mAnimations[0]->mDuration);
+	float AnimationTime = fmod(TimeInTicks, (float)m_pAnim->mDuration);
 
 	//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
 	ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
@@ -35,7 +42,7 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, const XMMATRIX& ParentTransform)
 {
 	string NodeName(pNode->mName.data);
-	const aiAnimation* pAnim = m_pScene->mAnimations[0];
+	const aiAnimation* pAnim = m_pAnim;
 
 	XMMATRIX NodeTransformation = aiMatrixToXMMatrix(pNode->mTransformation);
 

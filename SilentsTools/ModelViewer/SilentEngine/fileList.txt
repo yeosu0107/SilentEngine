@@ -8,3 +8,5 @@ testModelData\\makeahole-snow.FBX 1 snow.dds
 testModelData\\makeahole-snow.FBX
 testModelData\\angle.FBX 1 null
 testModelData\\angle.FBX
+testModelData\\Golem.FBX 1 Golem.dds
+testModelData\\Golem.FBX

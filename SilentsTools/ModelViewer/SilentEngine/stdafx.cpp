@@ -7,7 +7,6 @@
 #include "DDSTextureLoader12.h"
 
 UINT gnCbvSrvDescriptorIncrementSize = 0;
-BOOL ApplyAnimation = FALSE;
 UINT AnimIndex = 0;
 ModelLoader* globalModels;
 // TODO: 필요한 추가 헤더는

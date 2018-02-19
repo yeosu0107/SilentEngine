@@ -517,21 +517,26 @@ void GameScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_ppd3dGraphicsRootSignature = new ID3D12RootSignature*[m_nRootSignature];
 	m_ppd3dGraphicsRootSignature[0] = CreateGraphicsRootSignature(pd3dDevice);
 
-	m_nShaders = 1;
+	m_nShaders = 2;
 	m_ppShaders = new CShader*[m_nShaders];
 
-	//CObjectsShader *pObjectShader = new CObjectsShader();
-	//pObjectShader->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
-	//pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
-	//m_ppShaders[0] = pObjectShader;
+	CObjectsShader *pObjectShader = new CObjectsShader();
+	pObjectShader->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
+	pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	m_ppShaders[0] = pObjectShader;
 
-	ModelShader* modelShader = new ModelShader(2);
+	ModelShader* modelShader = new ModelShader(3);
 	modelShader->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
 	modelShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
-	m_ppShaders[0] = modelShader;
+	m_ppShaders[1] = modelShader;
+
+	//ModelShader* modelShader2 = new ModelShader(1);
+	//modelShader2->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
+	//modelShader2->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	//m_ppShaders[2] = modelShader2;
+
 	
 	m_pPlayer = new CMyPlayer(pd3dDevice, pd3dCommandList, GetGraphicsRootSignature(), (void*)NULL, 1);
-
 	BuildLightsAndMaterials();
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

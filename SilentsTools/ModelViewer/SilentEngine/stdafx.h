@@ -94,7 +94,6 @@ extern ID3D12Resource *CreateTexture2DResource(ID3D12Device *pd3dDevice, ID3D12G
 
 extern void SynchronizeResourceTransition(ID3D12GraphicsCommandList *pd3dCommandList, ID3D12Resource *pd3dResource, D3D12_RESOURCE_STATES d3dStateBefore, D3D12_RESOURCE_STATES d3dStateAfter);
 
-extern BOOL ApplyAnimation;
 extern UINT  AnimIndex;
 extern ModelLoader* globalModels;
 
@@ -108,6 +107,9 @@ extern ModelLoader* globalModels;
 #define ROOT_PARAMETER_TEXTURE		4
 
 #define EPSILON						1.0e-10f
+
+#define NOWMODEL 0
+
 // 특정 회전 축으로 공전 시킬 때 사용할 회전 축
 typedef enum { RotX, RotY, RotZ } RotateAxis;
 typedef enum { MAINSCENE, GAMESCENE, SHOPSCENE } SceneNumber;

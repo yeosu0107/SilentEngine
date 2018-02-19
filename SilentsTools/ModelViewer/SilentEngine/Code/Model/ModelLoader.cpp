@@ -13,7 +13,6 @@ ModelLoader::ModelLoader(string fileName)
 	ifstream in(fileName);
 
 	string tmpName;
-	wstring matName;
 	UINT animCount;
 
 	while (!in.eof()) {
@@ -35,6 +34,7 @@ ModelLoader::ModelLoader(string fileName)
 		}
 
 		m_Objects.emplace_back(make_pair(tmpModel, animStack));
+		cout << "Load Success!" << m_Objects.size() << endl;
 	}
 
 	m_numModels = m_Objects.size();

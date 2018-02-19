@@ -38,9 +38,10 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 
 void ModelObject::Animate(float fTime)
 {
-	if (m_ani && ApplyAnimation) {
+	if (m_ani) {
 		m_ani[AnimIndex]->BoneTransform(m_Animtime, m_Bones);
 		m_Animtime += 0.03f;
+
 	}
 }
 

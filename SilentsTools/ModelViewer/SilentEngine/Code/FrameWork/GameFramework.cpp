@@ -368,10 +368,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					::PostQuitMessage(0);
 					break;
 				case VK_RETURN:
-					if (ApplyAnimation)
-						ApplyAnimation = FALSE;
-					else
-						ApplyAnimation = TRUE;
 					WaitForGpuComplete();
 					break;
 				case VK_F1:
