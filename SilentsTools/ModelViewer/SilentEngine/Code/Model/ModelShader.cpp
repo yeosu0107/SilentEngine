@@ -87,6 +87,7 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 		ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 		object->SetPosition(i * 10, 0, 0);
 		object->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
+		NumAnim = object->GetNumofAnim(); //모델 뷰어에서 애니메이션 갯수 가지고 있기
 		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		m_ppObjects[i] = object;
 	}

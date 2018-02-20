@@ -372,7 +372,7 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					break;
 				case VK_F1:
 					AnimIndex += 1;
-					if (AnimIndex >= 5)
+					if (AnimIndex >= NumAnim)
 						AnimIndex = 0;
 				case VK_F2:
 				case VK_F3:

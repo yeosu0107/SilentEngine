@@ -34,13 +34,17 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 		m_ani[i] = tmp[i];
 		m_ani[i]->setBones(m_model->GetBones());
 	}
+	m_ani[5]->DisableLoof(0);
+	m_ani[8]->DisableLoof(0);
 }
 
 void ModelObject::Animate(float fTime)
 {
 	if (m_ani) {
-		m_ani[AnimIndex]->BoneTransform(m_Animtime, m_Bones);
-		m_Animtime += 0.03f;
+		m_AnimIndex = AnimIndex;
+		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, m_Bones);
+		AnimIndex = m_AnimIndex;
+		//m_Animtime += 0.03f;
 
 	}
 }

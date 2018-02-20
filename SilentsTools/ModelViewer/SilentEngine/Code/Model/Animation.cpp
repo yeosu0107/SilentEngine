@@ -3,7 +3,8 @@
 #include "Animation.h"
 
 
-LoadAnimation::LoadAnimation(string filename)
+LoadAnimation::LoadAnimation(string filename, float start, float end) :
+	start_time(start), end_time(end), now_time(start), animation_loof(true), next_index(0)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
 	
@@ -11,10 +12,14 @@ LoadAnimation::LoadAnimation(string filename)
 		m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
 		//m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
 		m_GlobalInverse = XMMatrixIdentity();
+
+		if (end == 0.0f) {
+			end = (float)m_pAnim->mDuration;
+		}
 	}
 }
 
-void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
+void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 {
 	XMMATRIX Identity = XMMatrixIdentity();
 
@@ -25,13 +30,27 @@ void LoadAnimation::BoneTransform(float time, vector<XMFLOAT4X4>& transforms)
 		return;
 	}
 
-	float TicksPerSecond = (float)(m_pAnim->mTicksPerSecond != 0 ?
-		m_pAnim->mTicksPerSecond : 25.0f);
-	float TimeInTicks = time*TicksPerSecond;
-	float AnimationTime = fmod(TimeInTicks, (float)m_pAnim->mDuration);
+	//이 코드는 미리 정해진 프레임 내에서 애니메이션 수행
+	now_time += 0.5f;
+
+	if (now_time > end_time) {
+		now_time = start_time;
+		if (!animation_loof) {
+			index = next_index;
+			return;
+		}
+	}
+
+	//cout << now_time << endl;
+
+	//아래코드는 애니메이션의 실시간 보정
+	//float TicksPerSecond = (float)(m_pAnim->mTicksPerSecond != 0 ?
+	//	m_pAnim->mTicksPerSecond : 25.0f);
+	//float TimeInTicks = now_time*TicksPerSecond;
+	//float AnimationTime = fmod(TimeInTicks, (float)m_pAnim->mDuration);
 
 	//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
-	ReadNodeHeirarchy(AnimationTime, m_pScene->mRootNode, Identity);
+	ReadNodeHeirarchy(now_time, m_pScene->mRootNode, Identity);
 
 	for (int i = 0; i < m_NumBones; ++i) {
 		//뼈의 최종변환을 반환
@@ -119,7 +138,6 @@ void LoadAnimation::CalcInterpolatedScaling(aiVector3D & Out, float AnimationTim
 	float DeltaTime = (float)(pNodeAnim->mScalingKeys[NextScalingIndex].mTime - pNodeAnim->mScalingKeys[ScalingIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mScalingKeys[ScalingIndex].mTime) / DeltaTime;
 
-
 	//assert(Factor >= 0.0f && Factor <= 1.0f);
 
 
@@ -144,7 +162,6 @@ void LoadAnimation::CalcInterpolatedRotation(aiQuaternion & Out, float Animation
 
 	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
-
 
 	//assert(Factor >= 0.0f && Factor <= 1.0f);
 
@@ -182,7 +199,7 @@ void LoadAnimation::CalcInterpolatedPosition(aiVector3D & Out, float AnimationTi
 
 UINT LoadAnimation::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
-	//assert(pNodeAnim->mNumScalingKeys > 0);
+	assert(pNodeAnim->mNumScalingKeys > 0);
 
 	for (UINT i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime) {
@@ -196,7 +213,7 @@ UINT LoadAnimation::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAni
 
 UINT LoadAnimation::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAnim)
 {
-	//assert(pNodeAnim->mNumRotationKeys > 0);
+	assert(pNodeAnim->mNumRotationKeys > 0);
 
 	for (UINT i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
 		if (AnimationTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime) {

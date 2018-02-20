@@ -8,6 +8,7 @@
 
 UINT gnCbvSrvDescriptorIncrementSize = 0;
 UINT AnimIndex = 0;
+UINT NumAnim = 0;
 ModelLoader* globalModels;
 // TODO: 필요한 추가 헤더는
 // 이 파일이 아닌 STDAFX.H에서 참조합니다.

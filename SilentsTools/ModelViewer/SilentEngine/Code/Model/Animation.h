@@ -11,23 +11,36 @@ using namespace std;
 class LoadAnimation
 {
 private:
-	const aiScene*						m_pScene;	//Model info
-	const aiAnimation*					m_pAnim;	//Animation Info
-	vector<pair<string, Bone>>		m_Bones;	//Bone Info
-	UINT										m_NumBones; //Num of Bones
+	const aiScene*						m_pScene;	//모델 정보
+	const aiAnimation*					m_pAnim;	//애니메이션 정보
+	vector<pair<string, Bone>>		m_Bones;	//뼈 정보
+	UINT										m_NumBones; //뼈 갯수
 
-	XMMATRIX								m_GlobalInverse; //Model Global Matrix
-	XMMATRIX								m_grab;
+	XMMATRIX								m_GlobalInverse; //모델 글로벌 매트릭스
+	XMMATRIX								m_grab; //모델 손 좌표 (for 무기)
+
+	float										start_time; //프레임 시작 시간
+	float										end_time;  //프레임 종료 시간
+	float										now_time;  //현재 프레임
+	BOOL									animation_loof;  //애니메이션 루프 여부 (기본은 true)
+	UINT										next_index;
 public:
-	LoadAnimation(string filename);
+	LoadAnimation(string filename, float start, float end);
 	~LoadAnimation() {}
 
 	void setBones(vector<pair<string, Bone>>* bones) {
 		m_Bones = *bones;
 		m_NumBones = m_Bones.size();
 	}
+	void DisableLoof(UINT index) {
+		animation_loof = false;
+		next_index = index;
+	}
+	void EnableLoof() {
+		animation_loof = true;
+	}
 
-	void BoneTransform(float time, vector<XMFLOAT4X4>& transforms);
+	void BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms);
 	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const XMMATRIX& ParentTransform);
 	const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
 
