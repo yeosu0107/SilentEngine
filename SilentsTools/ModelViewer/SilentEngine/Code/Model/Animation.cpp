@@ -3,8 +3,8 @@
 #include "Animation.h"
 
 
-LoadAnimation::LoadAnimation(string filename, float start, float end) :
-	start_time(start), end_time(end), now_time(start), animation_loof(true), next_index(0)
+LoadAnimation::LoadAnimation(string filename) :
+	animation_loof(true), next_index(0)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
 	
@@ -13,9 +13,10 @@ LoadAnimation::LoadAnimation(string filename, float start, float end) :
 		//m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
 		m_GlobalInverse = XMMatrixIdentity();
 
-		if (end == 0.0f) {
-			end = (float)m_pAnim->mDuration;
-		}
+		start_time = (float)m_pAnim->mChannels[0]->mPositionKeys[0].mTime; //프레임 시작 시점은 좌표 이동 프레임을 기준으로 맞춤
+		end_time = (float)m_pAnim->mDuration - 1.0f; //프레임 종료 시점에서 1.0 만큼 빼줘야 프레임이 안겹침
+		now_time = start_time;
+
 	}
 }
 
@@ -24,15 +25,15 @@ void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 	XMMATRIX Identity = XMMatrixIdentity();
 
 	if (!m_pScene) {
+		//애니메이션 파일을 로드못 했을 경우 수행
 		for (int i = 0; i < m_NumBones; ++i) {
 			XMStoreFloat4x4(&transforms[i], Identity);
 		}
 		return;
 	}
 
-	//이 코드는 미리 정해진 프레임 내에서 애니메이션 수행
+	// 미리 정해진 프레임 내에서 애니메이션 수행
 	now_time += 0.5f;
-
 	if (now_time > end_time) {
 		now_time = start_time;
 		if (!animation_loof) {
@@ -40,8 +41,6 @@ void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 			return;
 		}
 	}
-
-	//cout << now_time << endl;
 
 	//아래코드는 애니메이션의 실시간 보정
 	//float TicksPerSecond = (float)(m_pAnim->mTicksPerSecond != 0 ?
@@ -92,6 +91,7 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 
 	if (NodeName == "Object010") {
 		m_grab = GlobalTransformation;
+		//손의 변환 행렬 정보를 갱신
 	}
 
 	//현재노드가 뼈 노드이면 변환정보를 뼈에 적용
@@ -162,7 +162,9 @@ void LoadAnimation::CalcInterpolatedRotation(aiQuaternion & Out, float Animation
 
 	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
-
+	cout << Factor << endl;
+	//if (Factor > 1.0f)
+	//	cout << "E" << endl;
 	//assert(Factor >= 0.0f && Factor <= 1.0f);
 
 
@@ -207,7 +209,6 @@ UINT LoadAnimation::FindScaling(float AnimationTime, const aiNodeAnim * pNodeAni
 		}
 	}
 
-	//assert(0);
 	return 0;
 }
 
@@ -221,7 +222,6 @@ UINT LoadAnimation::FindRotation(float AnimationTime, const aiNodeAnim * pNodeAn
 		}
 	}
 
-	//assert(0);
 	return 0;
 }
 
@@ -233,6 +233,5 @@ UINT LoadAnimation::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAn
 		}
 	}
 
-	//assert(0);
 	return 0;
 }

@@ -25,7 +25,7 @@ private:
 	BOOL									animation_loof;  //애니메이션 루프 여부 (기본은 true)
 	UINT										next_index;
 public:
-	LoadAnimation(string filename, float start, float end);
+	LoadAnimation(string filename);
 	~LoadAnimation() {}
 
 	void setBones(vector<pair<string, Bone>>* bones) {

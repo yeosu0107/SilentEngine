@@ -135,6 +135,9 @@
     <ClInclude Include="Code\Model\ModelLoader.h">
       <Filter>Model</Filter>
     </ClInclude>
+    <ClInclude Include="StringTokenizer.h">
+      <Filter>Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -192,6 +195,9 @@
       <Filter>Model</Filter>
     </ClCompile>
     <ClCompile Include="Code\Model\ModelLoader.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="StringTokenizer.cpp">
       <Filter>Model</Filter>
     </ClCompile>
   </ItemGroup>

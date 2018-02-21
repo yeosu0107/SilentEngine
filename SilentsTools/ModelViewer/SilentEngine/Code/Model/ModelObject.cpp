@@ -34,8 +34,6 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 		m_ani[i] = tmp[i];
 		m_ani[i]->setBones(m_model->GetBones());
 	}
-	m_ani[5]->DisableLoof(0);
-	m_ani[8]->DisableLoof(0);
 }
 
 void ModelObject::Animate(float fTime)

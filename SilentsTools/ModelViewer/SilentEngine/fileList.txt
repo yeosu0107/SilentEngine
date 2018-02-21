@@ -1,20 +1,20 @@
 testModelData\\P_standing.FBX 5 pirate.dds
-testModelData\\P_standing.FBX 0 0
-testModelData\\P_Walk.FBX 0 0
-testModelData\\P_Attack.FBX 0 0
-testModelData\\P_MakeAHole.FBX 0 0
-testModelData\\P_Hitted.FBX 0 0
+testModelData\\P_standing.FBX
+testModelData\\P_Walk.FBX
+testModelData\\P_Attack.FBX
+testModelData\\P_MakeAHole.FBX
+testModelData\\P_Hitted.FBX
 testModelData\\makeahole-snow.FBX 1 snow.dds
-testModelData\\makeahole-snow.FBX 0 0
+testModelData\\makeahole-snow.FBX
 testModelData\\angle.FBX 1 null
-testModelData\\angle.FBX 0 0
+testModelData\\angle.FBX
 testModelData\\MIDLE.FBX 9 Golem.dds
-testModelData\\MIDLE.FBX 0 65
-testModelData\\MMOVE.FBX 340 365
-testModelData\\MATTACK.FBX 280 299
-testModelData\\MATTACK2.FBX 370 389
-testModelData\\MATTACK3.FBX 400 435
-testModelData\\MDAMAGED.FBX 240 269
-testModelData\\MDIE.FBX 310 331
-testModelData\\MSLEEP.FBX 130 199
-testModelData\\MSLEEPEND.FBX 200 229
+testModelData\\MIDLE.FBX
+testModelData\\MMOVE.FBX
+testModelData\\MATTACK.FBX
+testModelData\\MATTACK2.FBX 
+testModelData\\MATTACK3.FBX 
+testModelData\\MDAMAGED.FBX
+testModelData\\MDIE.FBX
+testModelData\\MSLEEP.FBX 
+testModelData\\MSLEEPEND.FBX

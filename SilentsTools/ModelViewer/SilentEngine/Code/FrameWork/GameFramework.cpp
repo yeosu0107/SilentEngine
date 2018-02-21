@@ -24,7 +24,7 @@ CGameFramework::CGameFramework()
 
 	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
 
-	models = new ModelLoader("fileList.txt");
+	models = new ModelLoader("fileList.csv");
 	globalModels = models;
 }
 

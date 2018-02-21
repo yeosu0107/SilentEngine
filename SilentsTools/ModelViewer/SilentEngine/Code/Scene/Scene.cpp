@@ -525,7 +525,7 @@ void GameScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	pObjectShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 	m_ppShaders[0] = pObjectShader;
 
-	ModelShader* modelShader = new ModelShader(3);
+	ModelShader* modelShader = new ModelShader(0);
 	modelShader->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
 	modelShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 	m_ppShaders[1] = modelShader;
