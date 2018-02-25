@@ -7,6 +7,8 @@
 #include "Shader.h"
 #include "DxException.h"
 
+enum PAD {num1=0x31, num2=0x32, num3, num4, num5, num6, num7, num8, num9};
+
 CGameFramework::CGameFramework()
 {
 	m_nSwapChainBufferIndex = 0;
@@ -24,7 +26,7 @@ CGameFramework::CGameFramework()
 
 	_tcscpy_s(m_pszFrameRate, _T("LabProject ("));
 
-	models = new ModelLoader("fileList.csv");
+	models = new ModelLoader("fileList2.csv");
 	globalModels = models;
 }
 
@@ -371,11 +373,17 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					WaitForGpuComplete();
 					break;
 				case VK_F1:
-					AnimIndex += 1;
-					if (AnimIndex >= NumAnim)
-						AnimIndex = 0;
 				case VK_F2:
 				case VK_F3:
+				case VK_F4:
+				case VK_F5:
+				case VK_F6:
+				case VK_F7:
+				case VK_F8:
+					modelIndex = wParam-111;
+					if (modelIndex >= globalModels->getNumModel())
+						modelIndex = 0;
+					AnimIndex = 0;
 					break;
 				case VK_F9:
 				{
@@ -397,9 +405,6 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 
 					break;
 				}
-				case VK_F10:
-					
-					break;
 				case VK_OEM_PLUS:
 					m_fMouseSensitive = max(fMinMouseSensitive, m_fMouseSensitive - fMouseSensitiveOffset);
 					break;
@@ -407,6 +412,19 @@ void CGameFramework::OnProcessingKeyboardMessage(HWND hWnd, UINT nMessageID, WPA
 					m_fMouseSensitive = min(fMaxMouseSensitive, m_fMouseSensitive + fMouseSensitiveOffset);
 					break;
 				default:
+					break;
+				case PAD::num1:
+				case PAD::num2:
+				case PAD::num3:
+				case PAD::num4:
+				case PAD::num5:
+				case PAD::num6:
+				case PAD::num7:
+				case PAD::num8:
+				case PAD::num9:
+					AnimIndex = wParam - 49;
+					if (AnimIndex >= NumAnim)
+						AnimIndex = 0;
 					break;
 			}
 			break;

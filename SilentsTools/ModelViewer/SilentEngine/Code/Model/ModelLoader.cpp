@@ -3,7 +3,6 @@
 #include "..\..\StringTokenizer.h"
 #include <fstream>
 
-string delim = ",";
 
 ModelLoader::ModelLoader() :
 	m_numModels(0)
@@ -15,6 +14,7 @@ ModelLoader::ModelLoader(string fileName)
 	ifstream in(fileName);
 
 	string tmpName;
+	string delim = ",";
 	UINT animCount;
 	UINT index;
 	StringTokenizer st= StringTokenizer("");

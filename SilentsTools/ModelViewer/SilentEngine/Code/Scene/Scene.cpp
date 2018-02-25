@@ -517,7 +517,7 @@ void GameScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_ppd3dGraphicsRootSignature = new ID3D12RootSignature*[m_nRootSignature];
 	m_ppd3dGraphicsRootSignature[0] = CreateGraphicsRootSignature(pd3dDevice);
 
-	m_nShaders = 2;
+	m_nShaders = 5;
 	m_ppShaders = new CShader*[m_nShaders];
 
 	CObjectsShader *pObjectShader = new CObjectsShader();
@@ -530,10 +530,20 @@ void GameScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	modelShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
 	m_ppShaders[1] = modelShader;
 
-	//ModelShader* modelShader2 = new ModelShader(1);
-	//modelShader2->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
-	//modelShader2->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
-	//m_ppShaders[2] = modelShader2;
+	ModelShader* modelShader2 = new ModelShader(1);
+	modelShader2->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
+	modelShader2->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	m_ppShaders[2] = modelShader2;
+
+	ModelShader* modelShader3 = new ModelShader(3);
+	modelShader3->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
+	modelShader3->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	m_ppShaders[3] = modelShader3;
+
+	ModelShader* modelShader4 = new ModelShader(4);
+	modelShader4->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
+	modelShader4->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	m_ppShaders[4] = modelShader4;
 
 	
 	m_pPlayer = new CMyPlayer(pd3dDevice, pd3dCommandList, GetGraphicsRootSignature(), (void*)NULL, 1);
@@ -596,11 +606,12 @@ void GameScene::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pC
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->GetGPUVirtualAddress();
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_MATERIAL, d3dcbMaterialsGpuVirtualAddress); //Materials
 
-	for (i = 0; i < m_nShaders; i++)
-	{
-		m_ppShaders[i]->Render(pd3dCommandList, pCamera);
-	}
-
+	//for (i = 0; i < m_nShaders; i++)
+	//{
+	//	m_ppShaders[i]->Render(pd3dCommandList, pCamera);
+	//}
+	m_ppShaders[0]->Render(pd3dCommandList, pCamera);
+	m_ppShaders[modelIndex]->Render(pd3dCommandList, pCamera);
 }
 
 void GameScene::ReleaseUploadBuffers()
@@ -634,10 +645,13 @@ bool GameScene::ProcessInput(UCHAR * pKeysBuffer)
 
 void GameScene::AnimateObjects(float fTimeElapsed)
 {
-	for (int i = 0; i < m_nShaders; i++)
+	/*for (int i = 0; i < m_nShaders; i++)
 	{
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
-	}
+	}*/
+	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
+	m_ppShaders[modelIndex]->AnimateObjects(fTimeElapsed);
+
 
 	if (m_pLights)
 	{

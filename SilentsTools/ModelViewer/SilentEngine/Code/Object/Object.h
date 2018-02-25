@@ -157,6 +157,7 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 
 	virtual void Animate(float fTimeElapsed);
+	virtual UINT GetNumofAnim() const { return 0; }
 
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 	virtual void SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -182,6 +183,8 @@ public:
 
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
+	
+	void SetScale(float value);
 };
 
 class CRotatingObject : public CGameObject

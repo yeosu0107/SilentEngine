@@ -27,7 +27,7 @@ public:
 	virtual ~ModelObject();
 
 	void SetAnimations(UINT num, LoadAnimation** tmp);
-	UINT GetNumofAnim() const { return m_NumofAnim; }
+	virtual UINT GetNumofAnim() const { return m_NumofAnim; }
 
 	virtual void Animate(float fTime);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera = NULL);

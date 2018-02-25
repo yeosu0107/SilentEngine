@@ -19,4 +19,6 @@ public:
 	UINT getAnimCount(UINT index) { return m_Objects[index].second->size(); }
 	LoadAnimation** getAnim(UINT index) { return m_Objects[index].second->data(); }
 	string getMat(UINT index) { return matList[index]; }
+
+	UINT getNumModel() const { return m_numModels; }
 };

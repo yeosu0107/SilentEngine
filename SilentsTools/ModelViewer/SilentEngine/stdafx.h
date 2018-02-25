@@ -96,6 +96,7 @@ extern void SynchronizeResourceTransition(ID3D12GraphicsCommandList *pd3dCommand
 
 extern UINT  AnimIndex; //현재 애니메이션
 extern UINT NumAnim;   //총 애니메이션 개수
+extern UINT modelIndex; //현재 랜더링하는 모델
 extern ModelLoader* globalModels;
 
 #define RANDOM_COLOR	XMFLOAT4(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX))

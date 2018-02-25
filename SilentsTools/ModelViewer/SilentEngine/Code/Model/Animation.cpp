@@ -14,7 +14,7 @@ LoadAnimation::LoadAnimation(string filename) :
 		m_GlobalInverse = XMMatrixIdentity();
 
 		start_time = (float)m_pAnim->mChannels[0]->mPositionKeys[0].mTime; //프레임 시작 시점은 좌표 이동 프레임을 기준으로 맞춤
-		end_time = (float)m_pAnim->mDuration - 1.0f; //프레임 종료 시점에서 1.0 만큼 빼줘야 프레임이 안겹침
+		end_time = (float)m_pAnim->mChannels[0]->mPositionKeys[m_pAnim->mChannels[0]->mNumPositionKeys-1].mTime - 1.0f; //프레임 종료 시점에서 1.0 만큼 빼줘야 프레임이 안겹침
 		now_time = start_time;
 
 	}
@@ -162,7 +162,7 @@ void LoadAnimation::CalcInterpolatedRotation(aiQuaternion & Out, float Animation
 
 	float DeltaTime = (float)(pNodeAnim->mRotationKeys[NextRotationIndex].mTime - pNodeAnim->mRotationKeys[RotationIndex].mTime);
 	float Factor = (AnimationTime - (float)pNodeAnim->mRotationKeys[RotationIndex].mTime) / DeltaTime;
-	cout << Factor << endl;
+
 	//if (Factor > 1.0f)
 	//	cout << "E" << endl;
 	//assert(Factor >= 0.0f && Factor <= 1.0f);
