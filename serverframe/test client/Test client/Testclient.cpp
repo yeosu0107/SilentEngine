@@ -3,9 +3,20 @@
 
 #include "stdafx.h"
 
+#define BUFSIZE 50
 
 int main()
 {
+	Player pLayer;
+	char key;
+
+	Player* ptr = &pLayer;
+	
+	Packet p;
+
+	//p.id = -1;
+	//p.type = '\0';
+
 	int retval;
 	int count = 0;
 
@@ -29,19 +40,60 @@ int main()
 		err_quit("connect");
 	}
 
-	//char buf[BUFSIZE + 1];
+	retval = recv(sock, (char*)ptr, sizeof(Player), 0);
 
-	float buf[150];
+	printf("%d : %f, %f, %f\n", pLayer.id, pLayer.p.x, pLayer.p.y, pLayer.p.z);
 
-	for (int i = 0; i < 150; ++i) {
-		buf[i] = rand() % 1000;
-	}
-
-	int len;
 
 	while (1) {
 
-		printf("\n[보낼 데이터] : %f",buf[0]);
+		memset(&key, '\0', sizeof(char));
+		//fflush();
+		scanf("%c", &key);
+		//fgets(&key, 1, stdin);
+		switch (key) {
+		case 'w' : 
+			p.id = pLayer.id;
+			p.type = 'w';
+
+			retval = send(sock, (char*)&p, sizeof(p), 0);
+			//pLayer[0].p.z += 1;
+			//key = '\0';
+
+		case 's' : 
+			p.id = pLayer.id;
+			p.type = 's';
+
+			retval = send(sock, (char*)&p, sizeof(p), 0);
+			//pLayer[0].p.z -= 1;
+			//key = '\0';
+
+		case 'a' : 
+			p.id = pLayer.id;
+			p.type = 'a';
+
+			retval = send(sock, (char*)&p, sizeof(p), 0);
+			//pLayer[0].p.x -= 1;
+			//key = '\0';
+
+		case 'd' : 
+			p.id = pLayer.id;
+			p.type = 'd';
+
+			retval = send(sock, (char*)&p, sizeof(p), 0);
+			//pLayer[0].p.x += 1;
+			//key = '\0';
+		}
+
+		retval = recv(sock, (char*)ptr, sizeof(Player), 0);
+
+		printf("%d : %f, %f, %f\n", pLayer.id, pLayer.p.x, pLayer.p.y, pLayer.p.z);
+		//fgets(buf, BUFSIZE + 1, stdin);
+
+
+
+
+		//printf("\n[보낼 데이터] : %f",buf[0]);
 
 
 
@@ -58,8 +110,8 @@ int main()
 		//}
 
 		//retval = send(sock, buf, strlen(buf), 0);
-		if (count == 1000) {
-			retval = send(sock, (char*)buf, sizeof(tPacket1), 0);
+		/*if (count == 1000) {
+			retval = send(sock, (char*)buf, sizeof(Packet), 0);
 
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
@@ -67,8 +119,8 @@ int main()
 			}
 			printf("[TCP 클라이언트] %d바이트를 보냈습니다.\n", retval);
 			count = 0;
-		}
-		retval = recvn(sock, (char*)buf, retval, 0);
+		}*/
+		/*retval = recvn(sock, (char)p, retval, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
 			break;
@@ -78,7 +130,7 @@ int main()
 		printf("[TCP 클라이언트] %d바이트를 받았습니다.\n", retval);
 		printf("[받은 데이터] %f\n", buf[0]);
 
-		count++;
+		count++;*/
 	}
 
 	closesocket(sock);
