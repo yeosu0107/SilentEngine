@@ -86,4 +86,6 @@ public:
 	unique_ptr<UploadBuffer<MaterialData>>		m_pMatsCB = nullptr;
 	unique_ptr<UploadBuffer<Vertex>>			m_pVertexCB = nullptr;
 	unique_ptr<UploadBuffer<SkinnedVertex>>		m_pSkinVertexCB = nullptr;
+
+	UINT64	m_Fence = 0;
 };

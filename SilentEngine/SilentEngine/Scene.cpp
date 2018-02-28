@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Scene.h"
 
-
 Scene::Scene()
 {
 }
@@ -66,6 +65,8 @@ void TestScene::BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandLis
 
 	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
 	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
+	
+	m_Geometries = std::make_shared<unordered_map<string, unique_ptr<MeshGeometry>>>();
 
 	auto geo = std::make_unique<MeshGeometry>();
 	geo->Name = "boxGeo";
@@ -94,7 +95,7 @@ void TestScene::BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandLis
 
 	geo->DrawArgs["box"] = submesh;
 
-	m_Geometries[geo->Name] = move(geo);
+	(*m_Geometries)[geo->Name] = move(geo);
 }
 
 void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -141,8 +142,8 @@ void TestScene::BuildShadersAndInputLayout(ID3D12Device * pDevice, ID3D12Graphic
 {
 	HRESULT hr = S_OK;
 
-	m_Shaders["VSCube"] = D3DUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-	m_Shaders["PSCube"] = D3DUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+	m_Shaders["VSCube"] = g_CompiledShaders.GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+	m_Shaders["PSCube"] = g_CompiledShaders.GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
 
 	m_InputLayout =
 	{
@@ -229,11 +230,11 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	m_Camera->SetViewportsAndScissorRects(pCommandList);
 	m_Camera->UpdateShaderVariables(pCommandList);
 
-	pCommandList->IASetVertexBuffers(0, 1, &m_Geometries["boxGeo"]->VertexBufferView());
-	pCommandList->IASetIndexBuffer(&m_Geometries["boxGeo"]->IndexBufferView());
+	pCommandList->IASetVertexBuffers(0, 1, &((*m_Geometries.get())["boxGeo"]->VertexBufferView()));
+	pCommandList->IASetIndexBuffer(&((*m_Geometries.get())["boxGeo"]->IndexBufferView()));
 	pCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	pCommandList->DrawIndexedInstanced(
-		m_Geometries["boxGeo"]->DrawArgs["box"].IndexCount,
+		(*m_Geometries.get())["boxGeo"]->DrawArgs["box"].IndexCount,
 		1, 0, 0, 0);
 }

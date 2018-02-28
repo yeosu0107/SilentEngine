@@ -6,6 +6,7 @@
 #include "Camera.h"
 #include "Timer.h"
 
+
 // Scene 
 class Scene
 {
@@ -28,7 +29,7 @@ public:
 
 protected:
 	//vector<unique_ptr<FrameResource>>	m_FrameResources;
-	//FrameResource*						m_pCurrentFrameResource = nullptr;
+	//FrameResource*					m_pCurrentFrameResource = nullptr;
 	
 	int									m_CurrFrameResourceIndex = 0;
 	UINT								m_nCbvSrvDescriptorSize = 0;
@@ -36,12 +37,12 @@ protected:
 	ComPtr<ID3D12RootSignature>			m_RootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap>		m_SrvDescriptorHeap = nullptr;
 
-	unordered_map<string, unique_ptr<MeshGeometry>>		m_Geometries;
-	//unordered_map<string, unique_ptr<Material>>		m_Materials;
-	//unordered_map<string, unique_ptr<Texture>>		m_Textures;
-	unordered_map<string, ComPtr<ID3DBlob>>				m_Shaders;
-	unordered_map<string, ComPtr<ID3D12PipelineState>>	m_PSOs;
-	vector<D3D12_INPUT_ELEMENT_DESC>					m_InputLayout;
+	shared_ptr<unordered_map<string, unique_ptr<MeshGeometry>>>			m_Geometries;
+	//unordered_map<string, unique_ptr<Material>>				m_Materials;
+	//unordered_map<string, unique_ptr<Texture>>				m_Textures;
+	unordered_map<string, ComPtr<ID3DBlob>>						m_Shaders;
+	unordered_map<string, ComPtr<ID3D12PipelineState>>			m_PSOs;
+	vector<D3D12_INPUT_ELEMENT_DESC>							m_InputLayout;
 protected:
 
 };
@@ -70,6 +71,7 @@ public:
 protected:
 	unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
 	unique_ptr<Camera> m_Camera = nullptr;
+	
 };
 
 class GameScene : public Scene
@@ -81,10 +83,3 @@ class MainScene : public Scene
 {
 
 };
-
-/*
-							¾À
-			¸Ê				¸Ê				¸Ê
-
-	
-*/
