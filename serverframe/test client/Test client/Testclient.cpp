@@ -3,20 +3,9 @@
 
 #include "stdafx.h"
 
-#define BUFSIZE 50
 
 int main()
 {
-	Player pLayer;
-	char key;
-
-	Player* ptr = &pLayer;
-	
-	Packet p;
-
-	//p.id = -1;
-	//p.type = '\0';
-
 	int retval;
 	int count = 0;
 
@@ -40,61 +29,42 @@ int main()
 		err_quit("connect");
 	}
 
-	retval = recv(sock, (char*)ptr, sizeof(Player), 0);
+	char buf[BUFSIZE + 1];
 
-	printf("%d : %f, %f, %f\n", pLayer.id, pLayer.p.x, pLayer.p.y, pLayer.p.z);
+	Player my_p;
+	Player *my_ptr;
 
+	my_p.p_id = rand()%4+1;
+	my_p.p_x  = 0;
+	my_p.p_y  = 0;
+	my_p.p_z  = 0;
+	my_p.p_hp = 100;
+	my_p.end = '\0';
+
+	my_ptr = &my_p;
+
+
+	int len;
 
 	while (1) {
+		//보낼 데이터
+		//----패킷 데이터를 캐릭터형 버퍼에 순서대로 사이즈에 집어 넣은후 그 버퍼를 연결해서 전송
+		//    서버에서도 받은 패킷을 캐릭터형 버퍼에 옮긴후 각각 타입에 맞게끔 읽어들여서 데이터 편집
 
-		memset(&key, '\0', sizeof(char));
-		//fflush();
-		scanf("%c", &key);
-		//fgets(&key, 1, stdin);
-		switch (key) {
-		case 'w' : 
-			p.id = pLayer.id;
-			p.type = 'w';
-
-			retval = send(sock, (char*)&p, sizeof(p), 0);
-			//pLayer[0].p.z += 1;
-			//key = '\0';
-
-		case 's' : 
-			p.id = pLayer.id;
-			p.type = 's';
-
-			retval = send(sock, (char*)&p, sizeof(p), 0);
-			//pLayer[0].p.z -= 1;
-			//key = '\0';
-
-		case 'a' : 
-			p.id = pLayer.id;
-			p.type = 'a';
-
-			retval = send(sock, (char*)&p, sizeof(p), 0);
-			//pLayer[0].p.x -= 1;
-			//key = '\0';
-
-		case 'd' : 
-			p.id = pLayer.id;
-			p.type = 'd';
-
-			retval = send(sock, (char*)&p, sizeof(p), 0);
-			//pLayer[0].p.x += 1;
-			//key = '\0';
-		}
-
-		retval = recv(sock, (char*)ptr, sizeof(Player), 0);
-
-		printf("%d : %f, %f, %f\n", pLayer.id, pLayer.p.x, pLayer.p.y, pLayer.p.z);
-		//fgets(buf, BUFSIZE + 1, stdin);
+		
 
 
+		////memset(&buf, 0, sizeof(buf));
+		////가끔 초기화를 안해주면 에러가 나는 것에 의해 memset으로 모드 0으로 초기화
+		//
+		////buf = 
 
+		////sprintf_s(buf, "%5.2lf", my_p);
+
+		////buf = (char *)p;
 
 		//printf("\n[보낼 데이터] : %f",buf[0]);
-
+		
 
 
 		//if (fgets(buf, BUFSIZE + 1, stdin) == NULL) {
@@ -109,9 +79,10 @@ int main()
 		//	break;
 		//}
 
-		//retval = send(sock, buf, strlen(buf), 0);
-		/*if (count == 1000) {
-			retval = send(sock, (char*)buf, sizeof(Packet), 0);
+
+
+		//retval = send(sock, (char*)my_p, strlen((char*)buf), 0);
+		retval = send(sock, (char*)my_ptr, sizeof(Player), 0);
 
 			if (retval == SOCKET_ERROR) {
 				err_display("send()");
@@ -119,8 +90,8 @@ int main()
 			}
 			printf("[TCP 클라이언트] %d바이트를 보냈습니다.\n", retval);
 			count = 0;
-		}*/
-		/*retval = recvn(sock, (char)p, retval, 0);
+		
+		retval = recvn(sock, (char*)buf, retval, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
 			break;
@@ -130,7 +101,7 @@ int main()
 		printf("[TCP 클라이언트] %d바이트를 받았습니다.\n", retval);
 		printf("[받은 데이터] %f\n", buf[0]);
 
-		count++;*/
+		count++;
 	}
 
 	closesocket(sock);

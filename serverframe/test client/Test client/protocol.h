@@ -1,17 +1,18 @@
 #pragma once
+#pragma pack(1)
 
-struct Pos {
-	float x;
-	float y;
-	float z;
+struct tPacket1 {
+	float f1;
+	float f2;
+	float f3;
+	float f4;
 };
 
 struct Player {
-	int id;
-	Pos p;
-};
-
-struct Packet {
-	int id;
-	char type;
+	int p_id;
+	float p_x;
+	float p_y;
+	float p_z;
+	int p_hp;
+	char end;
 };
