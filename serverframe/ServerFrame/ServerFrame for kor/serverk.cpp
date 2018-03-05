@@ -1,8 +1,18 @@
 #include "stdafx.h"
 
+char id[4];
+char p_x[4];
+char p_y[4];
+char p_z[4];
+char p_hp[4];
+
 int main(int argc, char *argv[])
 {
+	Player guest;
+
 	int retval;
+
+	printf("char : %d, int : %d, float : %d\n", sizeof(char), sizeof(int), sizeof(float));
 
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
@@ -59,34 +69,77 @@ int main(int argc, char *argv[])
 			break;
 		}
 
-		printf("[TCP ì„œë²„] í´ë¼ì´ì–¸íŠ¸ ì ‘ì† : IP ì£¼ì†Œ - %s, í¬íŠ¸ë²ˆí˜¸ - %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+		printf("[TCP ¼­¹ö] Å¬¶óÀÌ¾ðÆ® Á¢¼Ó : IP ÁÖ¼Ò - %s, Æ÷Æ®¹øÈ£ - %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+
+
 
 		CreateIoCompletionPort((HANDLE)client_sock, hcp, client_sock, 0);
-
-		SOCKETINFO *ptr = new SOCKETINFO;
+		recvbytes = 21;
+		SOCKETINFO *ptr = new SOCKETINFO();
 		if (ptr == NULL) {
 			break;
 		}
-
+		int a = 0;
 		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
 		ptr->sock = client_sock;
 		ptr->recvbytes = ptr->sendbytes = 0;
-		ptr->wsabuf.buf = (char*)ptr->buf;
+		ptr->wsabuf.buf = ptr->buf;
 		ptr->wsabuf.len = BUFSIZE;
-
+		ZeroMemory(ptr->buf, sizeof(ptr->buf));
+		ZeroMemory(ptr->wsabuf.buf, sizeof(ptr->buf));
 		flags = 0;
-		retval = WSARecv(client_sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, NULL);
+
+		retval = recv(client_sock, ptr->buf, 21, 0);
+
+		//retval = WSARecv(client_sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, NULL);
 		if (retval == SOCKET_ERROR) {
-			if (WSAGetLastError() != ERROR_IO_PENDING) {
+			if (a = WSAGetLastError() != ERROR_IO_PENDING) {
+				printf("%d\n\n", a);
 				err_display("WSARecv()");
 			}
 			continue;
 		}
+
+		// È®ÀÎ¿ë
+		for (int i = 0; i < 4; ++i) {
+			id[0] = ptr->buf[0];
+			p_x[i] = ptr->buf[i + 1];
+			p_y[i] = ptr->buf[i + 5];
+			p_z[i] = ptr->buf[i + 9];
+			p_hp[i] = ptr->buf[i + 13];
+		}
+
+		guest.p_id = ptr->buf[0];
+		guest.p_hp = ptr->buf[16];
+
+		/*guest.p_id = id[0];
+		guest.p_hp = (int)p_hp;
+		guest.p_x = (float)p_x;
+		guest.p_y = (float)p_y;
+		guest.p_z = (float)p_z;*/
+
+		//sprintf((char*)&guest.p_id, "%d", id, sizeof(id);
+		//sprintf((char*)&guest.p_hp, "%d", p_hp, sizeof(int));
+		sprintf((char*)&guest.p_x, "%f", p_x, sizeof(p_x));
+		sprintf((char*)&guest.p_y, "%f", p_y, sizeof(p_y));
+		sprintf((char*)&guest.p_z, "%f", p_z, sizeof(p_z));
+
+		//guest.p_id = ptr->buf[0];
+		//guest.p_x = ptr->buf[4];
+		//guest.p_y = ptr->buf[8];
+		//guest.p_z = ptr->buf[12];
+		//guest.p_hp = ptr->buf[16];
+
+
+		printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
+			guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp);
+		//-----------
+
 	}
 
 	WSACleanup();
 
-    return 0;
+	return 0;
 }
 
 DWORD WINAPI WorkerThread(LPVOID arg)
@@ -98,6 +151,9 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 		DWORD cbTransferred;
 		SOCKET client_sock;
 		SOCKETINFO *ptr;
+
+		//Player guest;
+
 		retval = GetQueuedCompletionStatus(hcp, &cbTransferred, (LPDWORD)&client_sock, (LPOVERLAPPED *)&ptr, INFINITE);
 
 		SOCKADDR_IN clientaddr;
@@ -111,16 +167,38 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 				err_display("WSAGetOverlappedresult()");
 			}
 			closesocket(ptr->sock);
-			printf("[TCPì„œë²„] í´ë¼ì´ì–¸íŠ¸ ì¢…ë£Œ : IPì£¼ì†Œ - %s, í¬íŠ¸ë²ˆí˜¸ - %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+			printf("[TCP¼­¹ö] Å¬¶óÀÌ¾ðÆ® Á¾·á : IPÁÖ¼Ò - %s, Æ÷Æ®¹øÈ£ - %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 			delete ptr;
 			continue;
 		}
-		
+
 		if (ptr->recvbytes == 0) {
-			ptr->recvbytes = cbTransferred;
-			ptr->sendbytes = 0;
-			ptr->buf[ptr->recvbytes] = '\0';
-			printf("[TCP/%s:%d] %f\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port), ptr->buf);
+			//	ptr->recvbytes = cbTransferred;
+			//	ptr->sendbytes = 0;
+			//	ptr->buf[ptr->recvbytes] = '\0';
+
+			//	for (int i = 0; i < 4; ++i) {
+			//		//if (i < 4) {
+			//			id[i] = ptr->buf[i];
+			//			p_hp[i] = ptr->buf[i + 16];
+			//		//}
+			//		p_x[i] = ptr->buf[i+4];
+			//		p_y[i] = ptr->buf[i + 8];
+			//		p_z[i] = ptr->buf[i + 12];
+			//	}
+
+			//	sprintf((char*)&guest.p_id, "%d", id, sizeof(int));
+			//	sprintf((char*)&guest.p_hp, "%d", p_hp, sizeof(int));
+			//	sprintf((char*)&guest.p_x, "%f", p_x, sizeof(float));
+			//	sprintf((char*)&guest.p_y, "%f", p_y, sizeof(float));
+			//	sprintf((char*)&guest.p_z, "%f", p_z, sizeof(float));
+
+			//sprintf_s(guest.id, "%d", ptr->buf,sizeof(int));
+
+			//ptr->buf[0] = 
+
+			/*printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
+			guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp);*/
 		}
 		else {
 			ptr->sendbytes += cbTransferred;
@@ -128,7 +206,7 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 
 		if (ptr->recvbytes > ptr->sendbytes) {
 			ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
-			ptr->wsabuf.buf = (char*)ptr->buf + ptr->sendbytes;
+			ptr->wsabuf.buf = ptr->buf + ptr->sendbytes;
 			ptr->wsabuf.len = ptr->recvbytes - ptr->sendbytes;
 
 			DWORD sendbytes;
@@ -144,7 +222,7 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 			ptr->recvbytes = 0;
 
 			ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
-			ptr->wsabuf.buf = (char*)ptr->buf;
+			ptr->wsabuf.buf = ptr->buf;
 			ptr->wsabuf.len = BUFSIZE;
 
 			DWORD recvbytes;
