@@ -142,8 +142,8 @@ void TestScene::BuildShadersAndInputLayout(ID3D12Device * pDevice, ID3D12Graphic
 {
 	HRESULT hr = S_OK;
 
-	m_Shaders["VSCube"] = g_CompiledShaders.GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-	m_Shaders["PSCube"] = g_CompiledShaders.GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+	m_Shaders["VSCube"] = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+	m_Shaders["PSCube"] = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
 
 	m_InputLayout =
 	{
