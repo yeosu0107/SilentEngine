@@ -1,22 +1,7 @@
 #include "stdafx.h"
 
-Player client;
-
-
 int main(int argc, char *argv[])
 {
-	// 클라이언트 초기정보
-	/*for (int i = 0; i < 4; ++i) {
-		client[i].id = i + 1;
-		client[i].p.x = 0;
-		client[i].p.y = 0;
-		client[i].p.z = 0;
-	}*/
-	client.id = 1;
-	client.p.x = 0;
-	client.p.y = 0;
-	client.p.z = 0;
-
 	int retval;
 
 	WSADATA wsa;
@@ -76,17 +61,13 @@ int main(int argc, char *argv[])
 
 		printf("[TCP 서버] 클라이언트 접속 : IP 주소 - %s, 포트번호 - %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
-		//for (int i = 0; i < 4; ++i) {
-		//retval = send(client_sock, (char *)client, sizeof(client), 0);
-		//}
-
 		CreateIoCompletionPort((HANDLE)client_sock, hcp, client_sock, 0);
 
 		SOCKETINFO *ptr = new SOCKETINFO;
 		if (ptr == NULL) {
 			break;
 		}
-		
+
 		ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
 		ptr->sock = client_sock;
 		ptr->recvbytes = ptr->sendbytes = 0;
@@ -113,10 +94,6 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 	int retval;
 	HANDLE hcp = (HANDLE)arg;
 
-	Packet p;
-	p.id = -1;
-	p.type = '\0';
-
 	while (1) {
 		DWORD cbTransferred;
 		SOCKET client_sock;
@@ -139,39 +116,16 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 			continue;
 		}
 		
-		printf("%d :: %c\n", p.id, p.type);
-		
-
-		p = ptr->buf[0];
-
-		/*switch (p.type) {
-		case 'w' :
-			client.p.z++;
-			retval = send(client_sock, (char *)client, sizeof(client), 0);
-		case 's' :
-			client.p.z--;
-			retval = send(client_sock, (char *)client, sizeof(client), 0);
-		case 'a' :
-			client.p.x--;
-			retval = send(client_sock, (char *)client, sizeof(client), 0);
-		case 'd' :
-			client.p.x++;
-			retval = send(client_sock, (char *)client, sizeof(client), 0);
-		}*/
-
-		//printf("%d : %c - %f, %f, %f\n", p.type ,client[0].id, client[0].p.x, client[0].p.y, client[0].p.z);
-		
 		if (ptr->recvbytes == 0) {
 			ptr->recvbytes = cbTransferred;
 			ptr->sendbytes = 0;
-			//ptr->buf[ptr->recvbytes] = '\0';
-			printf("[TCP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port), ptr->buf);
+			ptr->buf[ptr->recvbytes] = '\0';
+			printf("[TCP/%s:%d] %f\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port), ptr->buf);
 		}
 		else {
 			ptr->sendbytes += cbTransferred;
 		}
-		
-		//Send 부분
+
 		if (ptr->recvbytes > ptr->sendbytes) {
 			ZeroMemory(&ptr->overlapped, sizeof(ptr->overlapped));
 			ptr->wsabuf.buf = (char*)ptr->buf + ptr->sendbytes;
@@ -186,8 +140,6 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 				continue;
 			}
 		}
-
-		//Recv 부분
 		else {
 			ptr->recvbytes = 0;
 
@@ -197,7 +149,6 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 
 			DWORD recvbytes;
 			DWORD flags = 0;
-
 			retval = WSARecv(ptr->sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, NULL);
 			if (retval == SOCKET_ERROR) {
 				if (WSAGetLastError() != WSA_IO_PENDING) {

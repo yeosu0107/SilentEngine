@@ -31,9 +31,9 @@ void err_display(char *msg) {
 	LocalFree(lpMsgBuf);
 }
 
-int recvn(SOCKET s, Player *buf, int len, int flags) {
+int recvn(SOCKET s, char *buf, int len, int flags) {
 	int received;
-	char *ptr = (char*)buf;
+	char *ptr = buf;
 	int left = len;
 
 	while (left > 0) {

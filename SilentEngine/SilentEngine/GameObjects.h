@@ -2,9 +2,9 @@
 #include "D3DUtil.h"
 #include "UploadBuffer.h"
 
-struct RenderItem
+struct RenderObject
 {
-	RenderItem() = default;
+	RenderObject() = default;
 
 	XMFLOAT4X4				m_World = D3DMath::Identity4x4();
 	XMFLOAT4X4				m_TexTransform = D3DMath::Identity4x4();
@@ -33,10 +33,11 @@ public:
 public:
 	void SetMesh(int nIndex, MeshGeometry* pMesh);
 	void SetMaterial(Material* pMaterial);
+	
 
 private:
-	shared_ptr<UploadBuffer<ObjectConstants>>	m_ObjectCB = nullptr;
-	unique_ptr<RenderItem>						m_pRenderItem = nullptr;
+	shared_ptr<UploadBuffer<ObjectConstants>>		m_ObjectCB = nullptr;
+	unique_ptr<RenderObject>						m_pRenderItem = nullptr;
 
 	
 };

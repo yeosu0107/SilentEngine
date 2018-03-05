@@ -15,35 +15,29 @@
 #include <WS2tcpip.h>
 
 #define SERVERPORT 9000
-#define BUFSIZE 4
+#define BUFSIZE 512
 
 DWORD WINAPI WorkerThread(LPVOID arg);
 
 void err_quit(char *msg);
 void err_display(char *msg);
-int recvn(SOCKET s, char *buf, int len, int flags);
-
-struct Pos {
-	float x;
-	float y;
-	float z;
-};
-
-struct Player {
-	int id;
-	Pos p;
-};
-
-struct Packet {
-	char type;
-	int id;
-};
 
 struct SOCKETINFO {
 	OVERLAPPED overlapped;
 	SOCKET sock;
-	Packet buf[BUFSIZE + 1];
+	float buf[150];
 	int recvbytes;
 	int sendbytes;
 	WSABUF wsabuf;
+};
+
+struct Pos {
+	int x;
+	int y;
+};
+
+struct Player {
+	Pos p;
+	int hp;
+	int id;
 };

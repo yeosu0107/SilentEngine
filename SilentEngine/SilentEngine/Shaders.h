@@ -6,6 +6,8 @@
 
 using namespace std;
 
+#define COMPILEDSHADERS CompiledShaders::Instance()
+
 class CompiledShaders
 {
 public:
@@ -13,15 +15,15 @@ public:
 	~CompiledShaders() {};
 
 public:
-	unique_ptr<unordered_map<string, ComPtr<ID3DBlob>>> CompiledShader;
+	unordered_map<string, ComPtr<ID3DBlob>> CompiledShader;
 	
 	ComPtr<ID3DBlob> GetCompiledShader(const wstring& filename,
 		const D3D_SHADER_MACRO* defines,
 		const string& entrypoint,
 		const string& target);
-};
 
-extern CompiledShaders g_CompiledShaders;
+	static CompiledShaders* Instance();
+};
 
 class Shaders
 {
@@ -38,9 +40,10 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 
-	virtual void BuildPSO(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGraphicsRootSignature, UINT nRenderTargets = 1) = 0;
 
-	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews) {};
+	virtual void BuildPSO(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGraphicsRootSignature, UINT nRenderTargets = 1) ;
+
+	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride) {};
 //	void CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
