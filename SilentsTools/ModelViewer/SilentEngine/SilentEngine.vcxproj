@@ -110,6 +110,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -160,6 +161,7 @@
     <ClInclude Include="Code\Object\Mesh\Mesh.h" />
     <ClInclude Include="Code\Object\Object.h" />
     <ClInclude Include="Code\Object\Player.h" />
+    <ClInclude Include="Code\PhysX\BasePhysX.h" />
     <ClInclude Include="Code\Scene\Scene.h" />
     <ClInclude Include="Code\Shaders\Shader.h" />
     <ClInclude Include="DxException.h" />
@@ -184,6 +186,7 @@
     <ClCompile Include="Code\Object\Mesh\Mesh.cpp" />
     <ClCompile Include="Code\Object\Object.cpp" />
     <ClCompile Include="Code\Object\Player.cpp" />
+    <ClCompile Include="Code\PhysX\BasePhysX.cpp" />
     <ClCompile Include="Code\Scene\Scene.cpp" />
     <ClCompile Include="Code\Shaders\Shader.cpp" />
     <ClCompile Include="DxException.cpp" />

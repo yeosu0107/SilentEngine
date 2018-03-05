@@ -67,6 +67,9 @@
     <Filter Include="Origin\Util\Header">
       <UniqueIdentifier>{fcc41a3b-8280-4519-95da-5c1d8d36c613}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PhysX">
+      <UniqueIdentifier>{8d9cfad5-5204-4270-9381-105fd48275de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -138,6 +141,9 @@
     <ClInclude Include="StringTokenizer.h">
       <Filter>Model</Filter>
     </ClInclude>
+    <ClInclude Include="Code\PhysX\BasePhysX.h">
+      <Filter>PhysX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -199,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="StringTokenizer.cpp">
       <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\PhysX\BasePhysX.cpp">
+      <Filter>PhysX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

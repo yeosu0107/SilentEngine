@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "Scene.h"
+#include "..\PhysX\BasePhysX.h"
 #include "..\Model\ModelShader.h"
 
 CScene::CScene()
