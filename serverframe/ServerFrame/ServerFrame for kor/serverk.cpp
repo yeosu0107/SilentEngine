@@ -1,14 +1,11 @@
 #include "stdafx.h"
 
-char id[4];
-char p_x[4];
-char p_y[4];
-char p_z[4];
-char p_hp[4];
-
 int main(int argc, char *argv[])
 {
 	Player guest;
+	Player* p_guest;
+
+	p_guest = &guest;
 
 	int retval;
 
@@ -89,7 +86,9 @@ int main(int argc, char *argv[])
 		ZeroMemory(ptr->wsabuf.buf, sizeof(ptr->buf));
 		flags = 0;
 
-		retval = recv(client_sock, ptr->buf, 21, 0);
+		//retval = recv(client_sock, ptr->buf, 21, 0);
+
+		retval = recv(client_sock, (char*)p_guest, 21, 0);
 
 		//retval = WSARecv(client_sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, NULL);
 		if (retval == SOCKET_ERROR) {
@@ -100,17 +99,24 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
+		p_guest->p_hp = guest.p_hp;
+		p_guest->p_id = guest.p_id;
+		p_guest->p_x = guest.p_x;
+		p_guest->p_y = guest.p_y;
+		p_guest->p_z = guest.p_z;
+		p_guest->end = guest.end;
+
 		// È®ÀÎ¿ë
-		for (int i = 0; i < 4; ++i) {
+		/*for (int i = 0; i < 4; ++i) {
 			id[0] = ptr->buf[0];
 			p_x[i] = ptr->buf[i + 1];
 			p_y[i] = ptr->buf[i + 5];
 			p_z[i] = ptr->buf[i + 9];
 			p_hp[i] = ptr->buf[i + 13];
-		}
+		}*/
 
-		guest.p_id = ptr->buf[0];
-		guest.p_hp = ptr->buf[16];
+		//guest.p_id = ptr->buf[0];
+		//guest.p_hp = ptr->buf[16];
 
 		/*guest.p_id = id[0];
 		guest.p_hp = (int)p_hp;
@@ -120,19 +126,20 @@ int main(int argc, char *argv[])
 
 		//sprintf((char*)&guest.p_id, "%d", id, sizeof(id);
 		//sprintf((char*)&guest.p_hp, "%d", p_hp, sizeof(int));
-		sprintf((char*)&guest.p_x, "%f", p_x, sizeof(p_x));
-		sprintf((char*)&guest.p_y, "%f", p_y, sizeof(p_y));
-		sprintf((char*)&guest.p_z, "%f", p_z, sizeof(p_z));
+		//sprintf((char*)&guest.p_x, "%f", p_x, sizeof(p_x));
+		//sprintf((char*)&guest.p_y, "%f", p_y, sizeof(p_y));
+		//sprintf((char*)&guest.p_z, "%f", p_z, sizeof(p_z));
 
-		//guest.p_id = ptr->buf[0];
-		//guest.p_x = ptr->buf[4];
-		//guest.p_y = ptr->buf[8];
-		//guest.p_z = ptr->buf[12];
-		//guest.p_hp = ptr->buf[16];
+		/*guest.p_id = ptr->buf[0];
+		guest.p_x = ptr->buf[4];
+		guest.p_y = ptr->buf[8];
+		guest.p_z = ptr->buf[12];
+		guest.p_hp = ptr->buf[16];
+		guest.end = ptr->buf[20];*/
 
 
-		printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
-			guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp);
+		printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d, end : %c\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
+			guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp, guest.end);
 		//-----------
 
 	}

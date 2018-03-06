@@ -28,18 +28,21 @@ int main()
 
 	char buf[BUFSIZE + 1];
 
+	memset(buf, 0, sizeof(buf));
+
 	Player my_p;
 	Player *my_ptr;
 
 	my_p.p_id = rand() % 4 + 1;
-	my_p.p_x = 100.12;
-	my_p.p_y = 120.34;
-	my_p.p_z = 243;
+	my_p.p_x = 100.54;
+	my_p.p_y = 120.12;
+	my_p.p_z = 243.09;
 	my_p.p_hp = 100;
-	my_p.end = '\0';
+	my_p.end = 'A';
 
 	my_ptr = &my_p;
 
+	*buf = (char)my_ptr;
 
 	int len;
 
