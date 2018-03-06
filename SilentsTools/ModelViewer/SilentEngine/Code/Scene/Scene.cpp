@@ -354,6 +354,7 @@ void MainScene::ReleaseUploadBuffers()
 
 GameScene::GameScene()
 {
+	m_physics = new BasePhysX();
 }
 
 GameScene::~GameScene()
@@ -650,6 +651,7 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 	{
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 	}*/
+	m_physics->stepPhysics(true);
 	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
 	m_ppShaders[modelIndex]->AnimateObjects(fTimeElapsed);
 

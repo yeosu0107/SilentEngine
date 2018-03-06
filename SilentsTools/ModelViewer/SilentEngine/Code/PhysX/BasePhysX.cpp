@@ -3,13 +3,14 @@
 
 BasePhysX::BasePhysX()
 {
+	InitPhysics();
 }
 
 BasePhysX::~BasePhysX()
 {
 }
 
-void BasePhysX::InitPhysics(bool interactive)
+void BasePhysX::InitPhysics()
 {
 	gFoundation=PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 
@@ -38,11 +39,6 @@ void BasePhysX::InitPhysics(bool interactive)
 	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
 	gScene->addActor(*groundPlane);
 
-	//for (PxU32 i = 0; i<5; i++)
-	//	createStack(PxTransform(PxVec3(0, 0, stackZ -= 10.0f)), 10, 2.0f);
-
-	if (!interactive)
-		createDynamic(PxTransform(PxVec3(0, 40, 100)), PxSphereGeometry(10), PxVec3(0, -50, -100));
 }
 
 PxRigidDynamic * BasePhysX::createDynamic(const PxTransform & t, const PxGeometry & geometry, const PxVec3 & velocity = PxVec3(0))
@@ -52,4 +48,40 @@ PxRigidDynamic * BasePhysX::createDynamic(const PxTransform & t, const PxGeometr
 	dynamic->setLinearVelocity(velocity);
 	gScene->addActor(*dynamic);
 	return dynamic;
+}
+
+void BasePhysX::createStack(const PxTransform & t, PxU32 size, PxReal halfExtent)
+{
+	PxShape* shape = gPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
+	PxRigidDynamic* body = gPhysics->createRigidDynamic(t);
+	body->attachShape(*shape);
+	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
+	gScene->addActor(*body);
+	shape->release();
+}
+
+void BasePhysX::stepPhysics(bool interactive)
+{
+	if (gScene) {
+		PX_UNUSED(interactive);
+		gScene->simulate(1.0f / 60.0f); //60프레임
+		gScene->fetchResults(true); //적용
+	}
+}
+
+void BasePhysX::cleanupPhysics(bool interactive)
+{
+	PX_UNUSED(interactive);
+	gScene->release();
+	gDispatcher->release();
+	gPhysics->release();
+	PxPvdTransport* transport = gPvd->getTransport();
+	gPvd->release();
+	transport->release();
+
+	gFoundation->release();
+
+#ifdef _DEBUG
+	cout << "PhysX CleanUp Done" << endl;
+#endif
 }

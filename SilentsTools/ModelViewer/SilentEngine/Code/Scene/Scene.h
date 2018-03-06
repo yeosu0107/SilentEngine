@@ -6,6 +6,7 @@
 
 #include "EffectShaders.h"
 #include "Player.h"
+#include "..\PhysX\BasePhysX.h"
 
 struct LIGHT
 {
@@ -151,4 +152,6 @@ protected:
 
 	ID3D12Resource				*m_pd3dcbMaterials = NULL;
 	MATERIAL					*m_pcbMappedMaterials = NULL;
+
+	BasePhysX					*m_physics = nullptr;
 };

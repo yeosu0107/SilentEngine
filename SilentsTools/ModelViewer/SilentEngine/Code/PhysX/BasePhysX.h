@@ -28,8 +28,13 @@ public:
 	BasePhysX();
 	~BasePhysX();
 
-	void InitPhysics(bool interactive);
+	void InitPhysics();
 
 	PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry,
 		const PxVec3& velocity);
+	void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
+
+	void stepPhysics(bool interactive);
+	void cleanupPhysics(bool interactive);
+
 };
