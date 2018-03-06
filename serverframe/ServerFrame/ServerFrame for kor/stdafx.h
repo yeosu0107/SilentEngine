@@ -1,18 +1,19 @@
-// stdafx.h : ìì£¼ ì‚¬ìš©í•˜ì§€ë§Œ ìì£¼ ë³€ê²½ë˜ì§€ëŠ” ì•ŠëŠ”
-// í‘œì¤€ ì‹œìŠ¤í…œ í¬í•¨ íŒŒì¼ ë˜ëŠ” í”„ë¡œì íŠ¸ ê´€ë ¨ í¬í•¨ íŒŒì¼ì´
-// ë“¤ì–´ ìˆëŠ” í¬í•¨ íŒŒì¼ì…ë‹ˆë‹¤.
+// stdafx.h : ÀÚÁÖ »ç¿ëÇÏÁö¸¸ ÀÚÁÖ º¯°æµÇÁö´Â ¾Ê´Â
+// Ç¥ÁØ ½Ã½ºÅÛ Æ÷ÇÔ ÆÄÀÏ ¶Ç´Â ÇÁ·ÎÁ§Æ® °ü·Ã Æ÷ÇÔ ÆÄÀÏÀÌ
+// µé¾î ÀÖ´Â Æ÷ÇÔ ÆÄÀÏÀÔ´Ï´Ù.
 //
-// TODO: í”„ë¡œê·¸ë¨ì— í•„ìš”í•œ ì¶”ê°€ í—¤ë”ëŠ” ì—¬ê¸°ì—ì„œ ì°¸ì¡°í•©ë‹ˆë‹¤.
+// TODO: ÇÁ·Î±×·¥¿¡ ÇÊ¿äÇÑ Ãß°¡ Çì´õ´Â ¿©±â¿¡¼­ ÂüÁ¶ÇÕ´Ï´Ù.
 #pragma once
 #pragma comment(lib, "ws2_32")
 
-#include "targetver.h"
+#include <SDKDDKVer.h>
 
 #include <stdio.h>
 #include <tchar.h>
 #include <WinSock2.h>
 #include <stdlib.h>
 #include <WS2tcpip.h>
+#include "Protocol.h"
 
 #define SERVERPORT 9000
 #define BUFSIZE 512
@@ -25,19 +26,8 @@ void err_display(char *msg);
 struct SOCKETINFO {
 	OVERLAPPED overlapped;
 	SOCKET sock;
-	float buf[150];
+	char buf[BUFSIZE + 1];
 	int recvbytes;
 	int sendbytes;
 	WSABUF wsabuf;
-};
-
-struct Pos {
-	int x;
-	int y;
-};
-
-struct Player {
-	Pos p;
-	int hp;
-	int id;
 };

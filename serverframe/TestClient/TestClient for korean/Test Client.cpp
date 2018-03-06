@@ -1,6 +1,3 @@
-// Testclient.cpp : ì½˜ì†” ì‘ìš© í”„ë¡œê·¸ë¨ì— ëŒ€í•œ ì§„ì…ì ì„ ì •ì˜í•©ë‹ˆë‹¤.
-//
-
 #include "stdafx.h"
 
 
@@ -34,10 +31,10 @@ int main()
 	Player my_p;
 	Player *my_ptr;
 
-	my_p.p_id = rand()%4+1;
-	my_p.p_x  = 0;
-	my_p.p_y  = 0;
-	my_p.p_z  = 0;
+	my_p.p_id = rand() % 4 + 1;
+	my_p.p_x = 100.12;
+	my_p.p_y = 120.34;
+	my_p.p_z = 243;
 	my_p.p_hp = 100;
 	my_p.end = '\0';
 
@@ -47,15 +44,15 @@ int main()
 	int len;
 
 	while (1) {
-		//ë³´ë‚¼ ë°ì´í„°
-		//----íŒ¨í‚· ë°ì´í„°ë¥¼ ìºë¦­í„°í˜• ë²„í¼ì— ìˆœì„œëŒ€ë¡œ ì‚¬ì´ì¦ˆì— ì§‘ì–´ ë„£ì€í›„ ê·¸ ë²„í¼ë¥¼ ì—°ê²°í•´ì„œ ì „ì†¡
-		//    ì„œë²„ì—ì„œë„ ë°›ì€ íŒ¨í‚·ì„ ìºë¦­í„°í˜• ë²„í¼ì— ì˜®ê¸´í›„ ê°ê° íƒ€ì…ì— ë§ê²Œë” ì½ì–´ë“¤ì—¬ì„œ ë°ì´í„° í¸ì§‘
+		//º¸³¾ µ¥ÀÌÅÍ
+		//----ÆĞÅ¶ µ¥ÀÌÅÍ¸¦ Ä³¸¯ÅÍÇü ¹öÆÛ¿¡ ¼ø¼­´ë·Î »çÀÌÁî¿¡ Áı¾î ³ÖÀºÈÄ ±× ¹öÆÛ¸¦ ¿¬°áÇØ¼­ Àü¼Û
+		//    ¼­¹ö¿¡¼­µµ ¹ŞÀº ÆĞÅ¶À» Ä³¸¯ÅÍÇü ¹öÆÛ¿¡ ¿Å±äÈÄ °¢°¢ Å¸ÀÔ¿¡ ¸Â°Ô²û ÀĞ¾îµé¿©¼­ µ¥ÀÌÅÍ ÆíÁı
 
-		
+
 
 
 		////memset(&buf, 0, sizeof(buf));
-		////ê°€ë” ì´ˆê¸°í™”ë¥¼ ì•ˆí•´ì£¼ë©´ ì—ëŸ¬ê°€ ë‚˜ëŠ” ê²ƒì— ì˜í•´ memsetìœ¼ë¡œ ëª¨ë“œ 0ìœ¼ë¡œ ì´ˆê¸°í™”
+		////°¡²û ÃÊ±âÈ­¸¦ ¾ÈÇØÁÖ¸é ¿¡·¯°¡ ³ª´Â °Í¿¡ ÀÇÇØ memsetÀ¸·Î ¸ğµå 0À¸·Î ÃÊ±âÈ­
 		//
 		////buf = 
 
@@ -63,8 +60,8 @@ int main()
 
 		////buf = (char *)p;
 
-		//printf("\n[ë³´ë‚¼ ë°ì´í„°] : %f",buf[0]);
-		
+		//printf("\n[º¸³¾ µ¥ÀÌÅÍ] : %f",buf[0]);
+
 
 
 		//if (fgets(buf, BUFSIZE + 1, stdin) == NULL) {
@@ -84,13 +81,15 @@ int main()
 		//retval = send(sock, (char*)my_p, strlen((char*)buf), 0);
 		retval = send(sock, (char*)my_ptr, sizeof(Player), 0);
 
-			if (retval == SOCKET_ERROR) {
-				err_display("send()");
-				break;
-			}
-			printf("[TCP í´ë¼ì´ì–¸íŠ¸] %dë°”ì´íŠ¸ë¥¼ ë³´ëƒˆìŠµë‹ˆë‹¤.\n", retval);
-			count = 0;
-		
+		if (retval == SOCKET_ERROR) {
+			err_display("send()");
+			break;
+		}
+		printf("[TCP Å¬¶óÀÌ¾ğÆ®] %d¹ÙÀÌÆ®¸¦ º¸³Â½À´Ï´Ù.\n", retval);
+		printf("º¸³½ µ¥ÀÌÅÍ : id : %d, pos : ( %f, %f, %f ), hp : %d, end : %c",
+			my_ptr->p_id, my_ptr->p_x, my_ptr->p_y, my_ptr->p_z, my_ptr->p_hp, my_ptr->end);
+		count = 0;
+
 		retval = recvn(sock, (char*)buf, retval, 0);
 		if (retval == SOCKET_ERROR) {
 			err_display("recv()");
@@ -98,8 +97,8 @@ int main()
 		}
 
 		buf[retval] = '\0';
-		printf("[TCP í´ë¼ì´ì–¸íŠ¸] %dë°”ì´íŠ¸ë¥¼ ë°›ì•˜ìŠµë‹ˆë‹¤.\n", retval);
-		printf("[ë°›ì€ ë°ì´í„°] %f\n", buf[0]);
+		printf("[TCP Å¬¶óÀÌ¾ğÆ®] %d¹ÙÀÌÆ®¸¦ ¹Ş¾Ò½À´Ï´Ù.\n", retval);
+		printf("[¹ŞÀº µ¥ÀÌÅÍ] %f\n", buf[0]);
 
 		count++;
 	}
@@ -107,6 +106,5 @@ int main()
 	closesocket(sock);
 	WSACleanup();
 
-    return 0;
+	return 0;
 }
-
