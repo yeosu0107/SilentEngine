@@ -108,11 +108,11 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CMesh
+class MeshGeometry
 {
 public:
-	CMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual ~CMesh();
+	MeshGeometry(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual ~MeshGeometry();
 
 private:
 	int								m_nReferences = 0;
@@ -149,16 +149,16 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CMeshDiffused : public CMesh
+class MeshGeometryDiffused : public MeshGeometry
 {
 public:
-	CMeshDiffused(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : CMesh(pd3dDevice, pd3dCommandList) { }
-	virtual ~CMeshDiffused() { }
+	MeshGeometryDiffused(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : MeshGeometry(pd3dDevice, pd3dCommandList) { }
+	virtual ~MeshGeometryDiffused() { }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CAirplaneMeshDiffused : public CMeshDiffused
+class CAirplaneMeshDiffused : public MeshGeometryDiffused
 {
 public:
 	CAirplaneMeshDiffused(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 20.0f, float fHeight = 20.0f, float fDepth = 4.0f, XMFLOAT4 xmf4Color = XMFLOAT4(1.0f, 1.0f, 0.0f, 0.0f));
@@ -167,11 +167,11 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CMeshIlluminated : public CMesh
+class MeshGeometryIlluminated : public MeshGeometry
 {
 public:
-	CMeshIlluminated(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual ~CMeshIlluminated();
+	MeshGeometryIlluminated(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual ~MeshGeometryIlluminated();
 
 public:
 	void CalculateTriangleListVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, int nVertices);
@@ -182,23 +182,23 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CMeshIlluminatedTextured : public CMeshIlluminated
+class MeshGeometryIlluminatedTextured : public MeshGeometryIlluminated
 {
 public:
-	CMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual ~CMeshIlluminatedTextured();
+	MeshGeometryIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual ~MeshGeometryIlluminatedTextured();
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CCubeMeshIlluminatedTextured : public CMeshIlluminatedTextured
+class CCubeMeshIlluminatedTextured : public MeshGeometryIlluminatedTextured
 {
 public:
 	CCubeMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
 	virtual ~CCubeMeshIlluminatedTextured();
 };
 
-class CBoardMeshIlluminatedTextured : public CMeshIlluminatedTextured
+class CBoardMeshIlluminatedTextured : public MeshGeometryIlluminatedTextured
 {
 public:
 	CBoardMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth
@@ -208,7 +208,7 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CUIMeshTextured : public CMeshDiffused
+class CUIMeshTextured : public MeshGeometryDiffused
 {
 public :
 	CUIMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT3& xmf3StartPos, XMFLOAT3& xmf3EndPos, float fTexutreNum, float fsize);

@@ -22,7 +22,7 @@ CompiledShaders * CompiledShaders::Instance()
 }
 
 
-void Shaders::BuildPSO(ID3D12Device * pd3dDevice, ID3D12RootSignature * pd3dGraphicsRootSignature, UINT nRenderTargets)
+void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	::ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -40,7 +40,7 @@ void Shaders::BuildPSO(ID3D12Device * pd3dDevice, ID3D12RootSignature * pd3dGrap
 	psoDesc.RTVFormats[0]			= DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.SampleDesc.Count		= 1;
 	psoDesc.DSVFormat				= DXGI_FORMAT_D24_UNORM_S8_UINT;
-	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPSO)));
+	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPSO.GetAddressOf())));
 }
 
 void Shaders::CreateCbvAndSrvDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
@@ -86,15 +86,15 @@ void Shaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 D3D12_INPUT_LAYOUT_DESC Shaders::CreateInputLayout()
 {
-	vector<D3D12_INPUT_ELEMENT_DESC> inputElementDesc;
-	D3D12_INPUT_LAYOUT_DESC			 inputLayout;
+	//vector<D3D12_INPUT_ELEMENT_DESC> inputElementDesc;
+	D3D12_INPUT_LAYOUT_DESC inputLayout;
 
-	inputElementDesc =
+	m_pInputElementDesc =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
-	inputLayout = { inputElementDesc.data(), (UINT)inputElementDesc.size() };
+	inputLayout = { m_pInputElementDesc.data(), (UINT)m_pInputElementDesc.size() };
 
 	return inputLayout;
 }
@@ -156,8 +156,11 @@ void Shaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 void Shaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	//for(int i = 0; i < m_nObjects; ++i)
-		//m_ObjectCB->CopyData(i, )
+	ObjectConstants cBuffer; 
+	for (int i = 0; i < m_nObjects; ++i) {
+		cBuffer.m_WorldViewProj = m_ppObjects[i]->m_xmf4x4World;
+		m_ObjectCB->CopyData(i, cBuffer);
+	}
 }
 
 void Shaders::ReleaseShaderVariables()
@@ -171,18 +174,32 @@ void Shaders::UpdateShaderVariable(ID3D12GraphicsCommandList * pd3dCommandList, 
 
 void Shaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
 {
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateGraphicsRootSignature(pd3dDevice, pd3dCommandList);
-	BuildPSO(pd3dDevice, pd3dCommandList);
-
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+
+	m_nObjects = 1;
+	m_ppObjects = vector<unique_ptr<GameObject>>(m_nObjects);
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 0);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice);
+
+	m_ppObjects[0] = make_unique<GameObject>();
+	m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
 }
 
 void Shaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
 	OnPrepareRender(pd3dCommandList);
+
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}
+	
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	pCamera->UpdateShaderVariables(pd3dCommandList);
 }
 
 void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
@@ -193,14 +210,15 @@ void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
 	if (m_pPSO)
 		pd3dCommandList->SetPipelineState(m_pPSO.Get());
 
-	pd3dCommandList->SetDescriptorHeaps(1, &m_CbvSrvDescriptorHeap);
+	ID3D12DescriptorHeap* descriptorHeap[] = { m_CbvSrvDescriptorHeap.Get() };
+	pd3dCommandList->SetDescriptorHeaps(_countof(descriptorHeap), descriptorHeap);
 
 	UpdateShaderVariables(pd3dCommandList);
 }
+//
+//// /////////////////////////////////////////////////
 
-// /////////////////////////////////////////////////
-
-void BoxShader::BuildPSO(ID3D12Device * pd3dDevice, ID3D12RootSignature * pd3dGraphicsRootSignature, UINT nRenderTargets)
+void BoxShader::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	::ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -221,63 +239,13 @@ void BoxShader::BuildPSO(ID3D12Device * pd3dDevice, ID3D12RootSignature * pd3dGr
 	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPSO)));
 }
 
-void BoxShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+BoxShader::BoxShader() : Shaders()
 {
-}
-
-D3D12_INPUT_LAYOUT_DESC BoxShader::CreateInputLayout()
-{
-	vector<D3D12_INPUT_ELEMENT_DESC> inputElementDesc;
-	D3D12_INPUT_LAYOUT_DESC			 inputLayout;
-
-	inputElementDesc =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-	};
-	inputLayout = { inputElementDesc.data(), (UINT)inputElementDesc.size() };
-
-	return inputLayout;
-}
-
-D3D12_RASTERIZER_DESC BoxShader::CreateRasterizerState()
-{
-	return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-}
-
-D3D12_BLEND_DESC BoxShader::CreateBlendState()
-{
-	return CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-}
-
-D3D12_DEPTH_STENCIL_DESC BoxShader::CreateDepthStencilState()
-{
-	return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-}
-
-D3D12_SHADER_BYTECODE BoxShader::CreateVertexShader()
-{
-	D3D12_SHADER_BYTECODE byteCode;
-	::ZeroMemory(&byteCode, sizeof(D3D12_SHADER_BYTECODE));
-	byteCode.pShaderBytecode = m_VSByteCode->GetBufferPointer();
-	byteCode.BytecodeLength = m_VSByteCode->GetBufferSize();
-
-	return byteCode;
-}
-
-D3D12_SHADER_BYTECODE BoxShader::CreatePixelShader()
-{
-	D3D12_SHADER_BYTECODE byteCode;
-	::ZeroMemory(&byteCode, sizeof(D3D12_SHADER_BYTECODE));
-	byteCode.pShaderBytecode = m_PSByteCode->GetBufferPointer();
-	byteCode.BytecodeLength = m_PSByteCode->GetBufferSize();
-
-	return byteCode;
 }
 
 void BoxShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	m_ObjectCB = make_unique<UploadBuffer<ObjectConstants>>(pd3dDevice, m_nObjects, true);
+	m_ObjectCB = make_unique<UploadBuffer<ObjectConstants>>(pd3dDevice, m_nObjects, true);		// 오브젝트 수 만큼 메모리 할당 
 
 	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
@@ -297,8 +265,11 @@ void BoxShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 
 void BoxShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	//for(int i = 0; i < m_nObjects; ++i)
-	//m_ObjectCB->CopyData(i, )
+	ObjectConstants cBuffer;
+	for (int i = 0; i < m_nObjects; ++i) {
+		cBuffer.m_WorldViewProj = m_ppObjects[i]->m_xmf4x4World;
+		m_ObjectCB->CopyData(i, cBuffer);
+	}
 }
 
 void BoxShader::ReleaseShaderVariables()
@@ -314,22 +285,26 @@ void BoxShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 {
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+
+	m_nObjects = 1;
+	m_ppObjects = vector<unique_ptr<GameObject>>(m_nObjects);
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 0);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice);
+
+	m_ppObjects[0] = make_unique<GameObject>();
+	m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
+
 }
 
 void BoxShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
-	OnPrepareRender(pd3dCommandList);
-}
+	Shaders::OnPrepareRender(pd3dCommandList);
 
-void BoxShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
-{
-	if (m_RootSignature)
-		pd3dCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
-
-	if (m_pPSO)
-		pd3dCommandList->SetPipelineState(m_pPSO.Get());
-
-	pd3dCommandList->SetDescriptorHeaps(1, &m_CbvSrvDescriptorHeap);
-
-	UpdateShaderVariables(pd3dCommandList);
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}
 }

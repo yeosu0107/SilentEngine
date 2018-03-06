@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "UploadBuffer.h"
 #include "D3DMath.h"
+#include "GameObjects.h"
 
 using namespace std;
 
@@ -40,8 +41,9 @@ public:
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 
+	void Release() {};
 
-	virtual void BuildPSO(ID3D12Device *pd3dDevice, ID3D12RootSignature *pd3dGraphicsRootSignature, UINT nRenderTargets = 1) ;
+	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1) ;
 
 	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride) {};
@@ -71,8 +73,11 @@ protected:
 	ComPtr<ID3DBlob>							m_PSByteCode = nullptr;
 	ComPtr<ID3D12DescriptorHeap>				m_CbvSrvDescriptorHeap = nullptr;
 
-	unique_ptr<UploadBuffer<ObjectConstants>>	m_ObjectCB = nullptr;
+	vector<D3D12_INPUT_ELEMENT_DESC>			m_pInputElementDesc;
+	vector<unique_ptr<GameObject>>				m_ppObjects;
 	UINT										m_nObjects = 0;
+
+	unique_ptr<UploadBuffer<ObjectConstants>>	m_ObjectCB = nullptr;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>			m_InputLayout;
 
@@ -82,17 +87,19 @@ class BoxShader : public Shaders
 {
 public:
 	BoxShader();
-	~BoxShader();
+	~BoxShader() {};
 
 public:
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void ReleaseShaderVariables();
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World);
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
+	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext);
+	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
+	//virtual void BuildObjects(ID3D12Device *pd3dDevice, void *pContext = NULL);
+	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1);
 
 protected:
-	
 	string										m_sMeshName;
 	
 };

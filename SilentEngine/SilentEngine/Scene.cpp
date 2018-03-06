@@ -24,78 +24,8 @@ void Scene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandL
 
 void TestScene::BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	array<Vertex, 8> vertices =
-	{
-		Vertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
-		Vertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
-		Vertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
-		Vertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
-		Vertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
-		Vertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
-		Vertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
-		Vertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
-	};
-
-	std::array<std::uint16_t, 36> indices =
-	{
-		// front face
-		0, 1, 2,
-		0, 2, 3,
-
-		// back face
-		4, 6, 5,
-		4, 7, 6,
-
-		// left face
-		4, 5, 1,
-		4, 1, 0,
-
-		// right face
-		3, 2, 6,
-		3, 6, 7,
-
-		// top face
-		1, 5, 6,
-		1, 6, 2,
-
-		// bottom face
-		4, 0, 3,
-		4, 3, 7
-	};
-
-	const UINT vbByteSize = (UINT)vertices.size() * sizeof(Vertex);
-	const UINT ibByteSize = (UINT)indices.size() * sizeof(std::uint16_t);
-	
 	m_Geometries = std::make_shared<unordered_map<string, unique_ptr<MeshGeometry>>>();
-
-	auto geo = std::make_unique<MeshGeometry>();
-	geo->Name = "boxGeo";
-
-	ThrowIfFailed(D3DCreateBlob(vbByteSize, &geo->VertexBufferCPU));
-	CopyMemory(geo->VertexBufferCPU->GetBufferPointer(), vertices.data(), vbByteSize);
-
-	ThrowIfFailed(D3DCreateBlob(ibByteSize, &geo->IndexBufferCPU));
-	CopyMemory(geo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
-
-	geo->VertexBufferGPU = D3DUtil::CreateDefaultBuffer(pDevice,
-		pCommandList, vertices.data(), vbByteSize, geo->VertexBufferUploader);
-
-	geo->IndexBufferGPU = D3DUtil::CreateDefaultBuffer(pDevice,
-		pCommandList, indices.data(), ibByteSize, geo->IndexBufferUploader);
-
-	geo->VertexByteStride = sizeof(Vertex);
-	geo->VertexBufferByteSize = vbByteSize;
-	geo->IndexFormat = DXGI_FORMAT_R16_UINT;
-	geo->IndexBufferByteSize = ibByteSize;
-
-	SubmeshGeometry submesh;
-	submesh.IndexCount = (UINT)indices.size();
-	submesh.StartIndexLocation = 0;
-	submesh.BaseVertexLocation = 0;
-
-	geo->DrawArgs["box"] = submesh;
-
-	(*m_Geometries)[geo->Name] = move(geo);
+	(*m_Geometries)["boxGeo"] = move(std::make_unique<MeshGeometryCube>(pDevice, pCommandList, 10.0f, 10.0f, 10.0f));
 }
 
 void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -211,12 +141,17 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	BuildDescriptorHeaps(pDevice, pCommandList);
-	BuildConstantBuffers(pDevice, pCommandList);
-	BuildRootSignature(pDevice, pCommandList);
-	BuildShadersAndInputLayout(pDevice, pCommandList);
-	BuildSceneGeometry(pDevice, pCommandList);
-	BuildPSOs(pDevice, pCommandList);
+	m_pShaders = make_unique<Shaders>();
+	m_pShaders->BuildObjects(pDevice, pCommandList);
+
+	//BuildDescriptorHeaps(pDevice, pCommandList);
+	//BuildConstantBuffers(pDevice, pCommandList);
+	//BuildRootSignature(pDevice, pCommandList);
+	//BuildShadersAndInputLayout(pDevice, pCommandList);
+	//BuildSceneGeometry(pDevice, pCommandList);
+	//BuildPSOs(pDevice, pCommandList);
+
+	
 
 	m_Camera = make_unique<Camera>();
 	m_Camera->InitCamera(pDevice, pCommandList);
@@ -224,17 +159,13 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
-	pCommandList->SetPipelineState(m_PSOs["Cube"].Get());
+	//pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
+	//pCommandList->SetPipelineState(m_PSOs["Cube"].Get());
 	
-	m_Camera->SetViewportsAndScissorRects(pCommandList);
-	m_Camera->UpdateShaderVariables(pCommandList);
+	//m_Camera->SetViewportsAndScissorRects(pCommandList);
+	//m_Camera->UpdateShaderVariables(pCommandList);
 
-	pCommandList->IASetVertexBuffers(0, 1, &((*m_Geometries.get())["boxGeo"]->VertexBufferView()));
-	pCommandList->IASetIndexBuffer(&((*m_Geometries.get())["boxGeo"]->IndexBufferView()));
-	pCommandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	pCommandList->DrawIndexedInstanced(
-		(*m_Geometries.get())["boxGeo"]->DrawArgs["box"].IndexCount,
-		1, 0, 0, 0);
+	m_pShaders->Render(pCommandList, m_Camera.get());
+	
+	//(*m_Geometries.get())["boxGeo"]->Render(pCommandList);
 }
