@@ -9,32 +9,25 @@ using namespace physx;
 class BasePhysX
 {
 private:
-	PxDefaultAllocator			gAllocator; //할당자 인터페이스
-	PxDefaultErrorCallback		gErrorCallback; //에러 콜백
+	PxDefaultAllocator			gAllocator;			//sdk에 필요한 한당자 인터페이스 기본 인스턴스
+	PxDefaultErrorCallback		gErrorCallback;	//에러 콜백 디폴트
 
-	PxFoundation*				gFoundation = nullptr; //
-	PxPhysics*						gPhysics = nullptr; //모든 장면에 적용되는 전역 매개변수 설정 및 공유 개체 생성
+	PxFoundation*				gFoundation;		//싱글톤 파운데이션 SDK 클래스의 인스턴스
+	PxPhysics*						gPhysics;			//PhysX SDK 인스턴스
 
-	PxDefaultCpuDispatcher*	gDispatcher = nullptr;
-	PxScene*						gScene = nullptr;
+	PxScene*						gScene;				//PhysX Scene 인스턴스
+	PxReal							gTimeStep;			//프레임레이트
 
-	PxMaterial*						gMaterial = nullptr;
-
-	PxPvd*							gPvd = nullptr;
-
-	PxReal							stackZ = 10.0f;
-
+	PxPvd*							gPvd;
 public:
 	BasePhysX();
 	~BasePhysX();
 
 	void InitPhysics();
-
-	PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry,
-		const PxVec3& velocity);
-	void createStack(const PxTransform& t, PxU32 size, PxReal halfExtent);
+	void BuildPhysics();
 
 	void stepPhysics(bool interactive);
 	void cleanupPhysics(bool interactive);
 
+	void Addapt(XMFLOAT3& pos);
 };

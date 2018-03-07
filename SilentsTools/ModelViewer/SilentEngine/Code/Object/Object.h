@@ -167,6 +167,9 @@ public:
 	virtual void ReleaseUploadBuffers();
 
 	XMFLOAT3 GetPosition();
+	XMFLOAT3& getPos() {
+		return XMFLOAT3(m_xmf4x4World._41, m_xmf4x4World._42, m_xmf4x4World._43);
+	}
 	XMFLOAT3 GetLook();
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();

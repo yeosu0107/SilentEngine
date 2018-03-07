@@ -2,6 +2,7 @@
 
 #include "..\Shaders\Shader.h"
 #include "ModelObject.h"
+#include "..\PhysX\BasePhysX.h"
 
 class ModelShader : public CShader
 {
@@ -16,6 +17,8 @@ protected:
 	CMaterial						*m_pMaterial = NULL;
 #endif
 	UINT modelIndex;
+
+	BasePhysX*					globalPhysX;
 
 public:
 	ModelShader();
@@ -41,6 +44,6 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
-
+	void SetPhys(BasePhysX* tmp) { globalPhysX = tmp; }
 };
 

@@ -4,7 +4,7 @@
 
 ModelShader::ModelShader() : modelIndex(0)
 {
-	
+	globalPhysX = nullptr;
 }
 
 ModelShader::ModelShader(UINT index) :
@@ -112,6 +112,11 @@ void ModelShader::AnimateObjects(float fTimeElapsed)
 	for (int j = 0; j < m_nObjects; j++)
 	{
 		m_ppObjects[j]->Animate(fTimeElapsed);
+		if (globalPhysX) {
+			XMFLOAT3 t = m_ppObjects[j]->getPos();
+			globalPhysX->Addapt(t);
+			m_ppObjects[j]->SetPosition(t);
+		}
 	}
 }
 

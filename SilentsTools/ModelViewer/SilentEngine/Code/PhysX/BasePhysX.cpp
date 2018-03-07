@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "BasePhysX.h"
 
-BasePhysX::BasePhysX()
+BasePhysX::BasePhysX() : gFoundation(nullptr), gPhysics(nullptr),
+	gScene(nullptr), gPvd(nullptr)
 {
+	gTimeStep = 1.0f / 60.0f;  //60프레임
 	InitPhysics();
 }
 
@@ -12,60 +14,62 @@ BasePhysX::~BasePhysX()
 
 void BasePhysX::InitPhysics()
 {
+	//foundation 생성
 	gFoundation=PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
+	
+	//PhysXSDK 인스턴스 생성
+	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale());
 
-	gPvd = PxCreatePvd(*gFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-	gPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
-
-	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	gDispatcher = PxDefaultCpuDispatcherCreate(2);
-	sceneDesc.cpuDispatcher = gDispatcher;
-	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	gScene = gPhysics->createScene(sceneDesc);
-
-	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
-	if (pvdClient)
-	{
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+#ifdef _DEBUG
+	if (!gPhysics) {
+		cout << "PhysXSDK 생성 실패" << endl;
+		exit(1);
 	}
-	gMaterial = gPhysics->createMaterial(0.5f, 0.5f, 0.6f);
+#endif
 
-	PxRigidStatic* groundPlane = PxCreatePlane(*gPhysics, PxPlane(0, 1, 0, 0), *gMaterial);
-	gScene->addActor(*groundPlane);
+	//scene 생성
+	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
+	sceneDesc.gravity = PxVec3(0.0f, -10.0f, 0.0f); //현실세계 중력가속도 반올림
+	sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(1); //scene을 위한 cpuDispatcher 생성
+	sceneDesc.filterShader = PxDefaultSimulationFilterShader; //
 
+	gScene = gPhysics->createScene(sceneDesc); //scene 등록
+
+	//physx 매터리얼 생성
+	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
+
+	//상호작용을 위한 물리객체 생성
+	//TEST 용도
+	PxTransform planePos = PxTransform(PxVec3(0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
+	PxRigidActor* plane = gPhysics->createRigidStatic(planePos);
+	plane->createShape(PxPlaneGeometry(), *mat);
+	gScene->addActor(*plane); // 엑터에 플레인 등록
+
+	PxTransform tPos(PxVec3(0.0f, 50.0f, 0.0f));
+	PxBoxGeometry box(PxVec3(2, 2, 2));
+	PxRigidDynamic					*gBox;
+	gBox = PxCreateDynamic(*gPhysics, tPos, box, *mat, 1.0f);
+	gScene->addActor(*gBox);
 }
 
-PxRigidDynamic * BasePhysX::createDynamic(const PxTransform & t, const PxGeometry & geometry, const PxVec3 & velocity = PxVec3(0))
+void BasePhysX::BuildPhysics()
 {
-	PxRigidDynamic* dynamic = PxCreateDynamic(*gPhysics, t, geometry, *gMaterial, 10.0f);
-	dynamic->setAngularDamping(0.5f);
-	dynamic->setLinearVelocity(velocity);
-	gScene->addActor(*dynamic);
-	return dynamic;
+	
 }
 
-void BasePhysX::createStack(const PxTransform & t, PxU32 size, PxReal halfExtent)
-{
-	PxShape* shape = gPhysics->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *gMaterial);
-	PxRigidDynamic* body = gPhysics->createRigidDynamic(t);
-	body->attachShape(*shape);
-	PxRigidBodyExt::updateMassAndInertia(*body, 10.0f);
-	gScene->addActor(*body);
-	shape->release();
-}
 
 void BasePhysX::stepPhysics(bool interactive)
 {
 	if (gScene) {
 		PX_UNUSED(interactive);
-		gScene->simulate(1.0f / 60.0f); //60프레임
+		gScene->simulate(gTimeStep);
 		gScene->fetchResults(true); //적용
+
+		/*XMFLOAT3 pos;
+		PxRigidActor* tactor;
+		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);
+		pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);
+		cout << pos.x << "\t" << pos.y << "\t" << pos.z << endl;*/
 	}
 }
 
@@ -73,7 +77,6 @@ void BasePhysX::cleanupPhysics(bool interactive)
 {
 	PX_UNUSED(interactive);
 	gScene->release();
-	gDispatcher->release();
 	gPhysics->release();
 	PxPvdTransport* transport = gPvd->getTransport();
 	gPvd->release();
@@ -84,4 +87,13 @@ void BasePhysX::cleanupPhysics(bool interactive)
 #ifdef _DEBUG
 	cout << "PhysX CleanUp Done" << endl;
 #endif
+}
+
+void BasePhysX::Addapt(XMFLOAT3 & pos)
+{
+	//PxU32 tmp = gScene->getNbActors(PxActorTypeFlag::eRIGID_DYNAMIC);
+
+	PxRigidActor* tactor;
+	gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);
+	pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);
 }

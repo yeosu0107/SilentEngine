@@ -530,6 +530,7 @@ void GameScene::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	ModelShader* modelShader = new ModelShader(0);
 	modelShader->CreateShader(pd3dDevice, m_ppd3dGraphicsRootSignature[0], 2);
 	modelShader->BuildObjects(pd3dDevice, pd3dCommandList, NULL);
+	modelShader->SetPhys(m_physics);
 	m_ppShaders[1] = modelShader;
 
 	ModelShader* modelShader2 = new ModelShader(1);
@@ -652,6 +653,7 @@ void GameScene::AnimateObjects(float fTimeElapsed)
 		m_ppShaders[i]->AnimateObjects(fTimeElapsed);
 	}*/
 	m_physics->stepPhysics(true);
+
 	m_ppShaders[0]->AnimateObjects(fTimeElapsed);
 	m_ppShaders[modelIndex]->AnimateObjects(fTimeElapsed);
 
