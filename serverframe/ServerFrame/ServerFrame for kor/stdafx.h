@@ -15,7 +15,7 @@
 #include <WS2tcpip.h>
 #include "Protocol.h"
 
-#define SERVERPORT 9000
+#define SERVERPORT 8000
 #define BUFSIZE 512
 
 DWORD WINAPI WorkerThread(LPVOID arg);

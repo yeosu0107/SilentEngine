@@ -1,117 +1,439 @@
 #include "stdafx.h"
 #include "Mesh.h"
 
-Mesh::MeshData Mesh::CreateBox(float fwidth, float fheight, float fdepth, uint32 numSubdivisions)
+MeshGeometry::MeshGeometry(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	MeshData meshData;
-
-	Vertex pVertexData[24];
-
-	float fBoxWidth = 0.5f * fwidth;
-	float fBoxHeight = 0.5f * fheight;
-	float fBoxDepth = 0.5f * fdepth;
-
-	pVertexData[0] = Vertex(-fBoxWidth, -fBoxHeight, -fBoxDepth, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	pVertexData[1] = Vertex(-fBoxWidth, +fBoxHeight, -fBoxDepth, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	pVertexData[2] = Vertex(+fBoxWidth, +fBoxHeight, -fBoxDepth, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	pVertexData[3] = Vertex(+fBoxWidth, -fBoxHeight, -fBoxDepth, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-
-	pVertexData[4] = Vertex(-fBoxWidth, -fBoxHeight, +fBoxDepth, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	pVertexData[5] = Vertex(+fBoxWidth, -fBoxHeight, +fBoxDepth, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	pVertexData[6] = Vertex(+fBoxWidth, +fBoxHeight, +fBoxDepth, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	pVertexData[7] = Vertex(-fBoxWidth, +fBoxHeight, +fBoxDepth, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-
-	pVertexData[8]  = Vertex(-fBoxWidth, +fBoxHeight, -fBoxDepth, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	pVertexData[9]  = Vertex(-fBoxWidth, +fBoxHeight, +fBoxDepth, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	pVertexData[10] = Vertex(+fBoxWidth, +fBoxHeight, +fBoxDepth, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	pVertexData[11] = Vertex(+fBoxWidth, +fBoxHeight, -fBoxDepth, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-
-	pVertexData[12] = Vertex(-fBoxWidth, -fBoxHeight, -fBoxDepth, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-	pVertexData[13] = Vertex(+fBoxWidth, -fBoxHeight, -fBoxDepth, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-	pVertexData[14] = Vertex(+fBoxWidth, -fBoxHeight, +fBoxDepth, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-	pVertexData[15] = Vertex(-fBoxWidth, -fBoxHeight, +fBoxDepth, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-
-	pVertexData[16] = Vertex(-fBoxWidth, -fBoxHeight, +fBoxDepth, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f);
-	pVertexData[17] = Vertex(-fBoxWidth, +fBoxHeight, +fBoxDepth, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
-	pVertexData[18] = Vertex(-fBoxWidth, +fBoxHeight, -fBoxDepth, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f);
-	pVertexData[19] = Vertex(-fBoxWidth, -fBoxHeight, -fBoxDepth, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f);
-
-	pVertexData[20] = Vertex(+fBoxWidth, -fBoxHeight, -fBoxDepth, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f);
-	pVertexData[21] = Vertex(+fBoxWidth, +fBoxHeight, -fBoxDepth, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-	pVertexData[22] = Vertex(+fBoxWidth, +fBoxHeight, +fBoxDepth, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-	pVertexData[23] = Vertex(+fBoxWidth, -fBoxHeight, +fBoxDepth, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-
-	meshData.m_pVertices.assign(&pVertexData[0], &pVertexData[24]);
-
-	uint32 pIndexData[36];
-
-	pIndexData[0] = 0; pIndexData[1] = 1; pIndexData[2] = 2;
-	pIndexData[3] = 0; pIndexData[4] = 2; pIndexData[5] = 3;
-
-	pIndexData[6] = 4; pIndexData[7] = 5; pIndexData[8] = 6;
-	pIndexData[9] = 4; pIndexData[10] = 6; pIndexData[11] = 7;
-
-	pIndexData[12] = 8; pIndexData[13] = 9; pIndexData[14] = 10;
-	pIndexData[15] = 8; pIndexData[16] = 10; pIndexData[17] = 11;
-
-	pIndexData[18] = 12; pIndexData[19] = 13; pIndexData[20] = 14;
-	pIndexData[21] = 12; pIndexData[22] = 14; pIndexData[23] = 15;
-
-	pIndexData[24] = 16; pIndexData[25] = 17; pIndexData[26] = 18;
-	pIndexData[27] = 16; pIndexData[28] = 18; pIndexData[29] = 19;
-
-	pIndexData[30] = 20; pIndexData[31] = 21; pIndexData[32] = 22;
-	pIndexData[33] = 20; pIndexData[34] = 22; pIndexData[35] = 23;
-
-	meshData.m_pIndices32.assign(&pIndexData[0], &pIndexData[36]);
-
-	numSubdivisions = std::min<uint32>(numSubdivisions, 6u);
-
-	for (uint32 i = 0; i < numSubdivisions; ++i)
-		Subdivide(meshData);
-
-	return meshData;
 }
 
-void Mesh::Subdivide(MeshData & meshData)
+MeshGeometry::~MeshGeometry()
 {
-	MeshData inputCopy = meshData;
+}
 
-	meshData.m_pVertices.resize(0);
-	meshData.m_pIndices32.resize(0);
+void MeshGeometry::ReleaseUploadBuffers()
+{
+};
 
-	uint32 numTris = (uint32)inputCopy.m_pIndices32.size() / 3;
-	for (uint32 i = 0; i < numTris; ++i)
+void MeshGeometry::Render(ID3D12GraphicsCommandList *pd3dCommandList)
+{
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);			// 입력 조립기 프리미티브 토폴로지 셋
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);	// m_nslot번째 슬롯부터 n개의 view를 통해 버퍼를 사용하게따
+	if (m_pd3dIndexBuffer)
 	{
-		Vertex v0 = inputCopy.m_pVertices[inputCopy.m_pIndices32[i * 3 + 0]];
-		Vertex v1 = inputCopy.m_pVertices[inputCopy.m_pIndices32[i * 3 + 1]];
-		Vertex v2 = inputCopy.m_pVertices[inputCopy.m_pIndices32[i * 3 + 2]];
-
-		Vertex m0 = MidPoint(v0, v1);
-		Vertex m1 = MidPoint(v1, v2);
-		Vertex m2 = MidPoint(v0, v2);
-
-		meshData.m_pVertices.push_back(v0); // 0
-		meshData.m_pVertices.push_back(v1); // 1
-		meshData.m_pVertices.push_back(v2); // 2
-		meshData.m_pVertices.push_back(m0); // 3
-		meshData.m_pVertices.push_back(m1); // 4
-		meshData.m_pVertices.push_back(m2); // 5
-
-		meshData.m_pIndices32.push_back(i * 6 + 0);
-		meshData.m_pIndices32.push_back(i * 6 + 3);
-		meshData.m_pIndices32.push_back(i * 6 + 5);
-
-		meshData.m_pIndices32.push_back(i * 6 + 3);
-		meshData.m_pIndices32.push_back(i * 6 + 4);
-		meshData.m_pIndices32.push_back(i * 6 + 5);
-
-		meshData.m_pIndices32.push_back(i * 6 + 5);
-		meshData.m_pIndices32.push_back(i * 6 + 4);
-		meshData.m_pIndices32.push_back(i * 6 + 2);
-
-		meshData.m_pIndices32.push_back(i * 6 + 3);
-		meshData.m_pIndices32.push_back(i * 6 + 1);
-		meshData.m_pIndices32.push_back(i * 6 + 4);
+		pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_nIndices, 1, 0, 0, 0);
+	}
+	else
+	{
+		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
 	}
 }
+
+/////////////////////////////////////////////////////////////////
+
+MeshGeometryCube::MeshGeometryCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometry(pd3dDevice, pd3dCommandList)
+{
+
+	m_nVertices = 36;
+	m_nStride = sizeof(CDiffusedVertex);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	array<CDiffusedVertex, 8> pVertices =
+	{
+		CDiffusedVertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::White) }),
+		CDiffusedVertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Black) }),
+		CDiffusedVertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT4(Colors::Red) }),
+		CDiffusedVertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT4(Colors::Green) }),
+		CDiffusedVertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Blue) }),
+		CDiffusedVertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Yellow) }),
+		CDiffusedVertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::Cyan) }),
+		CDiffusedVertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT4(Colors::Magenta) })
+	};
+
+	m_nIndices = 36;
+
+	std::array<std::uint16_t, 36> pIndices =
+	{
+		// front face
+		0, 1, 2,
+		0, 2, 3,
+
+		// back face
+		4, 6, 5,
+		4, 7, 6,
+
+		// left face
+		4, 5, 1,
+		4, 1, 0,
+
+		// right face
+		3, 2, 6,
+		3, 6, 7,
+
+		// top face
+		1, 5, 6,
+		1, 6, 2,
+
+		// bottom face
+		4, 0, 3,
+		4, 3, 7
+	};
+
+	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices.data(), m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+
+	m_pd3dIndexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pIndices.data(), sizeof(std::uint16_t) * m_nIndices, m_pd3dIndexUploadBuffer);
+
+	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
+	m_d3dIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
+	m_d3dIndexBufferView.SizeInBytes = sizeof(std::uint16_t) * m_nIndices;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+MeshGeometryIlluminated::MeshGeometryIlluminated(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : MeshGeometry(pd3dDevice, pd3dCommandList)
+{
+}
+
+MeshGeometryIlluminated::~MeshGeometryIlluminated()
+{
+}
+
+void MeshGeometryIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, int nVertices)
+{
+	int nPrimitives = nVertices / 3;
+	UINT nIndex0, nIndex1, nIndex2;
+	for (int i = 0; i < nPrimitives; i++)
+	{
+		nIndex0 = i * 3 + 0;
+		nIndex1 = i * 3 + 1;
+		nIndex2 = i * 3 + 2;
+		XMFLOAT3 xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0], false);
+		XMFLOAT3 xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0], false);
+		pxmf3Normals[nIndex0] = pxmf3Normals[nIndex1] = pxmf3Normals[nIndex2] = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
+	}
+}
+
+void MeshGeometryIlluminated::CalculateTriangleListVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, UINT nVertices, UINT *pnIndices, UINT nIndices)
+{
+	UINT nPrimitives = (pnIndices) ? (nIndices / 3) : (nVertices / 3);
+	XMFLOAT3 xmf3SumOfNormal, xmf3Edge01, xmf3Edge02, xmf3Normal;
+	UINT nIndex0, nIndex1, nIndex2;
+	for (UINT j = 0; j < nVertices; j++)
+	{
+		xmf3SumOfNormal = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		for (UINT i = 0; i < nPrimitives; i++)
+		{
+			nIndex0 = pnIndices[i * 3 + 0];
+			nIndex1 = pnIndices[i * 3 + 1];
+			nIndex2 = pnIndices[i * 3 + 2];
+			if (pnIndices && ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j)))
+			{
+				xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0], false);
+				xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0], false);
+				xmf3Normal = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, false);
+				xmf3SumOfNormal = Vector3::Add(xmf3SumOfNormal, xmf3Normal);
+			}
+		}
+		pxmf3Normals[j] = Vector3::Normalize(xmf3SumOfNormal);
+	}
+}
+
+void MeshGeometryIlluminated::CalculateTriangleStripVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, UINT nVertices, UINT *pnIndices, UINT nIndices)
+{
+	UINT nPrimitives = (pnIndices) ? (nIndices - 2) : (nVertices - 2);
+	XMFLOAT3 xmf3SumOfNormal(0.0f, 0.0f, 0.0f);
+	UINT nIndex0, nIndex1, nIndex2;
+	for (UINT j = 0; j < nVertices; j++)
+	{
+		xmf3SumOfNormal = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		for (UINT i = 0; i < nPrimitives; i++)
+		{
+			nIndex0 = ((i % 2) == 0) ? (i + 0) : (i + 1);
+			if (pnIndices) nIndex0 = pnIndices[nIndex0];
+			nIndex1 = ((i % 2) == 0) ? (i + 1) : (i + 0);
+			if (pnIndices) nIndex1 = pnIndices[nIndex1];
+			nIndex2 = (pnIndices) ? pnIndices[i + 2] : (i + 2);
+			if ((nIndex0 == j) || (nIndex1 == j) || (nIndex2 == j))
+			{
+				XMFLOAT3 xmf3Edge01 = Vector3::Subtract(pxmf3Positions[nIndex1], pxmf3Positions[nIndex0], false);
+				XMFLOAT3 xmf3Edge02 = Vector3::Subtract(pxmf3Positions[nIndex2], pxmf3Positions[nIndex0], false);
+				XMFLOAT3 xmf3Normal = Vector3::CrossProduct(xmf3Edge01, xmf3Edge02, true);
+				xmf3SumOfNormal = Vector3::Add(xmf3SumOfNormal, xmf3Normal);
+			}
+		}
+		pxmf3Normals[j] = Vector3::Normalize(xmf3SumOfNormal);
+	}
+}
+
+void MeshGeometryIlluminated::CalculateVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, int nVertices, UINT *pnIndices, int nIndices)
+{
+	switch (m_d3dPrimitiveTopology)
+	{
+	case D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST:
+		if (pnIndices)
+			CalculateTriangleListVertexNormals(pxmf3Normals, pxmf3Positions, nVertices, pnIndices, nIndices);
+		else
+			CalculateTriangleListVertexNormals(pxmf3Normals, pxmf3Positions, nVertices);
+		break;
+	case D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
+		CalculateTriangleStripVertexNormals(pxmf3Normals, pxmf3Positions, nVertices, pnIndices, nIndices);
+		break;
+	default:
+		break;
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+MeshGeometryIlluminatedTextured::MeshGeometryIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : MeshGeometryIlluminated(pd3dDevice, pd3dCommandList)
+{
+}
+
+MeshGeometryIlluminatedTextured::~MeshGeometryIlluminatedTextured()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+CCubeMeshIlluminatedTextured::CCubeMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometryIlluminatedTextured(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = 36;
+	m_nStride = sizeof(CIlluminatedTexturedVertex);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	float fx = fWidth*0.5f, fy = fHeight*0.5f, fz = fDepth*0.5f;
+
+	XMFLOAT3 pxmf3Positions[36];
+	int i = 0;
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, -fz);	// 0 , 0 
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, -fz);	// 1 , 1
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, -fz);	// 1 , -1
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, -fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, -fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, -fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, +fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, +fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, +fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, +fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, -fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, +fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, +fz);
+
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, -fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, +fz);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, -fz);
+
+	XMFLOAT2 pxmf2TexCoords[36];
+	i = 0;
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	XMFLOAT3 pxmf3Normals[36];
+	CalculateVertexNormals(pxmf3Normals, pxmf3Positions, m_nVertices, NULL, 0);
+
+	CIlluminatedTexturedVertex pVertices[36];
+	for (int i = 0; i < 36; i++) pVertices[i] = CIlluminatedTexturedVertex(pxmf3Positions[i], pxmf3Normals[i], pxmf2TexCoords[i]);
+	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
+	
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+}
+
+CCubeMeshIlluminatedTextured::~CCubeMeshIlluminatedTextured()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//
+
+CUIMeshTextured::CUIMeshTextured(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, XMFLOAT3 & xmf3StartPos, XMFLOAT3 & xmf3EndPos, float fTexutreNum, float fsize = 1.0f) : MeshGeometryDiffused(pd3dDevice, pd3dCommandList)
+{
+
+	XMFLOAT3 convertStartScreenVertex(
+		(xmf3StartPos.x - FRAME_BUFFER_WIDTH / 2) / (float)(FRAME_BUFFER_WIDTH / 2),
+		(xmf3StartPos.y - FRAME_BUFFER_HEIGHT / 2) / (float)(FRAME_BUFFER_HEIGHT / 2),
+		xmf3StartPos.z
+	);
+
+	XMFLOAT3 convertEndScreenVertex(
+		(xmf3EndPos.x - FRAME_BUFFER_WIDTH / 2) / (float)(FRAME_BUFFER_WIDTH / 2),
+		(xmf3EndPos.y - FRAME_BUFFER_HEIGHT / 2) / (float)(FRAME_BUFFER_HEIGHT / 2),
+		xmf3EndPos.z
+	);
+
+	float fXratio = (xmf3EndPos.x - xmf3StartPos.x) / fsize;
+	float fYratio = (xmf3StartPos.y - xmf3EndPos.y) / fsize;
+
+	m_nVertices = 6;
+	m_nStride = sizeof(CUITexturedVertex);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	XMFLOAT3 pxmf3Positions[6];
+	int i = 0;
+	pxmf3Positions[i++] = convertStartScreenVertex;
+	pxmf3Positions[i++] = XMFLOAT3(convertEndScreenVertex.x, convertStartScreenVertex.y, convertEndScreenVertex.z);
+	pxmf3Positions[i++] = convertEndScreenVertex;
+
+	pxmf3Positions[i++] = convertStartScreenVertex;
+	pxmf3Positions[i++] = convertEndScreenVertex;
+	pxmf3Positions[i++] = XMFLOAT3(convertStartScreenVertex.x, convertEndScreenVertex.y, convertStartScreenVertex.z);
+
+	XMFLOAT2 pxmf2TexCoords[6];
+	i = 0;
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+
+	CUITexturedVertex pVertices[6];
+	for (int i = 0; i < 6; i++) pVertices[i] = CUITexturedVertex(pxmf3Positions[i], pxmf2TexCoords[i], fTexutreNum);
+
+	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+}
+
+CUIMeshTextured::~CUIMeshTextured()
+{
+}
+
+CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth
+	, float fxPosition, float fyPosition, float fzPosition) :
+	MeshGeometryIlluminatedTextured(pd3dDevice, pd3dCommandList)
+{
+	m_nVertices = 6;
+	m_nStride = sizeof(CIlluminatedTexturedVertex);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	float fx = fWidth * 0.5f + fxPosition, fy = fHeight * 0.5f + fyPosition, fz = fDepth * 0.5f + fzPosition;
+
+	XMFLOAT3 pxmf3Positions[6];
+	int i = 0;
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, 0.0f);	// 1 , -1
+	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, 0.0f);	// 1 , 1
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, 0.0f);	// 0 , 0 
+
+	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, 0.0f);
+	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, 0.0f);
+	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, 0.0f);
+
+	XMFLOAT2 pxmf2TexCoords[6];
+	i = 0;
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
+	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
+
+	XMFLOAT3 pxmf3Normals[6];
+	CalculateVertexNormals(pxmf3Normals, pxmf3Positions, m_nVertices, NULL, 0);
+
+	CIlluminatedTexturedVertex pVertices[6];
+	for (UINT i = 0; i < m_nVertices; i++)
+		pVertices[i] = CIlluminatedTexturedVertex(pxmf3Positions[i], pxmf3Normals[i], pxmf2TexCoords[i]);
+
+	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+}
+
+CBoardMeshIlluminatedTextured::~CBoardMeshIlluminatedTextured()
+{
+}
+

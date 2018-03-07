@@ -70,6 +70,7 @@ public:
 		
 protected:
 	unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
+	unique_ptr<Shaders> m_pShaders = nullptr;
 	unique_ptr<Camera> m_Camera = nullptr;
 	
 };

@@ -2,7 +2,7 @@
 
 #include "D3DUtil.h"
 
-struct ObjectConstants 
+struct ObjectConstants		// 오브젝트 상수 버퍼 
 {
 	XMFLOAT4X4 m_WorldViewProj = D3DMath::Identity4x4();
 };
@@ -46,7 +46,7 @@ public:
         return m_pUploadBuffer.Get();
     }
 
-    void CopyData(int elementIndex, const T& data)
+    void CopyData(int elementIndex, T& data)
     {
         memcpy(&m_pMappedData[elementIndex*m_nElementByteSize], &data, sizeof(T));
     }

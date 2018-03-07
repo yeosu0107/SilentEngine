@@ -28,6 +28,9 @@ using namespace Microsoft::WRL;
 using namespace DirectX;
 using namespace std;
 
+#define FRAME_BUFFER_WIDTH 1280
+#define FRAME_BUFFER_HEIGHT 720
+
 inline void d3dSetDebugName(IDXGIObject* obj, const char* name)
 {
 	if (obj)
@@ -76,6 +79,12 @@ public:
 		const string& entrypoint,
 		const string& target);
 
+	static ComPtr<ID3D12Resource> CreateTexture2DResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
+		UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags,
+		D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE *pd3dClearValue);
+
+	static ComPtr<ID3D12Resource> CreateTextureResourceFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
+		wchar_t *pszFileName, ComPtr<ID3D12Resource> *ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates);
 };
 
 class DxException
@@ -100,54 +109,54 @@ struct SubmeshGeometry
 	UINT StartIndexLocation = 0;
 	INT BaseVertexLocation = 0;
 };
-
-struct MeshGeometry 
-{
-	string Name;
-
-	ComPtr<ID3DBlob>		VertexBufferCPU = nullptr;
-	ComPtr<ID3DBlob>		IndexBufferCPU = nullptr;
-
-	ComPtr<ID3D12Resource>	VertexBufferGPU = nullptr;
-	ComPtr<ID3D12Resource>	IndexBufferGPU = nullptr;
-
-	ComPtr<ID3D12Resource>	VertexBufferUploader = nullptr;
-	ComPtr<ID3D12Resource>	IndexBufferUploader = nullptr;
-
-	UINT VertexByteStride = 0;
-	UINT VertexBufferByteSize = 0;
-	DXGI_FORMAT IndexFormat = DXGI_FORMAT_R16_UINT;
-	UINT IndexBufferByteSize = 0;
-
-	unordered_map<string, SubmeshGeometry> DrawArgs;
-
-	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
-	{
-		D3D12_VERTEX_BUFFER_VIEW vbv;
-		vbv.BufferLocation	= VertexBufferGPU->GetGPUVirtualAddress();
-		vbv.StrideInBytes	= VertexByteStride;
-		vbv.SizeInBytes		= VertexBufferByteSize;
-		
-		return vbv;
-	}
-
-	D3D12_INDEX_BUFFER_VIEW IndexBufferView() const
-	{
-		D3D12_INDEX_BUFFER_VIEW ibv;
-		ibv.BufferLocation = IndexBufferGPU->GetGPUVirtualAddress();
-		ibv.Format = IndexFormat;
-		ibv.SizeInBytes = IndexBufferByteSize;
-
-		return ibv;
-	}
-
-	void DisposeUploaders()
-	{
-		VertexBufferUploader = nullptr;
-		IndexBufferUploader = nullptr;
-	}
-
-};
+//
+//struct MeshGeometry 
+//{
+//	string Name;
+//
+//	ComPtr<ID3DBlob>		VertexBufferCPU = nullptr;
+//	ComPtr<ID3DBlob>		IndexBufferCPU = nullptr;
+//
+//	ComPtr<ID3D12Resource>	VertexBufferGPU = nullptr;
+//	ComPtr<ID3D12Resource>	IndexBufferGPU = nullptr;
+//
+//	ComPtr<ID3D12Resource>	VertexBufferUploader = nullptr;
+//	ComPtr<ID3D12Resource>	IndexBufferUploader = nullptr;
+//
+//	UINT VertexByteStride = 0;
+//	UINT VertexBufferByteSize = 0;
+//	DXGI_FORMAT IndexFormat = DXGI_FORMAT_R16_UINT;
+//	UINT IndexBufferByteSize = 0;
+//
+//	unordered_map<string, SubmeshGeometry> DrawArgs;
+//
+//	D3D12_VERTEX_BUFFER_VIEW VertexBufferView() const
+//	{
+//		D3D12_VERTEX_BUFFER_VIEW vbv;
+//		vbv.BufferLocation	= VertexBufferGPU->GetGPUVirtualAddress();
+//		vbv.StrideInBytes	= VertexByteStride;
+//		vbv.SizeInBytes		= VertexBufferByteSize;
+//		
+//		return vbv;
+//	}
+//
+//	D3D12_INDEX_BUFFER_VIEW IndexBufferView() const
+//	{
+//		D3D12_INDEX_BUFFER_VIEW ibv;
+//		ibv.BufferLocation = IndexBufferGPU->GetGPUVirtualAddress();
+//		ibv.Format = IndexFormat;
+//		ibv.SizeInBytes = IndexBufferByteSize;
+//
+//		return ibv;
+//	}
+//
+//	void DisposeUploaders()
+//	{
+//		VertexBufferUploader = nullptr;
+//		IndexBufferUploader = nullptr;
+//	}
+//
+//};
 
 struct Light
 {
@@ -207,3 +216,290 @@ struct Texture
 #ifndef ReleaseCom
 #define ReleaseCom(x) { if(x) { x->Release(); x = 0; }}
 #endif
+
+
+
+typedef enum { RotX, RotY, RotZ } RotateAxis;
+inline bool IsZero(float fValue) { return fabsf(fValue) < std::numeric_limits<float>::epsilon(); }
+
+namespace Vector3
+{
+	inline bool IsZero(XMFLOAT3& xmf3Vector)
+	{
+		if (::IsZero(xmf3Vector.x) && ::IsZero(xmf3Vector.y) && ::IsZero(xmf3Vector.z)) return(true);
+		return(false);
+	}
+
+	inline XMFLOAT3 XMVectorToFloat3(XMVECTOR& xmvVector)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, xmvVector);
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 ScalarProduct(XMFLOAT3& xmf3Vector, float fScalar, bool bNormalize = true)
+	{
+		XMFLOAT3 xmf3Result;
+		if (bNormalize)
+			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)) * fScalar);
+		else
+			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector) * fScalar);
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 Add(const XMFLOAT3& xmf3Vector1, const XMFLOAT3& xmf3Vector2)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) + XMLoadFloat3(&xmf3Vector2));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 Add(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, float fScalar)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) + (XMLoadFloat3(&xmf3Vector2) * fScalar));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 Subtract(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 Subtract(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool bNormalize = true)
+	{
+		XMFLOAT3 xmf3Result;
+		if (bNormalize)
+			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2)));
+		else
+			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1) - XMLoadFloat3(&xmf3Vector2));
+
+		return(xmf3Result);
+	}
+
+	inline float DotProduct(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3Dot(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
+		return(xmf3Result.x);
+	}
+
+	inline XMFLOAT3 CrossProduct(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, bool bNormalize = true)
+	{
+		XMFLOAT3 xmf3Result;
+		if (bNormalize)
+			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMVector3Cross(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2))));
+		else
+			XMStoreFloat3(&xmf3Result, XMVector3Cross(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 Normalize(XMFLOAT3& xmf3Vector)
+	{
+		XMFLOAT3 m_xmf3Normal;
+		XMStoreFloat3(&m_xmf3Normal, XMVector3Normalize(XMLoadFloat3(&xmf3Vector)));
+		return(m_xmf3Normal);
+	}
+
+	inline float Length(XMFLOAT3& xmf3Vector)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3Length(XMLoadFloat3(&xmf3Vector)));
+		return(xmf3Result.x);
+	}
+
+	inline float Angle(XMVECTOR& xmvVector1, XMVECTOR& xmvVector2)
+	{
+		XMVECTOR xmvAngle = XMVector3AngleBetweenNormals(xmvVector1, xmvVector2);
+		return(XMConvertToDegrees(XMVectorGetX(xmvAngle)));
+	}
+
+	inline float Angle(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2)
+	{
+		return(Angle(XMLoadFloat3(&xmf3Vector1), XMLoadFloat3(&xmf3Vector2)));
+	}
+
+	inline XMFLOAT3 TransformNormal(XMFLOAT3& xmf3Vector, XMMATRIX& xmmtxTransform)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3TransformNormal(XMLoadFloat3(&xmf3Vector), xmmtxTransform));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 TransformCoord(XMFLOAT3& xmf3Vector, XMMATRIX& xmmtxTransform)
+	{
+		XMFLOAT3 xmf3Result;
+		XMStoreFloat3(&xmf3Result, XMVector3TransformCoord(XMLoadFloat3(&xmf3Vector), xmmtxTransform));
+		return(xmf3Result);
+	}
+
+	inline XMFLOAT3 TransformCoord(XMFLOAT3& xmf3Vector, XMFLOAT4X4& xmmtx4x4Matrix)
+	{
+		return(TransformCoord(xmf3Vector, XMLoadFloat4x4(&xmmtx4x4Matrix)));
+	}
+
+	inline XMFLOAT3 Lerp(XMFLOAT3& Vector1, XMFLOAT3& Vector2, const float x) {
+		XMFLOAT3 xmf3Result;
+
+		xmf3Result = Add(Vector1, ScalarProduct(Subtract(Vector2, Vector1, false), x, false));
+
+		return xmf3Result;
+	}
+
+	inline XMFLOAT3 SubtractAxisZero(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, const RotateAxis eAxis, const bool bNomalize = true)
+	{
+		XMFLOAT3 xmf3Result;
+		XMFLOAT3 xmf3Vector1tmp = xmf3Vector1;
+		XMFLOAT3 xmf3Vector2tmp = xmf3Vector2;
+
+		switch (eAxis)
+		{
+		case RotX:
+			xmf3Vector1tmp.x = xmf3Vector2tmp.x = 0.0f;
+			break;
+		case RotY:
+			xmf3Vector1tmp.y = xmf3Vector2tmp.y = 0.0f;
+			break;
+		case RotZ:
+			xmf3Vector1tmp.z = xmf3Vector2tmp.z = 0.0f;
+			break;
+		}
+		if (bNomalize)
+			XMStoreFloat3(&xmf3Result, XMVector3Normalize(XMLoadFloat3(&xmf3Vector1tmp) - XMLoadFloat3(&xmf3Vector2tmp)));
+		else
+			XMStoreFloat3(&xmf3Result, XMLoadFloat3(&xmf3Vector1tmp) - XMLoadFloat3(&xmf3Vector2tmp));
+
+		return(xmf3Result);
+	}
+
+	inline float AngleAxisZero(XMFLOAT3& xmf3Vector1, XMFLOAT3& xmf3Vector2, const RotateAxis eAxis)
+	{
+		XMFLOAT3 xmf3Vector1tmp = xmf3Vector1;
+		XMFLOAT3 xmf3Vector2tmp = xmf3Vector2;
+
+		switch (eAxis)
+		{
+		case RotX:
+			xmf3Vector1tmp.x = xmf3Vector2tmp.x = 0.0f;
+			break;
+		case RotY:
+			xmf3Vector1tmp.y = xmf3Vector2tmp.y = 0.0f;
+			break;
+		case RotZ:
+			xmf3Vector1tmp.z = xmf3Vector2tmp.z = 0.0f;
+			break;
+		}
+
+		return Angle(Normalize(xmf3Vector1tmp), Normalize(xmf3Vector2tmp));
+	}
+
+	inline float TripleProduct(XMFLOAT3& xmf3Look, XMFLOAT3& xmf3Up, XMFLOAT3& xmf3PlayerToDist)
+	{
+		return (DotProduct(xmf3Up, CrossProduct(xmf3PlayerToDist, xmf3Look)));
+	}
+}
+
+namespace Vector4
+{
+	inline XMFLOAT4 Add(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) + XMLoadFloat4(&xmf4Vector2));
+		return(xmf4Result);
+	}
+
+	inline XMFLOAT4 Multiply(XMFLOAT4& xmf4Vector1, XMFLOAT4& xmf4Vector2)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, XMLoadFloat4(&xmf4Vector1) * XMLoadFloat4(&xmf4Vector2));
+		return(xmf4Result);
+	}
+
+	inline XMFLOAT4 Multiply(float fScalar, XMFLOAT4& xmf4Vector)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, fScalar * XMLoadFloat4(&xmf4Vector));
+		return(xmf4Result);
+	}
+}
+
+namespace Matrix4x4
+{
+	inline XMFLOAT4X4 Identity()
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixIdentity());
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Multiply(XMFLOAT4X4& xmmtx4x4Matrix1, XMMATRIX& xmmtxMatrix2)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMLoadFloat4x4(&xmmtx4x4Matrix1) * xmmtxMatrix2);
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Multiply(XMMATRIX& xmmtxMatrix1, XMFLOAT4X4& xmmtx4x4Matrix2)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, xmmtxMatrix1 * XMLoadFloat4x4(&xmmtx4x4Matrix2));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Inverse(XMFLOAT4X4& xmmtx4x4Matrix)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixInverse(NULL, XMLoadFloat4x4(&xmmtx4x4Matrix)));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 Transpose(XMFLOAT4X4& xmmtx4x4Matrix)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixTranspose(XMLoadFloat4x4(&xmmtx4x4Matrix)));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 PerspectiveFovLH(float FovAngleY, float AspectRatio, float NearZ, float FarZ)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixPerspectiveFovLH(FovAngleY, AspectRatio, NearZ, FarZ));
+		return(xmmtx4x4Result);
+	}
+
+	inline XMFLOAT4X4 LookAtLH(XMFLOAT3& xmf3EyePosition, XMFLOAT3& xmf3LookAtPosition, XMFLOAT3& xmf3UpDirection)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixLookAtLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3LookAtPosition), XMLoadFloat3(&xmf3UpDirection)));
+		return(xmmtx4x4Result);
+	}
+
+
+}
+
+namespace Triangle
+{
+	inline bool Intersect(XMFLOAT3& xmf3RayPosition, XMFLOAT3& xmf3RayDirection, XMFLOAT3& v0, XMFLOAT3& v1, XMFLOAT3& v2, float& fHitDistance)
+	{
+		return(TriangleTests::Intersects(XMLoadFloat3(&xmf3RayPosition), XMLoadFloat3(&xmf3RayDirection), XMLoadFloat3(&v0), XMLoadFloat3(&v1), XMLoadFloat3(&v2), fHitDistance));
+	}
+}
+
+namespace Plane
+{
+	inline XMFLOAT4 Normalize(XMFLOAT4& xmf4Plane)
+	{
+		XMFLOAT4 xmf4Result;
+		XMStoreFloat4(&xmf4Result, XMPlaneNormalize(XMLoadFloat4(&xmf4Plane)));
+		return(xmf4Result);
+	}
+}

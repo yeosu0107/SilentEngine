@@ -10,7 +10,7 @@
 
 
 #define SERVERIP "127.0.0.1"
-#define SERVERPORT 9000
+#define SERVERPORT 8000
 #define BUFSIZE 512
 
 void err_quit(char *msg);
