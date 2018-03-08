@@ -43,6 +43,8 @@ protected:
 	unordered_map<string, ComPtr<ID3DBlob>>						m_Shaders;
 	unordered_map<string, ComPtr<ID3D12PipelineState>>			m_PSOs;
 	vector<D3D12_INPUT_ELEMENT_DESC>							m_InputLayout;
+
+	unique_ptr<UploadBuffer<ObjectConstants>>					m_ObjectCB;
 protected:
 
 };
@@ -69,7 +71,7 @@ public:
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 		
 protected:
-	unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
+	//unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
 	unique_ptr<Shaders> m_pShaders = nullptr;
 	unique_ptr<Camera> m_Camera = nullptr;
 	

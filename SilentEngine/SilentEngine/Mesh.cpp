@@ -33,7 +33,7 @@ void MeshGeometry::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 MeshGeometryCube::MeshGeometryCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometry(pd3dDevice, pd3dCommandList)
 {
 
-	m_nVertices = 36;
+	m_nVertices = 8;
 	m_nStride = sizeof(CDiffusedVertex);
 	m_nOffset = 0;
 	m_nSlot = 0;

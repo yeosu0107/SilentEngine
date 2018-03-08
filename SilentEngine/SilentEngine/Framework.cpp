@@ -390,6 +390,7 @@ bool Framework::InitMainWindow()
 
 bool Framework::InitDirect3D()
 {
+/*
 #if defined(DEBUG) || defined(_DEBUG)
 {
 	ComPtr<ID3D12Debug> pDebugController;
@@ -417,6 +418,50 @@ bool Framework::InitDirect3D()
 			IID_PPV_ARGS(&m_pD3dDevice))
 		);
 	}
+*/
+	HRESULT hResult;
+
+#if defined(_DEBUG)
+	ComPtr<ID3D12Debug> pDebugController;
+	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
+	pDebugController->EnableDebugLayer();
+#endif
+
+	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_pDxgiFactory)));
+
+	IDXGIAdapter1 *pd3dAdapter = NULL;
+
+	for (UINT i = 0; DXGI_ERROR_NOT_FOUND != m_pDxgiFactory->EnumAdapters1(i, &pd3dAdapter); i++)
+	{
+		DXGI_ADAPTER_DESC1 dxgiAdapterDesc;
+		pd3dAdapter->GetDesc1(&dxgiAdapterDesc);
+		if (dxgiAdapterDesc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) 
+			continue;
+
+		if (SUCCEEDED(D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_pD3dDevice)))) 
+			break;
+	}
+
+	if (!m_pD3dDevice)
+	{
+		hResult = m_pDxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pd3dAdapter));
+		hResult = D3D12CreateDevice(pd3dAdapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pD3dDevice));
+	}
+
+	if (!m_pD3dDevice)
+	{
+		MessageBox(NULL, L"Direct3D 12 Device Cannot be Created.", L"Error", MB_OK);
+		::PostQuitMessage(0);
+		return false;
+	}
+
+	D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS d3dMsaaQualityLevels;
+	d3dMsaaQualityLevels.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	d3dMsaaQualityLevels.SampleCount = 4;
+	d3dMsaaQualityLevels.Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE;
+	d3dMsaaQualityLevels.NumQualityLevels = 0;
+	hResult = m_pD3dDevice->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &d3dMsaaQualityLevels, sizeof(D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS));
+	m_4xMsaaQuality = d3dMsaaQualityLevels.NumQualityLevels;
 
 	ThrowIfFailed(m_pD3dDevice->CreateFence(0, D3D12_FENCE_FLAG_NONE,
 		IID_PPV_ARGS(&m_pFence)));

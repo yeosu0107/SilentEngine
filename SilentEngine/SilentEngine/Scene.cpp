@@ -141,8 +141,11 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	
 	m_pShaders = make_unique<Shaders>();
-	m_pShaders->BuildObjects(pDevice, pCommandList);
+	for (int i = 0; i < 5; ++i)
+		(m_pShaders.get())->BuildObjects(pDevice, pCommandList);
+	//m_pShaders->BuildObjects(pDevice, pCommandList);
 
 	//BuildDescriptorHeaps(pDevice, pCommandList);
 	//BuildConstantBuffers(pDevice, pCommandList);
@@ -164,8 +167,9 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	
 	//m_Camera->SetViewportsAndScissorRects(pCommandList);
 	//m_Camera->UpdateShaderVariables(pCommandList);
-
-	m_pShaders->Render(pCommandList, m_Camera.get());
+	for (int i = 0; i < 5; ++i)
+		(m_pShaders.get())->Render(pCommandList, m_Camera.get());
+	//m_pShaders->Render(pCommandList, m_Camera.get());
 	
 	//(*m_Geometries.get())["boxGeo"]->Render(pCommandList);
 }
