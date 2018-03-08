@@ -177,7 +177,7 @@ public:
 	virtual int GetBoneNum() const { return 0; }
 
 	void SetPosition(float x, float y, float z);
-	void SetPosition(XMFLOAT3 xmf3Position);
+	virtual void SetPosition(XMFLOAT3 xmf3Position);
 	void SetLookAt(XMFLOAT3& xmf3Target);
 
 	void MoveStrafe(float fDistance = 1.0f);

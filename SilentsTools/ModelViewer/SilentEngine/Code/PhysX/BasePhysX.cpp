@@ -2,7 +2,7 @@
 #include "BasePhysX.h"
 
 BasePhysX::BasePhysX() : gFoundation(nullptr), gPhysics(nullptr),
-	gScene(nullptr), gPvd(nullptr)
+	gScene(nullptr), gPvd(nullptr), gControllerMgr(nullptr)
 {
 	gTimeStep = 1.0f / 60.0f;  //60프레임
 	InitPhysics();
@@ -35,6 +35,25 @@ void BasePhysX::InitPhysics()
 
 	gScene = gPhysics->createScene(sceneDesc); //scene 등록
 
+	//컨트롤러 생성
+	gControllerMgr = PxCreateControllerManager(*gScene);
+#ifdef _DEBUG
+	if (!gControllerMgr)
+		cout << "컨트롤러 생성 실패" << endl;
+#endif
+
+	PxCapsuleControllerDesc capsuleDesc;
+	capsuleDesc.height = 1; //Height of capsule
+	capsuleDesc.radius = 2; //Radius of casule
+	capsuleDesc.position = PxExtendedVec3(0, 30, 0); //Initial position of capsule
+	capsuleDesc.material = gPhysics->createMaterial(0.2f, 0.2f, 0.2f); //Material for capsule shape
+	capsuleDesc.density = 1.0f; //Desity of capsule shape
+	capsuleDesc.contactOffset = 0.05f;
+	capsuleDesc.slopeLimit = 0.2f;
+	capsuleDesc.stepOffset = 0.75f;
+
+	gPlayer = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
+
 	//physx 매터리얼 생성
 	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
 
@@ -45,11 +64,6 @@ void BasePhysX::InitPhysics()
 	plane->createShape(PxPlaneGeometry(), *mat);
 	gScene->addActor(*plane); // 엑터에 플레인 등록
 
-	PxTransform tPos(PxVec3(0.0f, 50.0f, 0.0f));
-	PxBoxGeometry box(PxVec3(2, 2, 2));
-	PxRigidDynamic					*gBox;
-	gBox = PxCreateDynamic(*gPhysics, tPos, box, *mat, 1.0f);
-	gScene->addActor(*gBox);
 }
 
 void BasePhysX::BuildPhysics()
@@ -65,6 +79,7 @@ void BasePhysX::stepPhysics(bool interactive)
 		gScene->simulate(gTimeStep);
 		gScene->fetchResults(true); //적용
 
+		cout << gPlayer->getPosition().x << "\t" << gPlayer->getPosition().y << "\t" << gPlayer->getPosition().z << endl;
 		/*XMFLOAT3 pos;
 		PxRigidActor* tactor;
 		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);

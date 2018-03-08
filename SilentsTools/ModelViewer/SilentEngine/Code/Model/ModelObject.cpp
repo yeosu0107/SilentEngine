@@ -19,6 +19,9 @@ ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12Graph
 	for (auto& p : m_Bones) {
 		XMStoreFloat4x4(&p, XMMatrixIdentity());
 	}
+
+	physBox = nullptr;
+	tmp = nullptr;
 }
 ModelObject::~ModelObject() 
 {
@@ -43,11 +46,35 @@ void ModelObject::Animate(float fTime)
 		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, m_Bones);
 		AnimIndex = m_AnimIndex;
 		//m_Animtime += 0.03f;
-
+		if (physBox) {
+			XMFLOAT3 tmp = XMFLOAT3(physBox->getGlobalPose().p.x, physBox->getGlobalPose().p.y, physBox->getGlobalPose().p.z);
+			SetPosition(tmp);
+		}
+		if (tmp) {
+			tmp->move(PxVec3(0, 1, 0)*-0.1f, 0.001f, 1, gCharacterControllerFilters);
+			XMFLOAT3 tt = XMFLOAT3(tmp->getPosition().x, tmp->getPosition().y, tmp->getPosition().z);
+			SetPosition(tt);
+		}
+		
 	}
 }
 
 void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, CCamera * pCamera)
 {
 	CGameObject::Render(pd3dCommandList, pCamera);
+}
+
+void ModelObject::SetPosition(XMFLOAT3 pos)
+{
+	CGameObject::SetPosition(pos.x, pos.y, pos.z);
+}
+
+void ModelObject::SetPhysX(PxPhysics * px, PxScene* pscene)
+{
+	PxCapsuleGeometry tmp(2.0f, 2.0f);
+	PxMaterial* mat = px->createMaterial(0.2f, 0.2f, 0.2f);
+	PxTransform pos(PxVec3(CGameObject::GetPosition().x, CGameObject::GetPosition().y, CGameObject::GetPosition().z));
+	physBox = PxCreateDynamic(*px, pos, tmp, *mat, 1.0f);
+
+	pscene->addActor(*physBox);
 }

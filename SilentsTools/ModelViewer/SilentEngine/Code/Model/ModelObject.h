@@ -1,6 +1,7 @@
 #pragma once
 
 #include "..\Object\Object.h"
+#include "..\PhysX\BasePhysX.h"
 #include "LoadModel.h"
 #include "Animation.h"
 
@@ -22,6 +23,9 @@ private:
 	UINT m_AnimIndex;				//현재 애니메이션
 	UINT m_NumofAnim;			//애니메이션 갯수
 
+	PxRigidDynamic* physBox;	//물리상호작용
+	PxCapsuleController* tmp;   //컨트롤러 TEST
+	PxControllerFilters gCharacterControllerFilters;
 public:
 	ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~ModelObject();
@@ -36,5 +40,12 @@ public:
 	}
 	virtual int GetBoneNum() const {
 		return m_Bones.size();
+	}
+
+	virtual void SetPosition(XMFLOAT3 pos);
+	void SetPhysX(PxPhysics* px, PxScene* pscene);
+
+	void SetController(PxCapsuleController* t) {
+		tmp = t;
 	}
 };

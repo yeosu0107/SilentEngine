@@ -19,6 +19,9 @@ private:
 	PxReal							gTimeStep;			//프레임레이트
 
 	PxPvd*							gPvd;
+
+	PxControllerManager*		gControllerMgr;
+	PxCapsuleController*		gPlayer;
 public:
 	BasePhysX();
 	~BasePhysX();
@@ -30,4 +33,10 @@ public:
 	void cleanupPhysics(bool interactive);
 
 	void Addapt(XMFLOAT3& pos);
+
+	PxPhysics* getPhys() { return gPhysics; }
+	PxScene* getScene() { return gScene; }
+	PxCapsuleController* getmp() { 
+		return gPlayer; 
+	}
 };
