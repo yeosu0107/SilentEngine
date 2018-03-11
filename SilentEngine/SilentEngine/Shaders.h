@@ -77,7 +77,7 @@ protected:
 	vector<unique_ptr<GameObject>>				m_ppObjects;
 	UINT										m_nObjects = 0;
 
-	unique_ptr<UploadBuffer<ObjectConstants>>	m_ObjectCB = nullptr;
+	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>	m_ObjectCB = nullptr;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>			m_InputLayout;
 

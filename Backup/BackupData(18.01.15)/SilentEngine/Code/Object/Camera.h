@@ -59,10 +59,10 @@ protected:
 	CPlayer *m_pPlayer = NULL;
 
 	//카메라 oobb
-	BoundingOrientedBox m_xmOOBB;			 //모델좌표계에서의 충돌영역
-	BoundingOrientedBox	m_xmOOBBTransformed; //월드좌표계에서의 충돌 영역
-	bool				CameraCrush;
-	BoundingFrustum     m_xmFrustum;			 //절두체 컬링
+	BoundingOrientedBox				m_xmOOBB;			 //모델좌표계에서의 충돌영역
+	BoundingOrientedBox				m_xmOOBBTransformed; //월드좌표계에서의 충돌 영역
+	bool							CameraCrush;
+	BoundingFrustum					m_xmFrustum;			 //절두체 컬링
 	ID3D12Resource					*m_pd3dcbCamera = NULL;
 	VS_CB_CAMERA_INFO				*m_pcbMappedCamera = NULL;
 public:

@@ -197,9 +197,9 @@ void GameObject::ReleaseShaderVariables()
 
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	
 	XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-	if (m_pMaterial) m_pcbMappedGameObject->m_nMaterial = m_pMaterial->m_nReflection;
+	if (m_pMaterial) 
+		m_pcbMappedGameObject->m_nMaterial = m_pMaterial->m_nReflection;
 	
 	m_pd3dcbGameObject->CopyData(1, *m_pcbMappedGameObject);
 }
@@ -242,7 +242,8 @@ void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCam
 	{
 		for (int i = 0; i < m_nMeshes; i++)
 		{
-			if (m_ppMeshes[i]) m_ppMeshes[i]->Render(pd3dCommandList);
+			if (m_ppMeshes[i]) 
+				m_ppMeshes[i]->Render(pd3dCommandList);
 		}
 	}
 }
@@ -253,7 +254,8 @@ void GameObject::ReleaseUploadBuffers()
 	{
 		for (int i = 0; i < m_nMeshes; i++)
 		{
-			if (m_ppMeshes[i]) m_ppMeshes[i]->ReleaseUploadBuffers();
+			if (m_ppMeshes[i]) 
+				m_ppMeshes[i]->ReleaseUploadBuffers();
 		}
 	}
 

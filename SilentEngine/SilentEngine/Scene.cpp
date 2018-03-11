@@ -167,7 +167,6 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	
 	//m_Camera->SetViewportsAndScissorRects(pCommandList);
 	//m_Camera->UpdateShaderVariables(pCommandList);
-	for (int i = 0; i < 5; ++i)
 		(m_pShaders.get())->Render(pCommandList, m_Camera.get());
 	//m_pShaders->Render(pCommandList, m_Camera.get());
 	

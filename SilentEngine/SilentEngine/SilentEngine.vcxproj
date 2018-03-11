@@ -153,6 +153,7 @@
     <ClInclude Include="GameObjects.h" />
     <ClInclude Include="GlobalObjects.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Shaders.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="GameObjects.cpp" />
     <ClCompile Include="GlobalObjects.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shaders.cpp" />
     <ClCompile Include="SilentEngine.cpp" />
