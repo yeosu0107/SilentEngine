@@ -42,10 +42,11 @@ void BasePhysX::InitPhysics()
 		cout << "컨트롤러 생성 실패" << endl;
 #endif
 
+	//캡슐 컨트롤러 부분. 추후 각 플레이어 오브젝트로 이식해야 할 듯
 	PxCapsuleControllerDesc capsuleDesc;
 	capsuleDesc.height = 1; //Height of capsule
 	capsuleDesc.radius = 2; //Radius of casule
-	capsuleDesc.position = PxExtendedVec3(0, 30, 0); //Initial position of capsule
+	capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
 	capsuleDesc.material = gPhysics->createMaterial(0.2f, 0.2f, 0.2f); //Material for capsule shape
 	capsuleDesc.density = 1.0f; //Desity of capsule shape
 	capsuleDesc.contactOffset = 0.05f;
@@ -79,7 +80,7 @@ void BasePhysX::stepPhysics(bool interactive)
 		gScene->simulate(gTimeStep);
 		gScene->fetchResults(true); //적용
 
-		cout << gPlayer->getPosition().x << "\t" << gPlayer->getPosition().y << "\t" << gPlayer->getPosition().z << endl;
+		//cout << gPlayer->getPosition().x << "\t" << gPlayer->getPosition().y << "\t" << gPlayer->getPosition().z << endl;
 		/*XMFLOAT3 pos;
 		PxRigidActor* tactor;
 		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);

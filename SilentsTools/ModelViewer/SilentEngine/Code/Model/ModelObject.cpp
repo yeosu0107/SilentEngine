@@ -51,6 +51,7 @@ void ModelObject::Animate(float fTime)
 			SetPosition(tmp);
 		}
 		if (tmp) {
+			//이동함수 제작(이식 예정부분)
 			tmp->move(PxVec3(0, 1, 0)*-0.1f, 0.001f, 1, gCharacterControllerFilters);
 			XMFLOAT3 tt = XMFLOAT3(tmp->getPosition().x, tmp->getPosition().y, tmp->getPosition().z);
 			SetPosition(tt);

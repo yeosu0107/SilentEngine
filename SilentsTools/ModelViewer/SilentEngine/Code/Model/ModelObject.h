@@ -46,6 +46,6 @@ public:
 	void SetPhysX(PxPhysics* px, PxScene* pscene);
 
 	void SetController(PxCapsuleController* t) {
-		tmp = t;
+		tmp = t; //컨트롤러 부분
 	}
 };

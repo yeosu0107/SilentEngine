@@ -85,9 +85,9 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 
 	for (int i = 0; i < m_nObjects; ++i) {
 		ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
-		object->SetPosition(XMFLOAT3(i * 10, 50, 0));
+		object->SetPosition(XMFLOAT3(i * 10, 0, 0));
 		object->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
-		object->SetScale(0.5f);
+		//object->SetScale(0.5f);
 		if (globalPhysX) {
 			//object->SetPhysX(globalPhysX->getPhys(), globalPhysX->getScene());
 			object->SetController(globalPhysX->getmp());
