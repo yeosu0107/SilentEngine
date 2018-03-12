@@ -48,33 +48,6 @@ ModelLoader::ModelLoader(string fileName)
 	}
 	m_numModels = m_Objects.size();
 	in.close();
-
-	//텍스트 파일 기반 로드
-	//while (!in.eof()) {
-	//	in >> tmpName;  //원본 모델 파일 이름
-	//	in >> animCount; //로드할 애니메이션 개수
-	//	
-	//	LoadModel* tmpModel = new LoadModel(tmpName); //모델파일 로딩
-
-	//	vector<LoadAnimation*>* animStack = new vector<LoadAnimation*>; //애니메이션을 적재할 벡터 생성
-	//	animStack->reserve(animCount);
-
-	//	in >> tmpName; //모델의 텍스쳐 파일 이름
-	//	matList.emplace_back(tmpName);
-
-	//	for (UINT i = 0; i < animCount; ++i) {
-	//		in >> tmpName; //애니메이션 파일 이름
-	//		LoadAnimation* tmpAnim = new LoadAnimation(tmpName); //애니메이션을 로딩
-	//		animStack->push_back(tmpAnim); //애니메이션을 벡터에 적재
-	//	}
-
-	//	//모든 로딩한 파일을 벡터에 적재 (모델파일, 텍스쳐 이름, 애니메이션 파일)
-	//	//여기서는 텍스쳐 파일 로딩을 실시하지 않음
-	//	m_Objects.emplace_back(make_pair(tmpModel, animStack));
-	//	cout << "Load Success!" << m_Objects.size() << endl;
-	//}
-
-	
 }
 
 ModelLoader::~ModelLoader()

@@ -30,12 +30,14 @@ ModelObject::~ModelObject()
 
 void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
-	m_NumofAnim = num;
-	m_AnimIndex = 0;
-	m_ani = new LoadAnimation*[m_NumofAnim];
-	for (UINT i = 0; i < m_NumofAnim; ++i) {
-		m_ani[i] = tmp[i];
-		m_ani[i]->setBones(m_model->GetBones());
+	if (num > 0) {
+		m_NumofAnim = num;
+		m_AnimIndex = 0;
+		m_ani = new LoadAnimation*[m_NumofAnim];
+		for (UINT i = 0; i < m_NumofAnim; ++i) {
+			m_ani[i] = tmp[i];
+			m_ani[i]->setBones(m_model->GetBones());
+		}
 	}
 }
 
