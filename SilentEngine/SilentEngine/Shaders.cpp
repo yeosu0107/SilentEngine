@@ -45,43 +45,56 @@ void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
 
 void Shaders::CreateCbvAndSrvDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews)
 {
-	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
-	cbvHeapDesc.NumDescriptors = nConstantBufferViews + nShaderResourceViews; //CBVs + SRVs 
-	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	cbvHeapDesc.NodeMask = 0;
+	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
+	d3dDescriptorHeapDesc.NumDescriptors = nConstantBufferViews + nShaderResourceViews; //CBVs + SRVs 
+	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	d3dDescriptorHeapDesc.NodeMask = 0;
+	HRESULT hResult = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_CbvSrvDescriptorHeap);
 	
-	ThrowIfFailed(pd3dDevice->CreateDescriptorHeap(&cbvHeapDesc,
+	ThrowIfFailed(pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc,
 		IID_PPV_ARGS(&m_CbvSrvDescriptorHeap)));
 }
 
 void Shaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
-	CD3DX12_ROOT_PARAMETER slotRootParameter[1];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
 
-	CD3DX12_DESCRIPTOR_RANGE cbvTable;
-	cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-	slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);	// Camera
+	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
+	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr,
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[1].Descriptor.ShaderRegister = 2; //Player
+	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
-	ComPtr<ID3DBlob> serializedRootSig = nullptr;
-	ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1,
-		serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
+	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = 0;
+	d3dRootSignatureDesc.pStaticSamplers = NULL;
+	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
 
-	if (errorBlob != nullptr)
+	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
+	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
+	HRESULT hr =  D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
+
+	if (pd3dErrorBlob != nullptr)
 	{
-		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
 	}
 	ThrowIfFailed(hr);
 
-	ThrowIfFailed(pd3dDevice->CreateRootSignature(
-		0,
-		serializedRootSig->GetBufferPointer(),
-		serializedRootSig->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature.GetAddressOf())));
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0, 
+		pd3dSignatureBlob->GetBufferPointer(), 
+		pd3dSignatureBlob->GetBufferSize(), 
+		IID_PPV_ARGS(m_RootSignature.GetAddressOf()))
+	);
+
 }
 
 D3D12_INPUT_LAYOUT_DESC Shaders::CreateInputLayout()
@@ -136,9 +149,9 @@ D3D12_SHADER_BYTECODE Shaders::CreatePixelShader()
 
 void Shaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	m_ObjectCB = make_unique<UploadBuffer<ObjectConstants>>(pd3dDevice, m_nObjects, true);
+	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, m_nObjects, true);
 
-	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
 	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_ObjectCB->Resource()->GetGPUVirtualAddress();
 
@@ -147,7 +160,7 @@ void Shaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
 	cbvDesc.BufferLocation = cbAddress;
-	cbvDesc.SizeInBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	cbvDesc.SizeInBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
 	pd3dDevice->CreateConstantBufferView(
 		&cbvDesc,
@@ -156,9 +169,10 @@ void Shaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 void Shaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	ObjectConstants cBuffer; 
+	CB_GAMEOBJECT_INFO cBuffer;
 	for (int i = 0; i < m_nObjects; ++i) {
-		cBuffer.m_WorldViewProj = m_ppObjects[i]->m_xmf4x4World;
+		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
+		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
 	}
 }
@@ -170,6 +184,7 @@ void Shaders::ReleaseShaderVariables()
 
 void Shaders::UpdateShaderVariable(ID3D12GraphicsCommandList * pd3dCommandList, XMFLOAT4X4 * pxmf4x4World)
 {
+
 }
 
 void Shaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
@@ -193,13 +208,14 @@ void Shaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCame
 {
 	OnPrepareRender(pd3dCommandList);
 
-	for (int j = 0; j < m_nObjects; j++)
-	{
-		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-	}
-	
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	pCamera->UpdateShaderVariables(pd3dCommandList);
+
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j]) 
+			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}
 }
 
 void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
@@ -245,7 +261,7 @@ BoxShader::BoxShader() : Shaders()
 
 void BoxShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	m_ObjectCB = make_unique<UploadBuffer<ObjectConstants>>(pd3dDevice, m_nObjects, true);		// 오브젝트 수 만큼 메모리 할당 
+	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, m_nObjects, true);		// 오브젝트 수 만큼 메모리 할당 
 
 	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
@@ -265,9 +281,10 @@ void BoxShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 
 void BoxShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	ObjectConstants cBuffer;
+	CB_GAMEOBJECT_INFO cBuffer;
 	for (int i = 0; i < m_nObjects; ++i) {
-		cBuffer.m_WorldViewProj = m_ppObjects[i]->m_xmf4x4World;
+		cBuffer.m_xmf4x4World = m_ppObjects[i]->m_xmf4x4World;
+		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
 	}
 }
