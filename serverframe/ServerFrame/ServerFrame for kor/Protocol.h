@@ -1,5 +1,5 @@
 #pragma once
-#pragma pack(1)
+//#pragma pack(1)
 
 struct Player {
 	int p_id;

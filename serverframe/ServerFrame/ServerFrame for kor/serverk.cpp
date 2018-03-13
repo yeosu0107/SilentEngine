@@ -1,11 +1,25 @@
 #include "stdafx.h"
 
+Player guest;
+Player* p_guest;
+
+Player Guest[4];
+
 int main(int argc, char *argv[])
 {
-	Player guest;
-	Player* p_guest;
+	for (int i = 0; i < 4; ++i) {
+		Guest[i].p_id = i + 1;
+		Guest[i].p_x = 10;
+		Guest[i].p_y = 0;
+		Guest[i].p_z = 10;
+		Guest[i].p_hp = 100;
+		Guest[i].end = 'P';
+	}
 
 	p_guest = &guest;
+
+	int id_count = 1;
+	char SendBuf[BUFSIZE];
 
 	int retval;
 
@@ -68,10 +82,21 @@ int main(int argc, char *argv[])
 
 		printf("[TCP 서버] 클라이언트 접속 : IP 주소 - %s, 포트번호 - %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
-
+		///-----------------------------
+		for (int i = 0; i < 4; ++i) {
+			if (id_count == Guest[i].p_id) {
+				memcpy(SendBuf, &Guest[i], sizeof(Guest[i]));
+				retval = send(client_sock, SendBuf, sizeof(SendBuf), 0);
+			}
+			else {
+				id_count++;
+				break;
+			}
+		}
+		//------------------------------
 
 		CreateIoCompletionPort((HANDLE)client_sock, hcp, client_sock, 0);
-		recvbytes = 21;
+		recvbytes = 0;
 		SOCKETINFO *ptr = new SOCKETINFO();
 		if (ptr == NULL) {
 			break;
@@ -88,9 +113,9 @@ int main(int argc, char *argv[])
 
 		//retval = recv(client_sock, ptr->buf, 21, 0);
 
-		retval = recv(client_sock, (char*)p_guest, 21, 0);
+		//retval = recv(client_sock, (char*)p_guest, 21, 0);
 
-		//retval = WSARecv(client_sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, NULL);
+		retval = WSARecv(client_sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, NULL);
 		if (retval == SOCKET_ERROR) {
 			if (a = WSAGetLastError() != ERROR_IO_PENDING) {
 				printf("%d\n\n", a);
@@ -99,48 +124,19 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		p_guest->p_hp = guest.p_hp;
-		p_guest->p_id = guest.p_id;
-		p_guest->p_x = guest.p_x;
-		p_guest->p_y = guest.p_y;
-		p_guest->p_z = guest.p_z;
-		p_guest->end = guest.end;
+		//memcpy(p_guest, ptr->buf, sizeof(p_guest));
 
-		// 확인용
-		/*for (int i = 0; i < 4; ++i) {
-			id[0] = ptr->buf[0];
-			p_x[i] = ptr->buf[i + 1];
-			p_y[i] = ptr->buf[i + 5];
-			p_z[i] = ptr->buf[i + 9];
-			p_hp[i] = ptr->buf[i + 13];
-		}*/
+		//guest.p_hp = p_guest->p_hp;
+		//guest.p_id = p_guest->p_id;
+		//guest.p_x = p_guest->p_x;
+		//guest.p_y = p_guest->p_y;
+		//guest.p_z = p_guest->p_z;
+		//guest.end = p_guest->end;
 
-		//guest.p_id = ptr->buf[0];
-		//guest.p_hp = ptr->buf[16];
-
-		/*guest.p_id = id[0];
-		guest.p_hp = (int)p_hp;
-		guest.p_x = (float)p_x;
-		guest.p_y = (float)p_y;
-		guest.p_z = (float)p_z;*/
-
-		//sprintf((char*)&guest.p_id, "%d", id, sizeof(id);
-		//sprintf((char*)&guest.p_hp, "%d", p_hp, sizeof(int));
-		//sprintf((char*)&guest.p_x, "%f", p_x, sizeof(p_x));
-		//sprintf((char*)&guest.p_y, "%f", p_y, sizeof(p_y));
-		//sprintf((char*)&guest.p_z, "%f", p_z, sizeof(p_z));
-
-		/*guest.p_id = ptr->buf[0];
-		guest.p_x = ptr->buf[4];
-		guest.p_y = ptr->buf[8];
-		guest.p_z = ptr->buf[12];
-		guest.p_hp = ptr->buf[16];
-		guest.end = ptr->buf[20];*/
-
-
-		printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d, end : %c\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
-			guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp, guest.end);
-		//-----------
+		//// 확인용
+		//printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d, end : %c\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
+		//	guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp, guest.end);
+		////-----------
 
 	}
 
@@ -161,7 +157,7 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 
 		//Player guest;
 
-		retval = GetQueuedCompletionStatus(hcp, &cbTransferred, (LPDWORD)&client_sock, (LPOVERLAPPED *)&ptr, INFINITE);
+		retval = GetQueuedCompletionStatus(hcp, &cbTransferred, (PULONG_PTR)&client_sock, (LPOVERLAPPED *)&ptr, INFINITE);
 
 		SOCKADDR_IN clientaddr;
 		int addrlen = sizeof(clientaddr);
@@ -182,30 +178,19 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 		if (ptr->recvbytes == 0) {
 			//	ptr->recvbytes = cbTransferred;
 			//	ptr->sendbytes = 0;
-			//	ptr->buf[ptr->recvbytes] = '\0';
+			memcpy(p_guest, ptr->buf, sizeof(p_guest));
 
-			//	for (int i = 0; i < 4; ++i) {
-			//		//if (i < 4) {
-			//			id[i] = ptr->buf[i];
-			//			p_hp[i] = ptr->buf[i + 16];
-			//		//}
-			//		p_x[i] = ptr->buf[i+4];
-			//		p_y[i] = ptr->buf[i + 8];
-			//		p_z[i] = ptr->buf[i + 12];
-			//	}
+			guest.p_hp = p_guest->p_hp;
+			guest.p_id = p_guest->p_id;
+			guest.p_x = p_guest->p_x;
+			guest.p_y = p_guest->p_y;
+			guest.p_z = p_guest->p_z;
+			guest.end = p_guest->end;
 
-			//	sprintf((char*)&guest.p_id, "%d", id, sizeof(int));
-			//	sprintf((char*)&guest.p_hp, "%d", p_hp, sizeof(int));
-			//	sprintf((char*)&guest.p_x, "%f", p_x, sizeof(float));
-			//	sprintf((char*)&guest.p_y, "%f", p_y, sizeof(float));
-			//	sprintf((char*)&guest.p_z, "%f", p_z, sizeof(float));
-
-			//sprintf_s(guest.id, "%d", ptr->buf,sizeof(int));
-
-			//ptr->buf[0] = 
-
-			/*printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
-			guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp);*/
+			// 확인용
+			printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d, end : %c\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
+				guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp, guest.end);
+			
 		}
 		else {
 			ptr->sendbytes += cbTransferred;
