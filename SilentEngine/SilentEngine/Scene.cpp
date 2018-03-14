@@ -143,7 +143,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 {
 	
 	m_pShaders = make_unique<Shaders>();
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 1; ++i)
 		(m_pShaders.get())->BuildObjects(pDevice, pCommandList);
 	//m_pShaders->BuildObjects(pDevice, pCommandList);
 

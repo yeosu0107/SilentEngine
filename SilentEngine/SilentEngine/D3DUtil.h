@@ -31,6 +31,8 @@ using namespace std;
 #define FRAME_BUFFER_WIDTH 1280
 #define FRAME_BUFFER_HEIGHT 720
 
+extern UINT	gnCbvSrvDescriptorIncrementSize;
+
 #define DIR_FORWARD				0x01
 #define DIR_BACKWARD			0x02
 #define DIR_LEFT				0x04

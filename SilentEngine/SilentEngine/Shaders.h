@@ -9,6 +9,7 @@ using namespace std;
 
 #define COMPILEDSHADERS CompiledShaders::Instance()
 
+
 class CompiledShaders
 {
 public:
@@ -46,7 +47,7 @@ public:
 	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1) ;
 
 	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
-	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride) {};
+	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride) ;
 //	void CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
@@ -66,20 +67,25 @@ public:
 	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
 
 protected:
-	ComPtr<ID3D12RootSignature>					m_RootSignature = nullptr;
-	ComPtr<ID3D12DescriptorHeap>				m_CBVHeap = nullptr;
-	ComPtr<ID3D12PipelineState>					m_pPSO = nullptr;
-	ComPtr<ID3DBlob>							m_VSByteCode = nullptr;
-	ComPtr<ID3DBlob>							m_PSByteCode = nullptr;
-	ComPtr<ID3D12DescriptorHeap>				m_CbvSrvDescriptorHeap = nullptr;
+	ComPtr<ID3D12RootSignature>						m_RootSignature = nullptr;
+	ComPtr<ID3D12DescriptorHeap>					m_CBVHeap = nullptr;
+	ComPtr<ID3D12DescriptorHeap>					m_CbvSrvDescriptorHeap = nullptr;
+	ComPtr<ID3D12PipelineState>						m_pPSO = nullptr;
+	ComPtr<ID3DBlob>								m_VSByteCode = nullptr;
+	ComPtr<ID3DBlob>								m_PSByteCode = nullptr;
 
-	vector<D3D12_INPUT_ELEMENT_DESC>			m_pInputElementDesc;
-	vector<unique_ptr<GameObject>>				m_ppObjects;
-	UINT										m_nObjects = 0;
+	vector<D3D12_INPUT_ELEMENT_DESC>				m_pInputElementDesc;
+	vector<GameObject* >							m_ppObjects;
+	UINT											m_nObjects = 0;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dCbvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dCbvGPUDescriptorStartHandle;
+	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dSrvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dSrvGPUDescriptorStartHandle;
 
 	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>	m_ObjectCB = nullptr;
 
-	vector<D3D12_INPUT_ELEMENT_DESC>			m_InputLayout;
+	vector<D3D12_INPUT_ELEMENT_DESC>				m_InputLayout;
 
 };
 

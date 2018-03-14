@@ -197,11 +197,11 @@ void GameObject::ReleaseShaderVariables()
 
 void GameObject::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
-	if (m_pMaterial) 
-		m_pcbMappedGameObject->m_nMaterial = m_pMaterial->m_nReflection;
+	//XMStoreFloat4x4(&m_pcbMappedGameObject->m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4World)));
+	//if (m_pMaterial) 
+	//	m_pcbMappedGameObject->m_nMaterial = m_pMaterial->m_nReflection;
 	
-	m_pd3dcbGameObject->CopyData(1, *m_pcbMappedGameObject);
+	//m_pd3dcbGameObject->CopyData(1, *m_pcbMappedGameObject);
 }
 
 void GameObject::Animate(float fTimeElapsed)
@@ -214,7 +214,8 @@ void GameObject::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, Cam
 
 void GameObject::SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
+	pd3dCommandList->SetGraphicsRootConstantBufferView(1, m_d3dCbvGPUDescriptorHandle.ptr);
+	//pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
 }
 
 void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera)
@@ -236,7 +237,7 @@ void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCam
 		}
 	}
 
-	//SetRootParameter(pd3dCommandList);
+	SetRootParameter(pd3dCommandList);
 
 	if (!m_ppMeshes.empty())
 	{

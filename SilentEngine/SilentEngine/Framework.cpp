@@ -209,6 +209,8 @@ void Framework::CreateRtvAndDsvDescriptorHeaps()
 	ThrowIfFailed(m_pD3dDevice->CreateDescriptorHeap(
 		&dsvHeapDesc, IID_PPV_ARGS(m_pDsvHeap.GetAddressOf()))
 	);
+
+	::gnCbvSrvDescriptorIncrementSize = m_pD3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
 void Framework::OnResize()

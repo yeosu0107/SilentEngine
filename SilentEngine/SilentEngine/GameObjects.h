@@ -43,8 +43,8 @@ class Shaders;
 
 struct CB_GAMEOBJECT_INFO
 {
-	XMFLOAT4X4						m_xmf4x4World;
-	UINT							m_nMaterial;
+	XMFLOAT4X4						m_xmf4x4World = D3DMath::Identity4x4();
+	UINT							m_nMaterial = 0;
 };
 
 // CB_DYNAMICUI_INFO는 좀 더 생각이 필요한 부분

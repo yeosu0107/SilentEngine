@@ -54,6 +54,25 @@ void Shaders::CreateCbvAndSrvDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12Gr
 	
 	ThrowIfFailed(pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc,
 		IID_PPV_ARGS(&m_CbvSrvDescriptorHeap)));
+
+	m_d3dCbvCPUDescriptorStartHandle = m_CbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_d3dCbvGPUDescriptorStartHandle = m_CbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	m_d3dSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
+	m_d3dSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
+}
+
+void Shaders::CreateConstantBufferViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nConstantBufferViews, ID3D12Resource * pd3dConstantBuffers, UINT nStride)
+{
+	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
+	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
+	d3dCBVDesc.SizeInBytes = nStride;
+	for (int j = 0; j < nConstantBufferViews; j++)
+	{
+		d3dCBVDesc.BufferLocation = d3dGpuVirtualAddress + (nStride * j);
+		D3D12_CPU_DESCRIPTOR_HANDLE d3dCbvCPUDescriptorHandle;
+		d3dCbvCPUDescriptorHandle.ptr = m_CbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart().ptr + (::gnCbvSrvDescriptorIncrementSize * j);
+		pd3dDevice->CreateConstantBufferView(&d3dCBVDesc, d3dCbvCPUDescriptorHandle);
+	}
 }
 
 void Shaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
@@ -61,12 +80,12 @@ void Shaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
+	pd3dRootParameters[0].Descriptor.ShaderRegister = 1;
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[1].Descriptor.ShaderRegister = 2; //Player
+	pd3dRootParameters[1].Descriptor.ShaderRegister = 2;
 	pd3dRootParameters[1].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
@@ -193,16 +212,21 @@ void Shaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList 
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
 
 	m_nObjects = 1;
-	m_ppObjects = vector<unique_ptr<GameObject>>(m_nObjects);
+	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 0);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 0);
+	//CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 0);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO)));
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice);
 
-	m_ppObjects[0] = make_unique<GameObject>();
+	m_ppObjects[0] = new GameObject();
 	m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
+	//m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
+	m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_ObjectCB->Resource()->GetGPUVirtualAddress());
 }
+
 
 void Shaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
@@ -226,8 +250,7 @@ void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
 	if (m_pPSO)
 		pd3dCommandList->SetPipelineState(m_pPSO.Get());
 
-	ID3D12DescriptorHeap* descriptorHeap[] = { m_CbvSrvDescriptorHeap.Get() };
-	pd3dCommandList->SetDescriptorHeaps(_countof(descriptorHeap), descriptorHeap);
+	pd3dCommandList->SetDescriptorHeaps(1, m_CbvSrvDescriptorHeap.GetAddressOf());
 
 	UpdateShaderVariables(pd3dCommandList);
 }
@@ -304,14 +327,14 @@ void BoxShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
 
 	m_nObjects = 1;
-	m_ppObjects = vector<unique_ptr<GameObject>>(m_nObjects);
+	m_ppObjects = vector<GameObject*>(m_nObjects);
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 0);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice);
 
-	m_ppObjects[0] = make_unique<GameObject>();
+	m_ppObjects[0] = new GameObject();
 	m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
 
 }
