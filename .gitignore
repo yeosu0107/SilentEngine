@@ -6,7 +6,6 @@ x64/
 *.pch
 *.res
 *.dcu
-*.~*
 *.dproj.local
 *.identcache
 __history
