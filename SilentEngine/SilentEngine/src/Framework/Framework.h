@@ -8,6 +8,7 @@
 #include "D3DUtil.h"
 #include "Timer.h"
 #include "Scene.h"
+//#include "..\Model\ModelLoader.h"
 
 #pragma comment(lib,"d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")

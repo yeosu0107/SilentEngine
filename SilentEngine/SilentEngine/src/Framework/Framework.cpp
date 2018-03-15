@@ -14,6 +14,8 @@ Framework::Framework(HINSTANCE hInstance)
 {
 	assert(m_pFramework == nullptr);
 	m_pFramework = this;
+
+	globalModels = new ModelLoader("fileList.csv.csv");
 }
 
 Framework* Framework::GetFramework()
