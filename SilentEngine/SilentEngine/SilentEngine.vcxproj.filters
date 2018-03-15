@@ -61,6 +61,21 @@
     <Filter Include="Framework\Source">
       <UniqueIdentifier>{811148a5-3ae9-4105-bfe7-219dc01031d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{57a96355-7b0a-4ee8-891c-dd843bf88e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Animation">
+      <UniqueIdentifier>{e446800b-0041-4943-93f4-bc81c888026e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Loader">
+      <UniqueIdentifier>{a320e465-fd4a-4962-bb06-e43d268082b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Object%28model%29">
+      <UniqueIdentifier>{0e90240d-2576-4b7a-840f-07a02fcda54e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Shader">
+      <UniqueIdentifier>{b1be8280-a9da-465c-83fb-d5a09a8f7123}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -115,6 +130,24 @@
     <ClCompile Include="src\Framework\SilentEngine.cpp">
       <Filter>Framework\Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Model\LoadModel.cpp">
+      <Filter>Model\Object%28model%29</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model\Animation.cpp">
+      <Filter>Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model\ModelObject.cpp">
+      <Filter>Model\Object%28model%29</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model\ModelShader.cpp">
+      <Filter>Model\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model\StringTokenizer.cpp">
+      <Filter>Model\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Model\ModelLoader.cpp">
+      <Filter>Model\Loader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -167,6 +200,24 @@
     </ClInclude>
     <ClInclude Include="src\Framework\SilentEngine.h">
       <Filter>Framework\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model\LoadModel.h">
+      <Filter>Model\Object%28model%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model\Animation.h">
+      <Filter>Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model\ModelObject.h">
+      <Filter>Model\Object%28model%29</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model\ModelShader.h">
+      <Filter>Model\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model\StringTokenizer.h">
+      <Filter>Model\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Model\ModelLoader.h">
+      <Filter>Model\Loader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

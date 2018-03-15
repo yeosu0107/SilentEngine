@@ -77,6 +77,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>.\;.\src\Framework;.\src\Object;.\src\Scene;.\src\Shaders;.\src\Object\Mesh;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -85,6 +86,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>.\;.\src\Framework;.\src\Object;.\src\Scene;.\src\Shaders;.\src\Object\Mesh;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -160,6 +162,12 @@
     <ClCompile Include="src\Framework\Framework.cpp" />
     <ClCompile Include="src\Framework\SilentEngine.cpp" />
     <ClCompile Include="src\Framework\Timer.cpp" />
+    <ClCompile Include="src\Model\Animation.cpp" />
+    <ClCompile Include="src\Model\LoadModel.cpp" />
+    <ClCompile Include="src\Model\ModelLoader.cpp" />
+    <ClCompile Include="src\Model\ModelObject.cpp" />
+    <ClCompile Include="src\Model\ModelShader.cpp" />
+    <ClCompile Include="src\Model\StringTokenizer.cpp" />
     <ClCompile Include="src\Object\Camera.cpp" />
     <ClCompile Include="src\Object\GameObjects.cpp" />
     <ClCompile Include="src\Object\Mesh\Mesh.cpp" />
@@ -183,6 +191,12 @@
     <ClInclude Include="src\Framework\SilentEngine.h" />
     <ClInclude Include="src\Framework\Timer.h" />
     <ClInclude Include="src\Framework\UploadBuffer.h" />
+    <ClInclude Include="src\Model\Animation.h" />
+    <ClInclude Include="src\Model\LoadModel.h" />
+    <ClInclude Include="src\Model\ModelLoader.h" />
+    <ClInclude Include="src\Model\ModelObject.h" />
+    <ClInclude Include="src\Model\ModelShader.h" />
+    <ClInclude Include="src\Model\StringTokenizer.h" />
     <ClInclude Include="src\Object\Camera.h" />
     <ClInclude Include="src\Object\GameObjects.h" />
     <ClInclude Include="src\Object\Mesh\Mesh.h" />
