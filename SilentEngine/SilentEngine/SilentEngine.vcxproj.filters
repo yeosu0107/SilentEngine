@@ -13,109 +13,54 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SilentEngine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DUtil.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="d3dx12.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="D3DMath.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Timer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSTextureLoader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="UploadBuffer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObjects.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GlobalObjects.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameResouce.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SilentEngine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DUtil.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="D3DMath.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Timer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="DDSTextureLoader.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Shaders.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObjects.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GlobalObjects.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
+    <Filter Include="Object">
+      <UniqueIdentifier>{78a9b654-5ba5-424a-95a0-3586e51282c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{7ea709b9-edf1-463f-9926-043b65d72a5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{605ca0e8-7e31-41d9-9194-73095238c963}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Header">
+      <UniqueIdentifier>{128f84dc-ed1e-4287-87a9-38eba66e0028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util\Source">
+      <UniqueIdentifier>{761dfa1a-8fae-4942-9237-50f69c4fea3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{76d5331f-cf97-445b-b0ba-1207827c0c83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\hlsl">
+      <UniqueIdentifier>{56421b0f-19e2-42a0-8aa3-9ead5eed8312}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Header">
+      <UniqueIdentifier>{4f2b05b3-8332-4ee8-8045-0fe0d78b47bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Source">
+      <UniqueIdentifier>{1032f3a4-d697-48b8-99e4-6bd92ac0ef36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Header">
+      <UniqueIdentifier>{c223780c-551f-4ede-b6e9-bcd265a7a187}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene\Source">
+      <UniqueIdentifier>{6a76e9c0-cfe0-404b-a1bf-e527ab9be4c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Header">
+      <UniqueIdentifier>{db3a3d05-13cb-4327-8031-a05e9ec87795}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Source">
+      <UniqueIdentifier>{cb4e91b9-eab1-45ac-ab1d-66ee82c3e7a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{57b31763-94dd-4e1d-b61c-f9e1ec7c735f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Header">
+      <UniqueIdentifier>{659b6ed2-b8cb-4fc0-abb6-65b090cc2069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Source">
+      <UniqueIdentifier>{811148a5-3ae9-4105-bfe7-219dc01031d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -131,6 +76,102 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\color.hlsl" />
+    <ClCompile Include="stdafx.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Framework\D3DMath.cpp">
+      <Filter>Util\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Framework\D3DUtil.cpp">
+      <Filter>Util\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Framework\DDSTextureLoader.cpp">
+      <Filter>Util\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Framework\Timer.cpp">
+      <Filter>Util\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\Camera.cpp">
+      <Filter>Object\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\GameObjects.cpp">
+      <Filter>Object\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\Player.cpp">
+      <Filter>Object\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\Mesh\Mesh.cpp">
+      <Filter>Object\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Scene\Scene.cpp">
+      <Filter>Scene\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Framework\Framework.cpp">
+      <Filter>Framework\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shaders\Shaders.cpp">
+      <Filter>Shaders\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Framework\SilentEngine.cpp">
+      <Filter>Framework\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\D3DUtil.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\D3DMath.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\d3dx12.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\DDSTextureLoader.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\Timer.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\UploadBuffer.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\Player.h">
+      <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Scene.h">
+      <Filter>Scene\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shaders\Shaders.h">
+      <Filter>Shaders\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\Mesh\Mesh.h">
+      <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\GameObjects.h">
+      <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\Framework.h">
+      <Filter>Framework\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\Camera.h">
+      <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Framework\SilentEngine.h">
+      <Filter>Framework\Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="hlsl\color.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

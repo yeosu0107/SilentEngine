@@ -2,7 +2,7 @@
 #include "D3DUtil.h"
 #include "Mesh.h"
 #include "Shaders.h"
-#include "FrameResouce.h"
+//#include "FrameResouce.h"
 #include "Camera.h"
 #include "Timer.h"
 
