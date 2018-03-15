@@ -214,8 +214,8 @@ void GameObject::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, Cam
 
 void GameObject::SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	pd3dCommandList->SetGraphicsRootConstantBufferView(1, m_d3dCbvGPUDescriptorHandle.ptr);
-	//pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
+	//pd3dCommandList->SetGraphicsRootConstantBufferView(1, m_d3dCbvGPUDescriptorHandle.ptr);
+	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
 }
 
 void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera)

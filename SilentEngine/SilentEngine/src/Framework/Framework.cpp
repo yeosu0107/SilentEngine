@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "D3DUtil.h"
 #include "Framework.h"
 #include <windowsX.h>
 

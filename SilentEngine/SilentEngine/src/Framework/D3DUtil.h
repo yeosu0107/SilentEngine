@@ -24,6 +24,7 @@
 
 extern const int gNumFrameResources;
 
+
 using namespace Microsoft::WRL;
 using namespace DirectX;
 using namespace std;
