@@ -2,16 +2,4 @@
 Debug/
 x64/
 *.obj
-*.log
-*.pch
-*.res
-*.dcu
-*.dproj.local
-*.identcache
-__history
-*.drc
-*.map
-*.zip
-*.exe
-*.elf
 *.FBX
