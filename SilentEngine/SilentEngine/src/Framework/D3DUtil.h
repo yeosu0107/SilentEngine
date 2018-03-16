@@ -19,7 +19,8 @@
 #include <fstream>
 #include <sstream>
 #include "d3dx12.h"
-#include "DDSTextureLoader.h"
+//#include "DDSTextureLoader.h"
+#include "DDSTextureLoader12.h"
 #include "D3DMath.h"
 
 extern const int gNumFrameResources;
@@ -94,7 +95,7 @@ public:
 		D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE *pd3dClearValue);
 
 	static ComPtr<ID3D12Resource> CreateTextureResourceFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
-		wchar_t *pszFileName, ComPtr<ID3D12Resource> *ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates);
+		wchar_t *pszFileName,ID3D12Resource* ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates);
 };
 
 class DxException

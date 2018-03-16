@@ -158,6 +158,12 @@ public:
 	virtual ~MeshGeometryCube() {}
 };
 
+class MeshGeometryTextured : public MeshGeometry
+{
+public :
+	MeshGeometryTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth);
+	virtual ~MeshGeometryTextured() {}
+};
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

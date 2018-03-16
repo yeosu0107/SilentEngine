@@ -158,7 +158,7 @@
   <ItemGroup>
     <ClCompile Include="src\Framework\D3DMath.cpp" />
     <ClCompile Include="src\Framework\D3DUtil.cpp" />
-    <ClCompile Include="src\Framework\DDSTextureLoader.cpp" />
+    <ClCompile Include="src\Framework\DDSTextureLoader12.cpp" />
     <ClCompile Include="src\Framework\Framework.cpp" />
     <ClCompile Include="src\Framework\SilentEngine.cpp" />
     <ClCompile Include="src\Framework\Timer.cpp" />
@@ -186,7 +186,7 @@
     <ClInclude Include="src\Framework\D3DMath.h" />
     <ClInclude Include="src\Framework\D3DUtil.h" />
     <ClInclude Include="src\Framework\d3dx12.h" />
-    <ClInclude Include="src\Framework\DDSTextureLoader.h" />
+    <ClInclude Include="src\Framework\DDSTextureLoader12.h" />
     <ClInclude Include="src\Framework\Framework.h" />
     <ClInclude Include="src\Framework\SilentEngine.h" />
     <ClInclude Include="src\Framework\Timer.h" />
@@ -207,7 +207,19 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="hlsl\Cbuffer.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="hlsl\color.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="hlsl\Sampler.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

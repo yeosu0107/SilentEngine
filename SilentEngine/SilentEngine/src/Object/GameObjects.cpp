@@ -12,11 +12,13 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 		m_pRootArgumentInfos = new SRVROOTARGUMENTINFO[m_nTextures];
 		m_ppd3dTextureUploadBuffers = vector<ComPtr<ID3D12Resource>>(m_nTextures);
 		m_ppd3dTextures = vector<ComPtr<ID3D12Resource>>(m_nTextures);
-		//for (int i = 0; i < m_nTextures; i++) m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = NULL;
+		for (int i = 0; i < m_nTextures; i++) 
+			m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = nullptr;
 	}
 
 	m_nSamplers = nSamplers;
-	if (m_nSamplers > 0) m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
+	if (m_nSamplers > 0) 
+		m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
 }
 
 CTexture::~CTexture()
@@ -80,7 +82,7 @@ void CTexture::ReleaseShaderVariables()
 
 void CTexture::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, wchar_t *pszFileName, UINT nIndex)
 {
-	m_ppd3dTextures[nIndex] = D3DUtil::CreateTextureResourceFromFile(pd3dDevice, pd3dCommandList, pszFileName, &m_ppd3dTextureUploadBuffers[nIndex], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	m_ppd3dTextures[nIndex] = D3DUtil::CreateTextureResourceFromFile(pd3dDevice, pd3dCommandList, pszFileName, m_ppd3dTextureUploadBuffers[nIndex].Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 }
 
 ComPtr<ID3D12Resource> CTexture::CreateTexture(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE *pd3dClearValue, UINT nIndex)

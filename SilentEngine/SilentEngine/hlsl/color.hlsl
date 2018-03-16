@@ -4,51 +4,38 @@
 // Transforms and colors geometry.
 //***************************************************************************************
 
-cbuffer cbPerObject : register(b0)
+#include "Cbuffer.hlsl"
+#include "Sampler.hlsl"
+
+struct VS_TEXTURED_INPUT
 {
-	float4x4 gWorldViewProj; 
+	float3 position : POSITION; // 
+	float2 uv : TEXCOORD;		// 
 };
 
-cbuffer cbCameraInfo : register(b1)
+struct VS_TEXTURED_OUTPUT
 {
-	matrix		gmtxView : packoffset(c0);
-	matrix		gmtxProjection : packoffset(c4);
-	float3		gvCameraPosition : packoffset(c8);
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD;
 };
 
-cbuffer cbObjectInfo : register(b2)
-{
-	matrix		gmtxGameObject : packoffset(c0);
-	uint		gnMaterial : packoffset(c4);
-}
+Texture2DArray gBoxTextured : register(t0);
 
-
-struct VertexIn
+VS_TEXTURED_OUTPUT VSTextured(VS_TEXTURED_INPUT input)
 {
-	float3 PosL  : POSITION;
-    float4 Color : COLOR;
+	VS_TEXTURED_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
 };
 
-struct VertexOut
+// nPrimitiveID : 삼각형의 정보 
+float4 PSTextured(VS_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
-	float4 PosH  : SV_POSITION;
-    float4 Color : COLOR;
+	float3 uvw = float3(input.uv, 0);
+	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
+
+	return(cColor);
 };
-
-VertexOut VS(VertexIn vin)
-{
-	VertexOut vout;
-	
-	//vout.PosH = mul(mul(mul(float4(vin.PosL, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-	vout.PosH = mul(mul(mul(float4(vin.PosL, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
-    vout.Color = vin.Color;
-    
-    return vout;
-}
-
-float4 PS(VertexOut pin) : SV_Target
-{
-    return pin.Color;
-}
-
-

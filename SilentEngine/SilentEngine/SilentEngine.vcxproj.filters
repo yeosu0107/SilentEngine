@@ -100,9 +100,6 @@
     <ClCompile Include="src\Framework\D3DUtil.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Framework\DDSTextureLoader.cpp">
-      <Filter>Util\Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Framework\Timer.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
@@ -148,6 +145,9 @@
     <ClCompile Include="src\Model\ModelLoader.cpp">
       <Filter>Model\Loader</Filter>
     </ClCompile>
+    <ClCompile Include="src\Framework\DDSTextureLoader12.cpp">
+      <Filter>Util\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -166,9 +166,6 @@
       <Filter>Util\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Framework\d3dx12.h">
-      <Filter>Util\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Framework\DDSTextureLoader.h">
       <Filter>Util\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Framework\Timer.h">
@@ -219,9 +216,18 @@
     <ClInclude Include="src\Model\ModelLoader.h">
       <Filter>Model\Loader</Filter>
     </ClInclude>
+    <ClInclude Include="src\Framework\DDSTextureLoader12.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\color.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Sampler.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Cbuffer.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>
