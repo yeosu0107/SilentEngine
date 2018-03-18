@@ -401,7 +401,7 @@ void ObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommand
 {
 	CB_GAMEOBJECT_INFO cBuffer;
 
-	for (int i = 0; i < m_nObjects; ++i) {
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
@@ -431,7 +431,7 @@ void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
 
-	for (int i = 0; i < m_nObjects; ++i) {
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		m_ppObjects[0] = new GameObject();
 		m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
 		m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
@@ -444,7 +444,7 @@ void ObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * 
 
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 
-	for (int j = 0; j < m_nObjects; j++)
+	for (unsigned int j = 0; j < m_nObjects; j++)
 	{
 		if (m_ppObjects[j])
 			m_ppObjects[j]->Render(pd3dCommandList, pCamera);

@@ -47,9 +47,9 @@ protected:
 	virtual void Render(const Timer& gt);
 
 	virtual void OnKeyboardInput(const Timer& gt);
-	virtual void OnMouseDown(WPARAM btnState, int x, int y);
-	virtual void OnMouseUp(WPARAM btnState, int x, int y);
-	virtual void OnMouseMove(WPARAM btnState, int x, int y);
+	virtual void OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y);
+	virtual void OnMouseUp(WPARAM btnState, UINT nMessageID, int x, int y);
+	virtual void OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y);
 
 protected:
 
@@ -124,7 +124,14 @@ protected:
 	const UINT m_nMaxScene = 3;
 	UINT m_nNowScene = 0;
 
-	unique_ptr<TestScene> m_pTestScene;
+	unique_ptr<TestScene>		m_pTestScene;
+	POINT						m_ptOldCursorPos;
+
+	bool						m_bMouseCapture = false;
+	float						m_fMouseSensitive = 4.5f;	// 마우스 민감도
+
+	Camera*						m_pCamera = nullptr;
+
 
 };
 

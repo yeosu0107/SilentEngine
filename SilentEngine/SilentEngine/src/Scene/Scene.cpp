@@ -146,7 +146,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_nShaders = 2;
 	m_ppShaders = new Shaders*[m_nShaders];
 	m_ppShaders[0] = new InstanceObjectShader();
-	m_ppShaders[1] = new ModelShader(1);
+	m_ppShaders[1] = new ModelShader(0);
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
@@ -172,44 +172,22 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
 }
 
-void TestScene::OnKeyboardInput(HWND& hWin, const Timer & gt)
+bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 {
-	const float dt = gt.DeltaTime();
-
-	if (GetAsyncKeyState('W') & 0x8000)
-		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, 100.0f * dt));
-
-	if (GetAsyncKeyState('S') & 0x8000)
-		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, -100.0f * dt));
-
-	if (GetAsyncKeyState('A') & 0x8000)
-		m_Camera->Move(XMFLOAT3(100.0f * dt, 0.0f, 0.0f));
-
-	if (GetAsyncKeyState('D') & 0x8000)
-		m_Camera->Move(XMFLOAT3(-100.0f * dt, 0.0f, 0.0f));
+	return false;
 }
 
-void TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y)
+bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y)
 {
-	m_LastMousePos.x = x;
-	m_LastMousePos.y = y;
-
-	SetCapture(hWin);
+	return false;
 }
 
-void TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y)
+bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y)
 {
-	ReleaseCapture();
+	return false;
 }
 
-void TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y)
+bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y)
 {
-	if ((btnState & MK_LBUTTON) != 0)
-	{
-		// Make each pixel correspond to a quarter of a degree.
-		float dx = XMConvertToRadians(0.1f*static_cast<float>(x - m_LastMousePos.x));
-		float dy = XMConvertToRadians(0.1f*static_cast<float>(y - m_LastMousePos.y));
-
-		m_Camera->Rotate(dy, dx, 0.0f);
-	}
+	return false;
 }

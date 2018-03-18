@@ -26,7 +26,7 @@ public:
 	//virtual void BuildRenderItems(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
-
+	virtual Camera* GetCamera() { return m_Camera.get(); }
 protected:
 	//vector<unique_ptr<FrameResource>>	m_FrameResources;
 	//FrameResource*					m_pCurrentFrameResource = nullptr;
@@ -45,8 +45,9 @@ protected:
 	vector<D3D12_INPUT_ELEMENT_DESC>							m_InputLayout;
 
 	unique_ptr<UploadBuffer<ObjectConstants>>					m_ObjectCB;
-protected:
 
+protected:
+	unique_ptr<Camera>											m_Camera = nullptr;
 };
 
 class TestScene : public Scene
@@ -69,15 +70,14 @@ public:
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 
-	virtual void OnKeyboardInput(HWND& hWin, const Timer& gt);
-	virtual void OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
-	virtual void OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
-	virtual void OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y);
+	virtual bool OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer);
+	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
+	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
+	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y);
 		
 protected:
 	//unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
 	Shaders** m_ppShaders = nullptr;
-	unique_ptr<Camera> m_Camera = nullptr;
 	
 	UINT m_nShaders = 0;
 	POINT m_LastMousePos;

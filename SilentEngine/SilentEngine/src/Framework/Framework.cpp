@@ -169,17 +169,17 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 	case WM_MBUTTONDOWN:
-		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseDown(wParam, msg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_MBUTTONUP:
-		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseUp(wParam, msg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	case WM_MOUSEMOVE:
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		OnMouseMove(wParam, msg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	case WM_KEYUP:
@@ -506,12 +506,15 @@ bool Framework::InitDirect3D()
 
 void Framework::BuildObjects()
 {
+	m_ptOldCursorPos.x = (double)0.0; m_ptOldCursorPos.y = (double)0.0;
+
 	m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr);
 
 	globalModels->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	m_pTestScene = make_unique<TestScene>();
 	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
+	m_pCamera = m_pTestScene->GetCamera();
 
 	ID3D12CommandList* cmdsLists[] = { m_pCommandList.Get() };
 	m_pCommandList->Close();
@@ -718,22 +721,106 @@ void Framework::LogOutputDisplayModes(IDXGIOutput* poutput, DXGI_FORMAT format)
 
 void Framework::OnKeyboardInput(const Timer& gt)
 {
-	m_pTestScene->OnKeyboardInput(m_hMainWnd,gt);
+	static UCHAR pKeysBuffer[256];
+	bool bProcessedByScene = false;
+
+	//if (GetKeyboardState(pKeysBuffer) && m_pTestScene) 
+	//	bProcessedByScene = m_pTestScene->OnKeyboardInput(gt, pKeysBuffer);
+
+	if (!bProcessedByScene)
+	{
+		DWORD dwDirection = 0;
+		/*if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
+		if (pKeysBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
+		if (pKeysBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
+		if (pKeysBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
+		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
+		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;*/
+
+		if (GetAsyncKeyState('W') & 0x8000)
+			dwDirection |= DIR_FORWARD;
+
+		if (GetAsyncKeyState('S') & 0x8000)
+			dwDirection |= DIR_BACKWARD;
+
+		if (GetAsyncKeyState('A') & 0x8000)
+			dwDirection |= DIR_LEFT;
+
+		if (GetAsyncKeyState('D') & 0x8000)
+			dwDirection |= DIR_RIGHT;
+
+
+		float cxDelta = 0.0f, cyDelta = 0.0f;
+		POINT ptCursorPos;
+		if (GetCapture() == m_hMainWnd)
+		{
+			SetCursor(NULL);
+			GetCursorPos(&ptCursorPos);
+			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		}
+
+		if (m_bMouseCapture)
+		{
+			::GetCursorPos(&ptCursorPos);
+			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / m_fMouseSensitive;
+			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / m_fMouseSensitive;
+			::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+		}
+
+		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		{
+			if (cxDelta || cyDelta) {
+				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+			}
+
+			if (dwDirection)
+				m_pCamera->Move(dwDirection, 100.0f * gt.DeltaTime(), false);
+			//if (dwDirection && m_pPlayer->GetLive()) {
+			//	//m_pPlayer->Move(dwDirection, 100.0f * m_GameTimer.GetTimeElapsed(), false);
+			//	//m_pPlayer->Move(dwDirection, 5.0f, false);
+			//}
+
+		}
+	}
+	//m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
 }
 
-void Framework::OnMouseDown(WPARAM btnState, int x, int y)
+void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	m_pTestScene->OnMouseDown(m_hMainWnd, btnState, x, y);
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		::SetCapture(m_hMainWnd);
+		::GetCursorPos(&m_ptOldCursorPos);
+		break;
+	case WM_MOUSEMOVE:
+		break;
+	default:
+		break;
+	}
 }
 
-void Framework::OnMouseUp(WPARAM btnState, int x, int y)
+void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 {
-	m_pTestScene->OnMouseUp(m_hMainWnd, btnState, x, y);
+	switch (nMessageID)
+	{
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+		::ReleaseCapture();
+		break;
+	case WM_MOUSEMOVE:
+		break;
+	default:
+		break;
+	}
 }
 
-void Framework::OnMouseMove(WPARAM btnState, int x, int y)
+void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	m_pTestScene->OnMouseMove(m_hMainWnd, btnState, x, y);
+	//m_pTestScene->OnMouseMove(m_hMainWnd, btnState, x, y);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,

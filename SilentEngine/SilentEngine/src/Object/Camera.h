@@ -141,15 +141,17 @@ public:
 	D3D12_RECT GetScissorRect() { return(m_d3dRect); }
 
 	virtual void Move(const XMFLOAT3& xmf3Shift) {
-		m_xmf3Position.x += xmf3Shift.x * m_xmf3Look.x;
-		m_xmf3Position.y += xmf3Shift.y * m_xmf3Look.y;
-		m_xmf3Position.z += xmf3Shift.z * m_xmf3Look.z;
+		m_xmf3Position.x += xmf3Shift.x;
+		m_xmf3Position.y += xmf3Shift.y;
+		m_xmf3Position.z += xmf3Shift.z;
 	}
+
+	virtual void Move(ULONG dwDirection, float fDistance, bool bVelocity = false);
 
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
 
 	//카메라의 이동, 회전에 따라 카메라의 정보를 갱신하는 가상함수이다. 
-	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed) { }
+	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed) {};
 
 	//3인칭 카메라에서 카메라가 플레이어를 바라보게 설정
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }

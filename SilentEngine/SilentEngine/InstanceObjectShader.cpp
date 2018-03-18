@@ -147,7 +147,7 @@ void InstanceObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3
 {
 	CB_GAMEOBJECT_INFO cBuffer;
 
-	for (int i = 0; i < m_nObjects; ++i) {
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
@@ -178,7 +178,7 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
 
-	int i = 0;
+	unsigned int i = 0;
 
 	InstanceObject* pInstnaceObject = new InstanceObject();
 	pInstnaceObject->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
