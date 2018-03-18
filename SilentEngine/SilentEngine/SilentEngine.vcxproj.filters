@@ -245,5 +245,8 @@
     <FxCompile Include="hlsl\Texture.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\model.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

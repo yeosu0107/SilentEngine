@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Scene.h"
 #include "InstanceObjectShader.h"
+#include "..\Model\ModelShader.h"
 
 Scene::Scene()
 {
@@ -142,10 +143,16 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	
-	m_pShaders = make_unique<InstanceObjectShader>();
-	for (int i = 0; i < 1; ++i)
-		(m_pShaders.get())->BuildObjects(pDevice, pCommandList);
+	m_nShaders = 2;
+	m_ppShaders = new Shaders*[m_nShaders];
+	m_ppShaders[0] = new InstanceObjectShader();
+	m_ppShaders[1] = new ModelShader(0);
+
+	for(UINT i=0; i<m_nShaders; ++i)
+		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
+
+	//for (int i = 0; i < 1; ++i)
+	//	(m_pShaders.get())->BuildObjects(pDevice, pCommandList);
 	//m_pShaders->BuildObjects(pDevice, pCommandList);
 
 	//BuildDescriptorHeaps(pDevice, pCommandList);
@@ -168,8 +175,11 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	
 	//m_Camera->SetViewportsAndScissorRects(pCommandList);
 	//m_Camera->UpdateShaderVariables(pCommandList);
-		(m_pShaders.get())->Render(pCommandList, m_Camera.get());
+	//(m_pShaders.get())->Render(pCommandList, m_Camera.get());
 	//m_pShaders->Render(pCommandList, m_Camera.get());
 	
 	//(*m_Geometries.get())["boxGeo"]->Render(pCommandList);
+
+	for(UINT i=0; i<m_nShaders; ++i)
+		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
 }

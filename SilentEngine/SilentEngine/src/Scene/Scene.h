@@ -72,9 +72,10 @@ public:
 		
 protected:
 	//unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
-	unique_ptr<Shaders> m_pShaders = nullptr;
+	Shaders** m_ppShaders = nullptr;
 	unique_ptr<Camera> m_Camera = nullptr;
 	
+	UINT m_nShaders = 0;
 };
 
 class GameScene : public Scene

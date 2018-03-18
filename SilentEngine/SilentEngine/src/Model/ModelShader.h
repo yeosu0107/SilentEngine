@@ -3,7 +3,7 @@
 #include "..\Shaders\Shaders.h"
 #include "ModelObject.h"
 
-class ModelShader : public Shaders
+class ModelShader : public ObjectShader
 {
 protected:
 	UINT modelIndex;
@@ -21,5 +21,5 @@ public:
 	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World);
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext);
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
-	//virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1);
+	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1);
 };

@@ -16,7 +16,7 @@ Framework::Framework(HINSTANCE hInstance)
 	assert(m_pFramework == nullptr);
 	m_pFramework = this;
 
-	globalModels = new ModelLoader("fileList.csv.csv");
+	globalModels = new ModelLoader("fileList.csv");
 }
 
 Framework* Framework::GetFramework()
@@ -505,6 +505,8 @@ bool Framework::InitDirect3D()
 void Framework::BuildObjects()
 {
 	m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr);
+
+	globalModels->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	m_pTestScene = make_unique<TestScene>();
 	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
