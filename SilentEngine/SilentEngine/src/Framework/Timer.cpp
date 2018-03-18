@@ -27,7 +27,7 @@ float Timer::TotalTime() const
 
 float Timer::DeltaTime() const
 {
-	return 0.0f;
+	return (float)m_dDeltaTime;
 }
 
 void Timer::Reset()

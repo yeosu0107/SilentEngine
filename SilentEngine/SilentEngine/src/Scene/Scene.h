@@ -66,9 +66,13 @@ public:
 	virtual void Update(const Timer& gt);
 	//virtual void BuildFrameResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	//virtual void BuildMaterials(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	//virtual void BuildRenderItems(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+
+	virtual void OnKeyboardInput(HWND& hWin, const Timer& gt);
+	virtual void OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
+	virtual void OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
+	virtual void OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y);
 		
 protected:
 	//unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
@@ -76,6 +80,7 @@ protected:
 	unique_ptr<Camera> m_Camera = nullptr;
 	
 	UINT m_nShaders = 0;
+	POINT m_LastMousePos;
 };
 
 class GameScene : public Scene

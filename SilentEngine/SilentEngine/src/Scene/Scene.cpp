@@ -143,10 +143,10 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_nShaders = 2;
+	m_nShaders = 1;
 	m_ppShaders = new Shaders*[m_nShaders];
 	m_ppShaders[0] = new InstanceObjectShader();
-	m_ppShaders[1] = new ModelShader(0);
+	//m_ppShaders[1] = new ModelShader(0);
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
@@ -162,24 +162,54 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	//BuildSceneGeometry(pDevice, pCommandList);
 	//BuildPSOs(pDevice, pCommandList);
 
-	
-
 	m_Camera = make_unique<Camera>();
 	m_Camera->InitCamera(pDevice, pCommandList);
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	//pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
-	//pCommandList->SetPipelineState(m_PSOs["Cube"].Get());
-	
-	//m_Camera->SetViewportsAndScissorRects(pCommandList);
-	//m_Camera->UpdateShaderVariables(pCommandList);
-	//(m_pShaders.get())->Render(pCommandList, m_Camera.get());
-	//m_pShaders->Render(pCommandList, m_Camera.get());
-	
-	//(*m_Geometries.get())["boxGeo"]->Render(pCommandList);
-
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
+}
+
+void TestScene::OnKeyboardInput(HWND& hWin, const Timer & gt)
+{
+	const float dt = gt.DeltaTime();
+
+	if (GetAsyncKeyState('W') & 0x8000)
+		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, 10.0f * dt));
+
+	if (GetAsyncKeyState('S') & 0x8000)
+		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, -10.0f * dt));
+
+	if (GetAsyncKeyState('A') & 0x8000)
+		m_Camera->Move(XMFLOAT3(10.0f * dt, 0.0f, 0.0f));
+
+	if (GetAsyncKeyState('D') & 0x8000)
+		m_Camera->Move(XMFLOAT3(-10.0f * dt, 0.0f, 0.0f));
+}
+
+void TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y)
+{
+	m_LastMousePos.x = x;
+	m_LastMousePos.y = y;
+
+	SetCapture(hWin);
+}
+
+void TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y)
+{
+	ReleaseCapture();
+}
+
+void TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y)
+{
+	if ((btnState & MK_LBUTTON) != 0)
+	{
+		// Make each pixel correspond to a quarter of a degree.
+		float dx = XMConvertToRadians(0.1f*static_cast<float>(x - m_LastMousePos.x));
+		float dy = XMConvertToRadians(0.1f*static_cast<float>(y - m_LastMousePos.y));
+
+		m_Camera->Rotate(dy, dx, 0.0f);
+	}
 }

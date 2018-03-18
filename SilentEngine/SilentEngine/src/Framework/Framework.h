@@ -46,9 +46,10 @@ protected:
 	virtual void Update(const Timer& gt);
 	virtual void Render(const Timer& gt);
 
-	virtual void OnMouseDown(WPARAM btnState, int x, int y) {}
-	virtual void OnMouseUp(WPARAM btnState, int x, int y) {}
-	virtual void OnMouseMove(WPARAM btnState, int x, int y) {}
+	virtual void OnKeyboardInput(const Timer& gt);
+	virtual void OnMouseDown(WPARAM btnState, int x, int y);
+	virtual void OnMouseUp(WPARAM btnState, int x, int y);
+	virtual void OnMouseMove(WPARAM btnState, int x, int y);
 
 protected:
 
@@ -117,8 +118,8 @@ protected:
 
 	DXGI_FORMAT m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	int m_nClientWidth = 800;
-	int m_nClientHeight = 600;
+	int m_nClientWidth = 1280;
+	int m_nClientHeight = 720;
 
 	const UINT m_nMaxScene = 3;
 	UINT m_nNowScene = 0;

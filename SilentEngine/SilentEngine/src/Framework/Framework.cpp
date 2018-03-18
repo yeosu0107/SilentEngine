@@ -307,6 +307,8 @@ void Framework::OnResize()
 
 void Framework::Update(const Timer & gt)
 {
+	OnKeyboardInput(gt);
+
 	m_pTestScene->Update(gt);
 }
 
@@ -714,6 +716,25 @@ void Framework::LogOutputDisplayModes(IDXGIOutput* poutput, DXGI_FORMAT format)
 }
 
 
+void Framework::OnKeyboardInput(const Timer& gt)
+{
+	m_pTestScene->OnKeyboardInput(m_hMainWnd,gt);
+}
+
+void Framework::OnMouseDown(WPARAM btnState, int x, int y)
+{
+	m_pTestScene->OnMouseDown(m_hMainWnd, btnState, x, y);
+}
+
+void Framework::OnMouseUp(WPARAM btnState, int x, int y)
+{
+	m_pTestScene->OnMouseUp(m_hMainWnd, btnState, x, y);
+}
+
+void Framework::OnMouseMove(WPARAM btnState, int x, int y)
+{
+	m_pTestScene->OnMouseMove(m_hMainWnd, btnState, x, y);
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
@@ -737,3 +758,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		return 0;
 	}
 }
+

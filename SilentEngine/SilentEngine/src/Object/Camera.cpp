@@ -4,6 +4,23 @@
 
 Camera::Camera()
 {
+	m_xmf4x4View = Matrix4x4::Identity();
+	m_xmf4x4Projection = m_xmf4x4Projection = Matrix4x4::PerspectiveFovLH(XMConvertToRadians(60.0f), ASPECT_RATIO, 1.01f, 5000.0f);
+	m_xmf4x4Rotate = Matrix4x4::Identity();
+	m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
+	m_d3dRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
+	m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	m_fPitch = 0.0f;
+	m_fRoll = 0.0f;
+	m_fYaw = 0.0f;
+	m_xmf3Offset = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_fTimeLag = 0.0f;
+	m_xmf3LookAtWorld = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_nMode = 0x00;
+	m_pPlayer = NULL;
 }
 
 Camera::Camera(Camera * pCamera)
@@ -93,30 +110,13 @@ void Camera::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsCommand
 
 void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList)
 {
-	float mTheta = 1.5f*XM_PI;
-	float mPhi = XM_PIDIV4;
-	float mRadius = 5.0f;
-
-	float x = mRadius*sinf(mPhi)*cosf(mTheta);
-	float z = mRadius*sinf(mPhi)*sinf(mTheta);
-	float y = mRadius*cosf(mPhi);
-
-	XMVECTOR pos = XMVectorSet(x, y, z, 1.0f);
-	XMVECTOR target = XMVectorZero();
-	XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-	//XMStoreFloat4x4(&mView, view);
-
-	XMMATRIX world = XMLoadFloat4x4(&D3DMath::Identity4x4());
-	XMMATRIX proj = XMMatrixPerspectiveFovLH(0.25f * D3DMath::Pi, AspectRatio(), 1.0f, 1000.0f);
-	XMMATRIX worldViewProj = world * view * proj;
+	RegenerateViewMatrix();
 
 	VS_CB_CAMERA_INFO cameraConstant; 
-	XMStoreFloat4x4(&cameraConstant.m_xmf4x4View, XMMatrixTranspose(worldViewProj));
-	XMStoreFloat4x4(&cameraConstant.m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&D3DMath::Identity4x4())));
-	XMStoreFloat3(&cameraConstant.m_xmf3Position, pos);
-
+	XMStoreFloat4x4(&cameraConstant.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
+	XMStoreFloat4x4(&cameraConstant.m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
+	::memcpy(&cameraConstant.m_xmf3Position, &m_xmf3Position, sizeof(XMFLOAT3));
+	
 	m_ObjectCB->CopyData(0, cameraConstant);
 	pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, m_ObjectCB->Resource()->GetGPUVirtualAddress());
 }
@@ -188,6 +188,35 @@ void Camera::RegenerateViewMatrix()
 	GenerateFrustum();
 }
 
+void Camera::Rotate(float x, float y, float z)
+{
+
+	if (x != 0.0f)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Right), XMConvertToRadians(x));
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+		m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Position = Vector3::TransformCoord(m_xmf3Position, xmmtxRotate);
+	}
+	if (y != 0.0f)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up), XMConvertToRadians(y));
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+		m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Position = Vector3::TransformCoord(m_xmf3Position, xmmtxRotate);
+	}
+	if (z != 0.0f)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Look), XMConvertToRadians(z));
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+		m_xmf3Up = Vector3::TransformNormal(m_xmf3Up, xmmtxRotate);
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Position = Vector3::TransformCoord(m_xmf3Position, xmmtxRotate);
+	}
+}
+
 void Camera::UpdateOOBB(XMFLOAT4X4& matrix)
 {
 	m_xmOOBBTransformed = m_xmOOBB;
@@ -205,6 +234,10 @@ void Camera::GenerateFrustum()
 bool Camera::IsInFrustum(BoundingOrientedBox& xmBoundingBox)
 {
 	return(m_xmFrustum.Intersects(xmBoundingBox));
+}
+
+CThirdPersonCamera::CThirdPersonCamera() : Camera()
+{
 }
 
 CThirdPersonCamera::CThirdPersonCamera(Camera *pCamera) : Camera(pCamera)
@@ -232,7 +265,7 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 		xmf4x4Rotate = Matrix4x4::Multiply(xmf4x4Rotate, xmmtxRotate);
 	}
 
-	if (m_pPlayer && (y != 0.0f))
+	/*if (m_pPlayer && (y != 0.0f))
 	{
 		XMFLOAT3 xmf3Up = m_pPlayer->GetUpVector();
 		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up),
@@ -261,17 +294,17 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 
 		xmf4x4Rotate = Matrix4x4::Multiply(xmf4x4Rotate, xmmtxRotate);
 	}
-
+*/
 	//카메라 오프셋 벡터를 회전 행렬로 변환(회전)한다. 
 	XMFLOAT3 xmf3Offset = Vector3::TransformCoord(m_xmf3Offset, Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate));
 	//회전한 카메라의 위치는 플레이어의 위치에 회전한 카메라 오프셋 벡터를 더한 것이다.
-	XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
-	XMFLOAT3 xmf3Direction = Vector3::Subtract(m_pPlayer->GetPosition(), xmf3Position, false);
+	//XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+	//XMFLOAT3 xmf3Direction = Vector3::Subtract(m_pPlayer->GetPosition(), xmf3Position, false);
 
-	if (RotateLock(xmf3Direction, xmf3Position))
+	/*if (RotateLock(xmf3Direction, xmf3Position))
 	{
 		m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
-	}
+	}*/
 
 	//m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
 }
