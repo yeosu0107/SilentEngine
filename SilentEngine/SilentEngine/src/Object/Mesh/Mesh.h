@@ -149,6 +149,7 @@ protected:
 
 public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void InstanceRender(ID3D12GraphicsCommandList *pd3dCommandList, UINT nInstanceCount);
 };
 
 class MeshGeometryCube : public MeshGeometry

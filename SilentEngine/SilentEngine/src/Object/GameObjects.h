@@ -123,9 +123,9 @@ public:
 
 	XMFLOAT4	m_xmf4Albedo = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	UINT		m_nReflection = 0;
-	CTexture	*m_pTexture = nullptr;
-	Shaders		*m_pShader = nullptr;
+	UINT					m_nReflection = 0;
+	unique_ptr<CTexture>	m_pTexture = nullptr;
+	Shaders*				m_pShader = nullptr;
 		
 	void SetAlbedo(XMFLOAT4 xmf4Albedo) { m_xmf4Albedo = xmf4Albedo; }
 	void SetReflection(UINT nReflection) { m_nReflection = nReflection; }
@@ -249,3 +249,6 @@ public:
 protected:
 	Camera* m_pCamera;
 };
+
+//////////////////////////////////////////////
+

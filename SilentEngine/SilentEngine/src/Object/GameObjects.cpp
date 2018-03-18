@@ -105,9 +105,10 @@ CMaterial::~CMaterial()
 
 void CMaterial::SetTexture(CTexture *pTexture)
 {
-	if (m_pTexture) m_pTexture->Release();
-	m_pTexture = pTexture;
-	if (m_pTexture) m_pTexture->AddRef();
+	if (m_pTexture) 
+		m_pTexture.release();
+
+	m_pTexture = make_unique<CTexture>(std::move(*pTexture));
 }
 
 void CMaterial::SetShader(Shaders *pShader)
@@ -184,8 +185,6 @@ void GameObject::SetMaterial(CMaterial *pMaterial)
 
 void GameObject::CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
-	m_pd3dcbGameObject = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, 1, true);
 }
 
 void GameObject::ReleaseShaderVariables()
@@ -250,6 +249,7 @@ void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCam
 		}
 	}
 }
+
 
 void GameObject::ReleaseUploadBuffers()
 {

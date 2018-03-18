@@ -148,6 +148,12 @@
     <ClCompile Include="src\Framework\DDSTextureLoader12.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
+    <ClCompile Include="InstanceObject.cpp">
+      <Filter>Object\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="InstanceObjectShader.cpp">
+      <Filter>Shaders\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -219,6 +225,12 @@
     <ClInclude Include="src\Framework\DDSTextureLoader12.h">
       <Filter>Util\Header</Filter>
     </ClInclude>
+    <ClInclude Include="InstanceObject.h">
+      <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="InstanceObjectShader.h">
+      <Filter>Shaders\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\color.hlsl">
@@ -228,6 +240,9 @@
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\Cbuffer.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Texture.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>

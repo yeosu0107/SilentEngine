@@ -9,7 +9,7 @@ using namespace std;
 
 #define COMPILEDSHADERS CompiledShaders::Instance()
 
-
+D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
 class CompiledShaders
 {
 public:
@@ -107,34 +107,4 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
 	virtual void ReleaseObjects() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
-};
-
-class TexturedBoxShader : public ObjectShader
-{
-public:
-	TexturedBoxShader();
-	~TexturedBoxShader();
-
-public:
-	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout();
-	virtual D3D12_RASTERIZER_DESC		CreateRasterizerState();
-	virtual D3D12_BLEND_DESC			CreateBlendState();
-	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState();
-
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
-
-	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
-
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void ReleaseShaderVariables();
-
-	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World);
-
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
-	virtual void ReleaseObjects() { }
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
-
-	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
 };

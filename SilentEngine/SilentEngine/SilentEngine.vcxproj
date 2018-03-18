@@ -156,6 +156,8 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="InstanceObject.cpp" />
+    <ClCompile Include="InstanceObjectShader.cpp" />
     <ClCompile Include="src\Framework\D3DMath.cpp" />
     <ClCompile Include="src\Framework\D3DUtil.cpp" />
     <ClCompile Include="src\Framework\DDSTextureLoader12.cpp" />
@@ -182,6 +184,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="InstanceObject.h" />
+    <ClInclude Include="InstanceObjectShader.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Framework\D3DMath.h" />
     <ClInclude Include="src\Framework\D3DUtil.h" />
@@ -220,6 +224,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="hlsl\Sampler.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="hlsl\Texture.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

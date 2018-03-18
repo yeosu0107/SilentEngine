@@ -28,6 +28,21 @@ void MeshGeometry::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 	}
 }
 
+void MeshGeometry::InstanceRender(ID3D12GraphicsCommandList * pd3dCommandList, UINT nInstanceCount)
+{
+	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);			// 입력 조립기 프리미티브 토폴로지 셋
+	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);	// m_nslot번째 슬롯부터 n개의 view를 통해 버퍼를 사용하게따
+	if (m_pd3dIndexBuffer)
+	{
+		pd3dCommandList->IASetIndexBuffer(&m_d3dIndexBufferView);
+		pd3dCommandList->DrawIndexedInstanced(m_nIndices, nInstanceCount, 0, 0, 0);
+	}
+	else
+	{
+		pd3dCommandList->DrawInstanced(m_nVertices, 1, m_nOffset, 0);
+	}
+}
+
 /////////////////////////////////////////////////////////////////
 
 MeshGeometryCube::MeshGeometryCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometry(pd3dDevice, pd3dCommandList)

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Camera.h"
 #include "Shaders.h"
+#include "InstanceObject.h"
 
 CompiledShaders::CompiledShaders()
 {
@@ -384,7 +385,7 @@ void ObjectShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12Graphi
 
 	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_ObjectCB->Resource()->GetGPUVirtualAddress();
 
-	int boxCBufIndex = 0;
+	/*int boxCBufIndex = 0;
 	cbAddress += boxCBufIndex * objCBByteSize;
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
@@ -393,7 +394,7 @@ void ObjectShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12Graphi
 
 	pd3dDevice->CreateConstantBufferView(
 		&cbvDesc,
-		m_CbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());
+		m_CbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart());*/
 }
 
 void ObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
@@ -449,3 +450,5 @@ void ObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * 
 			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 	}
 }
+
+//////////////////////////////////////////////////////////////

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Scene.h"
+#include "InstanceObjectShader.h"
 
 Scene::Scene()
 {
@@ -142,7 +143,7 @@ void TestScene::Update(const Timer & gt)
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	
-	m_pShaders = make_unique<ObjectShader>();
+	m_pShaders = make_unique<InstanceObjectShader>();
 	for (int i = 0; i < 1; ++i)
 		(m_pShaders.get())->BuildObjects(pDevice, pCommandList);
 	//m_pShaders->BuildObjects(pDevice, pCommandList);
