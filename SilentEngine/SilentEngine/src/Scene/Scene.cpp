@@ -143,10 +143,10 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_nShaders = 1;
+	m_nShaders = 2;
 	m_ppShaders = new Shaders*[m_nShaders];
 	m_ppShaders[0] = new InstanceObjectShader();
-	//m_ppShaders[1] = new ModelShader(0);
+	m_ppShaders[1] = new ModelShader(1);
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
@@ -177,16 +177,16 @@ void TestScene::OnKeyboardInput(HWND& hWin, const Timer & gt)
 	const float dt = gt.DeltaTime();
 
 	if (GetAsyncKeyState('W') & 0x8000)
-		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, 10.0f * dt));
+		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, 100.0f * dt));
 
 	if (GetAsyncKeyState('S') & 0x8000)
-		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, -10.0f * dt));
+		m_Camera->Move(XMFLOAT3(0.0f, 0.0f, -100.0f * dt));
 
 	if (GetAsyncKeyState('A') & 0x8000)
-		m_Camera->Move(XMFLOAT3(10.0f * dt, 0.0f, 0.0f));
+		m_Camera->Move(XMFLOAT3(100.0f * dt, 0.0f, 0.0f));
 
 	if (GetAsyncKeyState('D') & 0x8000)
-		m_Camera->Move(XMFLOAT3(-10.0f * dt, 0.0f, 0.0f));
+		m_Camera->Move(XMFLOAT3(-100.0f * dt, 0.0f, 0.0f));
 }
 
 void TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y)
