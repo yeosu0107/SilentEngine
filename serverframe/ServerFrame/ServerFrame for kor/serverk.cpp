@@ -5,6 +5,8 @@ Player* p_guest;
 
 Player Guest[4];
 
+char SendBuf[BUFSIZE];
+
 int main(int argc, char *argv[])
 {
 	for (int i = 0; i < 4; ++i) {
@@ -18,16 +20,18 @@ int main(int argc, char *argv[])
 
 	p_guest = &guest;
 
-	int id_count = 1;
-	char SendBuf[BUFSIZE];
-
-	int retval;
-
 	printf("char : %d, int : %d, float : %d\n", sizeof(char), sizeof(int), sizeof(float));
+
+	
 
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
 		return 1;
+	}
+
+	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (listen_sock == INVALID_SOCKET) {
+		err_quit("socket()");
 	}
 
 	HANDLE hcp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
@@ -38,7 +42,10 @@ int main(int argc, char *argv[])
 	SYSTEM_INFO si;
 	GetSystemInfo(&si);
 
-	HANDLE hThread;
+	HANDLE hThread,aCceptThread;
+
+	aCceptThread = CreateThread(NULL, 0, AcceptThread, hcp, 0, NULL);
+
 	for (int i = 0; i < (int)si.dwNumberOfProcessors * 2; ++i) {
 		hThread = CreateThread(NULL, 0, WorkerThread, hcp, 0, NULL);
 		if (hThread == NULL) {
@@ -46,6 +53,24 @@ int main(int argc, char *argv[])
 		}
 		CloseHandle(hThread);
 	}
+
+	CreateIoCompletionPort((HANDLE)listen_sock, hcp, listen_sock, 0);
+
+	
+
+	WSACleanup();
+
+	return 0;
+}
+
+DWORD WINAPI AcceptThread(LPVOID arg) {
+	
+	HANDLE hcp = (HANDLE)arg;
+	
+	int retval;
+
+	int id_count = 1;
+		
 
 	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock == INVALID_SOCKET) {
@@ -73,6 +98,14 @@ int main(int argc, char *argv[])
 	DWORD recvbytes, flags;
 
 	while (1) {
+		DWORD cbTransferred;
+		SOCKET client_sock;
+		SOCKETINFO *ptr = new SOCKETINFO();
+
+		//Player guest;
+
+		retval = GetQueuedCompletionStatus(hcp, &cbTransferred, (PULONG_PTR)&client_sock, (LPOVERLAPPED *)&ptr, INFINITE);
+		
 		addrlen = sizeof(clientaddr);
 		client_sock = accept(listen_sock, (SOCKADDR *)&clientaddr, &addrlen);
 		if (client_sock == INVALID_SOCKET) {
@@ -97,7 +130,7 @@ int main(int argc, char *argv[])
 
 		CreateIoCompletionPort((HANDLE)client_sock, hcp, client_sock, 0);
 		recvbytes = 0;
-		SOCKETINFO *ptr = new SOCKETINFO();
+		//SOCKETINFO *ptr = new SOCKETINFO();
 		if (ptr == NULL) {
 			break;
 		}
@@ -124,23 +157,7 @@ int main(int argc, char *argv[])
 			continue;
 		}
 
-		//memcpy(p_guest, ptr->buf, sizeof(p_guest));
-
-		//guest.p_hp = p_guest->p_hp;
-		//guest.p_id = p_guest->p_id;
-		//guest.p_x = p_guest->p_x;
-		//guest.p_y = p_guest->p_y;
-		//guest.p_z = p_guest->p_z;
-		//guest.end = p_guest->end;
-
-		//// È®ÀÎ¿ë
-		//printf("[TCP/%s:%d] id : %d, pos : ( %f, %f, %f ), hp : %d, end : %c\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port),
-		//	guest.p_id, guest.p_x, guest.p_y, guest.p_z, guest.p_hp, guest.end);
-		////-----------
-
 	}
-
-	WSACleanup();
 
 	return 0;
 }

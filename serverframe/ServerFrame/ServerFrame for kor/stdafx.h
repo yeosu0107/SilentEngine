@@ -18,6 +18,7 @@
 #define SERVERPORT 8000
 #define BUFSIZE 512
 
+DWORD WINAPI AcceptThread(LPVOID arg);
 DWORD WINAPI WorkerThread(LPVOID arg);
 
 void err_quit(char *msg);
