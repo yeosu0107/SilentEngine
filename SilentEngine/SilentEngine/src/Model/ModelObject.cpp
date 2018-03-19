@@ -46,8 +46,8 @@ void ModelObject::Animate(float fTime)
 		//m_Animtime += 0.03f;
 
 	}
-	BasePhysX tmp(60);
-	tmp.GetTriangleMesh(m_model->getMesh(0), 30);
+	//BasePhysX tmp(60);
+	//tmp.GetTriangleMesh(m_model->getMesh(0), 30);
 }
 
 void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
