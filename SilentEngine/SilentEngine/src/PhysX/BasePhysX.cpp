@@ -35,6 +35,9 @@ void BasePhysX::InitPhysics()
 
 	gScene = gPhysics->createScene(sceneDesc); //scene 殿废
 
+	//Cooking 积己
+	gCooking = PxCreateCooking(PX_PHYSICS_VERSION, * gFoundation, PxCookingParams(PxTolerancesScale()));
+
 	 //牧飘费矾 积己
 	gControllerMgr = PxCreateControllerManager(*gScene);
 #ifdef _DEBUG
@@ -116,6 +119,7 @@ void BasePhysX::ReleasePhysics(bool interactive)
 	transport->release();
 
 	gFoundation->release();
+	gCooking->release();
 
 #ifdef _DEBUG
 	cout << "PhysX CleanUp Done" << endl;
@@ -127,4 +131,23 @@ void BasePhysX::Addapt(XMFLOAT3 & pos)
 	PxRigidActor* tactor;
 	gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);
 	pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);
+}
+
+PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
+{
+	PxTriangleMeshDesc meshDesc;
+	meshDesc.points.count = meshes->m_vertices.size();
+	meshDesc.points.stride = sizeof(PxVec3);
+	meshDesc.points.data = fromVertex(meshes->m_vertices.data(), meshes->m_vertices.size());
+	
+	meshDesc.triangles.count = meshes->m_indices.size();
+	meshDesc.triangles.stride = sizeof(int) * 3;
+	meshDesc.triangles.data = meshes->m_indices.data();
+
+	meshDesc.flags = PxMeshFlags(0);
+
+	PxDefaultMemoryOutputStream stream;
+	
+
+	return nullptr;
 }

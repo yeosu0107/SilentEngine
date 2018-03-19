@@ -8,7 +8,9 @@
 #include "..\Object\Mesh\Mesh.h"
 #include "..\Object\GameObjects.h"
 
+
 #pragma comment(lib, "lib/assimp.lib")
+
 
 inline XMMATRIX aiMatrixToXMMatrix(const aiMatrix4x4& offset)
 {
@@ -22,7 +24,7 @@ struct vertexDatas
 	XMFLOAT3	m_pos;
 	XMFLOAT3	m_normal;
 	XMFLOAT2	m_tex;
-	XMUINT4		m_bornIndex;
+	XMUINT4	m_bornIndex;
 	XMFLOAT3	m_weights;
 
 	vertexDatas() {}
@@ -103,6 +105,8 @@ public:
 	void InitBones(UINT index, const aiMesh* pMesh);
 
 	ModelMesh**	getMeshes() { return m_ModelMeshes.data(); }
+	mesh*			getMesh(UINT index) { return &m_meshes[index]; }
 	UINT				getNumMesh() const { return (UINT)m_meshes.size(); }
 	vector<pair<string, Bone>>* GetBones() { return &m_Bones; }
+	UINT				getNumVertices() const { return m_numVertices; }
 };

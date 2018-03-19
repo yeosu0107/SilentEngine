@@ -146,10 +146,11 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_nShaders = 2;
+	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
 	m_ppShaders[0] = new InstanceObjectShader();
-	m_ppShaders[1] = new DynamicModelShader(1);
+	m_ppShaders[1] = new ModelShader(2);
+	m_ppShaders[2] = new DynamicModelShader(1);
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);

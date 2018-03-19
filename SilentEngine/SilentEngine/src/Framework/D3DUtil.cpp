@@ -148,7 +148,7 @@ ComPtr<ID3D12Resource> D3DUtil::CreateTexture2DResource(ID3D12Device *pd3dDevice
 }
 
 
-ComPtr<ID3D12Resource> D3DUtil::CreateTextureResourceFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, wchar_t *pszFileName, ID3D12Resource* ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates)
+ComPtr<ID3D12Resource> D3DUtil::CreateTextureResourceFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, const wchar_t *pszFileName, ID3D12Resource* ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates)
 {
 	ComPtr<ID3D12Resource> pd3dTexture = NULL;
 	std::unique_ptr<uint8_t[]> ddsData;

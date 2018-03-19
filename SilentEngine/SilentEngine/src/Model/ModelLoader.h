@@ -18,7 +18,9 @@ public:
 	LoadModel* getModel(UINT index) { return m_Objects[index].first; }
 	UINT getAnimCount(UINT index) { return m_Objects[index].second->size(); }
 	LoadAnimation** getAnim(UINT index) { return m_Objects[index].second->data(); }
-	string getMat(UINT index) { return matList[index]; }
+	wstring getMat(UINT index) { 
+		return wstring(matList[index].begin(), matList[index].end());
+	}
 
 	UINT getNumModel() const { return m_numModels; }
 };

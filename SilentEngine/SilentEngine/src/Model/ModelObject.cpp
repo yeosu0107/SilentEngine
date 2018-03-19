@@ -46,6 +46,8 @@ void ModelObject::Animate(float fTime)
 		//m_Animtime += 0.03f;
 
 	}
+	BasePhysX tmp(60);
+	tmp.GetTriangleMesh(m_model->getMesh(0), 30);
 }
 
 void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -56,4 +58,20 @@ void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 void ModelObject::SetPosition(XMFLOAT3 pos)
 {
 	GameObject::SetPosition(pos.x, pos.y, pos.z);
+}
+
+void ModelObject::SetPhysX(PxPhysics * px, PxScene * pscene)
+{
+	PxCapsuleGeometry capusle(2.0f, 2.0f);
+	PxMaterial* mat = px->createMaterial(0.2f, 0.2f, 0.2f);
+	PxTransform pos(PxVec3(GameObject::GetPosition().x, GameObject::GetPosition().y, GameObject::GetPosition().z));
+	m_physBox = PxCreateDynamic(*px, pos, capusle, *mat, 1.0f);
+
+	pscene->addActor(*m_physBox);
+}
+
+
+void ModelObject::SetController(PxCapsuleController * control)
+{
+	m_Controller = control;
 }

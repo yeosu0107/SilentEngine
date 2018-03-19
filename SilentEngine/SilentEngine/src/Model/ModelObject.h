@@ -1,7 +1,7 @@
 #pragma once
 
 #include "..\Object\GameObjects.h"
-//#include "..\PhysX\BasePhysX.h"
+#include "..\PhysX\BasePhysX.h"
 #include "LoadModel.h"
 #include "Animation.h"
 
@@ -23,6 +23,9 @@ private:
 	UINT m_AnimIndex;				//현재 애니메이션
 	UINT m_NumofAnim;			//애니메이션 갯수
 
+	PxRigidDynamic*		m_physBox;	//물리상호작용
+	PxCapsuleController*	m_Controller;   //컨트롤러 TEST
+	PxControllerFilters		m_ControllerFilter;
 public:
 	ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~ModelObject();
@@ -41,4 +44,8 @@ public:
 	}
 
 	virtual void SetPosition(XMFLOAT3 pos);
+
+	//physX 세팅
+	void SetPhysX(PxPhysics* px, PxScene* pscene);
+	void SetController(PxCapsuleController* control);
 };

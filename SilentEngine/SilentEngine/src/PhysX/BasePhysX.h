@@ -1,9 +1,19 @@
 #pragma once
 
 #include "..\..\PhysX\PxPhysicsAPI.h"
+#include "..\Model\LoadModel.h"
 using namespace physx;
 
 #define PVD_HOST "127.0.0.1" //비주얼 디버거를 위한 아이피 (로컬아이피)
+
+inline PxVec3* fromVertex(vertexDatas* vertex, int size)
+{
+	PxVec3* mem = new PxVec3[size];
+	for (int i = 0; i < size; ++i) {
+		mem[i] = PxVec3(vertex[i].m_pos.x, vertex[i].m_pos.y, vertex[i].m_pos.z);
+	}
+	return mem;
+}
 
 class BasePhysX
 {
@@ -19,6 +29,8 @@ private:
 
 	PxPvd*							gPvd;					//비쥬얼 디버거
 
+	PxCooking*					gCooking;
+
 	PxControllerManager*		gControllerMgr;
 	PxCapsuleController*		gPlayer;
 public:
@@ -32,6 +44,8 @@ public:
 	void ReleasePhysics(bool interactive);
 
 	void Addapt(XMFLOAT3& pos);
+
+	PxTriangleMesh* GetTriangleMesh(mesh* meshes, UINT count);
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }
