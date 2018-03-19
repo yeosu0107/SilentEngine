@@ -43,8 +43,8 @@ protected:
 
 	virtual void CreateRtvAndDsvDescriptorHeaps();
 	virtual void OnResize();
-	virtual void Update(const Timer& gt);
-	virtual void Render(const Timer& gt);
+	virtual void Update();
+	virtual void Render();
 
 	virtual void OnKeyboardInput(const Timer& gt);
 	virtual void OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y);

@@ -59,7 +59,7 @@ int Framework::Run()
 {
 	MSG msg = { 0 };
 
-	m_Timer.Reset();
+	
 	while (msg.message != WM_QUIT) {
 		
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
@@ -71,8 +71,8 @@ int Framework::Run()
 			m_Timer.Tick();
 			if (!m_bAppPaused) {
 				CalculateFrameState();
-				Update(m_Timer);
-				Render(m_Timer);
+				Update();
+				Render();
 			}
 			else
 				Sleep(100);
@@ -102,11 +102,11 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_ACTIVATE:
 		if ( LOWORD(wParam) == WA_INACTIVE ) {
 			m_bAppPaused = true;
-			m_Timer.Stop();
+			//m_Timer.Stop();
 		}
 		else {
 			m_bAppPaused = false;
-			m_Timer.Start();
+			//m_Timer.Start();
 		}
 		return 0;
 
@@ -144,13 +144,13 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_ENTERSIZEMOVE:
 		m_bAppPaused	= true;
 		m_bResizing		= true;
-		m_Timer.Stop();
+		//m_Timer.Stop();
 		return 0;
 
 	case WM_EXITSIZEMOVE:
 		m_bAppPaused = false;
 		m_bResizing = false;
-		m_Timer.Start();
+		//m_Timer.Start();
 		OnResize();
 		return 0;
 
@@ -305,14 +305,18 @@ void Framework::OnResize()
 	m_ScissorRect = { 0, 0, m_nClientWidth, m_nClientHeight };
 }
 
-void Framework::Update(const Timer & gt)
+void Framework::Update()
 {
-	OnKeyboardInput(gt);
+	m_Timer.Update(60.0f);
 
-	m_pTestScene->Update(gt);
+	OnKeyboardInput(m_Timer);
+
+	m_pTestScene->Update(m_Timer);
+
+	m_Timer.Tock();
 }
 
-void Framework::Render(const Timer & gt)
+void Framework::Render()
 {
 
 	ThrowIfFailed(m_pDirectCmdListAlloc->Reset());
@@ -621,28 +625,8 @@ D3D12_CPU_DESCRIPTOR_HANDLE Framework::DepthStencilView() const
 
 void Framework::CalculateFrameState()
 {
-	static int nFrameCnt = 0;
-	static float fTimeElapsed = 0.0f;
-
-	nFrameCnt++;
-
-	if ( ( m_Timer.TotalTime() - fTimeElapsed ) >= 1.0f)
-	{
-		float fps = (float)nFrameCnt;
-		float mspf = 1000.0f / fps;
-
-		wstring sFpsStr = to_wstring(fps);
-		wstring sMspfStr = to_wstring(mspf);
-
-		wstring sWindowText = m_sMainWndCaption +
-			L"	fps : " + sFpsStr +
-			L"	mspf : " + sMspfStr;
-
-		SetWindowText(m_hMainWnd, sWindowText.c_str());
-
-		nFrameCnt = 0;
-		fTimeElapsed += 1.0f;
-	}
+	//cout << m_Timer.GetFrameTime() << endl;
+	//SetWindowText(m_hMainWnd, m_Timer.GetFrameTime().c_str());
 }
 
 void Framework::LogAdapters()
@@ -776,7 +760,7 @@ void Framework::OnKeyboardInput(const Timer& gt)
 			}
 
 			if (dwDirection)
-				m_pCamera->Move(dwDirection, 100.0f * gt.DeltaTime(), false);
+				m_pCamera->Move(dwDirection, 100.0f * gt.Tick(), false);
 			//if (dwDirection && m_pPlayer->GetLive()) {
 			//	//m_pPlayer->Move(dwDirection, 100.0f * m_GameTimer.GetTimeElapsed(), false);
 			//	//m_pPlayer->Move(dwDirection, 5.0f, false);

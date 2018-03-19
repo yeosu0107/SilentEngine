@@ -1,28 +1,36 @@
 #pragma once
 
+#include <queue>
+
+const int MAX_EVERAGE_FRAME = 60;
+
 class Timer
 {
+private:
+	double		m_dPreframeTime;
+	double		m_dCurframeTime;
+
+	int			m_iCurrentframeRate;
+	int			m_iCountframeRate;
+
+	float		m_fElapsedTime;
+	float		m_ffps;
+	float		m_fTotalframeRate;
+	float		m_fAverageframeTime;
+	float		m_fTimeScale;
+
+	std::queue<float>  m_pEverageFrame;
+
 public:
 	Timer();
+	Timer(float fps);
+	~Timer();
 
-	float	TotalTime() const;
-	float	DeltaTime() const;
+public:
+	void Update(float fps);
 
-	void	Reset();
-	void	Start();
-	void	Stop();
-	void	Tick();
+	std::string GetFrameTime();
 
-private:
-	double	m_dSecondsPerCount;
-	double	m_dDeltaTime;
-
-	INT64	m_nBaseTime;
-	INT64	m_nPausedTime;
-	INT64	m_nStopTime;
-	INT64	m_nPrevTime;
-	INT64	m_nCurrTime;
-
-	bool	m_bStopped;
+	float Tick() const { return m_fElapsedTime; }
+	void Tock() { m_dPreframeTime = m_dCurframeTime; }
 };
-

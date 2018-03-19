@@ -1,86 +1,70 @@
 #include "stdafx.h"
 #include "Timer.h"
-
+#include <Mmsystem.h>
 
 Timer::Timer() :
-	m_dSecondsPerCount(0.0), 
-	m_dDeltaTime(-1.0), 
-	m_nBaseTime(0),
-	m_nPausedTime(0), 
-	m_nPrevTime(0), 
-	m_nCurrTime(0), 
-	m_bStopped(false)
+	m_dPreframeTime(::timeGetTime()),
+	m_dCurframeTime(::timeGetTime()),
+	m_fElapsedTime(0.0f),
+	m_fAverageframeTime(0.0f),
+	m_iCurrentframeRate(0),
+	m_iCountframeRate(0),
+	m_fTotalframeRate(0.0f),
+	m_fTimeScale(0.001f),
+	m_ffps(60.0f)
 {
-	INT64 countsPerSec;
-	QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
-	m_dSecondsPerCount = 1.0 / (double)countsPerSec;
 }
 
-float Timer::TotalTime() const
+Timer::~Timer()
 {
-	if (m_bStopped)
-		return (float)(((m_nStopTime - m_nPausedTime) - m_nBaseTime) * m_dSecondsPerCount);
-
-	else
-		return (float)(((m_nCurrTime - m_nPausedTime) - m_nBaseTime) * m_dSecondsPerCount);
 }
 
-float Timer::DeltaTime() const
+Timer::Timer(float fps) :
+	m_dPreframeTime(::timeGetTime()),
+	m_dCurframeTime(::timeGetTime()),
+	m_fElapsedTime(0.0f),
+	m_fAverageframeTime(0.0f),
+	m_iCurrentframeRate(0),
+	m_iCountframeRate(0),
+	m_fTotalframeRate(0.0f),
+	m_fTimeScale(0.001f),
+	m_ffps(fps)
+{}
+
+void Timer::Update(float fps)
 {
-	return (float)m_dDeltaTime;
-}
+	m_ffps = fps;
+	m_dCurframeTime = ::timeGetTime();
 
-void Timer::Reset()
-{
-	INT64 currTime;
-	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
 
-	m_nBaseTime = currTime;
-	m_nPrevTime = currTime;
-	m_nStopTime = 0;
-	m_bStopped	= false;
-}
-
-void Timer::Start()
-{
-	INT64 startTime;
-	QueryPerformanceCounter((LARGE_INTEGER*)&startTime);
-
-	if (m_bStopped)
-	{
-		m_nPausedTime += (startTime - m_nStopTime);
-
-		m_nPrevTime = startTime;
-		m_nStopTime = 0;
-		m_bStopped  = false;
-	}
-}
-
-void Timer::Stop()
-{
-	if (!m_bStopped)
-	{
-		INT64 currTime;
-		QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-
-		m_nStopTime = currTime;
-		m_bStopped	= true;
-	}
-}
-
-void Timer::Tick()
-{
-	if (m_bStopped) {
-		m_dDeltaTime = 0.0f;
-		return;
+	while ((float)(m_dCurframeTime - m_dPreframeTime) * m_fTimeScale < 1.0f / m_ffps) {
+		m_dCurframeTime = ::timeGetTime();
 	}
 
-	INT64 currTime;
-	QueryPerformanceCounter((LARGE_INTEGER*)&currTime);
-	m_nCurrTime		= currTime;
-	m_dDeltaTime	= (m_nCurrTime - m_nPrevTime) * m_dSecondsPerCount;
-	m_nPrevTime		= m_nCurrTime;
+	m_fElapsedTime = (float)(m_dCurframeTime - m_dPreframeTime) * m_fTimeScale;
+	m_fTotalframeRate += m_fElapsedTime;
+	m_iCountframeRate++;
 
-	if (m_dDeltaTime < 0.0)
-		m_dDeltaTime = 0.0;
+	if (m_fTotalframeRate > 1.0f) {
+		m_iCurrentframeRate = m_iCountframeRate;
+		m_iCountframeRate = 0;
+		m_fTotalframeRate = 0.0f;
+	}
+
+	if (m_pEverageFrame.size() == MAX_EVERAGE_FRAME) {
+		m_fAverageframeTime -= m_pEverageFrame.front();
+		m_pEverageFrame.pop();
+	}
+
+	m_pEverageFrame.push(m_fElapsedTime);
+	m_fAverageframeTime += m_fElapsedTime;
+
+};
+
+std::string Timer::GetFrameTime()
+{
+	std::string sResult;
+
+	sResult = "SiN (" + std::to_string(m_iCurrentframeRate) + " fps)";
+	return sResult;
 }

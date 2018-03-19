@@ -140,7 +140,7 @@ void TestScene::BuildConstantBuffers(ID3D12Device * pDevice, ID3D12GraphicsComma
 void TestScene::Update(const Timer & gt)
 {
 	for (UINT i = 0; i < m_nShaders; ++i) {
-		m_ppShaders[i]->Animate(gt.DeltaTime());
+		m_ppShaders[i]->Animate(gt.Tick());
 	}
 }
 
