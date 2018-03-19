@@ -44,7 +44,7 @@ protected:
 	unordered_map<string, ComPtr<ID3D12PipelineState>>			m_PSOs;
 	vector<D3D12_INPUT_ELEMENT_DESC>							m_InputLayout;
 
-	unique_ptr<UploadBuffer<ObjectConstants>>					m_ObjectCB;
+	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>					m_ObjectCB;
 
 protected:
 	unique_ptr<Camera>											m_Camera = nullptr;

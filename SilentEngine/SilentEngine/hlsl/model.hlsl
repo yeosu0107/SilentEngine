@@ -46,12 +46,13 @@ VS_TEXTURED_OUTPUT VSDynamicModelTextured(VS_MODEL_INPUT input)
 	weights[2] = input.weight.z;
 	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
 
+
 	for (int i = 0; i < 4; ++i) {
 		posL += weights[i] * mul(float4(input.position, 1.0f),
 			gBoneTransforms[input.index[i]]).xyz;
 	}
 
-	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
 	output.uv = input.uv;
 
 	return(output);

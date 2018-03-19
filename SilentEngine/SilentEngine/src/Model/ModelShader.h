@@ -33,6 +33,9 @@ public:
 	~DynamicModelShader();
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT4X4 *pxmf4x4World);
+	virtual void CreateGraphicsRootSignature(ID3D12Device * pd3dDevice);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext);
+	virtual void Animate(float fTimeElapsed);
+
 };

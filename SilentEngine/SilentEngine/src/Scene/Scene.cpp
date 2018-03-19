@@ -119,9 +119,9 @@ void TestScene::BuildPSOs(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pC
 
 void TestScene::BuildConstantBuffers(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_ObjectCB = make_unique<UploadBuffer<ObjectConstants>>(pDevice, 1, true);
+	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pDevice, 1, true);
 
-	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
 	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_ObjectCB->Resource()->GetGPUVirtualAddress();
 	
@@ -130,7 +130,7 @@ void TestScene::BuildConstantBuffers(ID3D12Device * pDevice, ID3D12GraphicsComma
 
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
 	cbvDesc.BufferLocation = cbAddress;
-	cbvDesc.SizeInBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	cbvDesc.SizeInBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
 	pDevice->CreateConstantBufferView(
 		&cbvDesc,
@@ -139,6 +139,9 @@ void TestScene::BuildConstantBuffers(ID3D12Device * pDevice, ID3D12GraphicsComma
 
 void TestScene::Update(const Timer & gt)
 {
+	for (UINT i = 0; i < m_nShaders; ++i) {
+		m_ppShaders[i]->Animate(gt.DeltaTime());
+	}
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)

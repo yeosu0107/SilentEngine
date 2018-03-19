@@ -2,10 +2,7 @@
 
 #include "D3DUtil.h"
 
-struct ObjectConstants		// 오브젝트 상수 버퍼 
-{
-	XMFLOAT4X4 m_WorldViewProj = D3DMath::Identity4x4();
-};
+
 
 template<typename T>
 class UploadBuffer

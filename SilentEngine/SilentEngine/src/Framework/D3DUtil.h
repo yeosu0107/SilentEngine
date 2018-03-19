@@ -23,6 +23,8 @@
 #include "DDSTextureLoader12.h"
 #include "D3DMath.h"
 
+
+
 extern const int gNumFrameResources;
 
 

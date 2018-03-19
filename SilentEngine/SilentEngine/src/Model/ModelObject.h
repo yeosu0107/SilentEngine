@@ -7,7 +7,9 @@
 
 struct CB_DYNAMICOBJECT_INFO
 {
+	XMFLOAT4X4		m_xmf4x4World = D3DMath::Identity4x4();
 	XMFLOAT4X4		m_bone[96];
+	UINT					m_nMaterial = 0;
 };
 
 class ModelObject : public GameObject
