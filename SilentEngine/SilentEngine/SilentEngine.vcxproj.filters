@@ -76,6 +76,9 @@
     <Filter Include="Model\Shader">
       <UniqueIdentifier>{b1be8280-a9da-465c-83fb-d5a09a8f7123}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PhysX">
+      <UniqueIdentifier>{a472c4b4-7d9b-48e5-a647-1e7f5da9ef39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -154,6 +157,9 @@
     <ClCompile Include="InstanceObjectShader.cpp">
       <Filter>Shaders\Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\PhysX\BasePhysX.cpp">
+      <Filter>PhysX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -230,6 +236,9 @@
     </ClInclude>
     <ClInclude Include="InstanceObjectShader.h">
       <Filter>Shaders\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysX\BasePhysX.h">
+      <Filter>PhysX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
