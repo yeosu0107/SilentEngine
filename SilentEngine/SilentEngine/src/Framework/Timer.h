@@ -29,7 +29,7 @@ public:
 public:
 	void Update(float fps);
 
-	std::string GetFrameTime();
+	std::wstring GetFrameTime();
 
 	float Tick() const { return m_fElapsedTime; }
 	void Tock() { m_dPreframeTime = m_dCurframeTime; }

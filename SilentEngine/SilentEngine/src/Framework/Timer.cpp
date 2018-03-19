@@ -61,10 +61,13 @@ void Timer::Update(float fps)
 
 };
 
-std::string Timer::GetFrameTime()
+std::wstring Timer::GetFrameTime()
 {
 	std::string sResult;
 
 	sResult = "SiN (" + std::to_string(m_iCurrentframeRate) + " fps)";
-	return sResult;
+
+	std::wstring pszFrameRate = std::wstring(sResult.begin(), sResult.end());
+
+	return pszFrameRate;
 }

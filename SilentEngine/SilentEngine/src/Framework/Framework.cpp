@@ -626,7 +626,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE Framework::DepthStencilView() const
 void Framework::CalculateFrameState()
 {
 	//cout << m_Timer.GetFrameTime() << endl;
-	//SetWindowText(m_hMainWnd, m_Timer.GetFrameTime().c_str());
+	SetWindowText(m_hMainWnd, m_Timer.GetFrameTime().c_str());
 }
 
 void Framework::LogAdapters()
