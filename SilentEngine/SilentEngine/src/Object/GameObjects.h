@@ -199,6 +199,9 @@ public:
 
 	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
+
+	virtual XMFLOAT4X4* GetBoneData() { return nullptr; }
+	virtual int GetBoneNum() const { return 0; }
 };
 
 class CRotatingObject : public GameObject

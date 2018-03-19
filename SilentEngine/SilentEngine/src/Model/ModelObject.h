@@ -5,11 +5,9 @@
 #include "LoadModel.h"
 #include "Animation.h"
 
-struct CB_DYNAMINOBJECT_INFO
+struct CB_DYNAMICOBJECT_INFO
 {
-	XMFLOAT4X4		m_xmf4x4World;
 	XMFLOAT4X4		m_bone[96];
-	UINT					m_nMaterial;
 };
 
 class ModelObject : public GameObject

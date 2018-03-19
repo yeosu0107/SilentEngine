@@ -66,8 +66,8 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
-	//virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, CCamera *pCamera);
-
+	
+	virtual void Animate(float fTimeElapsed) {}
 protected:
 	ComPtr<ID3D12RootSignature>						m_RootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CBVHeap = nullptr;

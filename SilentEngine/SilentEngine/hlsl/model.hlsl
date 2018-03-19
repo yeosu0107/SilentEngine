@@ -34,6 +34,29 @@ VS_TEXTURED_OUTPUT VSModelTextured(VS_MODEL_INPUT input)
 	return(output);
 };
 
+
+VS_TEXTURED_OUTPUT VSDynamicModelTextured(VS_MODEL_INPUT input)
+{
+	VS_TEXTURED_OUTPUT output;
+
+	float3 posL = float3(0.0f, 0.0f, 0.0f);
+	float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	weights[0] = input.weight.x;
+	weights[1] = input.weight.y;
+	weights[2] = input.weight.z;
+	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
+	for (int i = 0; i < 4; ++i) {
+		posL += weights[i] * mul(float4(input.position, 1.0f),
+			gBoneTransforms[input.index[i]]).xyz;
+	}
+
+	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+};
+
 // nPrimitiveID : 삼각형의 정보 
 float4 PSTextured(VS_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {

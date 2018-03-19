@@ -21,3 +21,8 @@ cbuffer cbObjectInfo : register(b2)
 	matrix		gmtxGameObject : packoffset(c0);
 	uint		gnMaterial : packoffset(c4);
 }
+
+cbuffer cbAnimateInfo : register(b3)
+{
+	matrix		gBoneTransforms[96];
+}
