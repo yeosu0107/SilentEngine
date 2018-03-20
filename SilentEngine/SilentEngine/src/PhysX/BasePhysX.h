@@ -15,6 +15,14 @@ inline PxVec3* fromVertex(vertexDatas* vertex, int size)
 	return mem;
 }
 
+inline PxVec3 XMtoPX(const XMFLOAT3& pos) {
+	return PxVec3(pos.x, pos.y, pos.z);
+}
+
+inline XMFLOAT3 PXtoXM(const PxExtendedVec3& pos) {
+	return XMFLOAT3(pos.x, pos.y, pos.z);
+}
+
 enum PhysMesh {
 	Mesh_Box=0, Mesh_Capsule=1, Mesh_Tri=2
 };

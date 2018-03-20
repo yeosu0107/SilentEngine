@@ -79,6 +79,9 @@
     <Filter Include="PhysX">
       <UniqueIdentifier>{a472c4b4-7d9b-48e5-a647-1e7f5da9ef39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Player">
+      <UniqueIdentifier>{093a8fc2-0679-440e-9045-ec504a434520}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">

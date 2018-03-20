@@ -14,7 +14,7 @@ struct CB_DYNAMICOBJECT_INFO
 
 class ModelObject : public GameObject
 {
-private:
+protected:
 	LoadModel * m_model;		//모델 정보 (vertex, UV and ....)
 	LoadAnimation** m_ani;		//애니메이션 정보 (multi animation)
 
@@ -43,9 +43,7 @@ public:
 		return m_Bones.size();
 	}
 
-	//virtual void SetPosition(XMFLOAT3 pos);
-
 	//physX 세팅
-	void SetPhysX(BasePhysX* phys, PhysMesh type);
-	void SetController(PxCapsuleController* control);
+	void SetPhysMesh(BasePhysX* phys, PhysMesh type);
+	void SetPhysController(PxCapsuleController* control);
 };
