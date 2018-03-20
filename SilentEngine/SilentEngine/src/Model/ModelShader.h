@@ -6,7 +6,8 @@
 class ModelShader : public ObjectShader
 {
 protected:
-	UINT modelIndex;
+	UINT				modelIndex;
+	BasePhysX*	globalPhysX;
 
 public:
 	ModelShader();
@@ -22,6 +23,9 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	virtual void Animate(float fTimeElapsed);
 
+	void setPhysics(BasePhysX* global) {
+		globalPhysX = global;
+	}
 };
 
 class DynamicModelShader : public ModelShader

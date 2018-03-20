@@ -7,7 +7,7 @@
 
 struct CB_DYNAMICOBJECT_INFO
 {
-	XMFLOAT4X4		m_xmf4x4World = D3DMath::Identity4x4();
+	XMFLOAT4X4		m_xmf4x4World;
 	XMFLOAT4X4		m_bone[96];
 	UINT					m_nMaterial = 0;
 };
@@ -43,9 +43,9 @@ public:
 		return m_Bones.size();
 	}
 
-	virtual void SetPosition(XMFLOAT3 pos);
+	//virtual void SetPosition(XMFLOAT3 pos);
 
 	//physX ¼¼ÆÃ
-	void SetPhysX(PxPhysics* px, PxScene* pscene);
+	void SetPhysX(BasePhysX* phys, PhysMesh type);
 	void SetController(PxCapsuleController* control);
 };

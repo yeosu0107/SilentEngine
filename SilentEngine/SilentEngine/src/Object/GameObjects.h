@@ -202,6 +202,8 @@ public:
 
 	virtual XMFLOAT4X4* GetBoneData() { return nullptr; }
 	virtual int GetBoneNum() const { return 0; }
+
+	void SetScale(float value);
 };
 
 class CRotatingObject : public GameObject

@@ -19,6 +19,8 @@ ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12Graph
 	for (auto& p : m_Bones) {
 		XMStoreFloat4x4(&p, XMMatrixIdentity());
 	}
+
+	m_Controller = nullptr;
 }
 ModelObject::~ModelObject()
 {
@@ -44,7 +46,17 @@ void ModelObject::Animate(float fTime)
 		m_AnimIndex = 0;
 		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, m_Bones);
 		//m_Animtime += 0.03f;
+		
+	}
+	if (m_Controller) {
+		m_Controller->move(PxVec3(0, 1, 0)*-0.1f, 0.001f, 1, m_ControllerFilter);
+		XMFLOAT3 tt = XMFLOAT3(m_Controller->getPosition().x, m_Controller->getPosition().y, m_Controller->getPosition().z);
+		SetPosition(tt);
 
+	//	cout << tt.x << "\t" << tt.y << "\t" << tt.z << endl;
+		//SetPosition(tt);
+		//XMFLOAT3 k = GetPosition();
+		//SetPosition(k.x, k.y - 1.0f, k.z);
 	}
 	//BasePhysX tmp(60);
 	//tmp.GetTriangleMesh(m_model->getMesh(0), 30);
@@ -55,19 +67,31 @@ void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 	GameObject::Render(pd3dCommandList, pCamera);
 }
 
-void ModelObject::SetPosition(XMFLOAT3 pos)
-{
-	GameObject::SetPosition(pos.x, pos.y, pos.z);
-}
+//void ModelObject::SetPosition(XMFLOAT3 pos)
+//{
+//	GameObject::SetPosition(pos.x, pos.y, pos.z);
+//}
 
-void ModelObject::SetPhysX(PxPhysics * px, PxScene * pscene)
+void ModelObject::SetPhysX(BasePhysX* phys, PhysMesh type)
 {
-	PxCapsuleGeometry capusle(2.0f, 2.0f);
-	PxMaterial* mat = px->createMaterial(0.2f, 0.2f, 0.2f);
-	PxTransform pos(PxVec3(GameObject::GetPosition().x, GameObject::GetPosition().y, GameObject::GetPosition().z));
-	m_physBox = PxCreateDynamic(*px, pos, capusle, *mat, 1.0f);
+	if (type == PhysMesh::Mesh_Tri) {
+		PxTriangleMesh* triMesh = phys->GetTriangleMesh(m_model->getMesh(0), m_model->getNumVertices());
+		PxVec3 scaleTmp = PxVec3(0.1f, 0.1f, 0.1f);
 
-	pscene->addActor(*m_physBox);
+		PxMeshScale PxScale;
+		PxScale.scale = scaleTmp;
+
+		PxTriangleMeshGeometry meshGeo(triMesh, PxScale);
+		PxTransform location(0, 0, 0);
+
+		PxMaterial* mat = phys->getPhys()->createMaterial(0.2f, 0.2f, 0.2f);
+
+		PxRigidActor* actor = PxCreateStatic(*phys->getPhys(), location, meshGeo, *mat);
+
+		actor->setName("tmpmap");
+
+		phys->getScene()->addActor(*actor);
+	}
 }
 
 

@@ -15,6 +15,10 @@ inline PxVec3* fromVertex(vertexDatas* vertex, int size)
 	return mem;
 }
 
+enum PhysMesh {
+	Mesh_Box=0, Mesh_Capsule=1, Mesh_Tri=2
+};
+
 class BasePhysX
 {
 private:
@@ -46,6 +50,7 @@ public:
 	void Addapt(XMFLOAT3& pos);
 
 	PxTriangleMesh* GetTriangleMesh(mesh* meshes, UINT count);
+	PxCapsuleController* getCapsuleController();
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }

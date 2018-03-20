@@ -345,6 +345,13 @@ void GameObject::Rotate(XMFLOAT3 *pxmf3Axis, float fAngle)
 	m_xmf4x4World = Matrix4x4::Multiply(mtxRotate, m_xmf4x4World);
 }
 
+void GameObject::SetScale(float value)
+{
+	m_xmf4x4World._11 *= value;
+	m_xmf4x4World._22 *= value;
+	m_xmf4x4World._33 *= value;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 CRotatingObject::CRotatingObject(int nMeshes)

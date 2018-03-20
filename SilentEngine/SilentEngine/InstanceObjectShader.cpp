@@ -196,12 +196,16 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 	}
 }
 
+float num = 0.0f;
+
 void InstanceObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
 	Shaders::Render(pd3dCommandList, pCamera);
 
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
-
+	XMFLOAT3 ttt = m_ppObjects[0]->GetPosition();
+	ttt.y -= 0.1f;
+	m_ppObjects[0]->SetPosition(ttt);
 	if (m_ppObjects[0])
 		m_ppObjects[0]->Render(pd3dCommandList, pCamera);
 }

@@ -3,7 +3,7 @@
 #include "InstanceObjectShader.h"
 #include "..\Model\ModelShader.h"
 
-Scene::Scene()
+Scene::Scene() : m_physics(nullptr)
 {
 }
 
@@ -22,6 +22,16 @@ void Scene::BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pComman
 void Scene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	
+}
+
+TestScene::TestScene()
+{
+	m_physics = new BasePhysX(60.0f);
+}
+
+TestScene::~TestScene()
+{
+	delete m_physics;
 }
 
 void TestScene::BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -139,6 +149,7 @@ void TestScene::BuildConstantBuffers(ID3D12Device * pDevice, ID3D12GraphicsComma
 
 void TestScene::Update(const Timer & gt)
 {
+	m_physics->stepPhysics(false);
 	for (UINT i = 0; i < m_nShaders; ++i) {
 		m_ppShaders[i]->Animate(gt.Tick());
 	}
@@ -149,22 +160,17 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
 	m_ppShaders[0] = new InstanceObjectShader();
-	m_ppShaders[1] = new ModelShader(2);
-	m_ppShaders[2] = new DynamicModelShader(1);
+
+	ModelShader* tmp= new ModelShader(2);
+	tmp->setPhysics(m_physics);
+	m_ppShaders[1] = tmp;
+
+	DynamicModelShader* tmp2 = new DynamicModelShader(1);
+	tmp2->setPhysics(m_physics);
+	m_ppShaders[2] = tmp2;
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
-
-	//for (int i = 0; i < 1; ++i)
-	//	(m_pShaders.get())->BuildObjects(pDevice, pCommandList);
-	//m_pShaders->BuildObjects(pDevice, pCommandList);
-
-	//BuildDescriptorHeaps(pDevice, pCommandList);
-	//BuildConstantBuffers(pDevice, pCommandList);
-	//BuildRootSignature(pDevice, pCommandList);
-	//BuildShadersAndInputLayout(pDevice, pCommandList);
-	//BuildSceneGeometry(pDevice, pCommandList);
-	//BuildPSOs(pDevice, pCommandList);
 
 	m_Camera = make_unique<Camera>();
 	m_Camera->InitCamera(pDevice, pCommandList);

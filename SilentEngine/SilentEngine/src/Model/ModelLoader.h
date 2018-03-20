@@ -21,6 +21,11 @@ public:
 	wstring getMat(UINT index) { 
 		return wstring(matList[index].begin(), matList[index].end());
 	}
+	bool isMat(UINT index) {
+		if (matList[index] != "null")
+			return true;
+		return false;
+	}
 
 	UINT getNumModel() const { return m_numModels; }
 };

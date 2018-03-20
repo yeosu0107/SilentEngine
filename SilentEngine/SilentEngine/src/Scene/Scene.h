@@ -5,6 +5,7 @@
 //#include "FrameResouce.h"
 #include "Camera.h"
 #include "Timer.h"
+#include "..\PhysX\BasePhysX.h"
 
 
 // Scene 
@@ -48,13 +49,15 @@ protected:
 
 protected:
 	unique_ptr<Camera>											m_Camera = nullptr;
+
+	BasePhysX*		m_physics;
 };
 
 class TestScene : public Scene
 {
 public:
-	TestScene() {};
-	~TestScene() {};
+	TestScene();
+	~TestScene();
 
 public:
 	virtual void BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);

@@ -87,24 +87,30 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
-	
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO)));
 	CreateGraphicsRootSignature(pd3dDevice);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, false);
+	
 	BuildPSO(pd3dDevice);
 
-	m_pMaterial = new CMaterial();
-	m_pMaterial->SetTexture(pTexture);
-	m_pMaterial->SetReflection(1);
+	if (globalModels->isMat(modelIndex)) {
+		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, false);
 
-	m_ppObjects[0] = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
-	m_ppObjects[0]->SetPosition(0, 0, 0);
-	m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
+		m_pMaterial = new CMaterial();
+		m_pMaterial->SetTexture(pTexture);
+		m_pMaterial->SetReflection(1);
+	}
+	
 
+	ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
+	object->SetPosition(XMFLOAT3(0, 0, 0));
+	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
+	object->SetScale(0.1f);
+	object->SetPhysX(globalPhysX, PhysMesh::Mesh_Tri);
+	m_ppObjects[0]=object;
 }
 
 void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -221,7 +227,8 @@ void DynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dC
 {
 	CB_DYNAMICOBJECT_INFO cBone;
 	for (int i = 0; i < m_nObjects; ++i) {
-		cBone.m_xmf4x4World = m_ppObjects[i]->m_xmf4x4World;
+		//cBone.m_xmf4x4World = m_ppObjects[i]->m_xmf4x4World;
+		XMStoreFloat4x4(&cBone.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBone.m_nMaterial = 0;
 
 		memcpy(cBone.m_bone, m_ppObjects[i]->GetBoneData(), sizeof(XMFLOAT4X4) * m_ppObjects[i]->GetBoneNum());
@@ -238,30 +245,34 @@ void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	//string matName = globalModels->getMat(modelIndex);
-	//wstring convert(matName.begin(), matName.end());
-
-	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
-
+	
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, false);
+	
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice);
 
-	m_pMaterial = new CMaterial();
-	m_pMaterial->SetTexture(pTexture);
-	m_pMaterial->SetReflection(1);
+	if (globalModels->isMat(modelIndex)) {
+		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, false);
+
+		m_pMaterial = new CMaterial();
+		m_pMaterial->SetTexture(pTexture);
+		m_pMaterial->SetReflection(1);
+	}
+	
 
 	ModelObject* tmp = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	tmp->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
 	tmp->SetPosition(XMFLOAT3(0, 0, 0));
+	tmp->SetController(globalPhysX->getCapsuleController());
+	tmp->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
 	m_ppObjects[0] = tmp;
 	////m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
 	//m_ppObjects[0]->SetPosition(0, 0, 0);
-	m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
+	
 }
 
 

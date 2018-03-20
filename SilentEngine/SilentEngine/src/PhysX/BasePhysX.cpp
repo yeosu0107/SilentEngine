@@ -17,8 +17,17 @@ void BasePhysX::InitPhysics()
 	//foundation 생성
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 
+	//비주얼디버거 세팅
+	PxPvdTransport* tmp = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
+	//PxPvdTransport* tmp = PxDefaultPvdFileTransportCreate("C:\\Users\\yeosu\\OneDrive\\Documents\\Project\\ModelViewer\\SilentEngine\\sample.pxd2");
+
+	PxPvdInstrumentationFlags flag = PxPvdInstrumentationFlag::eALL;
+
+	gPvd = PxCreatePvd(*gFoundation);
+	gPvd->connect(*tmp, flag);
+
 	//PhysXSDK 인스턴스 생성
-	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale());
+	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 
 #ifdef _DEBUG
 	if (!gPhysics) {
@@ -46,45 +55,36 @@ void BasePhysX::InitPhysics()
 #endif
 
 	//캡슐 컨트롤러 부분. 추후 각 플레이어 오브젝트로 이식해야 할 듯
-	PxCapsuleControllerDesc capsuleDesc;
-	capsuleDesc.height = 1; //Height of capsule
-	capsuleDesc.radius = 2; //Radius of casule
-	capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
-	capsuleDesc.material = gPhysics->createMaterial(0.2f, 0.2f, 0.2f); //Material for capsule shape
-	capsuleDesc.density = 1.0f; //Desity of capsule shape
-	capsuleDesc.contactOffset = 0.05f;
-	capsuleDesc.slopeLimit = 0.2f;
-	capsuleDesc.stepOffset = 0.75f;
+	//PxCapsuleControllerDesc capsuleDesc;
+	//capsuleDesc.height = 1; //Height of capsule
+	//capsuleDesc.radius = 2; //Radius of casule
+	//capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
+	//capsuleDesc.material = gPhysics->createMaterial(0.2f, 0.2f, 0.2f); //Material for capsule shape
+	//capsuleDesc.density = 1.0f; //Desity of capsule shape
+	//capsuleDesc.contactOffset = 0.05f;
+	//capsuleDesc.slopeLimit = 0.2f;
+	//capsuleDesc.stepOffset = 0.75f;
 
-	gPlayer = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
+	//gPlayer = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
 
 	//physx 매터리얼 생성
 	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
 
 	//상호작용을 위한 물리객체 생성
 	//TEST 용도
-	PxTransform planePos = PxTransform(PxVec3(0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
-	PxRigidActor* plane = gPhysics->createRigidStatic(planePos);
-	plane->createShape(PxPlaneGeometry(), *mat);
-	gScene->addActor(*plane); // 엑터에 플레인 등록
+	//PxTransform planePos = PxTransform(PxVec3(0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
+	//PxRigidActor* plane = gPhysics->createRigidStatic(planePos);
+	//plane->createShape(PxPlaneGeometry(), *mat);
+	//gScene->addActor(*plane); // 엑터에 플레인 등록
 
 
-	//비주얼디버거 세팅
-	PxPvdTransport* tmp = PxDefaultPvdSocketTransportCreate(PVD_HOST, 5425, 10);
-	//PxPvdTransport* tmp = PxDefaultPvdFileTransportCreate("C:\\Users\\yeosu\\OneDrive\\Documents\\Project\\ModelViewer\\SilentEngine\\sample.pxd2");
-
-	PxPvdInstrumentationFlags flag = PxPvdInstrumentationFlag::eALL;
-
-	gPvd = PxCreatePvd(*gFoundation);
-	gPvd->connect(*tmp, flag);
-
-	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
-	if (pvdClient)
-	{
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-	}
+	//PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
+	//if (pvdClient)
+	//{
+	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	//}
 }
 
 void BasePhysX::BuildPhysics()
@@ -101,10 +101,10 @@ void BasePhysX::stepPhysics(bool interactive)
 		gScene->fetchResults(true); //적용
 
 		//cout << gPlayer->getPosition().x << "\t" << gPlayer->getPosition().y << "\t" << gPlayer->getPosition().z << endl;
-		XMFLOAT3 pos;
+		/*XMFLOAT3 pos;
 		PxRigidActor* tactor;
 		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);
-		pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);
+		pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);*/
 		//cout << pos.x << "\t" << pos.y << "\t" << pos.z << endl;
 	}
 }
@@ -145,9 +145,44 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 	meshDesc.triangles.data = meshes->m_indices.data();
 
 	meshDesc.flags = PxMeshFlags(0);
-
-	PxDefaultMemoryOutputStream stream;
 	
+	PxCookingParams params = gCooking->getParams();
+	params.midphaseDesc = PxMeshMidPhase::eBVH33;
+	params.suppressTriangleMeshRemapTable = true;
+	params.meshPreprocessParams &= ~static_cast<PxMeshPreprocessingFlags>(PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH);
+	params.meshPreprocessParams |= PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+	params.midphaseDesc.mBVH33Desc.meshCookingHint = PxMeshCookingHint::eCOOKING_PERFORMANCE;
+	params.midphaseDesc.mBVH33Desc.meshSizePerformanceTradeOff = 0.0f;
+	gCooking->setParams(params);
 
-	return nullptr;
+	PxTriangleMesh* triMesh = nullptr;
+	//triMesh = gCooking->createTriangleMesh(meshDesc, gPhysics->getPhysicsInsertionCallback());
+	
+	//PxU32 meshSize = 0;
+	
+	PxDefaultMemoryOutputStream outBuffer;
+	gCooking->cookTriangleMesh(meshDesc, outBuffer);
+
+	PxDefaultMemoryInputData stream(outBuffer.getData(), outBuffer.getSize());
+	triMesh = gPhysics->createTriangleMesh(stream);
+	//meshSize = outBuffer.getSize();
+
+	return triMesh;
+}
+
+PxCapsuleController* BasePhysX::getCapsuleController()
+{
+	PxCapsuleControllerDesc capsuleDesc;
+	capsuleDesc.height = 2; //Height of capsule
+	capsuleDesc.radius = 2; //Radius of casule
+	capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
+	capsuleDesc.material = gPhysics->createMaterial(0.2f, 0.2f, 0.2f); //Material for capsule shape
+	capsuleDesc.density = 1.0f; //Desity of capsule shape
+	capsuleDesc.contactOffset = 0.05f;
+	capsuleDesc.slopeLimit = 0.2f;
+	capsuleDesc.stepOffset = 0.75f;
+
+	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
+
+	return controller;
 }
