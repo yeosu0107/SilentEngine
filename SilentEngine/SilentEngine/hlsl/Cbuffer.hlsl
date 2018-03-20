@@ -3,6 +3,12 @@
 //
 // Transforms and colors geometry.
 //***************************************************************************************
+#define MAX_LIGHTS			4 
+#define MAX_MATERIALS		10 
+
+#define POINT_LIGHT			1
+#define SPOT_LIGHT			2
+#define DIRECTIONAL_LIGHT	3
 
 cbuffer cbPerObject : register(b0)
 {
@@ -28,3 +34,46 @@ cbuffer cbAnimateInfo : register(b3)
 	matrix		gBoneTransforms[96];
 	uint			gnMat;
 }
+
+///////////////////////////////////////////
+
+struct MATERIAL
+{
+	float4				m_cAmbient;
+	float4				m_cDiffuse;
+	float4				m_cSpecular; //a = power
+	float4				m_cEmissive;
+};
+
+struct MATERIALDATA
+{
+
+};
+
+struct LIGHT
+{
+	float4				m_cAmbient;
+	float4				m_cDiffuse;
+	float4				m_cSpecular;
+	float3				m_vPosition;
+	float 				m_fFalloff;
+	float3				m_vDirection;
+	float 				m_fTheta; //cos(m_fTheta)
+	float3				m_vAttenuation;
+	float				m_fPhi; //cos(m_fPhi)
+	bool				m_bEnable;
+	int 				m_nType;
+	float				m_fRange;
+	float				padding;
+};
+
+cbuffer cbMaterial : register(b4)
+{
+	MATERIAL			gMaterials[MAX_MATERIALS];
+};
+
+cbuffer cbLights : register(b5)
+{
+	LIGHT				gLights[MAX_LIGHTS];
+	float4				gcGlobalAmbientLight;
+};

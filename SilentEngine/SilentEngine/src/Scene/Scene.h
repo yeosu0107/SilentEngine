@@ -8,6 +8,50 @@
 #include "..\PhysX\BasePhysX.h"
 
 
+#define MAX_LIGHTS	  8
+#define MAX_MATERIALS 8
+
+#define POINT_LIGHT				1
+#define SPOT_LIGHT				2
+#define DIRECTIONAL_LIGHT		3
+
+
+struct LIGHT
+{
+	XMFLOAT4				m_xmf4Ambient;
+	XMFLOAT4				m_xmf4Diffuse;
+	XMFLOAT4				m_xmf4Specular;
+	XMFLOAT3				m_xmf3Position;	// 광원의 위치 
+	float 					m_fFalloff;		// Direction 조명에서 원의 바깥쪽으로 일어나는 감쇠 효과
+	XMFLOAT3				m_xmf3Direction;
+	float 					m_fTheta; //cos(m_fTheta)
+	XMFLOAT3				m_xmf3Attenuation;
+	float					m_fPhi; //cos(m_fPhi)
+	bool					m_bEnable;		// 조명 온오프
+	int						m_nType;		// 조명 종류
+	float					m_fRange;		// 조명 길이
+	float					padding;
+};
+
+struct LIGHTS
+{
+	LIGHT					m_pLights[MAX_LIGHTS];
+	XMFLOAT4				m_xmf4GlobalAmbient;
+};
+
+struct MATERIAL
+{
+	XMFLOAT4				m_xmf4Ambient;	// 앰비언트 반사 색상 
+	XMFLOAT4				m_xmf4Diffuse;
+	XMFLOAT4				m_xmf4Specular; //(r,g,b,a=power)
+	XMFLOAT4				m_xmf4Emissive;
+};
+
+struct MATERIALS
+{
+	MATERIAL				m_pReflections[MAX_MATERIALS];
+};
+
 // Scene 
 class Scene
 {
@@ -66,12 +110,15 @@ public:
 	virtual void BuildShadersAndInputLayout(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildSceneGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildPSOs(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	virtual void BuildConstantBuffers(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	virtual void UpdateShaderVarialbes();
 	virtual void Update(const Timer& gt);
 	//virtual void BuildFrameResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	//virtual void BuildMaterials(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	
+	void BuildLightsAndMaterials();
 
 	virtual bool OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer);
 	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
@@ -83,7 +130,12 @@ protected:
 	Shaders** m_ppShaders = nullptr;
 	
 	UINT m_nShaders = 0;
-	POINT m_LastMousePos;
+	
+	LIGHTS*									m_pLights;
+	unique_ptr<UploadBuffer<LIGHTS>>		m_pd3dcbLights = nullptr;
+
+	MATERIALS*								m_pMaterials;
+	unique_ptr<UploadBuffer<MATERIALS>>		m_pd3dcbMaterials = nullptr;
 };
 
 class GameScene : public Scene

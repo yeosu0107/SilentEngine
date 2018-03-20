@@ -45,7 +45,7 @@ public:
 	void Release() {};
 
 	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1) ;
-
+	virtual void BuildPSO(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRootSignature, UINT nRenderTargets = 1);
 	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
 	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
@@ -107,4 +107,21 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
 	virtual void ReleaseObjects() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+};
+
+class IlluminatedObjectShader : public ObjectShader
+{
+public:
+	IlluminatedObjectShader();
+	~IlluminatedObjectShader();
+
+public:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
+	virtual void AnimateObjects(float fTimeElapsed) {};
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
 };

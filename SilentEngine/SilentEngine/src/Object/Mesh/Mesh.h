@@ -87,7 +87,7 @@ public:
 
 class CIlluminatedVertex : public CVertex
 {
-protected:
+public:
 	XMFLOAT3						m_xmf3Normal;
 
 public:
@@ -99,7 +99,7 @@ public:
 
 class CIlluminatedTexturedVertex : public CIlluminatedVertex
 {
-protected:
+public:
 	XMFLOAT2						m_xmf2TexCoord;
 
 public:
@@ -187,6 +187,7 @@ public:
 	void CalculateTriangleListVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, int nVertices);
 	void CalculateTriangleListVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, UINT nVertices, UINT *pnIndices, UINT nIndices);
 	void CalculateTriangleStripVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, UINT nVertices, UINT *pnIndices, UINT nIndices);
+
 	void CalculateVertexNormals(XMFLOAT3 *pxmf3Normals, XMFLOAT3 *pxmf3Positions, int nVertices, UINT *pnIndices, int nIndices);
 };
 
@@ -201,14 +202,14 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CCubeMeshIlluminatedTextured : public MeshGeometryIlluminatedTextured
+class MeshGeometryIlluminatedTexturedCube : public MeshGeometryIlluminatedTextured
 {
 public:
-	CCubeMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
-	virtual ~CCubeMeshIlluminatedTextured();
+	MeshGeometryIlluminatedTexturedCube(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	virtual ~MeshGeometryIlluminatedTexturedCube();
 };
 
-class CBoardMeshIlluminatedTextured : public MeshGeometryIlluminatedTextured
+class CBoardMeshIlluminatedTextured : public MeshGeometryIlluminatedTexturedCube
 {
 public:
 	CBoardMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth
@@ -218,9 +219,3 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-class CUIMeshTextured : public MeshGeometryDiffused
-{
-public:
-	CUIMeshTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, XMFLOAT3& xmf3StartPos, XMFLOAT3& xmf3EndPos, float fTexutreNum, float fsize);
-	virtual ~CUIMeshTextured();
-};

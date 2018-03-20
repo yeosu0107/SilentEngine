@@ -44,6 +44,13 @@ void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
 	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPSO.GetAddressOf())));
 }
 
+void Shaders::BuildPSO(ID3D12Device * pd3dDevice, ID3D12RootSignature * pd3dRootSignature, UINT nRenderTargets)
+{
+	m_RootSignature = pd3dRootSignature;
+	
+	BuildPSO(pd3dDevice, nRenderTargets);
+}
+
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc;
@@ -452,3 +459,100 @@ void ObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * 
 }
 
 //////////////////////////////////////////////////////////////
+
+IlluminatedObjectShader::IlluminatedObjectShader() : ObjectShader()
+{
+}
+
+IlluminatedObjectShader::~IlluminatedObjectShader()
+{
+}
+
+D3D12_INPUT_LAYOUT_DESC IlluminatedObjectShader::CreateInputLayout()
+{
+	//vector<D3D12_INPUT_ELEMENT_DESC> inputElementDesc;
+	D3D12_INPUT_LAYOUT_DESC inputLayout;
+
+	m_pInputElementDesc =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};
+
+	inputLayout = { m_pInputElementDesc.data(), (UINT)m_pInputElementDesc.size() };
+
+	return inputLayout;
+}
+
+void IlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+{
+	m_nObjects = 1;
+
+	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSTexturedLighting", "vs_5_0");
+	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "PSTexturedLighting", "ps_5_0");
+
+	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);
+
+	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, false);
+	
+	MeshGeometryIlluminatedTexturedCube *pCubeMesh = new MeshGeometryIlluminatedTexturedCube(pd3dDevice, pd3dCommandList, 12.0f, 12.0f, 12.0f);
+
+	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
+		m_ppObjects[0] = new GameObject();
+		m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
+		m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+	}
+}
+
+void IlluminatedObjectShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, m_nObjects, true);
+}
+
+void IlluminatedObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CB_GAMEOBJECT_INFO cBuffer;
+
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
+		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
+		cBuffer.m_nMaterial = 0;
+		m_ObjectCB->CopyData(i, cBuffer);
+	}
+}
+
+
+void IlluminatedObjectShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	if (m_pPSO)
+		pd3dCommandList->SetPipelineState(m_pPSO.Get());
+
+	pd3dCommandList->SetDescriptorHeaps(1, m_CbvSrvDescriptorHeap.GetAddressOf());
+
+	UpdateShaderVariables(pd3dCommandList);
+}
+
+void IlluminatedObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	Shaders::Render(pd3dCommandList, pCamera);
+
+	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
+
+	for (int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}
+}
+
