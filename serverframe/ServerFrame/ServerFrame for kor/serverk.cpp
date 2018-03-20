@@ -1,62 +1,39 @@
 #include "stdafx.h"
 
+
+
 Player guest;
 Player* p_guest;
 
-Player Guest[4];
-
 char SendBuf[BUFSIZE];
+
+int id_count = 1;
+vector <Player*> pLayer;
+
+//
+WSADATA wsa;
+HANDLE hThread, aCceptThread;
+HANDLE hcp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 
 int main(int argc, char *argv[])
 {
+	Player* p;
 	for (int i = 0; i < 4; ++i) {
-		Guest[i].p_id = i + 1;
-		Guest[i].p_x = 10;
-		Guest[i].p_y = 0;
-		Guest[i].p_z = 10;
-		Guest[i].p_hp = 100;
-		Guest[i].end = 'P';
+		p->p_id = i + 1;
+		p->p_x = 10;
+		p->p_y = 0;
+		p->p_z = 10;
+		p->p_hp = 100;
+		p->end = 'P';
+
+		pLayer.push_back(p);
 	}
 
-	p_guest = &guest;
-
-	printf("char : %d, int : %d, float : %d\n", sizeof(char), sizeof(int), sizeof(float));
-
+	Init_Network(wsa,hcp);
 	
+	Create_Thread(hcp, hThread, aCceptThread);
 
-	WSADATA wsa;
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-		return 1;
-	}
-
-	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listen_sock == INVALID_SOCKET) {
-		err_quit("socket()");
-	}
-
-	HANDLE hcp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
-	if (hcp == 0) {
-		return 1;
-	}
-
-	SYSTEM_INFO si;
-	GetSystemInfo(&si);
-
-	HANDLE hThread,aCceptThread;
-
-	aCceptThread = CreateThread(NULL, 0, AcceptThread, hcp, 0, NULL);
-
-	for (int i = 0; i < (int)si.dwNumberOfProcessors * 2; ++i) {
-		hThread = CreateThread(NULL, 0, WorkerThread, hcp, 0, NULL);
-		if (hThread == NULL) {
-			return 1;
-		}
-		CloseHandle(hThread);
-	}
-
-	CreateIoCompletionPort((HANDLE)listen_sock, hcp, listen_sock, 0);
-
-	
+	while(1){}	
 
 	WSACleanup();
 
@@ -69,30 +46,19 @@ DWORD WINAPI AcceptThread(LPVOID arg) {
 	
 	int retval;
 
-	int id_count = 1;
-		
-
-	SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (listen_sock == INVALID_SOCKET) {
-		err_quit("socket()");
+	Listen_sock listen_sock;
+	
+	retval = listen_sock.Listen_bind();
+	if (retval == 0) {
+		cout << "bind()" << endl;
 	}
 
-	SOCKADDR_IN serveraddr;
-	ZeroMemory(&serveraddr, sizeof(serveraddr));
-	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	serveraddr.sin_port = htons(SERVERPORT);
-	retval = bind(listen_sock, (SOCKADDR *)&serveraddr, sizeof(serveraddr));
-	if (retval == SOCKET_ERROR) {
-		err_quit("bind()");
+	retval = listen_sock.set_Liten();
+	if (retval == 0) {
+		cout << "listen()" << endl;
 	}
 
-	retval = listen(listen_sock, SOMAXCONN);
-	if (retval == SOCKET_ERROR) {
-		err_quit("listen()");
-	}
-
-	SOCKET client_sock;
+	//SOCKET client_sock;
 	SOCKADDR_IN clientaddr;
 	int addrlen;
 	DWORD recvbytes, flags;
@@ -102,12 +68,8 @@ DWORD WINAPI AcceptThread(LPVOID arg) {
 		SOCKET client_sock;
 		SOCKETINFO *ptr = new SOCKETINFO();
 
-		//Player guest;
-
-		retval = GetQueuedCompletionStatus(hcp, &cbTransferred, (PULONG_PTR)&client_sock, (LPOVERLAPPED *)&ptr, INFINITE);
-		
 		addrlen = sizeof(clientaddr);
-		client_sock = accept(listen_sock, (SOCKADDR *)&clientaddr, &addrlen);
+		client_sock = accept(listen_sock.get_Socket(), (SOCKADDR *)&clientaddr, &addrlen);
 		if (client_sock == INVALID_SOCKET) {
 			err_display("accept()");
 			break;
@@ -116,21 +78,12 @@ DWORD WINAPI AcceptThread(LPVOID arg) {
 		printf("[TCP 서버] 클라이언트 접속 : IP 주소 - %s, 포트번호 - %d\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
 
 		///-----------------------------
-		for (int i = 0; i < 4; ++i) {
-			if (id_count == Guest[i].p_id) {
-				memcpy(SendBuf, &Guest[i], sizeof(Guest[i]));
-				retval = send(client_sock, SendBuf, sizeof(SendBuf), 0);
-			}
-			else {
-				id_count++;
-				break;
-			}
-		}
+		Id_Send(pLayer, id_count, client_sock, SendBuf, sizeof(SendBuf), 0);
 		//------------------------------
 
 		CreateIoCompletionPort((HANDLE)client_sock, hcp, client_sock, 0);
 		recvbytes = 0;
-		//SOCKETINFO *ptr = new SOCKETINFO();
+
 		if (ptr == NULL) {
 			break;
 		}
@@ -143,10 +96,6 @@ DWORD WINAPI AcceptThread(LPVOID arg) {
 		ZeroMemory(ptr->buf, sizeof(ptr->buf));
 		ZeroMemory(ptr->wsabuf.buf, sizeof(ptr->buf));
 		flags = 0;
-
-		//retval = recv(client_sock, ptr->buf, 21, 0);
-
-		//retval = recv(client_sock, (char*)p_guest, 21, 0);
 
 		retval = WSARecv(client_sock, &ptr->wsabuf, 1, &recvbytes, &flags, &ptr->overlapped, NULL);
 		if (retval == SOCKET_ERROR) {
@@ -172,8 +121,6 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 		SOCKET client_sock;
 		SOCKETINFO *ptr;
 
-		//Player guest;
-
 		retval = GetQueuedCompletionStatus(hcp, &cbTransferred, (PULONG_PTR)&client_sock, (LPOVERLAPPED *)&ptr, INFINITE);
 
 		SOCKADDR_IN clientaddr;
@@ -193,8 +140,9 @@ DWORD WINAPI WorkerThread(LPVOID arg)
 		}
 
 		if (ptr->recvbytes == 0) {
-			//	ptr->recvbytes = cbTransferred;
-			//	ptr->sendbytes = 0;
+			ptr->recvbytes = cbTransferred;
+			ptr->sendbytes = 0;
+			
 			memcpy(p_guest, ptr->buf, sizeof(p_guest));
 
 			guest.p_hp = p_guest->p_hp;

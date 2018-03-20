@@ -13,10 +13,18 @@
 #include <WinSock2.h>
 #include <stdlib.h>
 #include <WS2tcpip.h>
-#include "Protocol.h"
+#include <iostream>
+#include <vector>
+
+using namespace std;
 
 #define SERVERPORT 8000
 #define BUFSIZE 512
+
+#include "Protocol.h"
+#include "makeFunc.h"
+#include "Accept.h"
+
 
 DWORD WINAPI AcceptThread(LPVOID arg);
 DWORD WINAPI WorkerThread(LPVOID arg);
@@ -32,3 +40,5 @@ struct SOCKETINFO {
 	int sendbytes;
 	WSABUF wsabuf;
 };
+
+//-----º¯¼ö

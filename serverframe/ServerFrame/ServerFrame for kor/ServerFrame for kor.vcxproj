@@ -111,10 +111,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Accept.cpp" />
+    <ClCompile Include="makeFunc.cpp" />
     <ClCompile Include="serverk.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="makeFunc.h" />
+    <ClInclude Include="Accept.h" />
     <ClInclude Include="Protocol.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

@@ -7,7 +7,8 @@
 #define RIGHT 203
 #define DOWN 204
 
-struct Player {
+class Player {
+public:
 	char pack_type;
 	int p_id;
 	float p_x;
