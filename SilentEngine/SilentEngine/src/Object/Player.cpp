@@ -19,11 +19,45 @@ Player::~Player()
 	ModelObject::~ModelObject();
 }
 
+void Player::Rotate(float x, float y, float z)
+{
+	if (x != 0.0f)
+	{
+		m_fPitch += x;
+		if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
+		if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
+	}
+	if (y != 0.0f)
+	{
+		m_fYaw += y;
+		if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
+		if (m_fYaw < 0.0f) m_fYaw += 360.0f;
+	}
+	if (z != 0.0f)
+	{
+		m_fRoll += z;
+		if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
+		if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
+	}
+	m_pCamera->Rotate(x, y, z);
+	m_pCamera->Update(GetPosition(), 1.0f);
+	m_pCamera->SetLookAt(GetPosition());
+	m_pCamera->RegenerateViewMatrix();
+	if (y != 0.0f)
+	{
+		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up),
+			XMConvertToRadians(y));
+		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
+		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
+	}
+
+	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+}
+
 void Player::Move(DWORD dir, float fDist)
 {
-	//XMFLOAT3 xmf3PlayerMoveForward = Vector3::SubtractAxisZero(GetPosition(), m_pCamera->GetPosition(), RotY);
-	//XMFLOAT3 xmf3PlayerMoveRight = m_pCamera->GetRightVector();
-
 	if (dir) {
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 		if (dir & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDist);
@@ -37,6 +71,11 @@ void Player::Move(DWORD dir, float fDist)
 			m_Controller->move(XMtoPX(xmf3Shift)*0.1f, 0.001f, 1, m_ControllerFilter);
 			SetPosition(PXtoXM(m_Controller->getPosition()));
 		}
+		if (m_pCamera) {
+			m_pCamera->Update(GetPosition(), 1.0f);
+			m_pCamera->SetLookAt(GetPosition());
+			m_pCamera->RegenerateViewMatrix();
+		}
 	}
 }
 
@@ -46,6 +85,11 @@ void Player::Animate(float fTime)
 		m_AnimIndex = 0;
 		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, m_Bones);
 		//m_Animtime += 0.03f;
-
 	}
+}
+
+void Player::SetCamera(Camera * tCamera)
+{
+	m_pCamera = tCamera;
+	m_pCamera->SetPlayer(this);
 }

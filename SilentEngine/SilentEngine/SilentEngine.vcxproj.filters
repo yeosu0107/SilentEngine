@@ -163,6 +163,9 @@
     <ClCompile Include="src\PhysX\BasePhysX.cpp">
       <Filter>PhysX</Filter>
     </ClCompile>
+    <ClCompile Include="src\Shaders\PlayerShader.cpp">
+      <Filter>Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -243,6 +246,9 @@
     <ClInclude Include="src\PhysX\BasePhysX.h">
       <Filter>PhysX</Filter>
     </ClInclude>
+    <ClInclude Include="src\Shaders\PlayerShader.h">
+      <Filter>Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\color.hlsl">
@@ -260,5 +266,6 @@
     <FxCompile Include="hlsl\model.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\Light.hlsl" />
   </ItemGroup>
 </Project>

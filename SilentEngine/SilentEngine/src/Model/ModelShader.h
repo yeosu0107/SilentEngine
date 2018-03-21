@@ -30,7 +30,7 @@ public:
 
 class DynamicModelShader : public ModelShader
 {
-private:
+protected:
 	unique_ptr<UploadBuffer<CB_DYNAMICOBJECT_INFO>>	m_BoneCB = nullptr;
 public:
 	DynamicModelShader(int index);

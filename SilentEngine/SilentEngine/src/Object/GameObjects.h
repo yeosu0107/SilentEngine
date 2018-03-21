@@ -198,7 +198,7 @@ public:
 	void MoveForward(float fDistance = 1.0f);
 	virtual void Move(DWORD dir, float fDist) {}
 
-	void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
+	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
 
 	virtual XMFLOAT4X4* GetBoneData() { return nullptr; }

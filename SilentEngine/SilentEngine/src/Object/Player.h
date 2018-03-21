@@ -24,21 +24,23 @@ protected:
 	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	XMFLOAT3					m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
+	float           			m_fPitch = 0.0f;
+	float           			m_fYaw = 0.0f;
+	float           			m_fRoll = 0.0f;
+
 	Camera* m_pCamera;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();
 
-	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
+	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
+
+	//XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
 	virtual void Move(DWORD dir, float fDist);
 	virtual void Animate(float fTime);
+	void SetCamera(Camera* tCamera);
 };
-//class MyPlayer : public Player
-//{
-//public:
-//	
-//};

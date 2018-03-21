@@ -728,14 +728,14 @@ void Framework::OnKeyboardInput(const Timer& gt)
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
-		if (GetCapture() == m_hMainWnd)
+	/*	if (GetCapture() == m_hMainWnd)
 		{
 			SetCursor(NULL);
 			GetCursorPos(&ptCursorPos);
 			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
 			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
 			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-		}
+		}*/
 
 		if (m_bMouseCapture)
 		{
@@ -745,26 +745,18 @@ void Framework::OnKeyboardInput(const Timer& gt)
 			::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 		}
 
-		if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-		{
-			if (cxDelta || cyDelta) {
-				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
-			}
-
-			/*if (dwDirection)
-				m_pCamera->Move(dwDirection, 20.0f , false);*/
-			//if (dwDirection && m_pPlayer->GetLive()) {
-			//	//m_pPlayer->Move(dwDirection, 100.0f * m_Timer.GetTimeElapsed(), false);
-			//	//m_pPlayer->Move(dwDirection, 5.0f, false);
-			//}
-
-		}
+		//if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
+		//{
+		//	/*if (cxDelta || cyDelta) {
+		//		m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+		//	}*/
+		//}
 	}
-	//m_pPlayer->Update(m_Timer.GetTimeElapsed());
 }
 
 void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 {
+	m_pTestScene->OnMouseDown(m_hMainWnd, btnState, x, y);
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
@@ -781,6 +773,7 @@ void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 
 void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 {
+	m_pTestScene->OnMouseUp(m_hMainWnd, btnState, x, y);
 	switch (nMessageID)
 	{
 	case WM_LBUTTONUP:
@@ -796,7 +789,23 @@ void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 
 void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	//m_pTestScene->OnMouseMove(m_hMainWnd, btnState, x, y);
+	float cxDelta = 0.0f, cyDelta = 0.0f;
+	POINT ptCursorPos;
+	if (GetCapture() == m_hMainWnd)
+	{
+		SetCursor(NULL);
+		GetCursorPos(&ptCursorPos);
+		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
+		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
+		SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+	}
+	if ((cxDelta != 0.0f) || (cyDelta != 0.0f))
+	{
+		if (cxDelta || cyDelta) {
+			m_pTestScene->OnMouseMove(m_hMainWnd, btnState, cxDelta, cyDelta);
+		}
+	}
+	
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,

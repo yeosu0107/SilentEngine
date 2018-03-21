@@ -123,7 +123,7 @@ public:
 	virtual bool OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer);
 	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
 	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
-	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y);
+	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
 		
 protected:
 	//unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;

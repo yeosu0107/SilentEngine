@@ -301,7 +301,7 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 		xmf4x4Rotate = Matrix4x4::Multiply(xmf4x4Rotate, xmmtxRotate);
 	}
 
-	/*if (m_pPlayer && (y != 0.0f))
+	if (m_pPlayer && (y != 0.0f))
 	{
 		XMFLOAT3 xmf3Up = m_pPlayer->GetUpVector();
 		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&xmf3Up),
@@ -330,17 +330,17 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 
 		xmf4x4Rotate = Matrix4x4::Multiply(xmf4x4Rotate, xmmtxRotate);
 	}
-*/
+
 	//카메라 오프셋 벡터를 회전 행렬로 변환(회전)한다. 
 	XMFLOAT3 xmf3Offset = Vector3::TransformCoord(m_xmf3Offset, Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate));
 	//회전한 카메라의 위치는 플레이어의 위치에 회전한 카메라 오프셋 벡터를 더한 것이다.
-	//XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
-	//XMFLOAT3 xmf3Direction = Vector3::Subtract(m_pPlayer->GetPosition(), xmf3Position, false);
+	XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
+	XMFLOAT3 xmf3Direction = Vector3::Subtract(m_pPlayer->GetPosition(), xmf3Position, false);
 
-	/*if (RotateLock(xmf3Direction, xmf3Position))
+	if (RotateLock(xmf3Direction, xmf3Position))
 	{
 		m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
-	}*/
+	}
 
 	//m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
 }

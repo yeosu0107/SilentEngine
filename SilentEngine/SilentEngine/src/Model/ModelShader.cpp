@@ -35,28 +35,6 @@ D3D12_INPUT_LAYOUT_DESC ModelShader::CreateInputLayout()
 	return inputLayout;
 }
 
-
-//void ModelShader::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
-//{
-//	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
-//	::ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
-//
-//	psoDesc.InputLayout = CreateInputLayout();
-//	psoDesc.pRootSignature = m_RootSignature.Get();
-//	psoDesc.VS = CreateVertexShader();
-//	psoDesc.PS = CreatePixelShader();
-//	psoDesc.RasterizerState = CreateRasterizerState();
-//	psoDesc.BlendState = CreateBlendState();
-//	psoDesc.DepthStencilState = CreateDepthStencilState();
-//	psoDesc.SampleMask = UINT_MAX;
-//	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-//	psoDesc.NumRenderTargets = nRenderTargets;
-//	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-//	psoDesc.SampleDesc.Count = 1;
-//	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-//	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pPSO)));
-//}
-
 void ModelShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	// 오브젝트 수 만큼 메모리 할당 

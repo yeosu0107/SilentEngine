@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "InstanceObjectShader.h"
 #include "..\Model\ModelShader.h"
+#include "..\Shaders\PlayerShader.h"
 
 Scene::Scene() : m_physics(nullptr)
 {
@@ -175,6 +176,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	BuildRootSignature(pDevice, pCommandList);
 
+	m_Camera = make_unique<CThirdPersonCamera>();
+	m_Camera->InitCamera(pDevice, pCommandList);
+	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -80.0f));
+
 	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
 	
@@ -187,20 +192,21 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	tmp->setPhysics(m_physics);
 	m_ppShaders[1] = tmp;
 	
-	DynamicModelShader* tmp2 = new DynamicModelShader(1);
+	/*DynamicModelShader* tmp2 = new DynamicModelShader(1);
+	tmp2->setPhysics(m_physics);
+	m_ppShaders[2] = tmp2;*/
+	PlayerShader* tmp2 = new PlayerShader(1, m_Camera.get());
 	tmp2->setPhysics(m_physics);
 	m_ppShaders[2] = tmp2;
+	
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
 
-	m_testPlayer = tmp2->getObject(0);
+	m_testPlayer = tmp2->getPlayer(0);
 
 	BuildLightsAndMaterials();
 	CreateShaderVariables(pDevice, pCommandList);
-
-	m_Camera = make_unique<Camera>();
-	m_Camera->InitCamera(pDevice, pCommandList);
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -249,9 +255,10 @@ bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y)
 	return false;
 }
 
-bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, int x, int y)
+bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y)
 {
-	return false;
+	m_testPlayer->Rotate(y, x, 0.0f);
+	return true;
 }
 
 void TestScene::BuildLightsAndMaterials()
