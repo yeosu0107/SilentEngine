@@ -136,6 +136,8 @@ protected:
 
 	MATERIALS*								m_pMaterials;
 	unique_ptr<UploadBuffer<MATERIALS>>		m_pd3dcbMaterials = nullptr;
+
+	GameObject* m_testPlayer;
 };
 
 class GameScene : public Scene

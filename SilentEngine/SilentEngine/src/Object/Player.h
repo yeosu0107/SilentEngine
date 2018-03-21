@@ -34,7 +34,7 @@ public:
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	void Move(DWORD dir, float fDist);
+	virtual void Move(DWORD dir, float fDist);
 	virtual void Animate(float fTime);
 };
 //class MyPlayer : public Player

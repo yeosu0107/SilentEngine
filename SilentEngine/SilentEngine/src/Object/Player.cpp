@@ -48,8 +48,4 @@ void Player::Animate(float fTime)
 		//m_Animtime += 0.03f;
 
 	}
-	DWORD dwDirection = 0;
-	dwDirection |= DIR_RIGHT;
-	dwDirection |= DIR_DOWN;
-	Move(dwDirection, 1.0f);
 }

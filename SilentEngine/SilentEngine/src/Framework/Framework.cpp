@@ -695,14 +695,13 @@ void Framework::LogOutputDisplayModes(IDXGIOutput* poutput, DXGI_FORMAT format)
 	}
 }
 
-
 void Framework::OnKeyboardInput(const Timer& gt)
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
 
-	//if (GetKeyboardState(pKeysBuffer) && m_pTestScene) 
-	//	bProcessedByScene = m_pTestScene->OnKeyboardInput(gt, pKeysBuffer);
+	if (GetKeyboardState(pKeysBuffer) && m_pTestScene) 
+		bProcessedByScene = m_pTestScene->OnKeyboardInput(gt, pKeysBuffer);
 
 	if (!bProcessedByScene)
 	{
@@ -752,8 +751,8 @@ void Framework::OnKeyboardInput(const Timer& gt)
 				m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 			}
 
-			if (dwDirection)
-				m_pCamera->Move(dwDirection, 20.0f , false);
+			/*if (dwDirection)
+				m_pCamera->Move(dwDirection, 20.0f , false);*/
 			//if (dwDirection && m_pPlayer->GetLive()) {
 			//	//m_pPlayer->Move(dwDirection, 100.0f * m_Timer.GetTimeElapsed(), false);
 			//	//m_pPlayer->Move(dwDirection, 5.0f, false);

@@ -27,6 +27,7 @@ void Scene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandL
 TestScene::TestScene()
 {
 	m_physics = new BasePhysX(60.0f);
+	m_testPlayer = nullptr;
 }
 
 TestScene::~TestScene()
@@ -193,6 +194,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
 
+	m_testPlayer = tmp2->getObject(0);
+
 	BuildLightsAndMaterials();
 	CreateShaderVariables(pDevice, pCommandList);
 
@@ -218,6 +221,21 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 {
+	DWORD dwDirection = 0;
+	if (GetAsyncKeyState('W') & 0x8000)
+		dwDirection |= DIR_FORWARD;
+
+	if (GetAsyncKeyState('S') & 0x8000)
+		dwDirection |= DIR_BACKWARD;
+
+	if (GetAsyncKeyState('A') & 0x8000)
+		dwDirection |= DIR_LEFT;
+
+	if (GetAsyncKeyState('D') & 0x8000)
+		dwDirection |= DIR_RIGHT;
+
+	m_testPlayer->Move(dwDirection, 2.0f);
+
 	return false;
 }
 
