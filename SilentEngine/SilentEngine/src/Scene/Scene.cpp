@@ -165,7 +165,7 @@ void TestScene::Update(const Timer & gt)
 {
 	m_physics->stepPhysics(false);
 	for (UINT i = 0; i < m_nShaders; ++i) {
-		m_ppShaders[i]->Animate(gt.Tick());
+		m_ppShaders[i]->Animate(gt.DeltaTime());
 	}
 }
 
@@ -174,7 +174,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	BuildRootSignature(pDevice, pCommandList);
 
-	m_nShaders = 1;
+	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
 	
 	IlluminatedObjectShader* pIlluminatedObject = new IlluminatedObjectShader();
@@ -182,13 +182,13 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	pIlluminatedObject->BuildPSO(pDevice, m_RootSignature.Get());
 	m_ppShaders[0] = pIlluminatedObject;
 
-	//ModelShader* tmp= new ModelShader(2);
-	//tmp->setPhysics(m_physics);
-	//m_ppShaders[1] = tmp;
-	//
-	//DynamicModelShader* tmp2 = new DynamicModelShader(1);
-	//tmp2->setPhysics(m_physics);
-	//m_ppShaders[2] = tmp2;
+	ModelShader* tmp= new ModelShader(2);
+	tmp->setPhysics(m_physics);
+	m_ppShaders[1] = tmp;
+	
+	DynamicModelShader* tmp2 = new DynamicModelShader(1);
+	tmp2->setPhysics(m_physics);
+	m_ppShaders[2] = tmp2;
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);

@@ -59,6 +59,7 @@ int Framework::Run()
 {
 	MSG msg = { 0 };
 
+	m_Timer.Reset();
 	
 	while (msg.message != WM_QUIT) {
 		
@@ -67,8 +68,6 @@ int Framework::Run()
 			DispatchMessage(&msg);
 		}
 		else {
-
-			m_Timer.Tick();
 			if (!m_bAppPaused) {
 				CalculateFrameState();
 				Update();
@@ -150,7 +149,7 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_EXITSIZEMOVE:
 		m_bAppPaused = false;
 		m_bResizing = false;
-		//m_Timer.Start();
+		m_Timer.Start();
 		OnResize();
 		return 0;
 
@@ -307,13 +306,12 @@ void Framework::OnResize()
 
 void Framework::Update()
 {
-	m_Timer.Update(60.0f);
+	m_Timer.Tick();
 
 	OnKeyboardInput(m_Timer);
 
 	m_pTestScene->Update(m_Timer);
 
-	m_Timer.Tock();
 }
 
 void Framework::Render()
@@ -623,11 +621,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE Framework::DepthStencilView() const
 	return m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
 }
 
-void Framework::CalculateFrameState()
-{
-	//cout << m_Timer.GetFrameTime() << endl;
-	SetWindowText(m_hMainWnd, m_Timer.GetFrameTime().c_str());
-}
 
 void Framework::LogAdapters()
 {
@@ -760,15 +753,15 @@ void Framework::OnKeyboardInput(const Timer& gt)
 			}
 
 			if (dwDirection)
-				m_pCamera->Move(dwDirection, 100.0f * gt.Tick(), false);
+				m_pCamera->Move(dwDirection, 20.0f , false);
 			//if (dwDirection && m_pPlayer->GetLive()) {
-			//	//m_pPlayer->Move(dwDirection, 100.0f * m_GameTimer.GetTimeElapsed(), false);
+			//	//m_pPlayer->Move(dwDirection, 100.0f * m_Timer.GetTimeElapsed(), false);
 			//	//m_pPlayer->Move(dwDirection, 5.0f, false);
 			//}
 
 		}
 	}
-	//m_pPlayer->Update(m_GameTimer.GetTimeElapsed());
+	//m_pPlayer->Update(m_Timer.GetTimeElapsed());
 }
 
 void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
@@ -830,3 +823,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	}
 }
 
+void Framework::CalculateFrameState()
+{
+	static int nFrameCnt = 0;
+	static float fTimeElapsed = 0.0f;
+
+	nFrameCnt++;
+
+	if ((m_Timer.TotalTime() - fTimeElapsed) >= 1.0f)
+	{
+		float fps = (float)nFrameCnt;
+		float mspf = 1000.0f / fps;
+
+		wstring sFpsStr = to_wstring(fps);
+		wstring sMspfStr = to_wstring(mspf);
+
+		wstring sWindowText = m_sMainWndCaption +
+			L"	fps : " + sFpsStr +
+			L"	mspf : " + sMspfStr;
+
+		SetWindowText(m_hMainWnd, sWindowText.c_str());
+
+		nFrameCnt = 0;
+		fTimeElapsed += 1.0f;
+	}
+}

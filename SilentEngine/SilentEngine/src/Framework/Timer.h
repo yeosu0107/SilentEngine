@@ -1,36 +1,36 @@
-#pragma once
+//***************************************************************************************
+// Timer.h by Frank Luna (C) 2011 All Rights Reserved.
+//***************************************************************************************
 
-#include <queue>
+#ifndef Timer_H
+#define Timer_H
 
-const int MAX_EVERAGE_FRAME = 60;
+
 
 class Timer
 {
-private:
-	double		m_dPreframeTime;
-	double		m_dCurframeTime;
-
-	int			m_iCurrentframeRate;
-	int			m_iCountframeRate;
-
-	float		m_fElapsedTime;
-	float		m_ffps;
-	float		m_fTotalframeRate;
-	float		m_fAverageframeTime;
-	float		m_fTimeScale;
-
-	std::queue<float>  m_pEverageFrame;
-
 public:
 	Timer();
-	Timer(float fps);
-	~Timer();
 
-public:
-	void Update(float fps);
+	float TotalTime()const; // in seconds
+	float DeltaTime()const; // in seconds
 
-	std::wstring GetFrameTime();
+	void Reset(); // Call before message loop.
+	void Start(); // Call when unpaused.
+	void Stop();  // Call when paused.
+	void Tick();  // Call every frame.
 
-	float Tick() const { return m_fElapsedTime; }
-	void Tock() { m_dPreframeTime = m_dCurframeTime; }
+private:
+	double mSecondsPerCount;
+	double mDeltaTime;
+
+	__int64 mBaseTime;
+	__int64 mPausedTime;
+	__int64 mStopTime;
+	__int64 mPrevTime;
+	__int64 mCurrTime;
+
+	bool mStopped;
 };
+
+#endif // Timer_H
