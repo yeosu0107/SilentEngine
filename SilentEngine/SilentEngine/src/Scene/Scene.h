@@ -61,17 +61,12 @@ public:
 
 public:
 	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
-	virtual void BuildDescriptorHeaps(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
-	virtual void BuildShadersAndInputLayout(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
-	virtual void BuildSceneGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
-	virtual void BuildPSOs(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
-	virtual void Update(const Timer& gt) = 0;
-	//virtual void BuildFrameResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	//virtual void BuildMaterials(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	//virtual void BuildRenderItems(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	virtual void Update(const Timer& gt) = 0;;
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+
 	virtual Camera* GetCamera() { return m_Camera.get(); }
+
 protected:
 	//vector<unique_ptr<FrameResource>>	m_FrameResources;
 	//FrameResource*					m_pCurrentFrameResource = nullptr;
@@ -104,17 +99,10 @@ public:
 	~TestScene();
 
 public:
-	virtual void BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	virtual void BuildDescriptorHeaps(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	virtual void BuildShadersAndInputLayout(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	virtual void BuildSceneGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	virtual void BuildPSOs(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void CreateShaderVariables(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void UpdateShaderVarialbes();
 	virtual void Update(const Timer& gt);
-	//virtual void BuildFrameResources(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	//virtual void BuildMaterials(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	

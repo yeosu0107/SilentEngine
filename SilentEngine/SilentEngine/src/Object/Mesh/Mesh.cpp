@@ -354,11 +354,11 @@ MeshGeometryIlluminatedTexturedCube::MeshGeometryIlluminatedTexturedCube(ID3D12D
 	m_d3dVertexBufferView.StrideInBytes = m_nStride;
 	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
 
-	m_pd3dIndexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pIndices.data(), sizeof(std::uint16_t) * m_nIndices, m_pd3dIndexUploadBuffer);
+	m_pd3dIndexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pIndices.data(), sizeof(UINT) * m_nIndices, m_pd3dIndexUploadBuffer);
 
 	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
-	m_d3dIndexBufferView.Format = DXGI_FORMAT_R16_UINT;
-	m_d3dIndexBufferView.SizeInBytes = sizeof(std::uint16_t) * m_nIndices;
+	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
 }
 
 MeshGeometryIlluminatedTexturedCube::~MeshGeometryIlluminatedTexturedCube()

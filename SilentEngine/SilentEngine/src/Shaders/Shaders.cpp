@@ -512,7 +512,7 @@ void IlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Grap
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		m_ppObjects[0] = new GameObject();
-		m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
+		m_ppObjects[0]->SetMesh(0, pCubeMesh);
 		m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
 }
