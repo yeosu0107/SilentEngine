@@ -2,7 +2,6 @@
 
 #include "D3DUtil.h"
 #include "..\Model\ModelObject.h"
-//#include "..\Model\ModelShader.h"
 
 #define ASPECT_RATIO (float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
 
@@ -16,13 +15,18 @@
 #define ROOT_PARAMETER_LIGHT		3
 #define ROOT_PARAMETER_TEXTURE		4
 
+enum PlayerAni
+{
+	Idle=0, Move=1, Attack=2, Skill=3, Hitted=4
+};
+
 class Player : public ModelObject
 {
 protected:
-	XMFLOAT3					m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3					m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
-	XMFLOAT3					m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	XMFLOAT3					m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	XMFLOAT3				m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3				m_xmf3Right = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	XMFLOAT3				m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	XMFLOAT3				m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 
 	float           			m_fPitch = 0.0f;
 	float           			m_fYaw = 0.0f;
@@ -35,12 +39,17 @@ public:
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 
-	//XMFLOAT3 GetPosition() { return(m_xmf3Position); }
+	XMFLOAT3 GetPosition() { return(m_xmf3Position); }
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
 
-	virtual void Move(DWORD dir, float fDist);
+	void RegenerateMatrix();
+
+	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
+
+	virtual bool Move(DWORD dir, float fDist);
+	virtual bool Movement(DWORD input);
 	virtual void Animate(float fTime);
 	void SetCamera(Camera* tCamera);
 };

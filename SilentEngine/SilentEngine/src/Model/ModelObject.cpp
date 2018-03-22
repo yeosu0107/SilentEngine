@@ -74,16 +74,8 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 void ModelObject::Animate(float fTime)
 {
 	if (m_ani) {
-		m_AnimIndex = 0;
 		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, m_Bones);
-		//m_Animtime += 0.03f;
-		
 	}
-	/*if (m_Controller) {
-		m_Controller->move(PxVec3(0, 1, 0)*-0.1f, 0.001f, 1, m_ControllerFilter);
-		XMFLOAT3 tt = XMFLOAT3(m_Controller->getPosition().x, m_Controller->getPosition().y, m_Controller->getPosition().z);
-		SetPosition(tt);
-	}*/
 }
 
 void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)

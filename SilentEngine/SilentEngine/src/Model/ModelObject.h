@@ -5,6 +5,7 @@
 #include "LoadModel.h"
 #include "Animation.h"
 
+
 struct CB_DYNAMICOBJECT_INFO
 {
 	XMFLOAT4X4		m_xmf4x4World;
@@ -46,7 +47,7 @@ public:
 	ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~ModelObject();
 
-	void SetAnimations(UINT num, LoadAnimation** tmp);
+	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 	virtual UINT GetNumofAnim() const { return m_NumofAnim; }
 
 	virtual void Animate(float fTime);

@@ -21,6 +21,8 @@ private:
 	float										now_time;  //현재 프레임
 	BOOL									animation_loof;  //애니메이션 루프 여부 (기본은 true)
 	UINT										next_index;
+
+	float										m_animSpeed;
 public:
 	LoadAnimation(string filename);
 	~LoadAnimation() {}
@@ -36,6 +38,8 @@ public:
 	void EnableLoof() {
 		animation_loof = true;
 	}
+
+	void SetAnimSpeed(float speed) { m_animSpeed = speed; }
 
 	void BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms);
 	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const XMMATRIX& ParentTransform);

@@ -337,12 +337,12 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 	XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
 	XMFLOAT3 xmf3Direction = Vector3::Subtract(m_pPlayer->GetPosition(), xmf3Position, false);
 
-	if (RotateLock(xmf3Direction, xmf3Position))
-	{
-		m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
-	}
+	//if (RotateLock(xmf3Direction, xmf3Position))
+	//{
+	//	m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
+	//}
 
-	//m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
+	m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
 }
 
 void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
@@ -385,6 +385,7 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 
 void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 {
+	xmf3LookAt.y += 20.0f; //바라보는 위치 보정
 	XMFLOAT4X4 mtxLookAt = Matrix4x4::LookAtLH(m_xmf3Position, xmf3LookAt, m_pPlayer->GetUpVector());
 
 	m_xmf3Right = XMFLOAT3(mtxLookAt._11, mtxLookAt._21, mtxLookAt._31);

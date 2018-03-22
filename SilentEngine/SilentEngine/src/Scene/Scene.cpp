@@ -134,7 +134,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	m_Camera = make_unique<CThirdPersonCamera>();
 	m_Camera->InitCamera(pDevice, pCommandList);
-	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -80.0f));
+	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
+	m_Camera->SetTimeLag(0.25f);
 
 	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
@@ -183,20 +184,30 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 {
-	DWORD dwDirection = 0;
+	DWORD moveInpout = 0;
+	DWORD input = 0;
+
 	if (GetAsyncKeyState('W') & 0x8000)
-		dwDirection |= DIR_FORWARD;
+		moveInpout |= DIR_FORWARD;
 
 	if (GetAsyncKeyState('S') & 0x8000)
-		dwDirection |= DIR_BACKWARD;
+		moveInpout |= DIR_BACKWARD;
 
 	if (GetAsyncKeyState('A') & 0x8000)
-		dwDirection |= DIR_LEFT;
+		moveInpout |= DIR_LEFT;
 
 	if (GetAsyncKeyState('D') & 0x8000)
-		dwDirection |= DIR_RIGHT;
+		moveInpout |= DIR_RIGHT;
 
-	m_testPlayer->Move(dwDirection, 2.0f);
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000) 
+		input |= ANI_ATTACK;
+	
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) 
+		input |= ANI_SKILL;
+	
+
+	if(!m_testPlayer->Movement(input))
+		m_testPlayer->Move(moveInpout, 1.1f);
 
 	return false;
 }

@@ -6,12 +6,18 @@
 
 class Shaders;
 
-#define DIR_FORWARD					0x01
-#define DIR_BACKWARD				0x02
+//이동 애니메이션
+#define DIR_FORWARD			0x01
+#define DIR_BACKWARD			0x02
 #define DIR_LEFT					0x04
 #define DIR_RIGHT					0x08
 #define DIR_UP						0x10
 #define DIR_DOWN					0x20
+//애니메이션 상태
+#define ANI_ATTACK				0x40
+#define ANI_SKILL					0x80
+#define ANI_HITTED				0x100
+#define ANI_IDLE					0x120
 
 #define RESOURCE_TEXTURE2D			0x01
 #define RESOURCE_TEXTURE2D_ARRAY	0x02	//[]
@@ -174,7 +180,8 @@ public:
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
-	virtual void Move(DWORD dir, float fDist) {}
+	virtual bool Move(DWORD dir, float fDist) { return false; }
+	virtual bool Movement(DWORD input) { return false; }
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);

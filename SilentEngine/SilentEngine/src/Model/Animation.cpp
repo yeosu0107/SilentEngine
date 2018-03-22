@@ -3,7 +3,7 @@
 #include "Animation.h"
 
 LoadAnimation::LoadAnimation(string filename) :
-	animation_loof(true), next_index(0)
+	animation_loof(true), next_index(0), m_animSpeed(1.0f)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
 
@@ -34,7 +34,7 @@ void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 	}
 
 	// 미리 정해진 프레임 내에서 애니메이션 수행
-	now_time += 0.5f;
+	now_time += m_animSpeed;
 	if (now_time > end_time) {
 		now_time = start_time;
 		if (!animation_loof) {
