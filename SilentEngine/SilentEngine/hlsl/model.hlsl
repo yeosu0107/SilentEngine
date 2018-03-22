@@ -4,8 +4,7 @@
 // Transforms and colors geometry.
 //***************************************************************************************
 
-#include "Cbuffer.hlsl"
-#include "Sampler.hlsl"
+#include "Light.hlsl"
 
 struct VS_MODEL_INPUT
 {
@@ -21,8 +20,6 @@ struct VS_TEXTURED_OUTPUT
 	float4 position : SV_POSITION;
 	float2 uv : TEXCOORD;
 };
-
-Texture2DArray gBoxTextured : register(t0);
 
 VS_TEXTURED_OUTPUT VSModelTextured(VS_MODEL_INPUT input)
 {
@@ -56,6 +53,41 @@ VS_TEXTURED_OUTPUT VSDynamicModelTextured(VS_MODEL_INPUT input)
 	output.uv = input.uv;
 
 	return(output);
+};
+
+
+VS_TEXTURED_LIGHTING_OUTPUT VSDynamicModelTexturedLighting(VS_MODEL_INPUT input)
+{
+	VS_TEXTURED_LIGHTING_OUTPUT output;
+
+	float3 posL = float3(0.0f, 0.0f, 0.0f);
+	float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	weights[0] = input.weight.x;
+	weights[1] = input.weight.y;
+	weights[2] = input.weight.z;
+	weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
+	for (int i = 0; i < 4; ++i) {
+		posL += weights[i] * mul(float4(input.position, 1.0f),
+			gBoneTransforms[input.index[i]]).xyz;
+	}
+
+	output.normalW = mul(input.normal, (float3x3)gmtxObject);
+	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxObject);
+	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+};
+
+float4 PSDynamicModelTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+{
+	float3 uvw = float3(input.uv, nPrimitiveID / 2);
+	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
+	input.normalW = normalize(input.normalW);
+	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat);
+
+	return(cColor * cIllumination);
 };
 
 // nPrimitiveID : 삼각형의 정보 
