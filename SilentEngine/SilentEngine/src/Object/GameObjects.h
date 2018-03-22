@@ -5,28 +5,6 @@
 #include "Mesh.h"
 
 class Shaders;
-//struct RenderObject
-//{
-//	RenderObject() = default;
-//
-//	XMFLOAT4X4				m_World = D3DMath::Identity4x4();
-//	XMFLOAT4X4				m_TexTransform = D3DMath::Identity4x4();
-//
-//	UINT					m_ObjCBIndex = -1;
-//
-//	Material*				m_pMaterials;
-//
-//	vector<MeshGeometry*>	m_ppMeshes;
-//	UINT					m_iMeshes;
-//
-//	D3D12_PRIMITIVE_TOPOLOGY m_PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-//
-//	UINT					m_iIndexCount = 0;
-//	
-//	UINT					m_iStartIndexLocation = 0;
-//	int						m_iBaseVertexLocation = 0;
-//};
-//
 
 #define DIR_FORWARD					0x01
 #define DIR_BACKWARD				0x02

@@ -9,6 +9,8 @@ Player::Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_pCamera = nullptr;
+
+	m_Jump.startJump(PxF32(0));
 }
 
 Player::~Player()
@@ -40,9 +42,6 @@ void Player::Rotate(float x, float y, float z)
 		if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 	}
 	m_pCamera->Rotate(x, y, z);
-	m_pCamera->Update(GetPosition(), 1.0f);
-	m_pCamera->SetLookAt(GetPosition());
-	m_pCamera->RegenerateViewMatrix();
 	if (y != 0.0f)
 	{
 		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up),
@@ -68,14 +67,10 @@ void Player::Move(DWORD dir, float fDist)
 		if (dir & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDist);
 
 		if (m_Controller) {
-			m_Controller->move(XMtoPX(xmf3Shift)*0.1f, 0.001f, 1, m_ControllerFilter);
-			SetPosition(PXtoXM(m_Controller->getPosition()));
+			m_Controller->move(XMtoPX(xmf3Shift), 1.0f, 1, m_ControllerFilter);
+			//SetPosition(PXtoXM(m_Controller->getPosition())); //애니메에트에서 처리
 		}
-		if (m_pCamera) {
-			m_pCamera->Update(GetPosition(), 1.0f);
-			m_pCamera->SetLookAt(GetPosition());
-			m_pCamera->RegenerateViewMatrix();
-		}
+		
 	}
 }
 
@@ -85,6 +80,17 @@ void Player::Animate(float fTime)
 		m_AnimIndex = 0;
 		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, m_Bones);
 		//m_Animtime += 0.03f;
+	}
+	if (m_Controller) {
+		//중력작용 처리
+		m_Controller->move(PxVec3(0, m_Jump.getHeight(1.0f/60.0f), 0), 0.1f, 1.0f / 60.0f, m_ControllerFilter);
+		//SetPosition(PXtoXM(m_Controller->getPosition()));
+		SetPosition(PXtoXM(m_Controller->getFootPosition())); //발 좌표로 이동 보정
+	}
+	if (m_pCamera) {
+		m_pCamera->Update(GetPosition(), 1.0f);
+		m_pCamera->SetLookAt(GetPosition());
+		m_pCamera->RegenerateViewMatrix();
 	}
 }
 

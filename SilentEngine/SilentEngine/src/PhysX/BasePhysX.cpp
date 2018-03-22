@@ -54,28 +54,8 @@ void BasePhysX::InitPhysics()
 		cout << "컨트롤러 생성 실패" << endl;
 #endif
 
-	//캡슐 컨트롤러 부분. 추후 각 플레이어 오브젝트로 이식해야 할 듯
-	//PxCapsuleControllerDesc capsuleDesc;
-	//capsuleDesc.height = 1; //Height of capsule
-	//capsuleDesc.radius = 2; //Radius of casule
-	//capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
-	//capsuleDesc.material = gPhysics->createMaterial(0.2f, 0.2f, 0.2f); //Material for capsule shape
-	//capsuleDesc.density = 1.0f; //Desity of capsule shape
-	//capsuleDesc.contactOffset = 0.05f;
-	//capsuleDesc.slopeLimit = 0.2f;
-	//capsuleDesc.stepOffset = 0.75f;
-
-	//gPlayer = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
-
 	//physx 매터리얼 생성
 	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
-
-	//상호작용을 위한 물리객체 생성
-	//TEST 용도
-	//PxTransform planePos = PxTransform(PxVec3(0.0f), PxQuat(PxHalfPi, PxVec3(0.0f, 0.0f, 1.0f)));
-	//PxRigidActor* plane = gPhysics->createRigidStatic(planePos);
-	//plane->createShape(PxPlaneGeometry(), *mat);
-	//gScene->addActor(*plane); // 엑터에 플레인 등록
 
 
 	//PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
@@ -99,13 +79,6 @@ void BasePhysX::stepPhysics(bool interactive)
 		PX_UNUSED(interactive);
 		gScene->simulate(gTimeStep);
 		gScene->fetchResults(true); //적용
-
-		//cout << gPlayer->getPosition().x << "\t" << gPlayer->getPosition().y << "\t" << gPlayer->getPosition().z << endl;
-		/*XMFLOAT3 pos;
-		PxRigidActor* tactor;
-		gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);
-		pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);*/
-		//cout << pos.x << "\t" << pos.y << "\t" << pos.z << endl;
 	}
 }
 
@@ -173,14 +146,18 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 PxCapsuleController* BasePhysX::getCapsuleController()
 {
 	PxCapsuleControllerDesc capsuleDesc;
-	capsuleDesc.height = 2; //Height of capsule
-	capsuleDesc.radius = 2; //Radius of casule
+	capsuleDesc.height = 0.3f; //Height of capsule
+	capsuleDesc.radius = 5.0f; //Radius of casule
 	capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
-	capsuleDesc.material = gPhysics->createMaterial(0.2f, 0.2f, 0.2f); //Material for capsule shape
-	capsuleDesc.density = 1.0f; //Desity of capsule shape
-	capsuleDesc.contactOffset = 0.05f;
-	capsuleDesc.slopeLimit = 0.2f;
-	capsuleDesc.stepOffset = 0.75f;
+	capsuleDesc.material = gPhysics->createMaterial(1.0f,1.0f, 1.0f); //Material for capsule shape
+	//capsuleDesc.density = 1.0f; //Desity of capsule shape
+	capsuleDesc.contactOffset = 1.01f; //외부 물체와 상호작용하는 크기 (지정한 충돌캡슐보다 조금 더 크게 형성위해)
+	capsuleDesc.slopeLimit = cosf(XMConvertToRadians(15.0f)); //경사 허용도(degree) 0에 가까울수록 경사를 못올라감
+	capsuleDesc.stepOffset = 1.0f;	//자연스러운 이동 (약간의 고저에 부딫혔을 때 이동가능 여부)
+													//stepoffset보다 큰 높이에 부딛치면 멈춤
+	//capsuleDesc.maxJumpHeight = 2.0f; //최대 점프 높이
+	capsuleDesc.climbingMode = PxCapsuleClimbingMode::eEASY;
+	//capsuleDesc.invisibleWallHeight = 0.0f;
 
 	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
 

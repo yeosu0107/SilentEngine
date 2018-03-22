@@ -12,6 +12,20 @@ struct CB_DYNAMICOBJECT_INFO
 	UINT					m_nMaterial = 0;
 };
 
+class Jump
+{
+public:
+	Jump();
+
+	PxF32		mV0;
+	PxF32		mJumpTime;
+	bool		mJump;
+
+	void		startJump(PxF32 v0);
+	void		stopJump();
+	PxF32		getHeight(PxF32 elapsedTime);
+};
+
 class ModelObject : public GameObject
 {
 protected:
@@ -26,6 +40,8 @@ protected:
 	PxRigidDynamic*		m_physBox;	//물리상호작용
 	PxCapsuleController*	m_Controller;   //컨트롤러 TEST
 	PxControllerFilters		m_ControllerFilter;
+
+	Jump							m_Jump;
 public:
 	ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~ModelObject();
