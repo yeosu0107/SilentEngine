@@ -14,10 +14,7 @@ Scene::~Scene()
 
 void Scene::BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList)
 {
-	BuildDescriptorHeaps(pDevice, pCommandList);
 	BuildRootSignature(pDevice, pCommandList);
-	BuildShadersAndInputLayout(pDevice, pCommandList);
-	BuildPSOs(pDevice, pCommandList);
 }
 
 void Scene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -34,12 +31,6 @@ TestScene::TestScene()
 TestScene::~TestScene()
 {
 	delete m_physics;
-}
-
-void TestScene::BuildBoxGeometry(ID3D12Device* pDevice, ID3D12GraphicsCommandList * pCommandList)
-{
-	m_Geometries = std::make_shared<unordered_map<string, unique_ptr<MeshGeometry>>>();
-	(*m_Geometries)["boxGeo"] = move(std::make_unique<MeshGeometryCube>(pDevice, pCommandList, 10.0f, 10.0f, 10.0f));
 }
 
 void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -115,41 +106,6 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	ThrowIfFailed(pDevice->CreateRootSignature(0, pd3dSignatureBlob->GetBufferPointer(), pd3dSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_RootSignature)));
 	if (pd3dSignatureBlob) pd3dSignatureBlob->Release();
 	if (pd3dErrorBlob) pd3dErrorBlob->Release();
-}
-
-void TestScene::BuildDescriptorHeaps(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
-{
-	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
-	cbvHeapDesc.NumDescriptors = 1;
-	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	cbvHeapDesc.NodeMask = 0;
-	ThrowIfFailed(pDevice->CreateDescriptorHeap(&cbvHeapDesc,
-		IID_PPV_ARGS(&m_SrvDescriptorHeap)));
-}
-
-void TestScene::BuildShadersAndInputLayout(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
-{
-	HRESULT hr = S_OK;
-
-	m_Shaders["VSCube"] = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-	m_Shaders["PSCube"] = COMPILEDSHADERS->GetCompiledShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
-
-	m_InputLayout =
-	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-	};
-}
-
-void TestScene::BuildSceneGeometry(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
-{
-	BuildBoxGeometry(pDevice, pCommandList);
-}
-
-void TestScene::BuildPSOs(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
-{
-	
 }
 
 void TestScene::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
