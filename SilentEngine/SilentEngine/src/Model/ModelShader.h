@@ -3,11 +3,11 @@
 #include "..\Shaders\Shaders.h"
 #include "ModelObject.h"
 
-class ModelShader : public ObjectShader
+class ModelShader : public IlluminatedObjectShader
 {
 protected:
 	UINT				modelIndex;
-	BasePhysX*	globalPhysX;
+	BasePhysX*			globalPhysX;
 
 public:
 	ModelShader();
@@ -32,6 +32,9 @@ class DynamicModelShader : public ModelShader
 {
 protected:
 	unique_ptr<UploadBuffer<CB_DYNAMICOBJECT_INFO>>	m_BoneCB = nullptr;
+	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
+	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
+
 public:
 	DynamicModelShader(int index);
 	~DynamicModelShader();
@@ -41,6 +44,9 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext);
 	virtual void Animate(float fTimeElapsed);
+
+	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
+	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 
 	GameObject* getObject(int index) { return m_ppObjects[index]; }
 };
