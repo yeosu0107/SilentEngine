@@ -280,6 +280,10 @@ MeshGeometryIlluminatedTextured::~MeshGeometryIlluminatedTextured()
 //
 MeshGeometryIlluminatedTexturedCube::MeshGeometryIlluminatedTexturedCube(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometryIlluminatedTextured(pd3dDevice, pd3dCommandList)
 {
+	float xSize = fWidth / 2.0f;
+	float ySize = fHeight / 2.0f;
+	float zSize = fDepth / 2.0f;
+
 	m_nVertices = 8;
 	m_nStride = sizeof(CIlluminatedTexturedVertex);
 	m_nOffset = 0;
@@ -290,14 +294,14 @@ MeshGeometryIlluminatedTexturedCube::MeshGeometryIlluminatedTexturedCube(ID3D12D
 
 	array<XMFLOAT3, 8> pxmf3Positions =
 	{
-		XMFLOAT3(-1.0f, -1.0f, -1.0f),
-		XMFLOAT3(-1.0f, +1.0f, -1.0f),
-		XMFLOAT3(+1.0f, +1.0f, -1.0f),
-		XMFLOAT3(+1.0f, -1.0f, -1.0f),
-		XMFLOAT3(-1.0f, -1.0f, +1.0f),
-		XMFLOAT3(-1.0f, +1.0f, +1.0f),
-		XMFLOAT3(+1.0f, +1.0f, +1.0f),
-		XMFLOAT3(+1.0f, -1.0f, +1.0f)
+		XMFLOAT3(-xSize, -ySize, -zSize),
+		XMFLOAT3(-xSize, +ySize, -zSize),
+		XMFLOAT3(+xSize, +ySize, -zSize),
+		XMFLOAT3(+xSize, -ySize, -zSize),
+		XMFLOAT3(-xSize, -ySize, +zSize),
+		XMFLOAT3(-xSize, +ySize, +zSize),
+		XMFLOAT3(+xSize, +ySize, +zSize),
+		XMFLOAT3(+xSize, -ySize, +zSize)
 	};
 
 	array<XMFLOAT2, 8> pxmf2TexCoord =

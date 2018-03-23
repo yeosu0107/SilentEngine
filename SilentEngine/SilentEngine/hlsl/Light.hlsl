@@ -149,10 +149,8 @@ struct VS_TEXTURED_LIGHTING_OUTPUT
 	float3 positionW : POSITION;
 	float3 normalW : NORMAL;
 	float2 uv : TEXCOORD;
-#ifdef _WITH_VERTEX_LIGHTING
-	float4 color : COLOR;
-#endif
 };
+
 
 
 VS_TEXTURED_LIGHTING_OUTPUT VSTexturedLighting(VS_TEXTURED_LIGHTING_INPUT input)
@@ -174,5 +172,43 @@ float4 PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID :
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial);
 	
+	return(cColor * cIllumination);
+};
+
+////////////////// Instance //////////////////////
+
+struct VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE
+{
+	float4	position : SV_POSITION;
+	float3	positionW : POSITION;
+	float3	normalW : NORMAL;
+	float2	uv : TEXCOORD;
+	uint	mat : MATERIAL;
+};
+
+
+VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSInstanceTexturedLighting(VS_TEXTURED_LIGHTING_INPUT input, uint instanceID : SV_InstanceID)
+{
+	VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE output;
+
+	InstanceData instData = gInstanceData[instanceID];
+	float4x4 world = instData.mtxGameObject;
+
+	output.mat = instData.nMaterial;
+	output.normalW = mul(input.normal, (float3x3)world);
+	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
+	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+};
+
+float4 PSInstanceTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+{
+	float3 uvw = float3(input.uv, nPrimitiveID / 2);
+	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
+	input.normalW = normalize(input.normalW);
+	float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat);
+
 	return(cColor * cIllumination);
 };
