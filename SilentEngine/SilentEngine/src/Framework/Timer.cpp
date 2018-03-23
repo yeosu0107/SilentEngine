@@ -87,7 +87,7 @@ void Timer::Tick()
 
 	LARGE_INTEGER frameinfo;
 	QueryPerformanceFrequency(&frameinfo);
-	const float perframe = (float)frameinfo.QuadPart / 60.0f;
+	const float perframe = (float)frameinfo.QuadPart * mSecondsPerCount / 60.0f;
 
 	while (true) {
 		
@@ -95,7 +95,7 @@ void Timer::Tick()
 		mCurrTime = currTime;
 
 		// Time difference between this frame and the previous.
-		mDeltaTime = (mCurrTime - mPrevTime);
+		mDeltaTime = (mCurrTime - mPrevTime) * mSecondsPerCount;
 		if (mDeltaTime > perframe)
 			break;
 	}
