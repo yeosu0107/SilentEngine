@@ -125,3 +125,27 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
 };
+
+class NormalMapShader : public IlluminatedObjectShader
+{
+public:
+	NormalMapShader();
+	~NormalMapShader();
+
+public:
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
+	virtual void AnimateObjects(float fTimeElapsed) {};
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+
+	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
+	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
+
+protected:
+	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
+	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
+};

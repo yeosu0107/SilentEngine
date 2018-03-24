@@ -143,12 +143,12 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
 	
-	InstanceIlluminatedObjectShader* pIlluminatedObject = new InstanceIlluminatedObjectShader();
-	pIlluminatedObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	pIlluminatedObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	NormalMapShader* pNormalObject = new NormalMapShader();
+	pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	//pIlluminatedObject->BuildObjects(pDevice, pCommandList);
 	//pIlluminatedObject->BuildPSO(pDevice, m_RootSignature.Get());
-	m_ppShaders[0] = pIlluminatedObject;
+	m_ppShaders[0] = pNormalObject;
 
 	ModelShader* tmp= new ModelShader(2);
 	tmp->setPhysics(m_physics);

@@ -109,6 +109,22 @@ public:
 	~CIlluminatedTexturedVertex() { }
 };
 
+class CNormalMapVertex : public CIlluminatedTexturedVertex
+{
+public:
+	XMFLOAT3						m_xmf3Tangent;
+
+public:
+	CNormalMapVertex() { m_xmf3Position = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf2TexCoord = XMFLOAT2(0.0f, 0.0f); m_xmf3Normal = XMFLOAT3(0.0f, 0.0f, 0.0f); m_xmf3Tangent = XMFLOAT3(0.0f, 0.0f, 0.0f); }
+	CNormalMapVertex(float x, float y, float z, XMFLOAT2 xmf2TexCoord, XMFLOAT3 xmf3Normal, XMFLOAT3 xmf3Tangent) {
+		m_xmf3Position = XMFLOAT3(x, y, z); m_xmf3Normal = xmf3Normal; m_xmf2TexCoord = xmf2TexCoord; m_xmf3Tangent = xmf3Tangent;
+	}
+	CNormalMapVertex(XMFLOAT3 xmf3Position, XMFLOAT3 xmf3Normal, XMFLOAT2 xmf2TexCoord, XMFLOAT3 xmf3Tangent) { 
+		m_xmf3Position = xmf3Position; m_xmf3Normal = xmf3Normal; m_xmf2TexCoord = xmf2TexCoord; m_xmf3Tangent = xmf3Tangent;
+	}
+	~CNormalMapVertex() { }
+};
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -207,6 +223,13 @@ class MeshGeometryIlluminatedTexturedCube : public MeshGeometryIlluminatedTextur
 public:
 	MeshGeometryIlluminatedTexturedCube(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
 	virtual ~MeshGeometryIlluminatedTexturedCube();
+};
+
+class NormalMappingCube : public MeshGeometryIlluminatedTexturedCube
+{
+public:
+	NormalMappingCube(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth = 2.0f, float fHeight = 2.0f, float fDepth = 2.0f);
+	virtual ~NormalMappingCube();
 };
 
 class CBoardMeshIlluminatedTextured : public MeshGeometryIlluminatedTexturedCube

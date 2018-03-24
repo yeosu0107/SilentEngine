@@ -1,0 +1,95 @@
+#include "Light.hlsl"
+
+struct VS_NORMAL_INPUT 
+{
+	float3 position : POSITION;
+	float3 normal : NORMAL;
+	float2 uv : TEXCOORD;
+	float3 tangentU : TANGENT;
+};
+
+struct VS_NORMAL_OUTPUT
+{
+	float4 position : SV_POSITION;
+	float3 positionW : POSITION;
+	float3 normalW : NORMAL;
+	float3 tangentW : TANGENT;
+	float2 uv : TEXCOORD;
+};
+
+float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
+{
+	float3 normalT = 2.0f * normalMapSample - 1.0f;
+
+	float3 N = unitNormalW;
+	float3 T = normalize(tangentW - dot(tangentW, N)*N);
+	float3 B = cross(N, T);
+
+	float3x3 TBN = float3x3(T, B, N);
+
+	float3 bumpedNormalW = mul(normalT, TBN);
+
+	return bumpedNormalW;
+}
+
+float3 SchlickFresnel(float3 R0, float3 normal, float3 lightVec)
+{
+	float cosIncidentAngle = saturate(dot(normal, lightVec));
+
+	float f0 = 1.0f - cosIncidentAngle;
+	float3 reflectPercent = R0 + (1.0f - R0)*(f0*f0*f0*f0*f0);
+
+	return reflectPercent;
+}
+
+
+
+VS_NORMAL_OUTPUT VSNormalMap(VS_NORMAL_INPUT input) {
+	VS_NORMAL_OUTPUT output = (VS_NORMAL_OUTPUT)0.0f;
+
+	MATERIAL matData = gMaterials[gnMaterial];
+
+	float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	output.positionW = positionW.xyz;
+	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	output.tangentW = mul(input.tangentU, (float3x3)gmtxGameObject);
+	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return output;
+}
+
+float4 PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Target
+{
+	MATERIAL matData = gMaterials[gnMaterial];
+	float4 diffuseAlbedo = matData.m_cDiffuse;
+	float3 fresnelR0 = matData.m_cSpecular.xyz;
+	float  roughness = matData.m_cSpecular.w;
+
+	
+	input.normalW = normalize(input.normalW);
+	
+	float4 normalMapSample = gBoxNormal.Sample(gDefaultSamplerState, float3(input.uv,0.0f));
+	float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, input.normalW, input.tangentW);
+	
+	diffuseAlbedo *= gBoxTextured.Sample(gDefaultSamplerState, float3(input.uv,0.0f));
+
+	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
+	float4 ambient = gcGlobalAmbientLight * diffuseAlbedo;
+	
+	const float shininess = (1.0f - roughness) * normalMapSample.a;
+	
+	float3 shadowFactor = 1.0f;
+	float4 directLight = Lighting(input.positionW, input.normalW, gnMaterial);
+	
+	float4 litColor = ambient + directLight;
+	
+	float3 r = reflect(-toEyeW, bumpedNormalW);
+	//float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
+	//float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+	
+	//litColor.rgb += shininess * fresnelFactor;
+	//litColor.a = diffuseAlbedo.a;
+	
+	return litColor;
+}
