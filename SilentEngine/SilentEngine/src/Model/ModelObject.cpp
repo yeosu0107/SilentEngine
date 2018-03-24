@@ -88,7 +88,7 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
 {
 	if (type == PhysMesh::Mesh_Tri) {
 		PxTriangleMesh* triMesh = phys->GetTriangleMesh(m_model->getMesh(0), m_model->getNumVertices());
-		PxVec3 scaleTmp = PxVec3(0.1f, 0.1f, 0.1f);
+		PxVec3 scaleTmp = PxVec3(1.0f, 1.0f, 1.0f);
 
 		PxMeshScale PxScale;
 		PxScale.scale = scaleTmp;

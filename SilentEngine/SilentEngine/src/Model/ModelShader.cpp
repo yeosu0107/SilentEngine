@@ -87,7 +87,7 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	object->SetPosition(XMFLOAT3(0, 0, 0));
 	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
-	object->SetScale(0.1f);
+	//object->SetScale(0.1f);
 	object->SetPhysMesh(globalPhysX, PhysMesh::Mesh_Tri);
 	m_ppObjects[0]=object;
 }

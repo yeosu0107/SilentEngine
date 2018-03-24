@@ -728,14 +728,6 @@ void Framework::OnKeyboardInput(const Timer& gt)
 
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
-	/*	if (GetCapture() == m_hMainWnd)
-		{
-			SetCursor(NULL);
-			GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-			SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-		}*/
 
 		if (m_bMouseCapture)
 		{
@@ -744,13 +736,6 @@ void Framework::OnKeyboardInput(const Timer& gt)
 			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / m_fMouseSensitive;
 			::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 		}
-
-		//if ((dwDirection != 0) || (cxDelta != 0.0f) || (cyDelta != 0.0f))
-		//{
-		//	/*if (cxDelta || cyDelta) {
-		//		m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
-		//	}*/
-		//}
 	}
 }
 

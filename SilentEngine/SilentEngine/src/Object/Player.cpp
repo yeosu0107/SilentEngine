@@ -45,19 +45,6 @@ void Player::Rotate(float x, float y, float z)
 		//m_pCamera->Rotate(x, y, z);
 		m_pCamera->Rotate(0, y, 0); //y축 회전만 허용
 	}
-	if (y != 0.0f)
-	{
-		XMMATRIX xmmtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_xmf3Up),
-			XMConvertToRadians(y));
-		m_xmf3Look = Vector3::TransformNormal(m_xmf3Look, xmmtxRotate);
-		m_xmf3Right = Vector3::TransformNormal(m_xmf3Right, xmmtxRotate);
-	}
-
-	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
-
-	//RegenerateMatrix();
 }
 
 void Player::RegenerateMatrix()
@@ -93,6 +80,12 @@ bool Player::Move(DWORD input, float fDist)
 			m_Controller->move(XMtoPX(xmf3Shift), 1.0f, 1, m_ControllerFilter);
 			//SetPosition(PXtoXM(m_Controller->getPosition())); //애니메에트에서 처리
 		}
+		//플레이어가 항상 카메라의 룩벡터만 바라보도록 보정
+		m_xmf3Look = m_pCamera->GetLookVector();
+		m_xmf3Look.y = 0.0f; //y축은 무시
+		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 		m_AnimIndex = PlayerAni::Move;
 		return true;
 	}

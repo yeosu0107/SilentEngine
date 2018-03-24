@@ -333,7 +333,7 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_1");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "PSInstanceTexturedLighting", "ps_5_1");
 
-	m_nObjects = 20;
+	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
