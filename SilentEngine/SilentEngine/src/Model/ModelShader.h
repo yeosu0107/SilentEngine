@@ -3,7 +3,7 @@
 #include "..\Shaders\Shaders.h"
 #include "ModelObject.h"
 
-class ModelShader : public IlluminatedObjectShader
+class ModelShader : public ObjectShader
 {
 protected:
 	UINT				modelIndex;

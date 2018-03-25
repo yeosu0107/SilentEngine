@@ -29,7 +29,7 @@ public:
 
 	void setBones(vector<pair<string, Bone>>* bones) {
 		m_Bones = *bones;
-		m_NumBones = m_Bones.size();
+		m_NumBones = (UINT)m_Bones.size();
 	}
 	void DisableLoof(UINT index) {
 		animation_loof = false;

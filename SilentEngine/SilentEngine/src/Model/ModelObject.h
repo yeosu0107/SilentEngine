@@ -57,7 +57,7 @@ public:
 		return m_Bones.data();
 	}
 	virtual int GetBoneNum() const {
-		return m_Bones.size();
+		return (int)m_Bones.size();
 	}
 
 	//physX ¼¼ÆÃ

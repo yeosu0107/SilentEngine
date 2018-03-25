@@ -46,7 +46,7 @@ void ModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandL
 {
 	CB_GAMEOBJECT_INFO cBuffer;
 	for (int i = 0; i < m_nObjects; ++i) {
-		cBuffer.m_xmf4x4World = m_ppObjects[i]->m_xmf4x4World;
+		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
 	}
@@ -63,10 +63,10 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSModelTextured", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSTextured", "ps_5_0");
 
-	m_nObjects = 1;
+	m_nObjects = 2;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO)));
 	CreateGraphicsRootSignature(pd3dDevice);
@@ -83,18 +83,20 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 		m_pMaterial->SetReflection(1);
 	}
 	
-
-	ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
-	object->SetPosition(XMFLOAT3(0, 0, 0));
-	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
-	//object->SetScale(0.1f);
-	object->SetPhysMesh(globalPhysX, PhysMesh::Mesh_Tri);
-	m_ppObjects[0]=object;
+	for (int i = 0; i < m_nObjects; ++i) {
+		ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
+		object->SetPosition(XMFLOAT3(0, 0, i*400));
+		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+		//object->SetScale(0.1f);
+		object->SetPhysMesh(globalPhysX, PhysMesh::Mesh_Tri);
+		m_ppObjects[i] = object;
+	}
 }
 
 void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
 	Shaders::OnPrepareRender(pd3dCommandList);
+	Shaders::Render(pd3dCommandList, pCamera);
 
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 

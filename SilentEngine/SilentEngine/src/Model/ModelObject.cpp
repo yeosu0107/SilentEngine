@@ -94,7 +94,8 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
 		PxScale.scale = scaleTmp;
 
 		PxTriangleMeshGeometry meshGeo(triMesh, PxScale);
-		PxTransform location(0, 0, 0);
+		XMFLOAT3 pos = GetPosition();
+		PxTransform location(pos.x, pos.y, pos.z);
 
 		PxMaterial* mat = phys->getPhys()->createMaterial(0.2f, 0.2f, 0.2f);
 
