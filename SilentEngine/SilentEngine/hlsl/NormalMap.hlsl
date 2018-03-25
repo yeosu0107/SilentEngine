@@ -62,34 +62,32 @@ VS_NORMAL_OUTPUT VSNormalMap(VS_NORMAL_INPUT input) {
 float4 PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Target
 {
 	MATERIAL matData = gMaterials[gnMaterial];
-	float4 diffuseAlbedo = matData.m_cDiffuse;
-	float3 fresnelR0 = matData.m_cSpecular.xyz;
-	float  roughness = matData.m_cSpecular.w;
 
-	
+	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
+	float  roughness = 0.1f;
+
 	input.normalW = normalize(input.normalW);
 	
 	float4 normalMapSample = gBoxNormal.Sample(gDefaultSamplerState, float3(input.uv,0.0f));
 	float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, input.normalW, input.tangentW);
 	
-	diffuseAlbedo *= gBoxTextured.Sample(gDefaultSamplerState, float3(input.uv,0.0f));
+	const float shininess = (1.0f - roughness) * normalMapSample.a;
+
+	cColor = gBoxTextured.Sample(gDefaultSamplerState, float3(input.uv,0.0f));
 
 	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
-	float4 ambient = gcGlobalAmbientLight * diffuseAlbedo;
-	
-	const float shininess = (1.0f - roughness) * normalMapSample.a;
-	
+
 	float3 shadowFactor = 1.0f;
-	float4 directLight = Lighting(input.positionW, input.normalW, gnMaterial);
+	float4 directLight = Lighting(input.positionW, bumpedNormalW, gnMaterial);
 	
-	float4 litColor = ambient + directLight;
-	
+	float4 litColor = directLight * cColor;
 	float3 r = reflect(-toEyeW, bumpedNormalW);
 	//float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
-	//float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-	
-	//litColor.rgb += shininess * fresnelFactor;
-	//litColor.a = diffuseAlbedo.a;
-	
+	float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+	//float3 fresnelFactor = float3(1.0f, 1.0f, 1.0f);
+	litColor.rgb += shininess * fresnelFactor * litColor;
+
+	//return cColor;
 	return litColor;
 }

@@ -602,7 +602,7 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice);
 
-	NormalMappingCube *pCubeMesh = new NormalMappingCube(pd3dDevice, pd3dCommandList, 12.0f, 12.0f, 12.0f);
+	NormalMappingCube *pCubeMesh = new NormalMappingCube(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 50.0f);
 
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
@@ -611,9 +611,10 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	m_pMaterial->SetReflection(1);
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		m_ppObjects[0] = new GameObject();
-		m_ppObjects[0]->SetMesh(0, pCubeMesh);
-		m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+		m_ppObjects[i] = new GameObject();
+		m_ppObjects[i]->SetPosition(i * 50.0f + 50.0f, i * 50.0f - 50.0f, i * 50.0f);
+		m_ppObjects[i]->SetMesh(0, pCubeMesh);
+		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
 }
 
