@@ -113,7 +113,7 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 	meshDesc.points.stride = sizeof(PxVec3);
 	meshDesc.points.data = fromVertex(meshes->m_vertices.data(), meshes->m_vertices.size());
 	
-	meshDesc.triangles.count = meshes->m_indices.size();
+	meshDesc.triangles.count = meshes->m_indices.size()/3;
 	meshDesc.triangles.stride = sizeof(int) * 3;
 	meshDesc.triangles.data = meshes->m_indices.data();
 
@@ -148,7 +148,7 @@ PxCapsuleController* BasePhysX::getCapsuleController()
 	PxCapsuleControllerDesc capsuleDesc;
 	capsuleDesc.height = 0.3f; //Height of capsule
 	capsuleDesc.radius = 5.0f; //Radius of casule
-	capsuleDesc.position = PxExtendedVec3(0, 30, 0); //Initial position of capsule
+	capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
 	capsuleDesc.material = gPhysics->createMaterial(1.0f,1.0f, 1.0f); //Material for capsule shape
 	//capsuleDesc.density = 1.0f; //Desity of capsule shape
 	capsuleDesc.contactOffset = 1.01f; //외부 물체와 상호작용하는 크기 (지정한 충돌캡슐보다 조금 더 크게 형성위해)
