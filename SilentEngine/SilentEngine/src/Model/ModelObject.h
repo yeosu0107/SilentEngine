@@ -63,4 +63,6 @@ public:
 	//physX ¼¼ÆÃ
 	void SetPhysMesh(BasePhysX* phys, PhysMesh type);
 	void SetPhysController(PxCapsuleController* control);
+
+	PxControllerBehaviorCallback* getBehaviorCallback() { return nullptr; }
 };

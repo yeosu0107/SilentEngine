@@ -1,4 +1,5 @@
 #pragma once
+
 #include "D3DUtil.h"
 #include "D3DMath.h"
 #include "UploadBuffer.h"
@@ -77,11 +78,6 @@ protected:
 	//카메라 소유 플레이어 포인터
 	Player *m_pPlayer = NULL;
 
-	BoundingOrientedBox				m_xmOOBB;			 //모델좌표계에서의 충돌영역
-	BoundingOrientedBox				m_xmOOBBTransformed; //월드좌표계에서의 충돌 영역
-	bool							CameraCrush;
-	BoundingFrustum					m_xmFrustum;			 //절두체 컬
-
 	const UINT			m_ClientWidth = 1280;
 	const UINT			m_ClientHeight = 720;
 	UINT				m_nCbvSrvDescriptorSize = 0;
@@ -156,21 +152,12 @@ public:
 	//3인칭 카메라에서 카메라가 플레이어를 바라보게 설정
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
 
-	void SetOOBB(XMFLOAT3& xmCenter, XMFLOAT3& xmExtents, XMFLOAT4& xmOrientation) { m_xmOOBBTransformed = m_xmOOBB = BoundingOrientedBox(xmCenter, xmExtents, xmOrientation); }
-	BoundingOrientedBox* getOOBB() { return &m_xmOOBBTransformed; } //트랜스폼 oobb주소 반환
-	void UpdateOOBB(XMFLOAT4X4& matrix);
-	void setCrush(bool t) { CameraCrush = t; }
-	bool getCrush() const { return CameraCrush; }
-	bool IsInFrustum(BoundingOrientedBox& xmBoundingBox);
-
-	void GenerateFrustum();
 	void ReleaseShaderVariables();
-
 };
-
 
 class CThirdPersonCamera : public Camera
 {
+private:
 public:
 	CThirdPersonCamera();
 	CThirdPersonCamera(Camera *pCamera);
@@ -178,8 +165,5 @@ public:
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed);
 	virtual void SetLookAt(XMFLOAT3& vLookAt);
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
-
-public:
-	bool RotateLock(XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3CameraPos);
 
 };

@@ -20,6 +20,34 @@ enum PlayerAni
 	Idle=0, Move=1, Attack=2, Skill=3, Hitted=4
 };
 
+//플레이어 충돌 콜백 함수
+//무브함수가 실행될 때만 실행됨
+class PlayerCollisionCallback : public PxUserControllerHitReport
+{
+private:
+	Jump * jump;
+public:
+	void onShapeHit(const PxControllerShapeHit &hit) {
+		if (jump->mJump) {
+			jump->stopJump();
+			//cout << "Hit Shape floor\n";
+		}
+
+			//cout << "Hit Shape wall\n";
+		//cout<<hit.worldPos.x << "  " << hit.worldPos.y << "  " << hit.worldPos.z << endl;
+	}
+	void 	onControllerHit(const PxControllersHit &hit) {
+		//cout << "Hit Other Controller" << endl;
+	}
+	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
+		//cout << "Hit Obstacle" << endl;
+	}
+
+	void SetJump(Jump* tmp) {
+		jump = tmp;
+	}
+};
+
 class Player : public ModelObject
 {
 protected:
@@ -32,7 +60,9 @@ protected:
 	float           			m_fYaw = 0.0f;
 	float           			m_fRoll = 0.0f;
 
-	Camera* m_pCamera;
+	Camera*				m_pCamera;
+
+	PlayerCollisionCallback	m_Callback;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();
@@ -43,6 +73,7 @@ public:
 	XMFLOAT3 GetLookVector() { return(m_xmf3Look); }
 	XMFLOAT3 GetUpVector() { return(m_xmf3Up); }
 	XMFLOAT3 GetRightVector() { return(m_xmf3Right); }
+	PlayerCollisionCallback* getCollisionCallback() { return &m_Callback; }
 
 	void RegenerateMatrix();
 

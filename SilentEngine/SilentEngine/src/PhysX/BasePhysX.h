@@ -19,13 +19,30 @@ inline PxVec3 XMtoPX(const XMFLOAT3& pos) {
 	return PxVec3(pos.x, pos.y, pos.z);
 }
 
+inline PxExtendedVec3 XMtoPXEx(const XMFLOAT3& pos) {
+	return PxExtendedVec3(pos.x, pos.y, pos.z);
+}
+
 inline XMFLOAT3 PXtoXM(const PxExtendedVec3& pos) {
 	return XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
+
+
 enum PhysMesh {
 	Mesh_Box=0, Mesh_Capsule=1, Mesh_Tri=2
 };
+
+//class CollisionReportCallback : public PxSimulationEventCallback
+//{
+//public:
+//	void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) { PX_UNUSED(constraints); PX_UNUSED(count); }
+//	void onWake(PxActor** actors, PxU32 count) { PX_UNUSED(actors); PX_UNUSED(count); }
+//	void onSleep(PxActor** actors, PxU32 count) { PX_UNUSED(actors); PX_UNUSED(count); }
+//	void onTrigger(PxTriggerPair* pairs, PxU32 count) { PX_UNUSED(pairs); PX_UNUSED(count); }
+//	void onAdvance(const PxRigidBody*const*, const PxTransform*, const PxU32) {}
+//	void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
+//};
 
 class BasePhysX
 {
@@ -45,6 +62,8 @@ private:
 
 	PxControllerManager*		gControllerMgr;
 	PxCapsuleController*		gPlayer;
+
+	//CollisionReportCallback	gCallback;			//충돌 콜백
 public:
 	BasePhysX(float frameRate);
 	~BasePhysX();
@@ -57,9 +76,11 @@ public:
 
 	void Addapt(XMFLOAT3& pos);
 
-	PxTriangleMesh* GetTriangleMesh(mesh* meshes, UINT count);
-	PxCapsuleController* getCapsuleController();
+	PxTriangleMesh*			GetTriangleMesh(mesh* meshes, UINT count);
+	PxCapsuleController*	getCapsuleController(PxUserControllerHitReport* collisionCallback);
+	PxBoxController*			getBoxController(PxUserControllerHitReport* collisionCallback);
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }
 };
+

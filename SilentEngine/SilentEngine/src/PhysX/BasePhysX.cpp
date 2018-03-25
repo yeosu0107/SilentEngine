@@ -1,6 +1,25 @@
 #include "stdafx.h"
 #include "BasePhysX.h"
 
+PxFilterFlags contactReportFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0,
+	PxFilterObjectAttributes attributes1, PxFilterData filterData1,
+	PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+{
+	PX_UNUSED(attributes0);
+	PX_UNUSED(attributes1);
+	PX_UNUSED(filterData0);
+	PX_UNUSED(filterData1);
+	PX_UNUSED(constantBlockSize);
+	PX_UNUSED(constantBlock);
+
+	// all initial and persisting reports for everything, with per-point data
+	pairFlags = PxPairFlag::eSOLVE_CONTACT | PxPairFlag::eDETECT_DISCRETE_CONTACT
+		| PxPairFlag::eNOTIFY_TOUCH_FOUND
+		| PxPairFlag::eNOTIFY_TOUCH_PERSISTS
+		| PxPairFlag::eNOTIFY_CONTACT_POINTS;
+	return PxFilterFlag::eDEFAULT;
+}
+
 BasePhysX::BasePhysX(float frameRate) : gFoundation(nullptr), gPhysics(nullptr),
 gScene(nullptr), gPvd(nullptr), gControllerMgr(nullptr)
 {
@@ -14,6 +33,7 @@ BasePhysX::~BasePhysX()
 
 void BasePhysX::InitPhysics()
 {
+
 	//foundation 생성
 	gFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, gAllocator, gErrorCallback);
 
@@ -41,6 +61,8 @@ void BasePhysX::InitPhysics()
 	sceneDesc.gravity = PxVec3(0.0f, -10.0f, 0.0f); //현실세계 중력가속도 반올림
 	sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(1); //scene을 위한 cpuDispatcher 생성
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader; //
+	//sceneDesc.filterShader = contactReportFilterShader;
+	//sceneDesc.simulationEventCallback = &gCallback;	//충돌 콜백
 
 	gScene = gPhysics->createScene(sceneDesc); //scene 등록
 
@@ -57,14 +79,6 @@ void BasePhysX::InitPhysics()
 	//physx 매터리얼 생성
 	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
 
-
-	//PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
-	//if (pvdClient)
-	//{
-	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-	//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-	//}
 }
 
 void BasePhysX::BuildPhysics()
@@ -143,14 +157,14 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 	return triMesh;
 }
 
-PxCapsuleController* BasePhysX::getCapsuleController()
+PxCapsuleController* BasePhysX::getCapsuleController(PxUserControllerHitReport* collisionCallback)
 {
 	PxCapsuleControllerDesc capsuleDesc;
 	capsuleDesc.height = 0.3f; //Height of capsule
 	capsuleDesc.radius = 5.0f; //Radius of casule
 	capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
 	capsuleDesc.material = gPhysics->createMaterial(1.0f,1.0f, 1.0f); //Material for capsule shape
-	//capsuleDesc.density = 1.0f; //Desity of capsule shape
+	capsuleDesc.density = 1.0f; //Desity of capsule shape
 	capsuleDesc.contactOffset = 1.01f; //외부 물체와 상호작용하는 크기 (지정한 충돌캡슐보다 조금 더 크게 형성위해)
 	capsuleDesc.slopeLimit = cosf(XMConvertToRadians(15.0f)); //경사 허용도(degree) 0에 가까울수록 경사를 못올라감
 	capsuleDesc.stepOffset = 1.0f;	//자연스러운 이동 (약간의 고저에 부딫혔을 때 이동가능 여부)
@@ -159,7 +173,31 @@ PxCapsuleController* BasePhysX::getCapsuleController()
 	capsuleDesc.climbingMode = PxCapsuleClimbingMode::eEASY;
 	//capsuleDesc.invisibleWallHeight = 0.0f;
 
+	//충돌 콜백 함수
+	capsuleDesc.reportCallback = collisionCallback;
+
 	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
 
+	return controller;
+}
+
+PxBoxController* BasePhysX::getBoxController(PxUserControllerHitReport * collisionCallback)
+{
+	PxBoxControllerDesc boxDesc;
+	boxDesc.halfForwardExtent = 1.5f;
+	boxDesc.halfHeight = 1.5f;
+	boxDesc.halfSideExtent = 1.5f;
+
+	boxDesc.position = PxExtendedVec3(0, 0, 0);
+
+	boxDesc.density = 1.0f;
+	boxDesc.material = gPhysics->createMaterial(1.0f, 1.0f, 1.0f);
+	boxDesc.contactOffset = 5.0f;
+	boxDesc.slopeLimit = 0.0f;
+
+	boxDesc.reportCallback = collisionCallback;
+
+	PxBoxController* controller = static_cast<PxBoxController*>(gControllerMgr->createController(boxDesc));
+	
 	return controller;
 }

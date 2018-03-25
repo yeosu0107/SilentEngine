@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "Camera.h"
 #include "Player.h"
+#include "Camera.h"
+
 
 Camera::Camera()
 {
@@ -192,7 +193,6 @@ void Camera::RegenerateViewMatrix()
 	m_xmf4x4View._41 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Right);
 	m_xmf4x4View._42 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Up);
 	m_xmf4x4View._43 = -Vector3::DotProduct(m_xmf3Position, m_xmf3Look);
-	GenerateFrustum();
 }
 
 void Camera::Move(ULONG dwDirection, float fDistance, bool bVelocity)
@@ -253,33 +253,14 @@ void Camera::Rotate(float x, float y, float z)
 
 }
 
-void Camera::UpdateOOBB(XMFLOAT4X4& matrix)
-{
-	m_xmOOBBTransformed = m_xmOOBB;
-	m_xmOOBBTransformed.Transform(m_xmOOBBTransformed, XMLoadFloat4x4(&matrix));
-	XMStoreFloat4(&m_xmOOBBTransformed.Orientation, XMQuaternionNormalize(XMLoadFloat4(&m_xmOOBBTransformed.Orientation)));
-}
-
-void Camera::GenerateFrustum()
-{
-	m_xmFrustum.CreateFromMatrix(m_xmFrustum, XMLoadFloat4x4(&m_xmf4x4Projection));
-	XMMATRIX xmmtxInversView = XMMatrixInverse(NULL, XMLoadFloat4x4(&m_xmf4x4View));
-	m_xmFrustum.Transform(m_xmFrustum, xmmtxInversView);
-}
-
-bool Camera::IsInFrustum(BoundingOrientedBox& xmBoundingBox)
-{
-	return(m_xmFrustum.Intersects(xmBoundingBox));
-}
-
 CThirdPersonCamera::CThirdPersonCamera() : Camera()
 {
+	//m_Controller = nullptr;
 }
 
 CThirdPersonCamera::CThirdPersonCamera(Camera *pCamera) : Camera(pCamera)
 {
 	m_nMode = THIRD_PERSON_CAMERA;
-	//m_xmf3Offset = XMFLOAT3(0.0f, 50.0f, -50.0f);
 }
 
 void CThirdPersonCamera::Rotate(float x, float y, float z) {
@@ -337,10 +318,6 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 	XMFLOAT3 xmf3Position = Vector3::Add(m_pPlayer->GetPosition(), xmf3Offset);
 	XMFLOAT3 xmf3Direction = Vector3::Subtract(m_pPlayer->GetPosition(), xmf3Position, false);
 
-	//if (RotateLock(xmf3Direction, xmf3Position))
-	//{
-	//	m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
-	//}
 
 	m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
 }
@@ -350,14 +327,6 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 	if (m_pPlayer)
 	{
 		XMFLOAT4X4 xmf4x4Rotate = Matrix4x4::Identity();
-		//XMFLOAT3 xmf3Right = GetRightVector();
-		//XMFLOAT3 xmf3Up = GetUpVector();
-		//XMFLOAT3 xmf3Look = GetLookVector();
-
-		////플레이어의 로컬 x-축, y-축, z-축 벡터로부터 회전 행렬(플레이어와 같은 방향을 나타내는 행렬)을 생성한다.
-		//xmf4x4Rotate._11 = xmf3Right.x; xmf4x4Rotate._21 = xmf3Up.x; xmf4x4Rotate._31 = xmf3Look.x;
-		//xmf4x4Rotate._12 = xmf3Right.y; xmf4x4Rotate._22 = xmf3Up.y; xmf4x4Rotate._32 = xmf3Look.y;
-		//xmf4x4Rotate._13 = xmf3Right.z; xmf4x4Rotate._23 = xmf3Up.z; xmf4x4Rotate._33 = xmf3Look.z;
 
 		//카메라 오프셋 벡터를 회전 행렬로 변환(회전)한다. 
 		XMFLOAT3 xmf3Offset = Vector3::TransformCoord(m_xmf3Offset, m_xmf4x4Rotate);
@@ -393,17 +362,3 @@ void CThirdPersonCamera::SetLookAt(XMFLOAT3& xmf3LookAt)
 	m_xmf3Look = XMFLOAT3(mtxLookAt._13, mtxLookAt._23, mtxLookAt._33);
 }
 
-bool CThirdPersonCamera::RotateLock(XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3CameraPos)
-{
-	XMFLOAT3 xmf3Playerpos = m_pPlayer->GetPosition();
-	XMFLOAT3 xmf3ToCameraNorm = Vector3::Normalize(Vector3::ScalarProduct(xmf3Direction, -1));
-	// 카메라와 플레이어의 x ,z 차이에 대한 값만 갖고 있는 벡터를 생성
-	XMFLOAT3 xmf3ToCameraY0 = Vector3::SubtractAxisZero(xmf3CameraPos, xmf3Playerpos, RotY);
-
-	float fLimitAngle = 50.0f;
-
-	// xmf3ToCameraY0와 xmf3ToCameraNorm의 차이는 사실상 y값밖에 없다. 정규화된 이 두개의 값을 이용하여 값을 추출
-	float fAngle = Vector3::Angle(xmf3ToCameraY0, xmf3ToCameraNorm);
-
-	return fAngle < fLimitAngle ? true : false;
-}

@@ -260,7 +260,7 @@ void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	Player* tmp=new Player(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	tmp->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
 	tmp->SetPosition(XMFLOAT3(0, 0, 0));
-	tmp->SetPhysController(globalPhysX->getCapsuleController());
+	tmp->SetPhysController(globalPhysX->getCapsuleController(tmp->getCollisionCallback()));
 	tmp->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
 	m_ppObjects[0] = tmp;
 	////m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));

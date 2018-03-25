@@ -11,6 +11,7 @@ Player::Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_pCamera = nullptr;
 
 	m_Jump.startJump(PxF32(0)); //중력 작용을 위해 점프 임시로 점프 세팅
+	m_Callback.SetJump(&m_Jump);
 }
 
 Player::~Player()
