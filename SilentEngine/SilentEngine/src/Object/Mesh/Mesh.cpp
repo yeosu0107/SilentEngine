@@ -28,7 +28,7 @@ void MeshGeometry::Render(ID3D12GraphicsCommandList *pd3dCommandList)
 	}
 }
 
-void MeshGeometry::InstanceRender(ID3D12GraphicsCommandList * pd3dCommandList, UINT nInstanceCount)
+void MeshGeometry::Render(ID3D12GraphicsCommandList * pd3dCommandList, UINT nInstanceCount)
 {
 	pd3dCommandList->IASetPrimitiveTopology(m_d3dPrimitiveTopology);			// 입력 조립기 프리미티브 토폴로지 셋
 	pd3dCommandList->IASetVertexBuffers(m_nSlot, 1, &m_d3dVertexBufferView);	// m_nslot번째 슬롯부터 n개의 view를 통해 버퍼를 사용하게따

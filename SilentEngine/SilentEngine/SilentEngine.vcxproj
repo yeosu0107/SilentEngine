@@ -168,6 +168,7 @@
     <ClCompile Include="src\Framework\SilentEngine.cpp" />
     <ClCompile Include="src\Framework\Timer.cpp" />
     <ClCompile Include="src\Model\Animation.cpp" />
+    <ClCompile Include="src\Model\InstanceModelShader.cpp" />
     <ClCompile Include="src\Model\LoadModel.cpp" />
     <ClCompile Include="src\Model\ModelLoader.cpp" />
     <ClCompile Include="src\Model\ModelObject.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="src\Framework\Timer.h" />
     <ClInclude Include="src\Framework\UploadBuffer.h" />
     <ClInclude Include="src\Model\Animation.h" />
+    <ClInclude Include="src\Model\InstanceModelShader.h" />
     <ClInclude Include="src\Model\LoadModel.h" />
     <ClInclude Include="src\Model\ModelLoader.h" />
     <ClInclude Include="src\Model\ModelObject.h" />

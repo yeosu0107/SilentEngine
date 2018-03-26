@@ -250,6 +250,37 @@ void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCam
 	}
 }
 
+void GameObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, UINT nObject, Camera * pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+
+	if (m_pMaterial)
+	{
+		if (m_pMaterial->m_pShader)
+		{
+			m_pMaterial->m_pShader->Render(pd3dCommandList, pCamera);
+			m_pMaterial->m_pShader->UpdateShaderVariables(pd3dCommandList);
+
+			UpdateShaderVariables(pd3dCommandList);
+		}
+		if (m_pMaterial->m_pTexture)
+		{
+			m_pMaterial->m_pTexture->UpdateShaderVariables(pd3dCommandList);
+		}
+	}
+
+	SetRootParameter(pd3dCommandList);
+
+	if (!m_ppMeshes.empty())
+	{
+		for (int i = 0; i < m_nMeshes; i++)
+		{
+			if (m_ppMeshes[i])
+				m_ppMeshes[i]->Render(pd3dCommandList, nObject);
+		}
+	}
+}
+
 
 void GameObject::ReleaseUploadBuffers()
 {

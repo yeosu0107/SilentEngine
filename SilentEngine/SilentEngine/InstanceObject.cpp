@@ -34,7 +34,7 @@ void InstanceObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera 
 		for (int i = 0; i < m_nMeshes; i++)
 		{
 			if (m_ppMeshes[i])
-				m_ppMeshes[i]->InstanceRender(pd3dCommandList, m_nInstanceCount);
+				m_ppMeshes[i]->Render(pd3dCommandList, m_nInstanceCount);
 		}
 	}
 }
