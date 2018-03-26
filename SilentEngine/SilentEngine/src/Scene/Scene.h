@@ -75,11 +75,11 @@ protected:
 	
 	UINT m_nShaders = 0;
 	
-	LIGHTS*									m_pLights;
-	unique_ptr<UploadBuffer<LIGHTS>>		m_pd3dcbLights = nullptr;
+	LIGHTS*										m_pLights;
+	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
 
-	MATERIALS*								m_pMaterials;
-	unique_ptr<UploadBuffer<MATERIALS>>		m_pd3dcbMaterials = nullptr;
+	MATERIALS*									m_pMaterials;
+	unique_ptr<UploadBuffer<MATERIALS>>			m_pd3dcbMaterials = nullptr;
 
 	GameObject* m_testPlayer;
 };

@@ -86,7 +86,7 @@ float4 PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Target
 	//float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
 	float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
 	//float3 fresnelFactor = float3(1.0f, 1.0f, 1.0f);
-	litColor.rgb += shininess * fresnelFactor * litColor;
+	litColor.rgb += shininess * fresnelFactor * litColor.rgb;
 
 	//return cColor;
 	return litColor;

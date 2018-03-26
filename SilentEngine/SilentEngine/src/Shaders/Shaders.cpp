@@ -556,6 +556,8 @@ void IlluminatedObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList
 	}
 }
 
+//////////////////////////////////////////////////////////////////////
+
 NormalMapShader::NormalMapShader() : IlluminatedObjectShader()
 {
 }
@@ -616,6 +618,8 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 		m_ppObjects[i]->SetMesh(0, pCubeMesh);
 		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
+
+	
 }
 
 void NormalMapShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)

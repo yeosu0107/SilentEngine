@@ -111,8 +111,8 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 
 void TestScene::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_pd3dcbLights = make_unique<UploadBuffer<LIGHTS>>(pDevice, 1, true);
-	m_pd3dcbMaterials = make_unique<UploadBuffer<MATERIALS>>(pDevice, 1, true);
+	m_pd3dcbLights = std::make_unique<UploadBuffer<LIGHTS>>(pDevice, 1, true);
+	m_pd3dcbMaterials = std::make_unique<UploadBuffer<MATERIALS>>(pDevice, 1, true);
 }
 
 void TestScene::UpdateShaderVarialbes() {
@@ -122,6 +122,8 @@ void TestScene::UpdateShaderVarialbes() {
 
 void TestScene::Update(const Timer & gt)
 {
+	m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(0.0f, 50.0f, 0.0f));
+
 	m_physics->stepPhysics(false);
 	for (UINT i = 0; i < m_nShaders; ++i) {
 		m_ppShaders[i]->Animate(gt.DeltaTime());
@@ -151,12 +153,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	//NormalMapShader* pNormalObject = new NormalMapShader();
 	//pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	//pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	////pIlluminatedObject->BuildObjects(pDevice, pCommandList);
-	////pIlluminatedObject->BuildPSO(pDevice, m_RootSignature.Get());
+	////pNormalObject->BuildObjects(pDevice, pCommandList);
+	////pNormalObject->BuildPSO(pDevice, m_RootSignature.Get());
 	//m_ppShaders[0] = pNormalObject;
 
 	InstanceModelShader* tmp= new InstanceModelShader(2);
 	tmp->setPhysics(m_physics);
+	tmp->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	tmp->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	m_ppShaders[0] = tmp;
 	
 	/*DynamicModelShader* tmp2 = new DynamicModelShader(1);
@@ -244,7 +248,7 @@ void TestScene::BuildLightsAndMaterials()
 	m_pLights = new LIGHTS();
 	::ZeroMemory(m_pLights, sizeof(LIGHTS));
 
-	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
 
 	m_pLights->m_pLights[0].m_bEnable = true;
 	m_pLights->m_pLights[0].m_nType = POINT_LIGHT;
@@ -259,7 +263,7 @@ void TestScene::BuildLightsAndMaterials()
 	m_pLights->m_pLights[1].m_bEnable = true;
 	m_pLights->m_pLights[1].m_nType = SPOT_LIGHT;
 	m_pLights->m_pLights[1].m_fRange = 50.0f;
-	m_pLights->m_pLights[1].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_pLights->m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 	m_pLights->m_pLights[1].m_xmf4Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_pLights->m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
 	m_pLights->m_pLights[1].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
@@ -292,7 +296,7 @@ void TestScene::BuildLightsAndMaterials()
 	m_pMaterials = new MATERIALS();
 	::ZeroMemory(m_pMaterials, sizeof(MATERIALS));
 
-	m_pMaterials->m_pReflections[0] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[0] = { XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[1] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
 	m_pMaterials->m_pReflections[2] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[3] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };

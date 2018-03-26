@@ -369,67 +369,6 @@ MeshGeometryIlluminatedTexturedCube::~MeshGeometryIlluminatedTexturedCube()
 {
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-//
-//
-//CUIMeshTextured::CUIMeshTextured(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, XMFLOAT3 & xmf3StartPos, XMFLOAT3 & xmf3EndPos, float fTexutreNum, float fsize = 1.0f) : MeshGeometryDiffused(pd3dDevice, pd3dCommandList)
-//{
-//
-//	XMFLOAT3 convertStartScreenVertex(
-//		(xmf3StartPos.x - FRAME_BUFFER_WIDTH / 2) / (float)(FRAME_BUFFER_WIDTH / 2),
-//		(xmf3StartPos.y - FRAME_BUFFER_HEIGHT / 2) / (float)(FRAME_BUFFER_HEIGHT / 2),
-//		xmf3StartPos.z
-//	);
-//
-//	XMFLOAT3 convertEndScreenVertex(
-//		(xmf3EndPos.x - FRAME_BUFFER_WIDTH / 2) / (float)(FRAME_BUFFER_WIDTH / 2),
-//		(xmf3EndPos.y - FRAME_BUFFER_HEIGHT / 2) / (float)(FRAME_BUFFER_HEIGHT / 2),
-//		xmf3EndPos.z
-//	);
-//
-//	float fXratio = (xmf3EndPos.x - xmf3StartPos.x) / fsize;
-//	float fYratio = (xmf3StartPos.y - xmf3EndPos.y) / fsize;
-//
-//	m_nVertices = 6;
-//	m_nStride = sizeof(CUITexturedVertex);
-//	m_nOffset = 0;
-//	m_nSlot = 0;
-//	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-//
-//	XMFLOAT3 pxmf3Positions[6];
-//	int i = 0;
-//	pxmf3Positions[i++] = convertStartScreenVertex;
-//	pxmf3Positions[i++] = XMFLOAT3(convertEndScreenVertex.x, convertStartScreenVertex.y, convertEndScreenVertex.z);
-//	pxmf3Positions[i++] = convertEndScreenVertex;
-//
-//	pxmf3Positions[i++] = convertStartScreenVertex;
-//	pxmf3Positions[i++] = convertEndScreenVertex;
-//	pxmf3Positions[i++] = XMFLOAT3(convertStartScreenVertex.x, convertEndScreenVertex.y, convertStartScreenVertex.z);
-//
-//	XMFLOAT2 pxmf2TexCoords[6];
-//	i = 0;
-//	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
-//
-//	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
-//
-//	CUITexturedVertex pVertices[6];
-//	for (int i = 0; i < 6; i++) pVertices[i] = CUITexturedVertex(pxmf3Positions[i], pxmf2TexCoords[i], fTexutreNum);
-//
-//	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
-//
-//	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
-//	m_d3dVertexBufferView.StrideInBytes = m_nStride;
-//	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
-//}
-//
-//CUIMeshTextured::~CUIMeshTextured()
-//{
-//}
-//
 //CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth
 //	, float fxPosition, float fyPosition, float fzPosition) :
 //	MeshGeometryIlluminatedTextured(pd3dDevice, pd3dCommandList)
@@ -494,43 +433,149 @@ NormalMappingCube::NormalMappingCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 	m_nSlot = 0;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-	array<CNormalMapVertex, 24> pVertices;
-	pVertices =
+	array<XMFLOAT3, 24> pxmf3Positions;
+	pxmf3Positions =
 	{
-		CNormalMapVertex(-xSize, -ySize, -zSize, XMFLOAT2(0.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f)),
-		CNormalMapVertex(-xSize, +ySize, -zSize, XMFLOAT2(0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f)),
-		CNormalMapVertex(+xSize, +ySize, -zSize, XMFLOAT2(1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f)),
-		CNormalMapVertex(+xSize, -ySize, -zSize, XMFLOAT2(1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(1.0f, 0.0f, 0.0f)),
+		XMFLOAT3(-xSize, -ySize, -zSize),
+		XMFLOAT3(-xSize, +ySize, -zSize),
+		XMFLOAT3(+xSize, +ySize, -zSize),
+		XMFLOAT3(+xSize, -ySize, -zSize),
 
-		CNormalMapVertex(-xSize, -ySize, +zSize,  XMFLOAT2(1.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f)),
-		CNormalMapVertex(+xSize, -ySize, +zSize,  XMFLOAT2(0.0f, 1.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f)),
-		CNormalMapVertex(+xSize, +ySize, +zSize,  XMFLOAT2(0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f)),
-		CNormalMapVertex(-xSize, +ySize, +zSize,  XMFLOAT2(1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f)),
+		XMFLOAT3(-xSize, -ySize, +zSize),
+		XMFLOAT3(+xSize, -ySize, +zSize),
+		XMFLOAT3(+xSize, +ySize, +zSize),
+		XMFLOAT3(-xSize, +ySize, +zSize),
 
-		CNormalMapVertex(-xSize, +ySize, -zSize, XMFLOAT2(0.0f, 1.0f), XMFLOAT3(+0.0f, +1.0f, 0.0f), XMFLOAT3(+1.0f, 0.0f, +0.0f)),
-		CNormalMapVertex(-xSize, +ySize, +zSize, XMFLOAT2(0.0f, 0.0f), XMFLOAT3(+0.0f, +1.0f, 0.0f), XMFLOAT3(+1.0f, 0.0f, +0.0f)),
-		CNormalMapVertex(+xSize, +ySize, +zSize, XMFLOAT2(1.0f, 0.0f), XMFLOAT3(+0.0f, +1.0f, 0.0f), XMFLOAT3(+1.0f, 0.0f, +0.0f)),
-		CNormalMapVertex(+xSize, +ySize, -zSize, XMFLOAT2(1.0f, 1.0f), XMFLOAT3(+0.0f, +1.0f, 0.0f), XMFLOAT3(+1.0f, 0.0f, +0.0f)),
+		XMFLOAT3(-xSize, +ySize, -zSize),
+		XMFLOAT3(-xSize, +ySize, +zSize),
+		XMFLOAT3(+xSize, +ySize, +zSize),
+		XMFLOAT3(+xSize, +ySize, -zSize),
 
-		CNormalMapVertex(-xSize, -ySize, -zSize, XMFLOAT2(1.0f, 1.0f), XMFLOAT3(+0.0f, -1.0f, 0.0f), XMFLOAT3(-1.0f, 0.0f, +0.0f)),
-		CNormalMapVertex(+xSize, -ySize, -zSize, XMFLOAT2(0.0f, 1.0f), XMFLOAT3(+0.0f, -1.0f, 0.0f), XMFLOAT3(-1.0f, 0.0f, +0.0f)),
-		CNormalMapVertex(+xSize, -ySize, +zSize, XMFLOAT2(0.0f, 0.0f), XMFLOAT3(+0.0f, -1.0f, 0.0f), XMFLOAT3(-1.0f, 0.0f, +0.0f)),
-		CNormalMapVertex(-xSize, -ySize, +zSize, XMFLOAT2(1.0f, 0.0f), XMFLOAT3(+0.0f, -1.0f, 0.0f), XMFLOAT3(-1.0f, 0.0f, +0.0f)),
+		XMFLOAT3(-xSize, -ySize, -zSize),
+		XMFLOAT3(+xSize, -ySize, -zSize),
+		XMFLOAT3(+xSize, -ySize, +zSize),
+		XMFLOAT3(-xSize, -ySize, +zSize),
 
-		CNormalMapVertex(-xSize, -ySize, +zSize, XMFLOAT2(0.0f, 1.0f), XMFLOAT3(-1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, -1.0f)),
-		CNormalMapVertex(-xSize, +ySize, +zSize, XMFLOAT2(0.0f, 0.0f), XMFLOAT3(-1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, -1.0f)),
-		CNormalMapVertex(-xSize, +ySize, -zSize, XMFLOAT2(1.0f, 0.0f), XMFLOAT3(-1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, -1.0f)),
-		CNormalMapVertex(-xSize, -ySize, -zSize, XMFLOAT2(1.0f, 1.0f), XMFLOAT3(-1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, -1.0f)),
+		XMFLOAT3(-xSize, -ySize, +zSize),
+		XMFLOAT3(-xSize, +ySize, +zSize),
+		XMFLOAT3(-xSize, +ySize, -zSize),
+		XMFLOAT3(-xSize, -ySize, -zSize),
 
-		CNormalMapVertex(+xSize, -ySize, -zSize, XMFLOAT2(0.0f, 1.0f), XMFLOAT3(+1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, +1.0f)),
-		CNormalMapVertex(+xSize, +ySize, -zSize, XMFLOAT2(0.0f, 0.0f), XMFLOAT3(+1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, +1.0f)),
-		CNormalMapVertex(+xSize, +ySize, +zSize, XMFLOAT2(1.0f, 0.0f), XMFLOAT3(+1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, +1.0f)),
-		CNormalMapVertex(+xSize, -ySize, +zSize, XMFLOAT2(1.0f, 1.0f), XMFLOAT3(+1.0f, +0.0f, 0.0f), XMFLOAT3(+0.0f, 0.0f, +1.0f))
+		XMFLOAT3(+xSize, -ySize, -zSize),
+		XMFLOAT3(+xSize, +ySize, -zSize),
+		XMFLOAT3(+xSize, +ySize, +zSize),
+		XMFLOAT3(+xSize, -ySize, +zSize),
 	};
+
+	array<XMFLOAT2, 24> pxmf2TexCoord;
+	pxmf2TexCoord =
+	{
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+		XMFLOAT2(1.0f, 1.0f),
+
+		XMFLOAT2(1.0f, 1.0f),
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+		XMFLOAT2(1.0f, 1.0f),
+
+		XMFLOAT2(1.0f, 1.0f),
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+		XMFLOAT2(1.0f, 1.0f),
+
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+		XMFLOAT2(1.0f, 1.0f)
+	};
+
+	array<XMFLOAT3, 24> pxmf3Normal;
+	pxmf3Normal =
+	{
+		XMFLOAT3(0.0f, 0.0f, -1.0f),
+		XMFLOAT3(0.0f, 0.0f, -1.0f),
+		XMFLOAT3(0.0f, 0.0f, -1.0f),
+		XMFLOAT3(0.0f, 0.0f, -1.0f),
+
+		XMFLOAT3(0.0f, 0.0f, 1.0f),
+		XMFLOAT3(0.0f, 0.0f, 1.0f),
+		XMFLOAT3(0.0f, 0.0f, 1.0f),
+		XMFLOAT3(0.0f, 0.0f, 1.0f),
+
+		XMFLOAT3(+0.0f, +1.0f, 0.0f),
+		XMFLOAT3(+0.0f, +1.0f, 0.0f),
+		XMFLOAT3(+0.0f, +1.0f, 0.0f),
+		XMFLOAT3(+0.0f, +1.0f, 0.0f),
+
+		XMFLOAT3(+0.0f, -1.0f, 0.0f),
+		XMFLOAT3(+0.0f, -1.0f, 0.0f),
+		XMFLOAT3(+0.0f, -1.0f, 0.0f),
+		XMFLOAT3(+0.0f, -1.0f, 0.0f),
+
+		XMFLOAT3(-1.0f, +0.0f, 0.0f),
+		XMFLOAT3(-1.0f, +0.0f, 0.0f),
+		XMFLOAT3(-1.0f, +0.0f, 0.0f),
+		XMFLOAT3(-1.0f, +0.0f, 0.0f),
+
+		XMFLOAT3(+1.0f, +0.0f, 0.0f),
+		XMFLOAT3(+1.0f, +0.0f, 0.0f),
+		XMFLOAT3(+1.0f, +0.0f, 0.0f),
+		XMFLOAT3(+1.0f, +0.0f, 0.0f)
+	};
+
+	array<XMFLOAT3, 24> pxmf3Tangent;
+	pxmf3Tangent =
+	{
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+		XMFLOAT3(+1.0f, 0.0f, +0.0f),
+
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+		XMFLOAT3(-1.0f, 0.0f, +0.0f),
+
+		XMFLOAT3(+0.0f, 0.0f, -1.0f),
+		XMFLOAT3(+0.0f, 0.0f, -1.0f),
+		XMFLOAT3(+0.0f, 0.0f, -1.0f),
+		XMFLOAT3(+0.0f, 0.0f, -1.0f),
+
+		XMFLOAT3(+0.0f, 0.0f, +1.0f),
+		XMFLOAT3(+0.0f, 0.0f, +1.0f),
+		XMFLOAT3(+0.0f, 0.0f, +1.0f),
+		XMFLOAT3(+0.0f, 0.0f, +1.0f),
+	};
+
+	array<CNormalMapVertex, 24> pVertices;
+	for (int i = 0; i < m_nVertices; ++i)
+		pVertices[i] = CNormalMapVertex(pxmf3Positions[i], pxmf3Normal[i], pxmf2TexCoord[i], pxmf3Tangent[i]);
 
 	m_nIndices = 36;
 
-	std::vector<UINT> pIndices = std::vector<UINT>(36);
+	array<UINT, 36> pIndices;
 	pIndices =
 	{
 		0, 1, 2,

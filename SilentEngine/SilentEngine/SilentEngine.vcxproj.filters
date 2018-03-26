@@ -154,12 +154,6 @@
     <ClCompile Include="src\Framework\DDSTextureLoader12.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
-    <ClCompile Include="InstanceObject.cpp">
-      <Filter>Object\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="InstanceObjectShader.cpp">
-      <Filter>Shaders\Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\PhysX\BasePhysX.cpp">
       <Filter>PhysX</Filter>
     </ClCompile>
@@ -168,6 +162,12 @@
     </ClCompile>
     <ClCompile Include="src\Model\InstanceModelShader.cpp">
       <Filter>Model\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\InstanceObjectShader.cpp">
+      <Filter>Shaders\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\InstanceObject.cpp">
+      <Filter>Object\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -240,12 +240,6 @@
     <ClInclude Include="src\Framework\DDSTextureLoader12.h">
       <Filter>Util\Header</Filter>
     </ClInclude>
-    <ClInclude Include="InstanceObject.h">
-      <Filter>Object\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="InstanceObjectShader.h">
-      <Filter>Shaders\Header</Filter>
-    </ClInclude>
     <ClInclude Include="src\PhysX\BasePhysX.h">
       <Filter>PhysX</Filter>
     </ClInclude>
@@ -254,6 +248,12 @@
     </ClInclude>
     <ClInclude Include="src\Model\InstanceModelShader.h">
       <Filter>Model\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\InstanceObjectShader.h">
+      <Filter>Shaders\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\InstanceObject.h">
+      <Filter>Object\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -61,7 +61,7 @@ float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera
 		}
 		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance*fDistance));
 
-		return(((gLights[nIndex].m_cAmbient * gMaterials[nmatIndex].m_cAmbient) + (gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nmatIndex].m_cDiffuse) + (gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nmatIndex].m_cSpecular)) * fAttenuationFactor);
+		return float4(((gLights[nIndex].m_cAmbient * gMaterials[nmatIndex].m_cAmbient) + (gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nmatIndex].m_cDiffuse) + (gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nmatIndex].m_cSpecular)) * fAttenuationFactor);
 	}
 	return(float4(0.0f, 0.0f, 0.0f, 0.0f));
 }
