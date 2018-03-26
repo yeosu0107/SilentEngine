@@ -122,7 +122,7 @@ void TestScene::UpdateShaderVarialbes() {
 
 void TestScene::Update(const Timer & gt)
 {
-	m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(0.0f, 50.0f, 0.0f));
+	//m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(0.0f, 50.0f, 0.0f));
 
 	m_physics->stepPhysics(false);
 	for (UINT i = 0; i < m_nShaders; ++i) {
@@ -248,15 +248,15 @@ void TestScene::BuildLightsAndMaterials()
 	m_pLights = new LIGHTS();
 	::ZeroMemory(m_pLights, sizeof(LIGHTS));
 
-	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 0.0f, 0.0f, 0.0f);
+	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	m_pLights->m_pLights[0].m_bEnable = true;
 	m_pLights->m_pLights[0].m_nType = POINT_LIGHT;
-	m_pLights->m_pLights[0].m_fRange = 100.0f;
+	m_pLights->m_pLights[0].m_fRange = 2000.0f;
 	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.0f, 0.0f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.25f);
-	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(130.0f, 30.0f, 30.0f);
+	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(0.0f, 125.0, 0.0f);
 	m_pLights->m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_pLights->m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
 
@@ -296,7 +296,7 @@ void TestScene::BuildLightsAndMaterials()
 	m_pMaterials = new MATERIALS();
 	::ZeroMemory(m_pMaterials, sizeof(MATERIALS));
 
-	m_pMaterials->m_pReflections[0] = { XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[0] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[1] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
 	m_pMaterials->m_pReflections[2] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[3] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
