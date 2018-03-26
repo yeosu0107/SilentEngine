@@ -421,7 +421,7 @@ MeshGeometryIlluminatedTexturedCube::~MeshGeometryIlluminatedTexturedCube()
 //
 //
 
-NormalMappingCube::NormalMappingCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometryIlluminatedTexturedCube(pd3dDevice, pd3dCommandList)
+NormalMappingCube::NormalMappingCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometryIlluminated(pd3dDevice, pd3dCommandList)
 {
 	float xSize = fWidth / 2.0f;
 	float ySize = fHeight / 2.0f;

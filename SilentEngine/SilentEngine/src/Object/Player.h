@@ -32,6 +32,7 @@ public:
 			jump->stopJump();
 			//cout << "Hit Shape floor\n";
 		}
+		
 
 			//cout << "Hit Shape wall\n";
 		//cout<<hit.worldPos.x << "  " << hit.worldPos.y << "  " << hit.worldPos.z << endl;
