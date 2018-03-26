@@ -147,21 +147,21 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		for (int j = 0; j < 5; ++j)
 			tmpGrid[i][j] = 1;
 
-	m_nShaders = 2;
+	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
 	
-	//NormalMapShader* pNormalObject = new NormalMapShader();
-	//pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	//pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	////pNormalObject->BuildObjects(pDevice, pCommandList);
-	////pNormalObject->BuildPSO(pDevice, m_RootSignature.Get());
-	//m_ppShaders[0] = pNormalObject;
+	NormalMapShader* pNormalObject = new NormalMapShader();
+	pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	//pNormalObject->BuildObjects(pDevice, pCommandList);
+	//pNormalObject->BuildPSO(pDevice, m_RootSignature.Get());
+	m_ppShaders[0] = pNormalObject;
 
 	InstanceModelShader* tmp= new InstanceModelShader(2);
 	tmp->setPhysics(m_physics);
 	tmp->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	tmp->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	m_ppShaders[0] = tmp;
+	m_ppShaders[1] = tmp;
 	
 	/*DynamicModelShader* tmp2 = new DynamicModelShader(1);
 	tmp2->setPhysics(m_physics);
@@ -170,7 +170,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	tmp2->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	tmp2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	tmp2->setPhysics(m_physics);
-	m_ppShaders[1] = tmp2;
+	m_ppShaders[2] = tmp2;
 	
 
 	for(UINT i=0; i<m_nShaders; ++i)

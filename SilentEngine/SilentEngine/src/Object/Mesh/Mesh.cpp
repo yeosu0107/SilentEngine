@@ -535,44 +535,6 @@ NormalMappingCube::NormalMappingCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 		XMFLOAT3(+1.0f, +0.0f, 0.0f)
 	};
 
-	array<XMFLOAT3, 24> pxmf3Tangent;
-	pxmf3Tangent =
-	{
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-		XMFLOAT3(+1.0f, 0.0f, +0.0f),
-
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-		XMFLOAT3(-1.0f, 0.0f, +0.0f),
-
-		XMFLOAT3(+0.0f, 0.0f, -1.0f),
-		XMFLOAT3(+0.0f, 0.0f, -1.0f),
-		XMFLOAT3(+0.0f, 0.0f, -1.0f),
-		XMFLOAT3(+0.0f, 0.0f, -1.0f),
-
-		XMFLOAT3(+0.0f, 0.0f, +1.0f),
-		XMFLOAT3(+0.0f, 0.0f, +1.0f),
-		XMFLOAT3(+0.0f, 0.0f, +1.0f),
-		XMFLOAT3(+0.0f, 0.0f, +1.0f),
-	};
-
-	array<CNormalMapVertex, 24> pVertices;
-	for (int i = 0; i < m_nVertices; ++i)
-		pVertices[i] = CNormalMapVertex(pxmf3Positions[i], pxmf3Normal[i], pxmf2TexCoord[i], pxmf3Tangent[i]);
-
 	m_nIndices = 36;
 
 	array<UINT, 36> pIndices;
@@ -596,6 +558,13 @@ NormalMappingCube::NormalMappingCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 		20, 21, 22,
 		20, 22, 23
 	};
+
+	array<XMFLOAT3, 24> pxmf3Tangent;
+	D3DUtil::CalculateTangentArray(m_nVertices, pxmf3Positions.data(), pxmf3Normal.data(), pxmf2TexCoord.data(), m_nVertices / 2, pIndices.data(), pxmf3Tangent.data());
+
+	array<CNormalMapVertex, 24> pVertices;
+	for (int i = 0; i < m_nVertices; ++i)
+		pVertices[i] = CNormalMapVertex(pxmf3Positions[i], pxmf3Normal[i], pxmf2TexCoord[i], pxmf3Tangent[i]);
 
 	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices.data(), m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
 
