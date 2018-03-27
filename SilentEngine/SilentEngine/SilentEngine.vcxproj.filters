@@ -79,6 +79,9 @@
     <Filter Include="PhysX">
       <UniqueIdentifier>{a472c4b4-7d9b-48e5-a647-1e7f5da9ef39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Enemy">
+      <UniqueIdentifier>{b493942a-a096-490f-a4e3-699ebcd7b13d}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Player">
       <UniqueIdentifier>{093a8fc2-0679-440e-9045-ec504a434520}</UniqueIdentifier>
     </Filter>
@@ -113,9 +116,6 @@
       <Filter>Object\Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Object\GameObjects.cpp">
-      <Filter>Object\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Object\Player.cpp">
       <Filter>Object\Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Object\Mesh\Mesh.cpp">
@@ -169,6 +169,15 @@
     <ClCompile Include="src\Object\InstanceObject.cpp">
       <Filter>Object\Source</Filter>
     </ClCompile>
+    <ClCompile Include="src\Object\Player.cpp">
+      <Filter>Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\Enemy.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shaders\ProjectileShader.cpp">
+      <Filter>Enemy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -194,9 +203,6 @@
     </ClInclude>
     <ClInclude Include="src\Framework\UploadBuffer.h">
       <Filter>Util\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Object\Player.h">
-      <Filter>Object\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Scene\Scene.h">
       <Filter>Scene\Header</Filter>
@@ -254,6 +260,18 @@
     </ClInclude>
     <ClInclude Include="src\Object\InstanceObject.h">
       <Filter>Object\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\Player.h">
+      <Filter>Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\Enemy.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shaders\EnemyShader.h">
+      <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shaders\ProjectileShader.h">
+      <Filter>Enemy</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -49,4 +49,8 @@ public:
 	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 
 	GameObject* getObject(int index) { return m_ppObjects[index]; }
+	GameObject** getObjects(UINT& num) { 
+		num = m_nObjects;
+		return m_ppObjects.data(); 
+	}
 };

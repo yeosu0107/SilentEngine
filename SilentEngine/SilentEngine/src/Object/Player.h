@@ -30,18 +30,12 @@ public:
 	void onShapeHit(const PxControllerShapeHit &hit) {
 		if (jump->mJump) {
 			jump->stopJump();
-			//cout << "Hit Shape floor\n";
+			//cout << hit.dir.x << " " << hit.dir.y << " " << hit.dir.z << endl;
 		}
-		
-
-			//cout << "Hit Shape wall\n";
-		//cout<<hit.worldPos.x << "  " << hit.worldPos.y << "  " << hit.worldPos.z << endl;
 	}
 	void 	onControllerHit(const PxControllersHit &hit) {
-		//cout << "Hit Other Controller" << endl;
 	}
 	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
-		//cout << "Hit Obstacle" << endl;
 	}
 
 	void SetJump(Jump* tmp) {

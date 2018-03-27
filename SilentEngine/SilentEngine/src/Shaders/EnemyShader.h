@@ -1,0 +1,49 @@
+#pragma once
+
+#include "..\Model\ModelShader.h"
+
+template<class T>
+class EnemyShader : public DynamicModelShader
+{
+private:
+public:
+	EnemyShader(int index) : DynamicModelShader(index) { }
+	~EnemyShader() { }
+
+	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext) {
+		
+		m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
+		m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicModel", "ps_5_0");
+
+		m_nObjects = 1;
+		m_ppObjects = vector<GameObject*>(m_nObjects);
+
+
+		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
+		CreateShaderVariables(pd3dDevice, pd3dCommandList);
+		CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
+
+		CreateGraphicsRootSignature(pd3dDevice);
+		BuildPSO(pd3dDevice);
+
+		if (globalModels->isMat(modelIndex)) {
+			CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+			pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
+			CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, false);
+
+			m_pMaterial = new CMaterial();
+			m_pMaterial->SetTexture(pTexture);
+			m_pMaterial->SetReflection(1);
+		}
+
+
+		for (int i = 0; i < m_nObjects; ++i) {
+			T* t_enemy = new T(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
+			t_enemy->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
+			t_enemy->SetPosition(XMFLOAT3(50, -170, 50));
+			t_enemy->SetPhysController(globalPhysX->getCapsuleController(XMtoPXEx(t_enemy->GetPosition()), t_enemy->getCollisionCallback()));
+			t_enemy->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+			m_ppObjects[i] = t_enemy;
+		}
+	}
+};

@@ -157,12 +157,12 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 	return triMesh;
 }
 
-PxCapsuleController* BasePhysX::getCapsuleController(PxUserControllerHitReport* collisionCallback)
+PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback)
 {
 	PxCapsuleControllerDesc capsuleDesc;
 	capsuleDesc.height = 0.3f; //Height of capsule
-	capsuleDesc.radius = 5.0f; //Radius of casule
-	capsuleDesc.position = PxExtendedVec3(0, 0, 0); //Initial position of capsule
+	capsuleDesc.radius = 15.0f; //Radius of casule
+	capsuleDesc.position = pos; //Initial position of capsule
 	capsuleDesc.material = gPhysics->createMaterial(1.0f,1.0f, 1.0f); //Material for capsule shape
 	capsuleDesc.density = 1.0f; //Desity of capsule shape
 	capsuleDesc.contactOffset = 1.01f; //외부 물체와 상호작용하는 크기 (지정한 충돌캡슐보다 조금 더 크게 형성위해)

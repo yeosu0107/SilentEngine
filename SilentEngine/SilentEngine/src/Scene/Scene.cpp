@@ -4,6 +4,8 @@
 #include "..\Model\ModelShader.h"
 #include "..\Shaders\PlayerShader.h"
 #include "..\Model\InstanceModelShader.h"
+#include "..\Object\Enemy.h"
+#include "..\Shaders\EnemyShader.h"
 
 Scene::Scene() : m_physics(nullptr)
 {
@@ -125,9 +127,22 @@ void TestScene::Update(const Timer & gt)
 	//m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(0.0f, 50.0f, 0.0f));
 
 	m_physics->stepPhysics(false);
+
+	m_testTimer += 1;
+	if (m_testTimer % 120 == 0) {
+		XMFLOAT3 tPos = m_Enemys[0]->GetPosition();
+		tPos.y += 20.0f;
+		XMFLOAT3 ttPos = m_testPlayer->GetPosition();
+		ttPos.y += 20.0f;
+		m_Projectile[0]->Shoot(tPos, ttPos);
+		m_testTimer = 0;
+	}
+
 	for (UINT i = 0; i < m_nShaders; ++i) {
 		m_ppShaders[i]->Animate(gt.DeltaTime());
 	}
+	for(UINT i=0; i<m_nProjectile; ++i) 
+		m_Projectile[i]->Animate(gt.DeltaTime());
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -147,8 +162,11 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		for (int j = 0; j < 5; ++j)
 			tmpGrid[i][j] = 1;
 
-	m_nShaders = 3;
+	m_nShaders = 4;
 	m_ppShaders = new Shaders*[m_nShaders];
+
+	m_nProjectile = 1;
+	m_Projectile = new ProjectileShader*[m_nProjectile];
 	
 	NormalMapShader* pNormalObject = new NormalMapShader();
 	pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -166,18 +184,32 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	/*DynamicModelShader* tmp2 = new DynamicModelShader(1);
 	tmp2->setPhysics(m_physics);
 	m_ppShaders[2] = tmp2;*/
+
 	PlayerShader* tmp2 = new PlayerShader(1, m_Camera.get());
 	tmp2->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	tmp2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	tmp2->setPhysics(m_physics);
 	m_ppShaders[2] = tmp2;
+
+	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
+	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	eShader->setPhysics(m_physics);
+	m_ppShaders[3] = eShader;
+
+	ProjectileShader* bullet = new ProjectileShader();
+	m_Projectile[0] = bullet;
 	
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
 
+	for (UINT i = 0; i<m_nProjectile; ++i)
+		m_Projectile[i]->BuildObjects(pDevice, pCommandList);
+
 	m_testPlayer = tmp2->getPlayer(0);
 
+	m_Enemys = eShader->getObjects(m_nEnemy);
 	
 }
 
@@ -195,6 +227,9 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
+	
+	for (UINT i = 0; i<m_nProjectile; ++i)
+		m_Projectile[i]->Render(pCommandList, m_Camera.get());
 }
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)

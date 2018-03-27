@@ -145,7 +145,7 @@ protected:
 	CB_GAMEOBJECT_INFO							 *m_pcbMappedGameObject = NULL;
 
 	bool										m_bIsLotate = false;
-
+	bool										m_live = true;
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
@@ -173,6 +173,7 @@ public:
 	XMFLOAT3 GetLook();
 	XMFLOAT3 GetUp();
 	XMFLOAT3 GetRight();
+	bool			isLive() const { return m_live; }
 
 	void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);

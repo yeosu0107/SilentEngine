@@ -77,7 +77,7 @@ public:
 	void Addapt(XMFLOAT3& pos);
 
 	PxTriangleMesh*			GetTriangleMesh(mesh* meshes, UINT count);
-	PxCapsuleController*	getCapsuleController(PxUserControllerHitReport* collisionCallback);
+	PxCapsuleController*	getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback);
 	PxBoxController*			getBoxController(PxUserControllerHitReport* collisionCallback);
 
 	PxPhysics* getPhys() { return gPhysics; }

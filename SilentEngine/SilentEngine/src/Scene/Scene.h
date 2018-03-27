@@ -2,10 +2,12 @@
 #include "D3DUtil.h"
 #include "Mesh.h"
 #include "Shaders.h"
+#include "..\Shaders\ProjectileShader.h"
 //#include "FrameResouce.h"
 #include "Camera.h"
 #include "Timer.h"
 #include "..\PhysX\BasePhysX.h"
+#include "..\Model\ModelObject.h"
 
 
 // Scene 
@@ -72,8 +74,10 @@ public:
 protected:
 	//unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
 	Shaders** m_ppShaders = nullptr;
+	ProjectileShader** m_Projectile = nullptr;
 	
 	UINT m_nShaders = 0;
+	UINT m_nProjectile = 0;
 	
 	LIGHTS*										m_pLights;
 	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
@@ -81,7 +85,11 @@ protected:
 	MATERIALS*									m_pMaterials;
 	unique_ptr<UploadBuffer<MATERIALS>>			m_pd3dcbMaterials = nullptr;
 
-	GameObject* m_testPlayer;
+	GameObject*		m_testPlayer=nullptr;
+	GameObject**	m_Enemys=nullptr;
+	UINT					m_nEnemy = 0;
+
+	UINT					m_testTimer = 0;
 };
 
 class GameScene : public Scene

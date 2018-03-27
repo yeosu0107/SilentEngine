@@ -173,6 +173,7 @@
     <ClCompile Include="src\Model\ModelShader.cpp" />
     <ClCompile Include="src\Model\StringTokenizer.cpp" />
     <ClCompile Include="src\Object\Camera.cpp" />
+    <ClCompile Include="src\Object\Enemy.cpp" />
     <ClCompile Include="src\Object\GameObjects.cpp" />
     <ClCompile Include="src\Object\InstanceObject.cpp" />
     <ClCompile Include="src\Object\InstanceObjectShader.cpp" />
@@ -181,6 +182,7 @@
     <ClCompile Include="src\PhysX\BasePhysX.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\Shaders\PlayerShader.cpp" />
+    <ClCompile Include="src\Shaders\ProjectileShader.cpp" />
     <ClCompile Include="src\Shaders\Shaders.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -207,6 +209,7 @@
     <ClInclude Include="src\Model\ModelShader.h" />
     <ClInclude Include="src\Model\StringTokenizer.h" />
     <ClInclude Include="src\Object\Camera.h" />
+    <ClInclude Include="src\Object\Enemy.h" />
     <ClInclude Include="src\Object\GameObjects.h" />
     <ClInclude Include="src\Object\InstanceObject.h" />
     <ClInclude Include="src\Object\InstanceObjectShader.h" />
@@ -214,7 +217,9 @@
     <ClInclude Include="src\Object\Player.h" />
     <ClInclude Include="src\PhysX\BasePhysX.h" />
     <ClInclude Include="src\Scene\Scene.h" />
+    <ClInclude Include="src\Shaders\EnemyShader.h" />
     <ClInclude Include="src\Shaders\PlayerShader.h" />
+    <ClInclude Include="src\Shaders\ProjectileShader.h" />
     <ClInclude Include="src\Shaders\Shaders.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

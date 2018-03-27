@@ -1,5 +1,9 @@
-res\\ModelData\\angle.FBX,1,null
-res\\ModelData\\angle.FBX,,
+res\\ModelData\\M_IDLE.FBX,5,res\\Texture\\Golem.dds
+res\\ModelData\\M_IDLE.FBX,,
+res\\ModelData\\M_MOVE.FBX,,
+res\\ModelData\\M_ATTACK.FBX,,
+res\\ModelData\\M_ATTACK3.FBX,,
+res\\ModelData\\M_HITTED.FBX,,
 res\\ModelData\\P_standing.FBX,5,res\\Texture\\pirate.dds
 res\\ModelData\\P_standing.FBX,,
 res\\ModelData\\P_Walk.FBX,,
