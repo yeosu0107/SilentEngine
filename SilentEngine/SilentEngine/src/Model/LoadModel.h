@@ -1,5 +1,4 @@
 #pragma once
-
 #include "assimp\Importer.hpp"
 #include "assimp\cimport.h"
 #include "assimp\postprocess.h"
@@ -23,13 +22,14 @@ struct vertexDatas
 
 	XMFLOAT3	m_pos;
 	XMFLOAT3	m_normal;
+	XMFLOAT3 m_tan;
 	XMFLOAT2	m_tex;
 	XMUINT4	m_bornIndex;
 	XMFLOAT3	m_weights;
 
 	vertexDatas() {}
-	vertexDatas(XMFLOAT3& pos, XMFLOAT3& normal, XMFLOAT2& tex) :
-		m_pos(pos), m_normal(normal), m_tex(tex)
+	vertexDatas(XMFLOAT3& pos, XMFLOAT3& normal, XMFLOAT3& tan, XMFLOAT2& tex) :
+		m_pos(pos), m_normal(normal), m_tan(tan), m_tex(tex)
 	{
 		m_weights = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_bornIndex = XMUINT4(0, 0, 0, 0);

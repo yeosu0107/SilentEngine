@@ -160,8 +160,8 @@ void InstanceModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 
 void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
 {
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_1");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "PSInstanceTexturedLighting", "ps_5_1");
+	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
+	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
 
 	m_nObjects = 25;
 	m_ppObjects = vector<GameObject*>(m_nObjects);

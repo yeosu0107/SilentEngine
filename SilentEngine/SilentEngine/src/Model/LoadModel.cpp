@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "LoadModel.h"
 
+
 ModelMesh::ModelMesh(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
 	mesh& meshData)
 	: MeshGeometry(pd3dDevice, pd3dCommandList)
@@ -56,6 +57,69 @@ LoadModel::LoadModel(const string& fileName)
 	}
 }
 
+inline void CalculateTangentArray(UINT vertexCount, vector<vertexDatas>& vertices, long triangleCount, vector<int>& indeies)
+{
+	XMFLOAT3 *tan1 = new XMFLOAT3[vertexCount * 2];
+	XMFLOAT3 *tan2 = tan1 + vertexCount;
+	::ZeroMemory(tan1, vertexCount * sizeof(XMFLOAT3) * 2);
+
+	for (long a = 0; a < triangleCount; a++)
+	{
+		UINT i1 = indeies[a * 3 + 0];
+		UINT i2 = indeies[a * 3 + 1];
+		UINT i3 = indeies[a * 3 + 2];
+
+		const XMFLOAT3& v1 = vertices[i1].m_pos;
+		const XMFLOAT3& v2 = vertices[i2].m_pos;
+		const XMFLOAT3& v3 = vertices[i3].m_pos;
+
+		const XMFLOAT2& w1 = vertices[i1].m_tex;
+		const XMFLOAT2& w2 = vertices[i2].m_tex;
+		const XMFLOAT2& w3 = vertices[i3].m_tex;
+
+		float x1 = v2.x - v1.x;
+		float x2 = v3.x - v1.x;
+		float y1 = v2.y - v1.y;
+		float y2 = v3.y - v1.y;
+		float z1 = v2.z - v1.z;
+		float z2 = v3.z - v1.z;
+
+		float s1 = w2.x - w1.x;
+		float s2 = w3.x - w1.x;
+		float t1 = w2.y - w1.y;
+		float t2 = w3.y - w1.y;
+
+		float r = 1.0F / (s1 * t2 - s2 * t1);
+		XMFLOAT3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+			(t2 * z1 - t1 * z2) * r);
+		XMFLOAT3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
+			(s1 * z2 - s2 * z1) * r);
+
+		tan1[i1] = Vector3::Add(tan1[i1], sdir);
+		tan1[i2] = Vector3::Add(tan1[i2], sdir);
+		tan1[i3] = Vector3::Add(tan1[i3], sdir);
+
+		tan2[i1] = Vector3::Add(tan2[i1], tdir);
+		tan2[i2] = Vector3::Add(tan2[i2], tdir);
+		tan2[i3] = Vector3::Add(tan2[i3], tdir);
+
+	}
+
+	for (long a = 0; a < vertexCount; a++)
+	{
+		XMFLOAT3& n = vertices[a].m_normal;
+		XMFLOAT3& t = tan1[a];
+
+		// Gram-Schmidt orthogonalize
+		vertices[a].m_tan = Vector3::Normalize(Vector3::Subtract(t, Vector3::ScalarProduct(n, Vector3::DotProduct(n, t), false), false));
+
+		// Calculate handedness
+		//tangent[a].w = (Dot(Cross(n, t), tan2[a]) < 0.0F) ? -1.0F : 1.0F;
+	}
+
+	delete[] tan1;
+}
+
 
 LoadModel::~LoadModel()
 {
@@ -89,8 +153,8 @@ void LoadModel::InitMesh(UINT index, const aiMesh * pMesh)
 			tex = XMFLOAT2(&pMesh->mTextureCoords[0][i].x);
 		else
 			tex = XMFLOAT2(0.0f, 0.0f);
-
-		const vertexDatas data(pos, normal, tex);
+		//tangent는 일단 0으로 초기화
+		const vertexDatas data(pos, normal, XMFLOAT3(0,0,0), tex);
 		m_meshes[index].m_vertices.push_back(data);
 	}
 
@@ -100,6 +164,7 @@ void LoadModel::InitMesh(UINT index, const aiMesh * pMesh)
 		m_meshes[index].m_indices.push_back(face.mIndices[1]);
 		m_meshes[index].m_indices.push_back(face.mIndices[2]);
 	}
+	CalculateTangentArray(pMesh->mNumVertices, m_meshes[index].m_vertices, pMesh->mNumFaces, m_meshes[index].m_indices);
 }
 
 void LoadModel::SetMeshes(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
@@ -146,3 +211,5 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 		}
 	}
 }
+
+
