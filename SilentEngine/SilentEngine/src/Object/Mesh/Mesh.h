@@ -232,11 +232,10 @@ public:
 	virtual ~NormalMappingCube();
 };
 
-class CBoardMeshIlluminatedTextured : public MeshGeometryIlluminatedTexturedCube
+class CBoardMeshIlluminatedTextured : public MeshGeometryIlluminated
 {
 public:
-	CBoardMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth
-		, float fxPosition, float fyPosition, float fzPosition);
+	CBoardMeshIlluminatedTextured(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, float fWidth, float fHeight, float fDepth);
 	virtual ~CBoardMeshIlluminatedTextured();
 };
 

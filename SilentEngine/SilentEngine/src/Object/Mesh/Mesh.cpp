@@ -369,57 +369,81 @@ MeshGeometryIlluminatedTexturedCube::~MeshGeometryIlluminatedTexturedCube()
 {
 }
 
-//CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth
-//	, float fxPosition, float fyPosition, float fzPosition) :
-//	MeshGeometryIlluminatedTextured(pd3dDevice, pd3dCommandList)
-//{
-//	m_nVertices = 6;
-//	m_nStride = sizeof(CIlluminatedTexturedVertex);
-//	m_nOffset = 0;
-//	m_nSlot = 0;
-//	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-//
-//	float fx = fWidth * 0.5f + fxPosition, fy = fHeight * 0.5f + fyPosition, fz = fDepth * 0.5f + fzPosition;
-//
-//	XMFLOAT3 pxmf3Positions[6];
-//	int i = 0;
-//	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, 0.0f);	// 1 , -1
-//	pxmf3Positions[i++] = XMFLOAT3(+fx, +fy, 0.0f);	// 1 , 1
-//	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, 0.0f);	// 0 , 0 
-//
-//	pxmf3Positions[i++] = XMFLOAT3(-fx, -fy, 0.0f);
-//	pxmf3Positions[i++] = XMFLOAT3(+fx, -fy, 0.0f);
-//	pxmf3Positions[i++] = XMFLOAT3(-fx, +fy, 0.0f);
-//
-//	XMFLOAT2 pxmf2TexCoords[6];
-//	i = 0;
-//	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 1.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
-//
-//	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 1.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(1.0f, 0.0f);
-//	pxmf2TexCoords[i++] = XMFLOAT2(0.0f, 0.0f);
-//
-//	XMFLOAT3 pxmf3Normals[6];
-//	CalculateVertexNormals(pxmf3Normals, pxmf3Positions, m_nVertices, NULL, 0);
-//
-//	CIlluminatedTexturedVertex pVertices[6];
-//	for (UINT i = 0; i < m_nVertices; i++)
-//		pVertices[i] = CIlluminatedTexturedVertex(pxmf3Positions[i], pxmf3Normals[i], pxmf2TexCoords[i]);
-//
-//	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices, m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
-//
-//	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
-//	m_d3dVertexBufferView.StrideInBytes = m_nStride;
-//	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
-//}
-//
-//CBoardMeshIlluminatedTextured::~CBoardMeshIlluminatedTextured()
-//{
-//}
-//
-//
+CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth)
+	: MeshGeometryIlluminated(pd3dDevice, pd3dCommandList)
+{
+	float xSize = fWidth / 2.0f;
+	float ySize = fHeight / 2.0f;
+	float zSize = 0.0f;
+
+	m_nVertices = 4;
+	m_nStride = sizeof(CNormalMapVertex);
+	m_nOffset = 0;
+	m_nSlot = 0;
+	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+	array<XMFLOAT3, 4> pxmf3Positions;
+	pxmf3Positions =
+	{
+		XMFLOAT3(-xSize, -ySize, -zSize),
+		XMFLOAT3(-xSize, +ySize, -zSize),
+		XMFLOAT3(+xSize, +ySize, -zSize),
+		XMFLOAT3(+xSize, -ySize, -zSize)
+	};
+
+	array<XMFLOAT2, 4> pxmf2TexCoord;
+	pxmf2TexCoord =
+	{
+		XMFLOAT2(0.0f, 1.0f),
+		XMFLOAT2(0.0f, 0.0f),
+		XMFLOAT2(1.0f, 0.0f),
+		XMFLOAT2(1.0f, 1.0f)
+	};
+
+	array<XMFLOAT3, 4> pxmf3Normal;
+	pxmf3Normal =
+	{
+		XMFLOAT3(0.0f, 0.0f, -1.0f),
+		XMFLOAT3(0.0f, 0.0f, -1.0f),
+		XMFLOAT3(0.0f, 0.0f, -1.0f),
+		XMFLOAT3(0.0f, 0.0f, -1.0f)
+	};
+
+	m_nIndices = 6;
+
+	array<UINT, 6> pIndices;
+	pIndices =
+	{
+		0, 2, 1,
+		0, 3, 2
+	};
+
+	array<XMFLOAT3, 4> pxmf3Tangent;
+	D3DUtil::CalculateTangentArray(m_nVertices, pxmf3Positions.data(), pxmf3Normal.data(), pxmf2TexCoord.data(), m_nVertices / 2, pIndices.data(), pxmf3Tangent.data());
+
+	array<CNormalMapVertex, 4> pVertices;
+
+	for (int i = 0; i < m_nVertices; ++i)
+		pVertices[i] = CNormalMapVertex(pxmf3Positions[i], pxmf3Normal[i], pxmf2TexCoord[i], pxmf3Tangent[i]);
+
+	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices.data(), m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
+
+	m_d3dVertexBufferView.BufferLocation = m_pd3dVertexBuffer->GetGPUVirtualAddress();
+	m_d3dVertexBufferView.StrideInBytes = m_nStride;
+	m_d3dVertexBufferView.SizeInBytes = m_nStride * m_nVertices;
+
+	m_pd3dIndexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pIndices.data(), sizeof(UINT) * m_nIndices, m_pd3dIndexUploadBuffer);
+
+	m_d3dIndexBufferView.BufferLocation = m_pd3dIndexBuffer->GetGPUVirtualAddress();
+	m_d3dIndexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	m_d3dIndexBufferView.SizeInBytes = sizeof(UINT) * m_nIndices;
+}
+
+CBoardMeshIlluminatedTextured::~CBoardMeshIlluminatedTextured()
+{
+}
+
+
 
 NormalMappingCube::NormalMappingCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, float fWidth, float fHeight, float fDepth) : MeshGeometryIlluminated(pd3dDevice, pd3dCommandList)
 {

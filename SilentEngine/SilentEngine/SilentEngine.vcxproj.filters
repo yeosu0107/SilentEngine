@@ -275,9 +275,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="hlsl\color.hlsl">
-      <Filter>Shaders\hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="hlsl\Sampler.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
@@ -294,6 +291,12 @@
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\NormalMap.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\Effect.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\color.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>

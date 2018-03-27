@@ -86,10 +86,7 @@ protected:
 	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dSrvGPUDescriptorStartHandle;
 
-	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>	m_ObjectCB = nullptr;
-
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_InputLayout;
-
 };
 
 class ObjectShader : public Shaders
@@ -107,26 +104,12 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
 	virtual void ReleaseObjects() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+
+protected:
+	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>	m_ObjectCB = nullptr;
 };
 
-class IlluminatedObjectShader : public ObjectShader
-{
-public:
-	IlluminatedObjectShader();
-	~IlluminatedObjectShader();
-
-public:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
-	virtual void AnimateObjects(float fTimeElapsed) {};
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
-	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
-};
-
-class NormalMapShader : public IlluminatedObjectShader
+class NormalMapShader : public ObjectShader
 {
 public:
 	NormalMapShader();
@@ -148,4 +131,31 @@ public:
 protected:
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
+};
+
+class BillboardShader : public NormalMapShader
+{
+public:
+	BillboardShader() {};
+	~BillboardShader() {};
+
+	virtual D3D12_BLEND_DESC CreateBlendState();
+
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
+	virtual void Animate(float fTimeElapsed);
+
+	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; };
+
+protected:
+	Camera * m_pCamera = nullptr;
+	float m_fElapsedTime = 0.0f;
+
+	unique_ptr<UploadBuffer<CB_EFFECT_INFO>>	m_EffectCB = nullptr;
+
+	float   m_fAnimationSpeed = 10.0f;
+	float	m_fMaxTextureCount = 0.0f;
+	float	m_fNowTextureCount = 0.0f;
 };

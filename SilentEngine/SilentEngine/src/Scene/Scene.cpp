@@ -168,11 +168,12 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_nProjectile = 1;
 	m_Projectile = new ProjectileShader*[m_nProjectile];
 	
-	NormalMapShader* pNormalObject = new NormalMapShader();
+	BillboardShader* pNormalObject = new BillboardShader();
 	pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	//pNormalObject->BuildObjects(pDevice, pCommandList);
 	//pNormalObject->BuildPSO(pDevice, m_RootSignature.Get());
+	pNormalObject->SetCamera(m_Camera.get());
 	m_ppShaders[0] = pNormalObject;
 
 	InstanceModelShader* tmp= new InstanceModelShader(2);

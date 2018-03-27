@@ -1,6 +1,8 @@
 Texture2DArray gBoxTextured : register(t0);
 Texture2DArray gBoxNormal : register(t2);
 
+Texture2D g2DTexture : register(t3);
+Texture2D g2DTextureNormal : register(t4);
 
 struct InstanceData
 {

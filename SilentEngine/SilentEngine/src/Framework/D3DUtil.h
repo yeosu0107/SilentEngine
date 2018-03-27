@@ -195,6 +195,7 @@ struct MaterialConstants
 	XMFLOAT4X4 MatTransform = D3DMath::Identity4x4();
 };
 
+
 struct Material
 {
 	string Name;
@@ -264,6 +265,7 @@ struct MATERIALS
 {
 	MATERIAL				m_pReflections[MAX_MATERIALS];
 };
+
 
 
 #ifndef ThrowIfFailed

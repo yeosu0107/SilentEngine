@@ -77,3 +77,9 @@ cbuffer cbLights : register(b5)
 	LIGHT				gLights[MAX_LIGHTS];
 	float4				gcGlobalAmbientLight;
 };
+
+cbuffer cbEffect : register(b6)
+{
+	uint				gMaxTextureCount;
+	uint				gNowTextureCount;
+}

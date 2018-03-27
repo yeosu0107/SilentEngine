@@ -39,15 +39,6 @@ float4 PSTextured(VS_TEXTURED_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) 
 	return(cColor);
 };
 
-//
-//struct InstanceData
-//{
-//	matrix		mtxGameObject;
-//	uint		nMaterial;
-//};
-//
-//StructuredBuffer<InstanceData> gInstanceData : register(t1);
-
 VS_TEXTURED_OUTPUT InstanceVS(VS_TEXTURED_INPUT input, uint instanceID : SV_InstanceID)
 {
 	VS_TEXTURED_OUTPUT output = (VS_TEXTURED_OUTPUT)0.0f;
