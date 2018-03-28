@@ -155,7 +155,9 @@ protected:
 
 	unique_ptr<UploadBuffer<CB_EFFECT_INFO>>	m_EffectCB = nullptr;
 
-	float   m_fAnimationSpeed = 10.0f;
-	float	m_fMaxTextureCount = 0.0f;
-	float	m_fNowTextureCount = 0.0f;
+	float  m_fAnimationSpeed = 10.0f;
+	float	m_fMaxXCount = 0.0f;
+	float	m_fNowXCount = 0.0f;
+	float	m_fMaxYCount = 0.0f;
+	float	m_fNowYCount = 0.0f;
 };

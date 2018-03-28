@@ -46,8 +46,10 @@ struct CB_MAINTEXTURED_INFO
 
 struct CB_EFFECT_INFO
 {
-	UINT							m_nMaxTextureCount;
-	UINT							m_nNowTextureCount;
+	UINT							m_nMaxXcount;
+	UINT							m_nMaxYcount;
+	UINT							m_nNowXcount;
+	UINT							m_nNowYcount;
 };
 
 

@@ -80,6 +80,8 @@ cbuffer cbLights : register(b5)
 
 cbuffer cbEffect : register(b6)
 {
-	uint				gMaxTextureCount;
-	uint				gNowTextureCount;
+	uint				gMaxXCount;
+	uint				gMaxYCount;
+	uint				gNowXCount;
+	uint				gNowYCount;
 }

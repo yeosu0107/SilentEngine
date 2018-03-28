@@ -8,8 +8,9 @@ VS_NORMAL_OUTPUT VSEffect(VS_NORMAL_INPUT input) {
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.tangentW = mul(input.tangentU, (float3x3)gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	float x = 1.0f / gMaxTextureCount;
-	output.uv = float2(input.uv.x * x + x * gNowTextureCount, input.uv.y);
+	float x = 1.0f / gMaxXCount;
+	float y = 1.0f / gMaxYCount;
+	output.uv = float2(input.uv.x * x + x * gNowXCount, input.uv.y * y + y * gNowYCount);
 	//output.uv = input.uv;
 	return output;
 }
