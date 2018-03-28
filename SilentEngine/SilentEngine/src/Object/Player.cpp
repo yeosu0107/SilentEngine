@@ -113,9 +113,7 @@ void Player::Animate(float fTime)
 	if (m_Controller) {
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(1.0f/60.0f), 0), 0.1f, 1.0f / 60.0f, m_ControllerFilter);
-		//SetPosition(PXtoXM(m_Controller->getPosition()));
-		//SetPosition(PXtoXM(m_Controller->getFootPosition())); //발 좌표로 이동 보정
-		m_xmf3Position = PXtoXM(m_Controller->getFootPosition());
+		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
 	}
 	if (m_pCamera) {

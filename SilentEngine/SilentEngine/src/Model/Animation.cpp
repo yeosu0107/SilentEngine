@@ -54,12 +54,12 @@ void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 
 void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, const XMMATRIX& ParentTransform)
 {
-	string NodeName(pNode->mName.data);
+	//string NodeName(pNode->mName.data);
 	const aiAnimation* pAnim = m_pAnim;
 
 	XMMATRIX NodeTransformation = aiMatrixToXMMatrix(pNode->mTransformation);
 
-	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, NodeName);
+	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, pNode->mName.data);
 	//현재 노드가 animation channel 에 속한지 확인
 	if (pNodeAnim) {
 		aiVector3D s;
@@ -84,14 +84,9 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	//부모노드에 변환값 중첩해서 곱하기
 	XMMATRIX GlobalTransformation = ParentTransform * NodeTransformation;
 
-	if (NodeName == "Object010") {
-		m_grab = GlobalTransformation;
-		//손의 변환 행렬 정보를 갱신
-	}
-
 	//현재노드가 뼈 노드이면 변환정보를 뼈에 적용
 	for (auto& p : m_Bones) {
-		if (p.first == NodeName) {
+		if (p.first == pNode->mName.data) {
 			p.second.FinalTransformation =
 				m_GlobalInverse * GlobalTransformation * p.second.BoneOffset;
 			break;

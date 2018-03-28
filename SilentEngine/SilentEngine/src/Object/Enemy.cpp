@@ -45,12 +45,12 @@ void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);
 }
 
-bool Enemy::Move(float fDist)
+bool Enemy::Move(float fDist, float fTime)
 {
 	if (m_Controller) {
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 		xmf3Shift = Vector3::Add(xmf3Shift, GetLook(), fDist);
-		m_Controller->move(XMtoPX(xmf3Shift), 1.0f, 1, m_ControllerFilter);
+		m_Controller->move(XMtoPX(xmf3Shift), 1.0f, fTime, m_ControllerFilter);
 		m_AnimIndex = EnemyAni::Move;
 		return true;
 	}
@@ -60,7 +60,7 @@ bool Enemy::Move(float fDist)
 void Enemy::Animate(float fTime)
 {
 	m_AnimIndex = EnemyAni::Idle;
-	Move(-2.0f);
+	Move(-2.0f, fTime);
 	
 	ModelObject::Animate(fTime); //애니메이션
 	if (m_Crash) {

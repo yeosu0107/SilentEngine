@@ -64,6 +64,6 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
-	bool Move(float fDist);
+	bool Move(float fDist, float fTime);
 	virtual void Animate(float fTime);
 };
