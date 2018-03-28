@@ -295,8 +295,6 @@ void Framework::Update()
 	OnKeyboardInput(m_Timer);
 
 	m_pTestScene->Update(m_Timer);
-
-	std::cout << m_Timer.DeltaTime() << std::endl;
 }
 
 void Framework::Render()
@@ -721,7 +719,12 @@ void Framework::OnKeyboardInput(const Timer& gt)
 			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / m_fMouseSensitive;
 			::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 
-			//m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
+			if ((cxDelta != 0.0f) || (cyDelta != 0.0f))
+			{
+				if (cxDelta || cyDelta) {
+					m_pTestScene->OnMouseMove(m_hMainWnd, WPARAM(), cxDelta, cyDelta);
+				}
+			}
 		}
 	}
 }
@@ -768,19 +771,7 @@ void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 	if (GetCapture() == m_hMainWnd)
 	{
 		SetCursor(NULL);
-		GetCursorPos(&ptCursorPos);
-		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
-		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-
-		//SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 	}
-	if ((cxDelta != 0.0f) || (cyDelta != 0.0f))
-	{
-		if (cxDelta || cyDelta) {
-			m_pTestScene->OnMouseMove(m_hMainWnd, btnState, cxDelta, cyDelta);
-		}
-	}
-	
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,

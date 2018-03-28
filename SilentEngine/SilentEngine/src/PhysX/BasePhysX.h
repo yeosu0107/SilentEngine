@@ -33,17 +33,6 @@ enum PhysMesh {
 	Mesh_Box=0, Mesh_Capsule=1, Mesh_Tri=2
 };
 
-//class CollisionReportCallback : public PxSimulationEventCallback
-//{
-//public:
-//	void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) { PX_UNUSED(constraints); PX_UNUSED(count); }
-//	void onWake(PxActor** actors, PxU32 count) { PX_UNUSED(actors); PX_UNUSED(count); }
-//	void onSleep(PxActor** actors, PxU32 count) { PX_UNUSED(actors); PX_UNUSED(count); }
-//	void onTrigger(PxTriggerPair* pairs, PxU32 count) { PX_UNUSED(pairs); PX_UNUSED(count); }
-//	void onAdvance(const PxRigidBody*const*, const PxTransform*, const PxU32) {}
-//	void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs);
-//};
-
 class BasePhysX
 {
 private:
@@ -63,7 +52,6 @@ private:
 	PxControllerManager*		gControllerMgr;
 	PxCapsuleController*		gPlayer;
 
-	//CollisionReportCallback	gCallback;			//충돌 콜백
 public:
 	BasePhysX(float frameRate);
 	~BasePhysX();
@@ -84,3 +72,23 @@ public:
 	PxScene* getScene() { return gScene; }
 };
 
+class Raycast
+{
+private:
+	PxGeometry * m_geom;
+	PxVec3				m_pos;
+
+	XMFLOAT3*		m_startPos;
+	XMFLOAT3			m_dir;
+	float					m_closest;
+
+	PxRaycastHit		hitData;
+	PxHitFlags			hitFlag;
+	int						maxHit;
+public:
+	Raycast(PxGeometry* geom, XMFLOAT3* startPos);
+	~Raycast();
+
+	PxAgain onHit();
+	void setPos(PxExtendedVec3 pos);
+};

@@ -158,10 +158,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
 	m_Camera->SetTimeLag(0.25f);
 
-	for (int i = 0; i < 5; ++i)
-		for (int j = 0; j < 5; ++j)
-			tmpGrid[i][j] = 1;
-
 	m_nShaders = 4;
 	m_ppShaders = new Shaders*[m_nShaders];
 

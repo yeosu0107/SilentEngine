@@ -1,25 +1,6 @@
 #include "stdafx.h"
 #include "BasePhysX.h"
 
-PxFilterFlags contactReportFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0,
-	PxFilterObjectAttributes attributes1, PxFilterData filterData1,
-	PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
-{
-	PX_UNUSED(attributes0);
-	PX_UNUSED(attributes1);
-	PX_UNUSED(filterData0);
-	PX_UNUSED(filterData1);
-	PX_UNUSED(constantBlockSize);
-	PX_UNUSED(constantBlock);
-
-	// all initial and persisting reports for everything, with per-point data
-	pairFlags = PxPairFlag::eSOLVE_CONTACT | PxPairFlag::eDETECT_DISCRETE_CONTACT
-		| PxPairFlag::eNOTIFY_TOUCH_FOUND
-		| PxPairFlag::eNOTIFY_TOUCH_PERSISTS
-		| PxPairFlag::eNOTIFY_CONTACT_POINTS;
-	return PxFilterFlag::eDEFAULT;
-}
-
 BasePhysX::BasePhysX(float frameRate) : gFoundation(nullptr), gPhysics(nullptr),
 gScene(nullptr), gPvd(nullptr), gControllerMgr(nullptr)
 {
@@ -200,4 +181,35 @@ PxBoxController* BasePhysX::getBoxController(PxUserControllerHitReport * collisi
 	PxBoxController* controller = static_cast<PxBoxController*>(gControllerMgr->createController(boxDesc));
 	
 	return controller;
+}
+
+Raycast::Raycast(PxGeometry* geom, XMFLOAT3* startPos) :
+	m_geom(geom), maxHit(3), m_startPos(startPos), m_closest(50)
+{
+	hitFlag = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL |
+		PxHitFlag::eDISTANCE | PxHitFlag::eUV | PxHitFlag::eMESH_ANY |
+		PxHitFlag::eMESH_BOTH_SIDES;
+}
+
+Raycast::~Raycast()
+{
+	delete m_geom;
+}
+
+PxAgain Raycast::onHit()
+{
+	UINT hit = PxGeometryQuery::raycast(XMtoPX(*m_startPos),
+		XMtoPX(m_dir), *m_geom, PxTransform(m_pos), m_closest, hitFlag, maxHit, &hitData);
+
+	if (hit != 0 && hitData.distance <= m_closest) {
+
+		return true;
+	}
+	return false;
+}
+
+void Raycast::setPos(PxExtendedVec3 pos)
+{
+	m_dir = Vector3::Subtract(PXtoXM(pos), *m_startPos, true);
+	m_pos = PxVec3(pos.x, pos.y, pos.z);
 }

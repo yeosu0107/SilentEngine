@@ -54,6 +54,8 @@ private:
 	EnemyCollisionCallback	m_Callback;
 	float								m_Speed;
 	bool								m_Crash;
+
+	Jump							m_Jump;
 public:
 	Enemy(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Enemy();

@@ -52,6 +52,7 @@ ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12Graph
 	}
 
 	m_Controller = nullptr;
+	m_Actor = nullptr;
 }
 ModelObject::~ModelObject()
 {
@@ -99,11 +100,11 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
 
 		PxMaterial* mat = phys->getPhys()->createMaterial(0.2f, 0.2f, 0.2f);
 
-		PxRigidActor* actor = PxCreateStatic(*phys->getPhys(), location, meshGeo, *mat);
+		m_Actor = PxCreateStatic(*phys->getPhys(), location, meshGeo, *mat);
 
-		actor->setName("tmpmap");
+		m_Actor->setName("tmpmap");
 
-		phys->getScene()->addActor(*actor);
+		phys->getScene()->addActor(*m_Actor);
 	}
 }
 

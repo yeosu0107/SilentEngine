@@ -57,6 +57,8 @@ protected:
 
 	Camera*				m_pCamera;
 
+	Jump							m_Jump;
+
 	PlayerCollisionCallback	m_Callback;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);

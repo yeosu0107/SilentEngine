@@ -38,11 +38,11 @@ protected:
 	UINT m_AnimIndex;				//현재 애니메이션
 	UINT m_NumofAnim;			//애니메이션 갯수
 
-	PxRigidDynamic*		m_physBox;	//물리상호작용
-	PxCapsuleController*	m_Controller;   //컨트롤러 TEST
+	//for Dynamic
+	PxCapsuleController*	m_Controller;
 	PxControllerFilters		m_ControllerFilter;
-
-	Jump							m_Jump;
+	//for Static
+	PxRigidActor*				m_Actor;
 public:
 	ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual ~ModelObject();
