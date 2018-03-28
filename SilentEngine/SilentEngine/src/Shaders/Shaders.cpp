@@ -786,11 +786,11 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
 
 	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\fire2.dds", 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\fire2_n.dds", 1);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\blackLight.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\blackLight_n.dds", 1);
 
-	m_fMaxXCount = 5.0f;
-	m_fMaxYCount = 5.0f;
+	m_fMaxXCount = 4.0f;
+	m_fMaxYCount = 4.0f;
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
@@ -802,7 +802,7 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice);
 
-	CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 50.0f);
+	CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 25.0f, 50.0f, 50.0f);
 
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
@@ -829,9 +829,6 @@ void BillboardShader::Animate(float fTimeElapsed)
 	}
 
 	
-
-
-	cout << m_fNowXCount << " " << m_fNowYCount << endl;
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		m_ppObjects[i]->SetLookAt(m_pCamera->GetPosition());

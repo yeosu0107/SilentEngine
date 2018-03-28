@@ -27,7 +27,7 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 	input.normalW = normalize(input.normalW);
 	
 	cColor = g2DTexture.Sample(gDefaultSamplerState, input.uv);
-	clip(cColor.a - 0.1f);
+	clip(cColor.a - 0.9f);
 
 	float4 normalMapSample = g2DTextureNormal.Sample(gDefaultSamplerState, input.uv);
 	float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, input.normalW, input.tangentW);

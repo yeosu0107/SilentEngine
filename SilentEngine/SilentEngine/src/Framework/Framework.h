@@ -77,7 +77,6 @@ protected:
 
 	HINSTANCE m_hFrameworkInst = nullptr;
 	HWND m_hMainWnd = nullptr;
-	bool m_bAppPaused = false;
 	bool m_bMinimized = false;
 	bool m_bMaximized = false;
 	bool m_bResizing = false;

@@ -68,13 +68,9 @@ int Framework::Run()
 			DispatchMessage(&msg);
 		}
 		else {
-			if (!m_bAppPaused) {
 				CalculateFrameState();
 				Update();
 				Render();
-			}
-			else
-				Sleep(100);
 		}
 	
 	}
@@ -98,36 +94,25 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
-	case WM_ACTIVATE:
-		if ( LOWORD(wParam) == WA_INACTIVE ) {
-			m_bAppPaused = true;
-			//m_Timer.Stop();
-		}
-		else {
-			m_bAppPaused = false;
-			//m_Timer.Start();
-		}
-		return 0;
-
 	case WM_SIZE:
 		if (wParam == SIZE_MINIMIZED) {
-			m_bAppPaused = true;
+			
 			m_bMinimized = true;
 			m_bMaximized = false;
 		}
 		else if (wParam == SIZE_MINIMIZED) {
-			m_bAppPaused = false;
+			
 			m_bMinimized = false;
 			m_bMaximized = true;
 		}
 		else if (wParam == SIZE_RESTORED) {
 			if (m_bMinimized) {
-				m_bAppPaused = false;
+			
 				m_bMinimized = false;
 				//OnResize();
 			}
 			else if (m_bMaximized) {
-				m_bAppPaused = false;
+	
 				m_bMaximized = false;
 				//OnResize();
 			}
@@ -141,15 +126,14 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_ENTERSIZEMOVE:
-		m_bAppPaused	= true;
 		m_bResizing		= true;
 		//m_Timer.Stop();
 		return 0;
 
 	case WM_EXITSIZEMOVE:
-		m_bAppPaused = false;
+		
 		m_bResizing = false;
-		m_Timer.Start();
+		//m_Timer.Start();
 		OnResize();
 		return 0;
 
@@ -312,6 +296,7 @@ void Framework::Update()
 
 	m_pTestScene->Update(m_Timer);
 
+	std::cout << m_Timer.DeltaTime() << std::endl;
 }
 
 void Framework::Render()
@@ -573,7 +558,7 @@ void Framework::CreateSwapChain()
 	swapChainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.BufferCount			= SwapChainBufferCount;
 	swapChainDesc.OutputWindow			= m_hMainWnd;
-	swapChainDesc.Windowed = true;
+	swapChainDesc.Windowed				= true;
 	swapChainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.Flags					= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	swapChainDesc.SampleDesc			= sampleDesc;
@@ -735,6 +720,8 @@ void Framework::OnKeyboardInput(const Timer& gt)
 			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / m_fMouseSensitive;
 			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / m_fMouseSensitive;
 			::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+
+			//m_pCamera->Rotate(cyDelta, cxDelta, 0.0f);
 		}
 	}
 }
@@ -748,6 +735,7 @@ void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 	case WM_RBUTTONDOWN:
 		::SetCapture(m_hMainWnd);
 		::GetCursorPos(&m_ptOldCursorPos);
+		m_bMouseCapture = true;
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -764,6 +752,7 @@ void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 		::ReleaseCapture();
+		m_bMouseCapture = false;
 		break;
 	case WM_MOUSEMOVE:
 		break;
@@ -782,7 +771,8 @@ void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 		GetCursorPos(&ptCursorPos);
 		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / 3.0f;
 		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / 3.0f;
-		SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+
+		//SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
 	}
 	if ((cxDelta != 0.0f) || (cyDelta != 0.0f))
 	{
