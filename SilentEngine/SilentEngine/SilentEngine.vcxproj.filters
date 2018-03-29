@@ -85,6 +85,9 @@
     <Filter Include="Player">
       <UniqueIdentifier>{093a8fc2-0679-440e-9045-ec504a434520}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Room">
+      <UniqueIdentifier>{95ad9aae-548a-4760-8654-efb80efaf07d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -177,6 +180,9 @@
     </ClCompile>
     <ClCompile Include="src\Shaders\ProjectileShader.cpp">
       <Filter>Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Room\Room.cpp">
+      <Filter>Room</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -272,6 +278,9 @@
     </ClInclude>
     <ClInclude Include="src\Shaders\ProjectileShader.h">
       <Filter>Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Room\Room.h">
+      <Filter>Room</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

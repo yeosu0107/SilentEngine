@@ -158,7 +158,6 @@ PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserC
 	capsuleDesc.reportCallback = collisionCallback;
 
 	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
-
 	return controller;
 }
 

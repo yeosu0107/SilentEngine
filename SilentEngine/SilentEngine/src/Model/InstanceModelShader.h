@@ -4,6 +4,7 @@
 class InstanceModelShader : public ModelShader
 {
 private:
+	vector<ModelObject*> m_InstanceModel;
 public:
 	InstanceModelShader(UINT index);
 	~InstanceModelShader();
@@ -22,6 +23,7 @@ public:
 	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
 	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 
+	virtual void SetPhys(BasePhysX* phys);
 protected:
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;

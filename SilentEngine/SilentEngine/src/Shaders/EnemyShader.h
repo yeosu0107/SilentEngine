@@ -6,6 +6,7 @@ template<class T>
 class EnemyShader : public DynamicModelShader
 {
 private:
+	vector<T*>		m_pEnemy;
 public:
 	EnemyShader(int index) : DynamicModelShader(index) { }
 	~EnemyShader() { }
@@ -17,6 +18,7 @@ public:
 
 		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
+		m_pEnemy = vector<T*>(m_nObjects);
 
 
 		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
@@ -41,9 +43,16 @@ public:
 			T* t_enemy = new T(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 			t_enemy->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
 			t_enemy->SetPosition(XMFLOAT3(50, -170, 50));
-			t_enemy->SetPhysController(globalPhysX->getCapsuleController(XMtoPXEx(t_enemy->GetPosition()), t_enemy->getCollisionCallback()));
+			//t_enemy->SetPhysController((BasePhysX*)pContext, t_enemy->getCollisionCallback(), &XMtoPXEx(t_enemy->GetPosition()));
 			t_enemy->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 			m_ppObjects[i] = t_enemy;
+			m_pEnemy[i] = t_enemy;
+		}
+	}
+
+	void setPhys(BasePhysX* phys) {
+		for (auto& p : m_pEnemy) {
+			p->SetPhysController(phys, p->getCollisionCallback(), &XMtoPXEx(p->GetPosition()));
 		}
 	}
 };

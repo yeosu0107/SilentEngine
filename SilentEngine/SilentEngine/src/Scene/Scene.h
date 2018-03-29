@@ -3,11 +3,10 @@
 #include "Mesh.h"
 #include "Shaders.h"
 #include "..\Shaders\ProjectileShader.h"
-//#include "FrameResouce.h"
 #include "Camera.h"
 #include "Timer.h"
-#include "..\PhysX\BasePhysX.h"
 #include "..\Model\ModelObject.h"
+#include "..\Room\Room.h"
 
 
 // Scene 
@@ -26,9 +25,6 @@ public:
 	virtual Camera* GetCamera() { return m_Camera.get(); }
 
 protected:
-	//vector<unique_ptr<FrameResource>>	m_FrameResources;
-	//FrameResource*					m_pCurrentFrameResource = nullptr;
-	
 	int									m_CurrFrameResourceIndex = 0;
 	UINT								m_nCbvSrvDescriptorSize = 0;
 
@@ -36,8 +32,6 @@ protected:
 	ComPtr<ID3D12DescriptorHeap>		m_SrvDescriptorHeap = nullptr;
 
 	shared_ptr<unordered_map<string, unique_ptr<MeshGeometry>>>			m_Geometries;
-	//unordered_map<string, unique_ptr<Material>>				m_Materials;
-	//unordered_map<string, unique_ptr<Texture>>				m_Textures;
 	unordered_map<string, ComPtr<ID3DBlob>>						m_Shaders;
 	unordered_map<string, ComPtr<ID3D12PipelineState>>			m_PSOs;
 	vector<D3D12_INPUT_ELEMENT_DESC>							m_InputLayout;
@@ -70,14 +64,18 @@ public:
 	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
 	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
 	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
-		
+	
+	virtual void RoomChange(int roomIndex);
 protected:
-	//unique_ptr<UploadBuffer<ObjectConstants>> m_ObjectCB = nullptr;
 	Shaders** m_ppShaders = nullptr;
 	ProjectileShader** m_Projectile = nullptr;
+
+	Room**		m_Room = nullptr;
 	
 	UINT m_nShaders = 0;
 	UINT m_nProjectile = 0;
+	UINT	m_nRoom = 0;
+	UINT m_nowRoom = 0;
 	
 	LIGHTS*										m_pLights;
 	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;

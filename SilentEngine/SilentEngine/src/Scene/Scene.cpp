@@ -1,11 +1,8 @@
 #include "stdafx.h"
 #include "Scene.h"
 #include "InstanceObjectShader.h"
-#include "..\Model\ModelShader.h"
 #include "..\Shaders\PlayerShader.h"
 #include "..\Model\InstanceModelShader.h"
-#include "..\Object\Enemy.h"
-#include "..\Shaders\EnemyShader.h"
 
 Scene::Scene() : m_physics(nullptr)
 {
@@ -138,6 +135,8 @@ void TestScene::Update(const Timer & gt)
 		m_testTimer = 0;
 	}
 
+	m_Room[m_nowRoom]->GetEnemyShader()->Animate(gt.DeltaTime());
+
 	for (UINT i = 0; i < m_nShaders; ++i) {
 		m_ppShaders[i]->Animate(gt.DeltaTime());
 	}
@@ -158,56 +157,54 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
 	m_Camera->SetTimeLag(0.25f);
 
-	m_nShaders = 4;
+	m_nShaders = 2;
 	m_ppShaders = new Shaders*[m_nShaders];
 
 	m_nProjectile = 1;
 	m_Projectile = new ProjectileShader*[m_nProjectile];
+
+	m_nRoom = 1;
+	m_Room = new Room*[m_nRoom];
+	m_Room[0] = new Room(Room::RoomType::ICE);
 	
+	PlayerShader* player = new PlayerShader(1, m_Camera.get());
+	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	
+	m_ppShaders[0] = player;
+
 	BillboardShader* pNormalObject = new BillboardShader();
 	pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	//pNormalObject->BuildObjects(pDevice, pCommandList);
-	//pNormalObject->BuildPSO(pDevice, m_RootSignature.Get());
 	pNormalObject->SetCamera(m_Camera.get());
-	m_ppShaders[3] = pNormalObject;
+	m_ppShaders[1] = pNormalObject;
 
-	InstanceModelShader* tmp= new InstanceModelShader(2);
-	tmp->setPhysics(m_physics);
-	tmp->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	tmp->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	m_ppShaders[1] = tmp;
-	
-	/*DynamicModelShader* tmp2 = new DynamicModelShader(1);
-	tmp2->setPhysics(m_physics);
-	m_ppShaders[2] = tmp2;*/
-
-	PlayerShader* tmp2 = new PlayerShader(1, m_Camera.get());
-	tmp2->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	tmp2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	tmp2->setPhysics(m_physics);
-	m_ppShaders[2] = tmp2;
+	InstanceModelShader* map= new InstanceModelShader(2);
+	map->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	map->BuildObjects(pDevice, pCommandList, m_physics);
+	//m_ppShaders[2] = tmp;
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	eShader->setPhysics(m_physics);
-	m_ppShaders[0] = eShader;
+	eShader->BuildObjects(pDevice, pCommandList, m_physics);
+	m_Enemys = eShader->getObjects(m_nEnemy);
+	//m_ppShaders[3] = eShader;
 
 	ProjectileShader* bullet = new ProjectileShader();
 	m_Projectile[0] = bullet;
-	
 
 	for(UINT i=0; i<m_nShaders; ++i)
-		m_ppShaders[i]->BuildObjects(pDevice, pCommandList);
+		m_ppShaders[i]->BuildObjects(pDevice, pCommandList, m_physics);
 
 	for (UINT i = 0; i<m_nProjectile; ++i)
 		m_Projectile[i]->BuildObjects(pDevice, pCommandList);
 
-	m_testPlayer = tmp2->getPlayer(0);
-
-	m_Enemys = eShader->getObjects(m_nEnemy);
-	
+	m_testPlayer = player->getPlayer(0);
+	m_Room[0]->SetMapShader(map);
+	m_Room[0]->SetEnemyShader(eShader);
+	RoomChange(0);
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -222,6 +219,9 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
 
+	m_Room[m_nowRoom]->GetEnemyShader()->Render(pCommandList, m_Camera.get());
+	m_Room[m_nowRoom]->GetMapShader()->Render(pCommandList, m_Camera.get());
+	
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
 	
@@ -273,6 +273,13 @@ bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y)
 {
 	m_testPlayer->Rotate(y, x, 0.0f);
 	return true;
+}
+
+void TestScene::RoomChange(int roomIndex)
+{
+	m_Room[m_nowRoom]->RegistShader(m_physics, false);
+	m_Room[roomIndex]->RegistShader(m_physics, true);
+	m_nowRoom = roomIndex;
 }
 
 void TestScene::BuildLightsAndMaterials()

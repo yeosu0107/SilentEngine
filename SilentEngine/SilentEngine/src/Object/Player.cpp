@@ -9,7 +9,6 @@ Player::Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_xmf3Up = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_pCamera = nullptr;
-
 	m_Callback.SetJump(&m_Jump);
 }
 
@@ -95,7 +94,7 @@ bool Player::Move(DWORD input, float fDist)
 bool Player::Movement(DWORD input)
 {
 	m_AnimIndex = PlayerAni::Idle;
-
+	
 	if (input & ANI_ATTACK)
 		m_AnimIndex = PlayerAni::Attack;
 	if (input & ANI_SKILL)

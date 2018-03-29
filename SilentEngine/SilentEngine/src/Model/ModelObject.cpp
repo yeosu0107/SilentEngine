@@ -105,11 +105,12 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
 		m_Actor->setName("tmpmap");
 
 		phys->getScene()->addActor(*m_Actor);
+		//phys->getScene()->removeActor
 	}
 }
 
 
-void ModelObject::SetPhysController(PxCapsuleController * control)
+void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos)
 {
-	m_Controller = control;
+	m_Controller = control->getCapsuleController(*pos, callback);
 }

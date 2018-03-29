@@ -7,7 +7,6 @@ class ModelShader : public ObjectShader
 {
 protected:
 	UINT				modelIndex;
-	BasePhysX*			globalPhysX;
 
 public:
 	ModelShader();
@@ -23,9 +22,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	virtual void Animate(float fTimeElapsed);
 
-	void setPhysics(BasePhysX* global) {
-		globalPhysX = global;
-	}
+	virtual void SetPhys(BasePhysX* phys) {}
 };
 
 class DynamicModelShader : public ModelShader
@@ -49,7 +46,7 @@ public:
 	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 
 	GameObject* getObject(int index) { return m_ppObjects[index]; }
-	GameObject** getObjects(UINT& num) { 
+	virtual GameObject** getObjects(UINT& num) { 
 		num = m_nObjects;
 		return m_ppObjects.data(); 
 	}

@@ -99,7 +99,7 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 			object->SetPosition(XMFLOAT3(i * 800, 0, j * 400));
 			object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * num));
 			//object->SetScale(0.1f);
-			object->SetPhysMesh(globalPhysX, PhysMesh::Mesh_Tri);
+			object->SetPhysMesh((BasePhysX*)pContext, PhysMesh::Mesh_Tri);
 			m_ppObjects[num] = object;
 			num += 1;
 		}
@@ -122,7 +122,8 @@ void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 void ModelShader::Animate(float fTimeElapsed)
 {
 	for (UINT i = 0; i < m_nObjects; ++i) {
-		m_ppObjects[i]->Animate(fTimeElapsed);
+		if(m_ppObjects[i]->isLive())
+			m_ppObjects[i]->Animate(fTimeElapsed);
 	}
 }
 
@@ -270,16 +271,11 @@ void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 		m_pMaterial->SetReflection(1);
 	}
 	
-
-	//ModelObject* tmp = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	Player* tmp=new Player(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	tmp->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
 	tmp->SetPosition(XMFLOAT3(0, 0, 0));
-	//tmp->SetPhysController(globalPhysX->getCapsuleController(tmp->getCollisionCallback()));
 	tmp->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
 	m_ppObjects[0] = tmp;
-	////m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
-	//m_ppObjects[0]->SetPosition(0, 0, 0);
 	
 }
 
