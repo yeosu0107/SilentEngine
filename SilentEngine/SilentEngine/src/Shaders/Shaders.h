@@ -46,8 +46,9 @@ public:
 
 	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1) ;
 	virtual void BuildPSO(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRootSignature, UINT nRenderTargets = 1);
+	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement);
 	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
-
+	virtual void CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12Resource* pd3dConstantBuffers, UINT nRootParameterStartIndex, UINT nPreConstanceBuffers, UINT nElementSize, bool bAutoIncrement);
 	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
 	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride) ;
 //	void CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
@@ -135,6 +136,16 @@ protected:
 
 class BillboardShader : public NormalMapShader
 {
+private:
+	enum { 
+		ROOTPARAMETER_CAMERA, 
+		ROOTPARAMETER_OBJECT, 
+		ROOTPARAMETER_MATERIAL, 
+		ROOTPARAMETER_LIGHTS, 
+		ROOTPARAMETER_EFFECT, 
+		ROOTPARAMETER_TEXTURE, 
+		ROOTPARAMETER_NORMALMAP 
+	};
 public:
 	BillboardShader() {};
 	~BillboardShader() {};
@@ -146,6 +157,8 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
 	virtual void Animate(float fTimeElapsed);
+
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; };
 

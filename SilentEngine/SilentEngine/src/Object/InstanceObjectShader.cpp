@@ -183,7 +183,7 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 	InstanceObject* pInstnaceObject = new InstanceObject();
 	pInstnaceObject->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
 	pInstnaceObject->SetInstanceDataResource(m_ObjectCB->Resource());
-	pInstnaceObject->SetPosition(50.0f, 50.0f, 50.0f);
+	pInstnaceObject->SetPosition(i * 50.0f + 50.0f, i * 50.0f - 150.0f, i * 50.0f);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetInstanceCount(m_nObjects);
 
@@ -191,7 +191,7 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 
 	for (; i < m_nObjects; ++i) {
 		GameObject* pGameObjects = new GameObject();
-		pGameObjects->SetPosition(50.0f * i, 50.0f * i, 50.0f * i);
+		pGameObjects->SetPosition(i * 50.0f + 50.0f, - 150.0f, i * 50.0f);
 		m_ppObjects[i] = pGameObjects;
 	}
 }
@@ -342,7 +342,7 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 0, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice);

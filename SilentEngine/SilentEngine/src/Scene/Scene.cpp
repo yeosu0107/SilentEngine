@@ -170,7 +170,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	//pNormalObject->BuildObjects(pDevice, pCommandList);
 	//pNormalObject->BuildPSO(pDevice, m_RootSignature.Get());
 	pNormalObject->SetCamera(m_Camera.get());
-	m_ppShaders[0] = pNormalObject;
+	m_ppShaders[3] = pNormalObject;
 
 	InstanceModelShader* tmp= new InstanceModelShader(2);
 	tmp->setPhysics(m_physics);
@@ -192,7 +192,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->setPhysics(m_physics);
-	m_ppShaders[3] = eShader;
+	m_ppShaders[0] = eShader;
 
 	ProjectileShader* bullet = new ProjectileShader();
 	m_Projectile[0] = bullet;

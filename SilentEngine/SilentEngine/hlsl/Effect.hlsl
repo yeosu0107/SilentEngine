@@ -1,16 +1,22 @@
 #include "NormalMap.hlsl"
 
-VS_NORMAL_OUTPUT VSEffect(VS_NORMAL_INPUT input) {
+VS_NORMAL_OUTPUT VSEffect(VS_NORMAL_INPUT input, uint instanceID : SV_InstanceID) {
+
+	InstanceData instData = gInstanceData[instanceID];
+	InstanceEffectData instEffectData = gEffectInstanceData[instanceID];
+
+	float4x4 world = instData.mtxGameObject;
+
 	VS_NORMAL_OUTPUT output = (VS_NORMAL_OUTPUT)0.0f;
 
-	float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
+	float4 positionW = mul(float4(input.position, 1.0f), world);
 	output.positionW = positionW.xyz;
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
-	output.tangentW = mul(input.tangentU, (float3x3)gmtxGameObject);
+	output.normalW = mul(input.normal, (float3x3)world);
+	output.tangentW = mul(input.tangentU, (float3x3)world);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-	float x = 1.0f / gMaxXCount;
-	float y = 1.0f / gMaxYCount;
-	output.uv = float2(input.uv.x * x + x * gNowXCount, input.uv.y * y + y * gNowYCount);
+	float x = 1.0f / instEffectData.nMaxXCount;
+	float y = 1.0f / instEffectData.nMaxYCount;
+	output.uv = float2(input.uv.x * x + x * instEffectData.nNowXCount, input.uv.y * y + y * instEffectData.nNowYCount);
 	//output.uv = input.uv;
 	return output;
 }
@@ -27,7 +33,9 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 	input.normalW = normalize(input.normalW);
 	
 	cColor = g2DTexture.Sample(gDefaultSamplerState, input.uv);
-	clip(cColor.a - 0.9f);
+	if (cColor.a - 0.015f < 0.0f)
+		discard;
+	//clip(cColor.a - 0.1f);
 
 	float4 normalMapSample = g2DTextureNormal.Sample(gDefaultSamplerState, input.uv);
 	float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, input.normalW, input.tangentW);
@@ -37,7 +45,7 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
 
 	float3 shadowFactor = 1.0f;
-	float4 directLight = Lighting(input.positionW, bumpedNormalW, gnMaterial);
+	float4 directLight = Lighting(input.positionW, bumpedNormalW, 0.0f);
 	
 	float4 litColor = directLight * cColor;
 	float3 r = reflect(-toEyeW, bumpedNormalW);

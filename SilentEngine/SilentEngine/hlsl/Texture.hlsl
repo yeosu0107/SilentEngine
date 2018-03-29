@@ -11,3 +11,13 @@ struct InstanceData
 };
 
 StructuredBuffer<InstanceData> gInstanceData : register(t1);
+
+struct InstanceEffectData
+{
+	uint				nMaxXCount;
+	uint				nMaxYCount;
+	uint				nNowXCount;
+	uint				nNowYCount;
+};
+
+StructuredBuffer<InstanceEffectData> gEffectInstanceData : register(t5);

@@ -44,3 +44,17 @@ void InstanceObject::SetInstanceCount(UINT nInstanceCount)
 {
 	m_nInstanceCount = nInstanceCount;
 }
+
+EffectInstanceObject::EffectInstanceObject()
+{
+}
+
+EffectInstanceObject::~EffectInstanceObject()
+{
+}
+
+void EffectInstanceObject::SetRootParameter(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
+	pd3dCommandList->SetGraphicsRootDescriptorTable(4, m_d3dEffectCbvGPUDescriptorHandle);
+}
