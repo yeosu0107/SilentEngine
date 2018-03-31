@@ -136,7 +136,7 @@ protected:
 
 class BillboardShader : public NormalMapShader
 {
-private:
+protected:
 	enum { 
 		ROOTPARAMETER_CAMERA, 
 		ROOTPARAMETER_OBJECT, 

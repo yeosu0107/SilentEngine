@@ -55,4 +55,10 @@ public:
 			p->SetPhysController(phys, p->getCollisionCallback(), &XMtoPXEx(p->GetPosition()));
 		}
 	}
+
+	void releasePhys() {
+		for (auto& p : m_pEnemy) {
+			p->releasePhys();
+		}
+	}
 };

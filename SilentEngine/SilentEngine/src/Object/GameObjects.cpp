@@ -364,6 +364,14 @@ void GameObject::MoveForward(float fDistance)
 	GameObject::SetPosition(xmf3Position);
 }
 
+void GameObject::MoveDir(XMFLOAT3 dir, float fDist)
+{
+	XMFLOAT3 xmf3Position = GetPosition();
+	XMFLOAT3 xmf3Look = dir;
+	xmf3Position = Vector3::Add(xmf3Position, xmf3Look, fDist);
+	GameObject::SetPosition(xmf3Position);
+}
+
 void GameObject::Rotate(float fPitch, float fYaw, float fRoll)
 {
 	XMMATRIX mtxRotate = XMMatrixRotationRollPitchYaw(XMConvertToRadians(fPitch), XMConvertToRadians(fYaw), XMConvertToRadians(fRoll));

@@ -114,3 +114,11 @@ void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitRepor
 {
 	m_Controller = control->getCapsuleController(*pos, callback);
 }
+
+void ModelObject::releasePhys()
+{
+	if (m_Actor)
+		m_Actor->release();
+	if (m_Controller)
+		m_Controller->release();
+}

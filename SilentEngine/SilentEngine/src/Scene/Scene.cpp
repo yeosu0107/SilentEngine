@@ -4,6 +4,12 @@
 #include "..\Shaders\PlayerShader.h"
 #include "..\Model\InstanceModelShader.h"
 
+ostream& operator<<(ostream& os, XMFLOAT3& p)
+{
+	os << "[" << p.x << ", " << p.y << ", " << p.z << "]" << endl;
+	return os;
+}
+
 Scene::Scene() : m_physics(nullptr)
 {
 }
@@ -26,6 +32,7 @@ TestScene::TestScene()
 {
 	m_physics = new BasePhysX(60.0f);
 	m_testPlayer = nullptr;
+	m_nowRoom = START_ROOM;
 }
 
 TestScene::~TestScene()
@@ -125,23 +132,28 @@ void TestScene::Update(const Timer & gt)
 
 	m_physics->stepPhysics(false);
 
-	m_testTimer += 1;
-	if (m_testTimer % 120 == 0) {
-		XMFLOAT3 tPos = m_Enemys[0]->GetPosition();
-		tPos.y += 20.0f;
-		XMFLOAT3 ttPos = m_testPlayer->GetPosition();
-		ttPos.y += 20.0f;
-		m_Projectile[0]->Shoot(tPos, ttPos);
-		m_testTimer = 0;
-	}
+	
 
-	m_Room[m_nowRoom]->GetEnemyShader()->Animate(gt.DeltaTime());
+	if(m_Room[m_nowRoom]->IsEnemy())
+		m_Room[m_nowRoom]->GetEnemyShader()->Animate(gt.DeltaTime());
 
 	for (UINT i = 0; i < m_nShaders; ++i) {
 		m_ppShaders[i]->Animate(gt.DeltaTime());
 	}
-	for(UINT i=0; i<m_nProjectile; ++i) 
-		m_Projectile[i]->Animate(gt.DeltaTime());
+
+	if (m_Enemys) {
+		m_testTimer += 1;
+		if (m_testTimer % 120 == 0) {
+			XMFLOAT3 tPos = m_Enemys[0]->GetPosition();
+			tPos.y += 20.0f;
+			XMFLOAT3 ttPos = m_testPlayer->GetPosition();
+			ttPos.y += 20.0f;
+			m_Projectile[0]->Shoot(tPos, ttPos);
+			m_testTimer = 0;
+		}
+		for (UINT i = 0; i < m_nProjectile; ++i)
+			m_Projectile[i]->Animate(gt.DeltaTime());
+	}
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -163,9 +175,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_nProjectile = 1;
 	m_Projectile = new ProjectileShader*[m_nProjectile];
 
-	m_nRoom = 1;
+	m_nRoom = 2;
 	m_Room = new Room*[m_nRoom];
 	m_Room[0] = new Room(Room::RoomType::ICE);
+	m_Room[1] = new Room(Room::RoomType::NORMAL);
 	
 	PlayerShader* player = new PlayerShader(1, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -179,20 +192,26 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	pNormalObject->SetCamera(m_Camera.get());
 	m_ppShaders[1] = pNormalObject;
 
-	InstanceModelShader* map= new InstanceModelShader(2);
+	InstanceModelShader* map= new InstanceModelShader(3);
 	map->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	map->BuildObjects(pDevice, pCommandList, m_physics);
-	//m_ppShaders[2] = tmp;
+
+	InstanceModelShader* map2 = new InstanceModelShader(2);
+	map2->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	map2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	map2->BuildObjects(pDevice, pCommandList, m_physics);
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->BuildObjects(pDevice, pCommandList, m_physics);
-	m_Enemys = eShader->getObjects(m_nEnemy);
-	//m_ppShaders[3] = eShader;
+	
 
 	ProjectileShader* bullet = new ProjectileShader();
+	bullet->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	bullet->SetCamera(m_Camera.get());
 	m_Projectile[0] = bullet;
 
 	for(UINT i=0; i<m_nShaders; ++i)
@@ -202,9 +221,29 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		m_Projectile[i]->BuildObjects(pDevice, pCommandList);
 
 	m_testPlayer = player->getPlayer(0);
+	
+	Point startPoint[4] = {
+		Point(330,-190, 0),
+		Point(-330, -190, 0),
+		Point(0, - 190,-470),
+		Point(0, - 190,470)
+	};
+
+	Point startPoint2[4] = {
+		Point(350, -190,	0),
+		Point(-350,-190,0),
+		Point(0, -190,-170),
+		Point(0,	-190,170)
+	};
+
 	m_Room[0]->SetMapShader(map);
 	m_Room[0]->SetEnemyShader(eShader);
-	RoomChange(0);
+	m_Room[0]->SetStartPoint(startPoint);
+	m_Room[1]->SetMapShader(map2);
+	m_Room[1]->SetStartPoint(startPoint2);
+	RoomChange(0, START_SOUTH);
+	//RoomChange(1);
+	//RoomChange(0);
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -219,7 +258,9 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
 
-	m_Room[m_nowRoom]->GetEnemyShader()->Render(pCommandList, m_Camera.get());
+	if(m_Room[m_nowRoom]->IsEnemy())
+		m_Room[m_nowRoom]->GetEnemyShader()->Render(pCommandList, m_Camera.get());
+
 	m_Room[m_nowRoom]->GetMapShader()->Render(pCommandList, m_Camera.get());
 	
 	for(UINT i=0; i<m_nShaders; ++i)
@@ -246,11 +287,13 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	if (GetAsyncKeyState('D') & 0x8000)
 		moveInpout |= DIR_RIGHT;
 
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000) 
-		input |= ANI_ATTACK;
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+		cout << m_testPlayer->GetPosition();
 	
-	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) 
-		input |= ANI_SKILL;
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+		RoomChange(1, START_NORTH);
+
+
 	
 
 	if(!m_testPlayer->Movement(input))
@@ -275,10 +318,23 @@ bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y)
 	return true;
 }
 
-void TestScene::RoomChange(int roomIndex)
+void TestScene::RoomChange(int roomIndex, const char& location)
 {
-	m_Room[m_nowRoom]->RegistShader(m_physics, false);
-	m_Room[roomIndex]->RegistShader(m_physics, true);
+	if (m_nowRoom == roomIndex)
+		return;
+	
+	if (m_nowRoom != START_ROOM)
+		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
+
+	Point* tmp;
+	tmp = m_Room[roomIndex]->RegistShader(m_physics, true, location);
+
+	m_testPlayer->SetPosition(tmp->xPos, tmp->yPos, tmp->zPos);
+
+	if (m_Room[roomIndex]->IsEnemy())
+		m_Enemys = m_Room[roomIndex]->GetEnemyShader()->getObjects(m_nEnemy);
+	else
+		m_Enemys = nullptr;
 	m_nowRoom = roomIndex;
 }
 

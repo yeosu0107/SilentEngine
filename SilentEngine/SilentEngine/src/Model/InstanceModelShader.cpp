@@ -211,3 +211,10 @@ void InstanceModelShader::SetPhys(BasePhysX * phys)
 		p->SetPhysMesh(phys, PhysMesh::Mesh_Tri);
 	}
 }
+
+void InstanceModelShader::releasePhys()
+{
+	for (auto& p : m_InstanceModel) {
+		p->releasePhys();
+	}
+}

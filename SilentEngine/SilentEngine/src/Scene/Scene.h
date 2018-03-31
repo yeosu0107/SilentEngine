@@ -8,6 +8,9 @@
 #include "..\Model\ModelObject.h"
 #include "..\Room\Room.h"
 
+const UINT START_ROOM = 100;
+
+
 
 // Scene 
 class Scene
@@ -65,7 +68,7 @@ public:
 	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
 	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
 	
-	virtual void RoomChange(int roomIndex);
+	virtual void RoomChange(int roomIndex, const char& location);
 protected:
 	Shaders** m_ppShaders = nullptr;
 	ProjectileShader** m_Projectile = nullptr;
@@ -75,7 +78,7 @@ protected:
 	UINT m_nShaders = 0;
 	UINT m_nProjectile = 0;
 	UINT	m_nRoom = 0;
-	UINT m_nowRoom = 0;
+	UINT m_nowRoom;
 	
 	LIGHTS*										m_pLights;
 	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;

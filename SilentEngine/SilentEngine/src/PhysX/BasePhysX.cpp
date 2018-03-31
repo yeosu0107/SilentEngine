@@ -57,8 +57,7 @@ void BasePhysX::InitPhysics()
 		cout << "컨트롤러 생성 실패" << endl;
 #endif
 
-	//physx 매터리얼 생성
-	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
+
 
 }
 
@@ -99,6 +98,14 @@ void BasePhysX::Addapt(XMFLOAT3 & pos)
 	PxRigidActor* tactor;
 	gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);
 	pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);
+}
+
+PxShape * BasePhysX::GetBoxMesh()
+{
+	//physx 매터리얼 생성
+	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
+
+	return nullptr;
 }
 
 PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
@@ -156,8 +163,10 @@ PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserC
 
 	//충돌 콜백 함수
 	capsuleDesc.reportCallback = collisionCallback;
-
+	
 	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
+	string* tmp = new string("tmptmptmp");
+	controller->setUserData(tmp);
 	return controller;
 }
 
@@ -178,7 +187,6 @@ PxBoxController* BasePhysX::getBoxController(PxUserControllerHitReport * collisi
 	boxDesc.reportCallback = collisionCallback;
 
 	PxBoxController* controller = static_cast<PxBoxController*>(gControllerMgr->createController(boxDesc));
-	
 	return controller;
 }
 

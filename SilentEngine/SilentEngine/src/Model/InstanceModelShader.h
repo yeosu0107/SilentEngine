@@ -24,6 +24,7 @@ public:
 	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 
 	virtual void SetPhys(BasePhysX* phys);
+	virtual void releasePhys();
 protected:
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;

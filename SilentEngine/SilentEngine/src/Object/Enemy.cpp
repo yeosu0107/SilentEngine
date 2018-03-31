@@ -4,22 +4,48 @@
 Bullet::Bullet()
 {
 	m_live = false;
+	m_nInstanceCount = 0;
+	m_moveDir = XMFLOAT3(0, 0, 0);
 }
 
 Bullet::~Bullet()
 {
 }
 
-void Bullet::Animate()
+void Bullet::SetRootParameter(ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	MoveForward(2.0f);
+	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
+	pd3dCommandList->SetGraphicsRootDescriptorTable(4, m_d3dEffectCbvGPUDescriptorHandle);
+}
+
+void Bullet::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	OnPrepareRender(pd3dCommandList, pCamera);
+
+	SetRootParameter(pd3dCommandList);
+
+	if (!m_ppMeshes.empty())
+	{
+		for (int i = 0; i < m_nMeshes; i++)
+		{
+			if (m_ppMeshes[i])
+				m_ppMeshes[i]->Render(pd3dCommandList, m_nInstanceCount);
+		}
+	}
+}
+
+void Bullet::Animate(float fTimeElapsed)
+{
+	//MoveForward(2.0f);
+	MoveDir(m_moveDir, 2.0f);
 }
 
 void Bullet::Shoot(XMFLOAT3 pos, XMFLOAT3 target)
 {
 	m_live = true;
 	SetPosition(pos);
-	SetLookAt(target);
+	//SetLookAt(target);
+	m_moveDir = Vector3::Subtract(target, pos, true);
 }
 
 Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)

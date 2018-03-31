@@ -183,13 +183,14 @@ public:
 	XMFLOAT3 GetRight();
 	bool			isLive() const { return m_live; }
 
-	void SetPosition(float x, float y, float z);
+	virtual void SetPosition(float x, float y, float z);
 	void SetPosition(XMFLOAT3 xmf3Position);
 	void SetLookAt(XMFLOAT3& xmf3Target);
 
 	void MoveStrafe(float fDistance = 1.0f);
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
+	void MoveDir(XMFLOAT3 dir, float fDist = 1.0f);
 	virtual bool Move(DWORD dir, float fDist) { return false; }
 	virtual bool Movement(DWORD input) { return false; }
 
@@ -252,4 +253,3 @@ protected:
 };
 
 //////////////////////////////////////////////
-

@@ -63,4 +63,6 @@ public:
 	//physX ¼¼ÆÃ
 	void SetPhysMesh(BasePhysX* phys, PhysMesh type);
 	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos);
+
+	void releasePhys();
 };

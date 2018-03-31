@@ -105,14 +105,20 @@ bool Player::Movement(DWORD input)
 	return false;
 }
 
+void Player::SetPosition(float x, float y, float z)
+{
+	m_Controller->setPosition(PxExtendedVec3(x, y, z));
+}
+
 void Player::Animate(float fTime)
 {
 	ModelObject::Animate(fTime); //애니메이션
-
+	
 	if (m_Controller) {
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(1.0f/60.0f), 0), 0.1f, 1.0f / 60.0f, m_ControllerFilter);
 		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
+		//cout << m_xmf3Position.x << "\t" << m_xmf3Position.y << "\t" << m_xmf3Position.z << endl;
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
 	}
 	if (m_pCamera) {

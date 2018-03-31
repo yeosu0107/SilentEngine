@@ -23,6 +23,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 
 	virtual void SetPhys(BasePhysX* phys) {}
+	virtual void releasePhys() {}
 };
 
 class DynamicModelShader : public ModelShader

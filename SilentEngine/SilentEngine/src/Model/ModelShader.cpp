@@ -273,7 +273,7 @@ void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	
 	Player* tmp=new Player(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	tmp->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
-	tmp->SetPosition(XMFLOAT3(0, 0, 0));
+	//tmp->SetPosition(XMFLOAT3(0, 0, 0));
 	tmp->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
 	m_ppObjects[0] = tmp;
 	

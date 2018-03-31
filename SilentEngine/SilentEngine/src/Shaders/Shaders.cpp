@@ -845,7 +845,7 @@ D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 
 void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
 {
-	m_nObjects = 5;
+	m_nObjects = 1;
 
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
@@ -880,7 +880,7 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	EffectInstanceObject* pInstnaceObject = new EffectInstanceObject();
 	pInstnaceObject->SetMesh(0, pBoard);
-	pInstnaceObject->SetPosition(i * 50.0f + 50.0f, - 150.0f, i * 50.0f);
+	pInstnaceObject->SetPosition(243.711, -165.542, -51.021);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
 	pInstnaceObject->SetInstanceCount(m_nObjects);
@@ -889,7 +889,7 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	for (; i < m_nObjects; ++i) {
 		GameObject* pGameObjects = new GameObject();
-		pGameObjects->SetPosition(i * 10.0f + 50.0f, - 150.0f, i * 10.0f);
+		pGameObjects->SetPosition(115.89f, -182.542f, 57.931f);
 		m_ppObjects[i] = pGameObjects;
 	}
 }

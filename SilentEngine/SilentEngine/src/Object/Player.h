@@ -28,12 +28,16 @@ private:
 	Jump * jump;
 public:
 	void onShapeHit(const PxControllerShapeHit &hit) {
+		//cout << hit.actor->getName() << endl;
 		if (jump->mJump) {
 			jump->stopJump();
 			//cout << hit.dir.x << " " << hit.dir.y << " " << hit.dir.z << endl;
 		}
 	}
 	void 	onControllerHit(const PxControllersHit &hit) {
+		//hit.controller.get
+		//string tt = (string*)(hit.controller->getUserData());
+		//cout << *(string*)(hit.controller->getUserData()) << endl;
 	}
 	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
 	}
@@ -78,6 +82,7 @@ public:
 
 	virtual bool Move(DWORD dir, float fDist);
 	virtual bool Movement(DWORD input);
+	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);
 	void SetCamera(Camera* tCamera);
 };
