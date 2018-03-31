@@ -1,16 +1,8 @@
-Texture2DArray gBoxTextured : register(t0);
-Texture2DArray gBoxNormal : register(t2);
-
-Texture2D g2DTexture : register(t3);
-Texture2D g2DTextureNormal : register(t4);
-
 struct InstanceData
 {
 	matrix		mtxGameObject;
 	uint			nMaterial;
 };
-
-StructuredBuffer<InstanceData> gInstanceData : register(t1);
 
 struct InstanceEffectData
 {
@@ -20,4 +12,15 @@ struct InstanceEffectData
 	uint				nNowYCount;
 };
 
+
+Texture2DArray gBoxTextured : register(t0);
+StructuredBuffer<InstanceData> gInstanceData : register(t1);
+Texture2DArray gBoxNormal : register(t2);
+
+Texture2D g2DTexture : register(t3);
+Texture2D g2DTextureNormal : register(t4);
+
 StructuredBuffer<InstanceEffectData> gEffectInstanceData : register(t5);
+Texture2D<float4> gScreenTexture : register(t6);
+
+

@@ -51,3 +51,27 @@ VS_TEXTURED_OUTPUT InstanceVS(VS_TEXTURED_INPUT input, uint instanceID : SV_Inst
 
 	return output;
 }
+
+
+
+//////////////////////////////////////////////////////
+
+
+
+float4 VSTextureToFullScreen(uint nVertexID : SV_VertexID) : SV_POSITION
+{
+	if (nVertexID == 0) return(float4(-1.0f, +1.0f, 0.0f, 1.0f));	// 스크린 왼쪽 위 
+	if (nVertexID == 1) return(float4(+1.0f, +1.0f, 0.0f, 1.0f));	// 스크린 오른쪽 위
+	if (nVertexID == 2) return(float4(+1.0f, -1.0f, 0.0f, 1.0f));	// 스크린 오른쪽 아래
+	if (nVertexID == 3) return(float4(-1.0f, +1.0f, 0.0f, 1.0f));	// 스크린 왼쪽 위
+	if (nVertexID == 4) return(float4(+1.0f, -1.0f, 0.0f, 1.0f));	// 스크린 왼쪽 아래
+	if (nVertexID == 5) return(float4(-1.0f, -1.0f, 0.0f, 1.0f));	// 스크린 오른쪽 아래
+
+	return(float4(0, 0, 0, 0));
+};
+
+float4 PSTextureToFullScreen(float4 position : SV_POSITION) : SV_Target
+{
+	float3 cColor = gScreenTexture[int2(position.xy)].rgb;
+	return(float4(cColor, 1.0f));
+}

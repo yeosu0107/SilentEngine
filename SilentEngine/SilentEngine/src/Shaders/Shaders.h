@@ -174,3 +174,17 @@ protected:
 	float	m_fMaxYCount = 0.0f;
 	float	m_fNowYCount = 0.0f;
 };
+
+class TextureToFullScreen : public Shaders
+{
+public:
+	TextureToFullScreen();
+	virtual ~TextureToFullScreen();
+
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, void *pContext = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+
+protected:
+	unique_ptr<CTexture> m_pTexture;
+};

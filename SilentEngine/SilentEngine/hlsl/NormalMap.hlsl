@@ -65,7 +65,7 @@ float4 PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Target
 
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
-	float  roughness = 0.3f;
+	float  roughness = 0.1f;
 
 	input.normalW = normalize(input.normalW);
 	

@@ -70,7 +70,7 @@ protected:
 	void LogAdapters();
 	void LogAdapterOutputs(IDXGIAdapter* padapter);
 	void LogOutputDisplayModes(IDXGIOutput* poutput, DXGI_FORMAT format);
-
+	void CreateSwapChainRenderTargetViews();
 protected:
 
 	static Framework* m_pFramework;
@@ -98,9 +98,9 @@ protected:
 	ComPtr<ID3D12CommandAllocator> m_pDirectCmdListAlloc;
 	ComPtr<ID3D12GraphicsCommandList> m_pCommandList;
 
-	static const int SwapChainBufferCount = 2;
+	static const int m_nSwapChainBuffers = 2;
 	int m_nCurrBuffer = 0;
-	ComPtr<ID3D12Resource> m_ppSwapChainBuffer[SwapChainBufferCount];
+	ComPtr<ID3D12Resource> m_ppSwapChainBuffer[m_nSwapChainBuffers];
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer;
 	ComPtr<ID3D12DescriptorHeap> m_pRtvHeap;
 	ComPtr<ID3D12DescriptorHeap> m_pDsvHeap;
@@ -115,22 +115,29 @@ protected:
 	wstring m_sMainWndCaption = L"SiN ";
 	D3D_DRIVER_TYPE m_d3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
 
-	DXGI_FORMAT m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-	DXGI_FORMAT m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	int m_nClientWidth = 1280;
-	int m_nClientHeight = 720;
+	static const UINT					m_nRenderTargetBuffers = 2;
+	ComPtr<ID3D12Resource>				m_ppd3dRenderTargetBuffers[m_nRenderTargetBuffers];
+	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[m_nRenderTargetBuffers];
+	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
+	UINT								m_nRtvDescriptorIncrementSize;
 
-	const UINT m_nMaxScene = 3;
-	UINT m_nNowScene = 0;
+	DXGI_FORMAT							m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+	DXGI_FORMAT							m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	int									m_nClientWidth = 1280;
+	int									m_nClientHeight = 720;
 
-	unique_ptr<TestScene>		m_pTestScene;
-	POINT						m_ptOldCursorPos;
+	const UINT							m_nMaxScene = 3;
+	UINT								m_nNowScene = 0;
 
-	bool						m_bMouseCapture = false;
-	float						m_fMouseSensitive = 4.5f;	// 葆辦蝶 團馬紫
+protected:
 
-	Camera*						m_pCamera = nullptr;
+	unique_ptr<TestScene>				m_pTestScene;
+	POINT								m_ptOldCursorPos;
 
+	bool								m_bMouseCapture = false;
+	float								m_fMouseSensitive = 4.5f;	// 葆辦蝶 團馬紫
 
+	Camera*								m_pCamera = nullptr;
+	unique_ptr<TextureToFullScreen>		m_pTextureToFullScreenShader;
 };
 

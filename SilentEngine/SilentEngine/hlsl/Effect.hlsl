@@ -33,8 +33,10 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 	input.normalW = normalize(input.normalW);
 	
 	cColor = g2DTexture.Sample(gDefaultSamplerState, input.uv);
-	if (cColor.a - 0.015f < 0.0f)
-		discard;
+	if(cColor.a < 0.9f)
+		cColor.a -= 0.2f;
+	//if (cColor.a - 0.015f < 0.0f)
+	//	discard;
 	//clip(cColor.a - 0.1f);
 
 	float4 normalMapSample = g2DTextureNormal.Sample(gDefaultSamplerState, input.uv);
