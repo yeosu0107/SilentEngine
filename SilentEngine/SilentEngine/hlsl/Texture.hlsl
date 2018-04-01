@@ -32,5 +32,6 @@ StructuredBuffer<InstanceEffectData> gEffectInstanceData : register(t5);
 Texture2D<float4> gScreenTexture : register(t6);
 
 StructuredBuffer<InstanceAnimateInfo> gDynamicInstanceData : register(t7);
+Texture2D<float4> gNormalTexture : register(t8);
 
 

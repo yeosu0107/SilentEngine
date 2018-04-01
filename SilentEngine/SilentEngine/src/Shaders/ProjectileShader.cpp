@@ -31,7 +31,7 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_LIGHTS, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }
 
-void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nObjects = 10;
 
@@ -54,7 +54,7 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 2, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);

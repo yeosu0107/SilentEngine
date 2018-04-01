@@ -198,27 +198,27 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	InstanceModelShader* map= new InstanceModelShader(3);
 	map->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	map->BuildObjects(pDevice, pCommandList, m_physics);
+	map->BuildObjects(pDevice, pCommandList,2, m_physics);
 
 	InstanceModelShader* map2 = new InstanceModelShader(2);
 	map2->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	map2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	map2->BuildObjects(pDevice, pCommandList, m_physics);
+	map2->BuildObjects(pDevice, pCommandList, 2, m_physics);
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	eShader->BuildObjects(pDevice, pCommandList, m_physics);
+	eShader->BuildObjects(pDevice, pCommandList,2, m_physics);
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetCamera(m_Camera.get());
-	bullet->BuildObjects(pDevice, pCommandList);
+	bullet->BuildObjects(pDevice, pCommandList ,2 );
 	m_Projectile = bullet;
 
 	for(UINT i=0; i<m_nShaders; ++i)
-		m_ppShaders[i]->BuildObjects(pDevice, pCommandList, m_physics);
+		m_ppShaders[i]->BuildObjects(pDevice, pCommandList,2, m_physics);
 
 
 	m_testPlayer = player->getPlayer(0);

@@ -154,7 +154,7 @@ void InstanceObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3
 	}
 }
 
-void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "InstanceVS", "vs_5_1");
@@ -172,7 +172,7 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, 1, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);
@@ -325,7 +325,7 @@ void InstanceIlluminatedObjectShader::UpdateShaderVariables(ID3D12GraphicsComman
 	pd3dCommandList->SetGraphicsRootConstantBufferView(3, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }
 
-void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_1");
@@ -343,7 +343,7 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 0, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);

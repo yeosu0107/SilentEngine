@@ -158,7 +158,7 @@ void InstanceModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 
 }
 
-void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
@@ -172,7 +172,7 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	if (globalModels->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -377,7 +377,7 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 	pd3dCommandList->SetGraphicsRootConstantBufferView(3, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }
 
-void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicInstanceModel", "vs_5_1");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicInstanceModel", "ps_5_1");
@@ -390,7 +390,7 @@ void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12G
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_BoneCB->Resource(), 1, false);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	if (globalModels->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);

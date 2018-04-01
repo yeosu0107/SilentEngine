@@ -614,7 +614,7 @@ void CGameFramework::FrameAdvance()
 		m_bEndScene = false;
 	}
 	
-	float pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	
 
 #ifdef _GRAPHICS_DEBUG
 	

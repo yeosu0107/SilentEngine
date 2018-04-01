@@ -225,7 +225,7 @@ float4 PSTextureToFullScreenByLaplacianEdge(float4 position : SV_POSITION) : SV_
 	float3 cColor = gtxtScene[int2(position.xy)].rgb;
 
 	// fEdgeness가 크면 : 엣지일 가능성이 높음 fEdgeeness가 작으면 같은 평면일 가능성이 높음 
-	//cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55f) ? (cColor + cEdgeness) : cEdgeness);
+	cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55f) ? (cColor + cEdgeness) : cEdgeness);
 
 	// 최종 결과 : 엣지 강도에 따라 테두리 색상이 다르다.
 	

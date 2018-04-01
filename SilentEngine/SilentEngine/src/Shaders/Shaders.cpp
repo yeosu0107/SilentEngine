@@ -320,7 +320,7 @@ void Shaders::UpdateShaderVariable(ID3D12GraphicsCommandList * pd3dCommandList, 
 
 }
 
-void Shaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void Shaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	
 	//m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_ObjectCB->Resource()->GetGPUVirtualAddress());
@@ -472,7 +472,7 @@ void ObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommand
 	}
 }
 
-void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextured", "vs_5_0");
@@ -489,7 +489,7 @@ void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO)));
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, false);
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);
@@ -542,7 +542,7 @@ D3D12_INPUT_LAYOUT_DESC NormalMapShader::CreateInputLayout()
 	return inputLayout;
 }
 
-void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nObjects = 1;
 
@@ -561,7 +561,7 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	NormalMappingCube *pCubeMesh = new NormalMappingCube(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 50.0f);
 
@@ -843,7 +843,7 @@ D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 	return d3dBlendDesc;
 }
 
-void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nObjects = 1;
 
@@ -866,7 +866,7 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 2, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);
@@ -958,7 +958,7 @@ void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 2;
@@ -966,12 +966,23 @@ void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dDescriptorRanges[0].RegisterSpace = 0;
 	pd3dDescriptorRanges[0].OffsetInDescriptorsFromTableStart = 0;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[1];
+	pd3dDescriptorRanges[1].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[1].NumDescriptors = 2;
+	pd3dDescriptorRanges[1].BaseShaderRegister = 8;
+	pd3dDescriptorRanges[1].RegisterSpace = 0;
+	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[2];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	pd3dRootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[0].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0]; //Texture
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[1].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //Texture
+	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1014,7 +1025,7 @@ void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	);
 }
 
-void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
+void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
@@ -1028,7 +1039,7 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 0, false);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
 }
 
 void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)

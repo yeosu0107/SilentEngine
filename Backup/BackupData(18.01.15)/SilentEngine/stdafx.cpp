@@ -188,7 +188,8 @@ ID3D12Resource *CreateTexture2DResource(ID3D12Device *pd3dDevice, ID3D12Graphics
 	d3dTextureResourceDesc.Flags = d3dResourceFlags;
 
 	// 텍스쳐를 나타내는 메모리만 할당 
-	HRESULT hResult = pd3dDevice->CreateCommittedResource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dTextureResourceDesc, d3dResourceStates, pd3dClearValue, __uuidof(ID3D12Resource), (void **)&pd3dTexture);
+	HRESULT hResult = pd3dDevice->Create
+Resource(&d3dHeapPropertiesDesc, D3D12_HEAP_FLAG_NONE, &d3dTextureResourceDesc, d3dResourceStates, pd3dClearValue, __uuidof(ID3D12Resource), (void **)&pd3dTexture);
 
 	return(pd3dTexture);
 }

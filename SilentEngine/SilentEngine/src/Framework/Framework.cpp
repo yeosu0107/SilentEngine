@@ -306,7 +306,7 @@ void Framework::OnResize()
 	}
 
 	m_pTextureToFullScreenShader = make_unique<TextureToFullScreen>();
-	m_pTextureToFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), pTexture);
+	m_pTextureToFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
@@ -335,7 +335,7 @@ void Framework::Update()
 	m_pTestScene->Update(m_Timer);
 }
 
-#define _GRAPHICS_DEBUG
+//#define _GRAPHICS_DEBUG
 
 void Framework::Render()
 {
@@ -365,23 +365,19 @@ void Framework::Render()
 #else
 
 	/* 1Â÷ ·»´õ¸µ */
-	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
+	
 	for (i = 0; i < m_nSwapChainBuffers; ++i) {
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[i].Get(),
 			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
-		m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[i], pfClearColor, 0, NULL);
-
+		
 	}
-	m_pCommandList->ClearDepthStencilView(m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[0], pfClearColor, 0, NULL);
+	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[1], pfClearColor, 0, NULL);
 
+	m_pCommandList->ClearDepthStencilView(m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 	m_pCommandList->OMSetRenderTargets(2, m_pd3dRtvRenderTargetBufferCPUHandles, TRUE, &m_pDsvHeap->GetCPUDescriptorHandleForHeapStart());
 	
 	m_pTestScene->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
-
-	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 	ThrowIfFailed(m_pCommandList->Close());
 
@@ -417,9 +413,9 @@ void Framework::Render()
 	m_pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
 
 	ThrowIfFailed(m_pSwapChain->Present(0, 0));
+	FlushCommandQueue();
 	m_nCurrBuffer = (m_nCurrBuffer + 1) % m_nSwapChainBuffers;
 
-	FlushCommandQueue();
 }
 
 bool Framework::InitMainWindow()
