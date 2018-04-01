@@ -14,14 +14,7 @@ public:
 
 public:
 	virtual void SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual void SetInstanceDataResource(ComPtr<ID3D12Resource> pResource);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera = NULL);
-	virtual void SetInstanceCount(UINT nInstanceCount);
-
 protected:
-	UINT					m_nInstanceCount = 0;
-	ComPtr<ID3D12Resource>	m_pInstanceDataResource = nullptr;
-	
 };
 
 class EffectInstanceObject : public InstanceObject

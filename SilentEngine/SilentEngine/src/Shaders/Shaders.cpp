@@ -191,7 +191,7 @@ void Shaders::CreateConstantBufferViews(ID3D12Device * pd3dDevice, ID3D12Graphic
 	D3D12_GPU_VIRTUAL_ADDRESS d3dGpuVirtualAddress = pd3dConstantBuffers->GetGPUVirtualAddress();
 	D3D12_CONSTANT_BUFFER_VIEW_DESC d3dCBVDesc;
 	d3dCBVDesc.SizeInBytes = nStride;
-	for (int j = 0; j < nConstantBufferViews; j++)
+	for (int j = 0; j < nConstantBufferViews; ++j)
 	{
 		d3dCBVDesc.BufferLocation = d3dGpuVirtualAddress + (nStride * j);
 		D3D12_CPU_DESCRIPTOR_HANDLE d3dCbvCPUDescriptorHandle;
@@ -883,7 +883,6 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	pInstnaceObject->SetPosition(243.711, -165.542, -51.021);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
-	pInstnaceObject->SetInstanceCount(m_nObjects);
 
 	m_ppObjects[i++] = pInstnaceObject;
 
@@ -916,7 +915,7 @@ void BillboardShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 	
 	if (m_ppObjects[0])
-		m_ppObjects[0]->Render(pd3dCommandList, pCamera);
+		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
 }
 
 void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)

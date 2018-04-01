@@ -182,10 +182,8 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 
 	InstanceObject* pInstnaceObject = new InstanceObject();
 	pInstnaceObject->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
-	pInstnaceObject->SetInstanceDataResource(m_ObjectCB->Resource());
 	pInstnaceObject->SetPosition(i * 50.0f + 50.0f, i * 50.0f - 150.0f, i * 50.0f);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-	pInstnaceObject->SetInstanceCount(m_nObjects);
 
 	m_ppObjects[i++] = pInstnaceObject;
 
@@ -355,10 +353,8 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 
 	InstanceObject* pInstnaceObject = new InstanceObject();
 	pInstnaceObject->SetMesh(0, new MeshGeometryIlluminatedTexturedCube(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 50.0f));
-	pInstnaceObject->SetInstanceDataResource(m_ObjectCB->Resource());
 	pInstnaceObject->SetPosition(20.0f, 20.0f, 20.0f);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-	pInstnaceObject->SetInstanceCount(m_nObjects);
 
 	m_ppObjects[i++] = pInstnaceObject;
 

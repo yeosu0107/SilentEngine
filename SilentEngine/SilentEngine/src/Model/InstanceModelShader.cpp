@@ -188,7 +188,6 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	object->SetPosition(XMFLOAT3(0, 0, 0));
 	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * num));
-	//object->SetPhysMesh((BasePhysX*)pContext, PhysMesh::Mesh_Tri);
 	m_ppObjects[num] = object;
 	m_InstanceModel[num] = object;
 }
@@ -254,7 +253,7 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 7;
+	pd3dRootParameters[1].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[1].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; // InstanceData
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
@@ -327,7 +326,7 @@ void InstanceDynamicModelShader::CreateInstanceShaderResourceViews(ID3D12Device 
 
 		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
 		d3dShaderResourceViewDesc.Buffer.NumElements = m_nObjects;
-		d3dShaderResourceViewDesc.Buffer.StructureByteStride = sizeof(CB_GAMEOBJECT_INFO);
+		d3dShaderResourceViewDesc.Buffer.StructureByteStride = sizeof(CB_DYNAMICOBJECT_INFO);
 
 		pd3dDevice->CreateShaderResourceView(pd3dConstantBuffers, &d3dShaderResourceViewDesc, d3dSrvCPUDescriptorHandle);
 	}
@@ -335,7 +334,7 @@ void InstanceDynamicModelShader::CreateInstanceShaderResourceViews(ID3D12Device 
 
 void InstanceDynamicModelShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	m_BoneCB = make_unique<UploadBuffer<CB_DYNAMICOBJECT_INFO>>(pd3dDevice, m_nObjects, true);
+	m_BoneCB = make_unique<UploadBuffer<CB_DYNAMICOBJECT_INFO>>(pd3dDevice, m_nObjects, false);
 }
 
 void InstanceDynamicModelShader::CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement)
@@ -381,11 +380,10 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext)
 {
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicInstanceModel", "vs_5_1");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSInstanceModel", "ps_5_1");
+	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicInstanceModel", "ps_5_1");
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
-	m_InstanceModel = vector<ModelObject*>(m_nObjects);
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -410,7 +408,6 @@ void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12G
 	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * num));
 
 	m_ppObjects[num] = object;
-	m_InstanceModel[num] = object;
 }
 
 void InstanceDynamicModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)

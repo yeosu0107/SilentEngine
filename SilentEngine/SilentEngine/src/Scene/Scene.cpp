@@ -169,7 +169,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
 	m_Camera->SetTimeLag(0.25f);
 
-	m_nShaders = 2;
+	m_nShaders = 3;
 	m_ppShaders = new Shaders*[m_nShaders];
 
 	m_nProjectile = 1;
@@ -207,6 +207,11 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->BuildObjects(pDevice, pCommandList, m_physics);
 	
+	InstanceDynamicModelShader* tt = new InstanceDynamicModelShader(0);
+	tt->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	tt->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	tt->BuildObjects(pDevice, pCommandList, m_physics);
+	m_ppShaders[2] = tt;
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pd3dcbLights.get());
