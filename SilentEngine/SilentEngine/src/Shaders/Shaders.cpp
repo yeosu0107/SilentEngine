@@ -851,12 +851,12 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
 
 	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\blackLight.dds", 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\blackLight_n.dds", 1);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\exp.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\exp_n.dds", 1);
 
-	m_fMaxXCount = 4.0f;
-	m_fMaxYCount = 4.0f;
-
+	m_fMaxXCount = 8.0f;
+	m_fMaxYCount = 6.0f;
+	m_fAnimationSpeed = 100.0f;
 	unsigned int i = 0;
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 4);
@@ -897,10 +897,10 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 void BillboardShader::Animate(float fTimeElapsed)
 {
 	m_fNowXCount += fTimeElapsed * m_fAnimationSpeed;
-	if (m_fNowXCount > m_fMaxXCount) {
+	if (m_fNowXCount >= m_fMaxXCount) {
 		m_fNowXCount = 0.0f;
 		m_fNowYCount += 1.0f;
-		if (m_fNowYCount > m_fMaxYCount)
+		if (m_fNowYCount >= m_fMaxYCount)
 			m_fNowYCount = 0.0f;
 	}
 

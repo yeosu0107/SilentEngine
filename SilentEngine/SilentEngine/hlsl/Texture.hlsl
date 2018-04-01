@@ -12,6 +12,14 @@ struct InstanceEffectData
 	uint				nNowYCount;
 };
 
+struct InstanceAnimateInfo
+{
+	matrix		gmtxObject;
+	matrix		gBoneTransforms[96];
+	uint			gnMat;
+};
+
+
 
 Texture2DArray gBoxTextured : register(t0);
 StructuredBuffer<InstanceData> gInstanceData : register(t1);
@@ -22,5 +30,7 @@ Texture2D g2DTextureNormal : register(t4);
 
 StructuredBuffer<InstanceEffectData> gEffectInstanceData : register(t5);
 Texture2D<float4> gScreenTexture : register(t6);
+
+StructuredBuffer<InstanceAnimateInfo> gDynamicInstanceData : register(t7);
 
 

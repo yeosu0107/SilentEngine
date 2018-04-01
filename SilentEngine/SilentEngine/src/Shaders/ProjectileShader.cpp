@@ -74,7 +74,6 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	pInstnaceObject->SetPosition(0,0,0);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
-	pInstnaceObject->SetInstanceCount(m_nObjects);
 
 	m_ppObjects[i++] = pInstnaceObject;
 
@@ -93,7 +92,7 @@ void ProjectileShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camer
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 
 	if (m_ppObjects[0])
-		m_ppObjects[0]->Render(pd3dCommandList, pCamera);
+		m_ppObjects[0]->Render(pd3dCommandList, m_ActiveBullet, pCamera);
 }
 
 void ProjectileShader::Animate(float fTimeElapsed)
@@ -109,7 +108,6 @@ void ProjectileShader::Animate(float fTimeElapsed)
 void ProjectileShader::Shoot(XMFLOAT3 myPos, XMFLOAT3 targetPos)
 {
 	reinterpret_cast<Bullet*>(m_ppObjects[m_now])->Shoot(myPos, targetPos);
-	//(Bullet*)(m_ppObjects[m_now]).Shoot(myPos, targetPos);
 	m_now += 1;
 	if (m_now >= m_nObjects)
 		m_now = 0;

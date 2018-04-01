@@ -40,7 +40,6 @@ class Bullet : public GameObject
 {
 private:
 	D3D12_GPU_DESCRIPTOR_HANDLE					m_d3dEffectCbvGPUDescriptorHandle;
-	UINT																m_nInstanceCount;
 
 	XMFLOAT3														m_moveDir;
 public:
@@ -52,9 +51,6 @@ public:
 	void SetEffectCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dEffectCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetEffectCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dEffectCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
 
-	virtual void SetInstanceCount(UINT count) { m_nInstanceCount = count; }
-
-	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	virtual void Animate(float fTimeElapsed);
 	
 	void Shoot(XMFLOAT3 pos, XMFLOAT3 target);
