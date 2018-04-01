@@ -100,12 +100,15 @@ void BasePhysX::Addapt(XMFLOAT3 & pos)
 	pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);
 }
 
-PxShape * BasePhysX::GetBoxMesh()
+PxRigidStatic * BasePhysX::GetBoxMesh(PxVec3& t)
 {
 	//physx 매터리얼 생성
-	PxMaterial* mat = gPhysics->createMaterial(0.2f, 0.2f, 0.2f);
-
-	return nullptr;
+	PxShape* shape = gPhysics->createShape(PxBoxGeometry(5.0f, 5.0f, 5.0f), *gPhysics->createMaterial(0.2f, 0.2f, 0.2f));
+	PxRigidStatic* body =  gPhysics->createRigidStatic(PxTransform(t.x, t.y, t.z));
+	body->attachShape(*shape);
+	body->setName("ttt");
+	gScene->addActor(*body);
+	return body;
 }
 
 PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
@@ -165,19 +168,19 @@ PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserC
 	capsuleDesc.reportCallback = collisionCallback;
 	
 	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
-	string* tmp = new string("tmptmptmp");
+	string* tmp = new string("player");
 	controller->setUserData(tmp);
 	return controller;
 }
 
-PxBoxController* BasePhysX::getBoxController(PxUserControllerHitReport * collisionCallback)
+PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport * collisionCallback)
 {
 	PxBoxControllerDesc boxDesc;
-	boxDesc.halfForwardExtent = 1.5f;
-	boxDesc.halfHeight = 1.5f;
-	boxDesc.halfSideExtent = 1.5f;
+	boxDesc.halfForwardExtent = 5.5f;
+	boxDesc.halfHeight = 5.5f;
+	boxDesc.halfSideExtent = 5.5f;
 
-	boxDesc.position = PxExtendedVec3(0, 0, 0);
+	boxDesc.position = pos;
 
 	boxDesc.density = 1.0f;
 	boxDesc.material = gPhysics->createMaterial(1.0f, 1.0f, 1.0f);
@@ -187,6 +190,8 @@ PxBoxController* BasePhysX::getBoxController(PxUserControllerHitReport * collisi
 	boxDesc.reportCallback = collisionCallback;
 
 	PxBoxController* controller = static_cast<PxBoxController*>(gControllerMgr->createController(boxDesc));
+	string* tmp = new string("ttt");
+	controller->setUserData(tmp);
 	return controller;
 }
 

@@ -93,10 +93,10 @@ private:
 	vector<pair<string, Bone>> m_Bones;		//»À Á¤º¸
 
 	UINT							m_numVertices;
-	UINT							m_numMaterial;
 	UINT							m_numBones;
 public:
 	LoadModel(const string& fileName);
+	LoadModel(const LoadModel& T);
 	~LoadModel();
 
 	void InitScene();

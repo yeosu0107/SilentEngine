@@ -158,6 +158,7 @@ public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
 	void SetMaterial(CMaterial *pMaterial);
+	void SetLive(bool live) { m_live = live; }
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }

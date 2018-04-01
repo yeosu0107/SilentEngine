@@ -881,13 +881,16 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	EffectInstanceObject* pInstnaceObject = new EffectInstanceObject();
 	pInstnaceObject->SetMesh(0, pBoard);
 	pInstnaceObject->SetPosition(243.711, -165.542, -51.021);
+	pInstnaceObject->m_fMaxXCount = m_fMaxXCount;
+	pInstnaceObject->m_fMaxYCount = m_fMaxYCount;
+	pInstnaceObject->m_fAnimationSpeed = m_fAnimationSpeed;
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
 
 	m_ppObjects[i++] = pInstnaceObject;
 
 	for (; i < m_nObjects; ++i) {
-		GameObject* pGameObjects = new GameObject();
+		EffectInstanceObject* pGameObjects = new EffectInstanceObject();
 		pGameObjects->SetPosition(115.89f, -182.542f, 57.931f);
 		m_ppObjects[i] = pGameObjects;
 	}
@@ -895,16 +898,11 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 void BillboardShader::Animate(float fTimeElapsed)
 {
-	m_fNowXCount += fTimeElapsed * m_fAnimationSpeed;
-	if (m_fNowXCount >= m_fMaxXCount) {
-		m_fNowXCount = 0.0f;
-		m_fNowYCount += 1.0f;
-		if (m_fNowYCount >= m_fMaxYCount)
-			m_fNowYCount = 0.0f;
-	}
-
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		m_ppObjects[i]->SetLookAt(m_pCamera->GetPosition());
+		if (m_ppObjects[i]->isLive()) {
+			m_ppObjects[i]->SetLookAt(m_pCamera->GetPosition());
+			m_ppObjects[i]->Animate(fTimeElapsed);
+		}
 	}
 }
 
@@ -918,6 +916,11 @@ void BillboardShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera
 		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
 }
 
+void BillboardShader::SetPos(XMFLOAT3 pos)
+{
+	m_ppObjects[0]->SetPosition(pos);
+}
+
 void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_GAMEOBJECT_INFO cBuffer;
@@ -927,14 +930,12 @@ void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
-	}
 
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		cEffectBuffer.m_nMaxXcount = (UINT)m_fMaxXCount;
-		cEffectBuffer.m_nNowXcount = (UINT)m_fNowXCount;
+		cEffectBuffer.m_nMaxXcount = (UINT)reinterpret_cast<EffectInstanceObject*>(m_ppObjects[i])->m_fMaxXCount;
+		cEffectBuffer.m_nNowXcount = (UINT)reinterpret_cast<EffectInstanceObject*>(m_ppObjects[i])->m_fNowXCount;
 
-		cEffectBuffer.m_nMaxYcount = (UINT)m_fMaxYCount;
-		cEffectBuffer.m_nNowYcount = (UINT)m_fNowYCount;
+		cEffectBuffer.m_nMaxYcount = (UINT)reinterpret_cast<EffectInstanceObject*>(m_ppObjects[i])->m_fMaxYCount;
+		cEffectBuffer.m_nNowYcount = (UINT)reinterpret_cast<EffectInstanceObject*>(m_ppObjects[i])->m_fNowYCount;
 
 		m_EffectCB->CopyData(i, cEffectBuffer);
 	}

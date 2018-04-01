@@ -71,7 +71,7 @@ public:
 	virtual void RoomChange(int roomIndex, const char& location);
 protected:
 	Shaders** m_ppShaders = nullptr;
-	ProjectileShader** m_Projectile = nullptr;
+	ProjectileShader* m_Projectile = nullptr;
 
 	Room**		m_Room = nullptr;
 	

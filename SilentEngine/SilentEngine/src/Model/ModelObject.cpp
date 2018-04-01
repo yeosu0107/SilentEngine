@@ -34,7 +34,8 @@ PxF32 Jump::getHeight(PxF32 elapsedTime)
 
 ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : GameObject(model->getNumMesh())
 {
-	m_model = model;
+	//m_model = model;
+	m_model = new LoadModel(*model);
 	m_ani = nullptr;
 	m_NumofAnim = 0;
 	m_AnimIndex = 0;
@@ -65,8 +66,13 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 		m_NumofAnim = num;
 		m_AnimIndex = 0;
 		m_ani = new LoadAnimation*[m_NumofAnim];
+
+		//memcpy(m_ani, tmp, sizeof(LoadAnimation)*num);
+
 		for (UINT i = 0; i < m_NumofAnim; ++i) {
-			m_ani[i] = tmp[i];
+			m_ani[i] = new LoadAnimation(*tmp[i]);
+			//memcpy(m_ani[i], tmp[i], sizeof(LoadAnimation));
+			//m_ani[i] = tmp[i];
 			m_ani[i]->setBones(m_model->GetBones());
 		}
 	}

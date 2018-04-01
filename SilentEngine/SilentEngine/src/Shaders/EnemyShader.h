@@ -16,7 +16,7 @@ public:
 		m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 		m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicModel", "ps_5_0");
 
-		m_nObjects = 10;
+		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
 		m_pEnemy = vector<T*>(m_nObjects);
 

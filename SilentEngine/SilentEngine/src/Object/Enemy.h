@@ -2,6 +2,9 @@
 
 #include "D3DUtil.h"
 #include "..\Model\ModelObject.h"
+#include "..\Object\InstanceObject.h"
+
+const UINT MAX_BULLET_TIME = 600;
 
 enum EnemyAni
 {
@@ -36,24 +39,68 @@ public:
 	}
 };
 
-class Bullet : public GameObject
+class Bullet;
+
+class ProjectileCollisionCallback : public PxUserControllerHitReport
 {
 private:
-	D3D12_GPU_DESCRIPTOR_HANDLE					m_d3dEffectCbvGPUDescriptorHandle;
+	bool* crash;
+	XMFLOAT3* crashPos;
+public:
+	void onShapeHit(const PxControllerShapeHit &hit) {
+		//cout << "shape" << endl;
+		*crashPos = PXtoXM(hit.worldPos);
+		*crash = true;
+
+	}
+	void 	onControllerHit(const PxControllersHit &hit) {
+		*crashPos = PXtoXM(hit.worldPos);
+		*crash = true;
+		
+		//hit는 자기자신
+		//hit.other는 나와 부딪친 객체
+		//cout<<*(string*)(hit.other->getUserData());
+	}
+	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
+	}
+
+	void SetCrash(bool* tmp, XMFLOAT3* pos) {
+		crash = tmp;
+		crashPos = pos;
+	}
+};
+
+class Bullet : public EffectInstanceObject
+{
+private:
+	ProjectileCollisionCallback								m_Callback;
 
 	XMFLOAT3														m_moveDir;
+	XMFLOAT3														m_crashPos;
+	float																m_speed;
+	bool																m_crash;
+	
+	UINT																m_timer;
+
+	PxBoxController*												m_Controller;
+	PxControllerFilters											m_ControllerFilter;
 public:
 	Bullet();
 	~Bullet();
 
 	virtual void SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList);
 
-	void SetEffectCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dEffectCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
-	void SetEffectCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dEffectCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
+	ProjectileCollisionCallback* getCollisionCallback() { return &m_Callback; }
+	XMFLOAT3 getCrashPos() const { return m_crashPos; }
 
 	virtual void Animate(float fTimeElapsed);
+	XMFLOAT3 returnCollisionPos() const { return m_crashPos; }
 	
-	void Shoot(XMFLOAT3 pos, XMFLOAT3 target);
+	bool isCrash() const { return m_crash; }
+
+	void Shoot(BasePhysX* phys, XMFLOAT3 pos, XMFLOAT3 target);
+
+	void releasePhys();
 };
 
 class Enemy : public ModelObject

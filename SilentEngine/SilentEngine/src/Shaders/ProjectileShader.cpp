@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "ProjectileShader.h"
 
-
-
 void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_GAMEOBJECT_INFO cBuffer;
@@ -15,19 +13,18 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 			//XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 			cBuffer.m_nMaterial = 0;
 			m_ObjectCB->CopyData(index, cBuffer);
+
+			cEffectBuffer.m_nMaxXcount = (UINT)reinterpret_cast<Bullet*>(m_ppObjects[i])->m_fMaxXCount;
+			cEffectBuffer.m_nNowXcount = (UINT)reinterpret_cast<Bullet*>(m_ppObjects[i])->m_fNowXCount;
+
+			cEffectBuffer.m_nMaxYcount = (UINT)reinterpret_cast<Bullet*>(m_ppObjects[i])->m_fMaxYCount;
+			cEffectBuffer.m_nNowYcount = (UINT)reinterpret_cast<Bullet*>(m_ppObjects[i])->m_fNowYCount;
+
+			m_EffectCB->CopyData(index, cEffectBuffer);
+
 			index += 1;
 			m_ActiveBullet += 1;
 		}
-	}
-
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		cEffectBuffer.m_nMaxXcount = (UINT)m_fMaxXCount;
-		cEffectBuffer.m_nNowXcount = (UINT)m_fNowXCount;
-
-		cEffectBuffer.m_nMaxYcount = (UINT)m_fMaxYCount;
-		cEffectBuffer.m_nNowYcount = (UINT)m_fNowYCount;
-
-		m_EffectCB->CopyData(i, cEffectBuffer);
 	}
 
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_MATERIAL, m_MatCB->Resource()->GetGPUVirtualAddress());
@@ -72,6 +69,8 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	Bullet* pInstnaceObject = new Bullet();
 	pInstnaceObject->SetMesh(0, pBoard);
 	pInstnaceObject->SetPosition(0,0,0);
+	pInstnaceObject->m_fMaxXCount = 4.0f;
+	pInstnaceObject->m_fMaxYCount = 4.0f;
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
 
@@ -80,6 +79,8 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	for (int i=1; i < m_nObjects; ++i) {
 		Bullet* pGameObjects = new Bullet();
 		pGameObjects->SetPosition(0,0,0);
+		pGameObjects->m_fMaxXCount = 4.0f;
+		pGameObjects->m_fMaxYCount = 4.0f;
 		m_ppObjects[i] = pGameObjects;
 	}
 }
@@ -98,17 +99,41 @@ void ProjectileShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camer
 void ProjectileShader::Animate(float fTimeElapsed)
 {
 	BillboardShader::Animate(fTimeElapsed);
-	for (int i = 0; i < m_nObjects; ++i) {
-		if (m_ppObjects[i]->isLive()) {
-			m_ppObjects[i]->Animate(fTimeElapsed);
-		}
-	}
+	//for (int i = 0; i < m_nObjects; ++i) {
+	//	if (m_ppObjects[i]->isLive()) {
+	//		m_ppObjects[i]->Animate(fTimeElapsed);
+	//	}
+	//}
 }
 
-void ProjectileShader::Shoot(XMFLOAT3 myPos, XMFLOAT3 targetPos)
+void ProjectileShader::Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos)
 {
-	reinterpret_cast<Bullet*>(m_ppObjects[m_now])->Shoot(myPos, targetPos);
+	UINT start = m_now;
+	while (m_ppObjects[m_now]->isLive()) {
+		m_now += 1;
+		if (m_now == start)
+			return;
+		if (m_now >= m_nObjects) {
+			m_now = 0;
+		}
+	}
+	reinterpret_cast<Bullet*>(m_ppObjects[m_now])->Shoot(phys, myPos, targetPos);
 	m_now += 1;
 	if (m_now >= m_nObjects)
 		m_now = 0;
+}
+
+XMFLOAT3* ProjectileShader::returnCollisionPos(UINT & num)
+{
+	UINT start = 0;
+	for (auto& p : m_ppObjects) {
+		Bullet* tmp = reinterpret_cast<Bullet*>(p);
+		if (tmp->isCrash()) {
+			m_crashes[start] = reinterpret_cast<Bullet*>(p)->getCrashPos();
+			start += 1;
+		}
+	}
+	num = start;
+
+	return m_crashes;
 }

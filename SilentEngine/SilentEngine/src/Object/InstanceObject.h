@@ -6,20 +6,15 @@
 
 class GameObject;
 
-class InstanceObject : public GameObject
+class EffectInstanceObject : public GameObject
 {
 public:
-	InstanceObject();
-	~InstanceObject();
+	float  m_fAnimationSpeed = 10.0f;
+	float	m_fMaxXCount = 0.0f;
+	float	m_fNowXCount = 0.0f;
+	float	m_fMaxYCount = 0.0f;
+	float	m_fNowYCount = 0.0f;
 
-public:
-	virtual void SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList);
-protected:
-};
-
-class EffectInstanceObject : public InstanceObject
-{
-public:
 	EffectInstanceObject();
 	~EffectInstanceObject();
 
@@ -27,7 +22,9 @@ public:
 
 	void SetEffectCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dEffectCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetEffectCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dEffectCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }
+	
 
+	virtual void Animate(float fTimeElapsed);
 protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE					m_d3dEffectCbvGPUDescriptorHandle;
 };

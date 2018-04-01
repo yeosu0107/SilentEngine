@@ -148,11 +148,17 @@ void TestScene::Update(const Timer & gt)
 			tPos.y += 20.0f;
 			XMFLOAT3 ttPos = m_testPlayer->GetPosition();
 			ttPos.y += 20.0f;
-			m_Projectile[0]->Shoot(tPos, ttPos);
+			m_Projectile->Shoot(m_physics, tPos, ttPos);
 			m_testTimer = 0;
 		}
-		for (UINT i = 0; i < m_nProjectile; ++i)
-			m_Projectile[i]->Animate(gt.DeltaTime());
+
+		XMFLOAT3* pos;
+		UINT tmp=0;
+		pos = m_Projectile->returnCollisionPos(tmp);
+		for (UINT i = 0; i < tmp; ++i) {
+			cout << pos[i];
+		}
+		m_Projectile->Animate(gt.DeltaTime());
 	}
 }
 
@@ -169,11 +175,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
 	m_Camera->SetTimeLag(0.25f);
 
-	m_nShaders = 3;
+	m_nShaders = 2;
 	m_ppShaders = new Shaders*[m_nShaders];
-
-	m_nProjectile = 1;
-	m_Projectile = new ProjectileShader*[m_nProjectile];
 
 	m_nRoom = 2;
 	m_Room = new Room*[m_nRoom];
@@ -206,24 +209,17 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->BuildObjects(pDevice, pCommandList, m_physics);
-	
-	InstanceDynamicModelShader* tt = new InstanceDynamicModelShader(0);
-	tt->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	tt->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	tt->BuildObjects(pDevice, pCommandList, m_physics);
-	m_ppShaders[2] = tt;
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetCamera(m_Camera.get());
-	m_Projectile[0] = bullet;
+	bullet->BuildObjects(pDevice, pCommandList);
+	m_Projectile = bullet;
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList, m_physics);
 
-	for (UINT i = 0; i<m_nProjectile; ++i)
-		m_Projectile[i]->BuildObjects(pDevice, pCommandList);
 
 	m_testPlayer = player->getPlayer(0);
 	
@@ -271,8 +267,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
 	
-	for (UINT i = 0; i<m_nProjectile; ++i)
-		m_Projectile[i]->Render(pCommandList, m_Camera.get());
+	m_Projectile->Render(pCommandList, m_Camera.get());
 }
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)

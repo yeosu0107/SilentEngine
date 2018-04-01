@@ -180,7 +180,7 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 
 	unsigned int i = 0;
 
-	InstanceObject* pInstnaceObject = new InstanceObject();
+	/*InstanceObject* pInstnaceObject = new InstanceObject();
 	pInstnaceObject->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
 	pInstnaceObject->SetPosition(i * 50.0f + 50.0f, i * 50.0f - 150.0f, i * 50.0f);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
@@ -191,7 +191,7 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 		GameObject* pGameObjects = new GameObject();
 		pGameObjects->SetPosition(i * 50.0f + 50.0f, - 150.0f, i * 50.0f);
 		m_ppObjects[i] = pGameObjects;
-	}
+	}*/
 }
 
 float num = 0.0f;
@@ -351,7 +351,7 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 
 	unsigned int i = 0;
 
-	InstanceObject* pInstnaceObject = new InstanceObject();
+	/*InstanceObject* pInstnaceObject = new InstanceObject();
 	pInstnaceObject->SetMesh(0, new MeshGeometryIlluminatedTexturedCube(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 50.0f));
 	pInstnaceObject->SetPosition(20.0f, 20.0f, 20.0f);
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
@@ -362,5 +362,5 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 		GameObject* pGameObjects = new GameObject();
 		pGameObjects->SetPosition(25.0f * i, 25.0f * i, 25.0f * i);
 		m_ppObjects[i] = pGameObjects;
-	}
+	}*/
 }

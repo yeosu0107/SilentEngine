@@ -162,6 +162,7 @@ public:
 
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; };
 
+	virtual void SetPos(XMFLOAT3 pos);
 protected:
 	Camera * m_pCamera = nullptr;
 	float m_fElapsedTime = 0.0f;

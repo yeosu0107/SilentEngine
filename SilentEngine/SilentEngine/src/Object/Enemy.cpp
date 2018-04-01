@@ -4,7 +4,12 @@
 Bullet::Bullet()
 {
 	m_live = false;
+	m_crash = false;
+	m_speed = 2.0f;
+	m_timer = 0.0f;
+	m_crashPos = XMFLOAT3(0, 0, 0);
 	m_moveDir = XMFLOAT3(0, 0, 0);
+	m_Callback.SetCrash(&m_crash, &m_crashPos);
 }
 
 Bullet::~Bullet()
@@ -19,16 +24,49 @@ void Bullet::SetRootParameter(ID3D12GraphicsCommandList * pd3dCommandList)
 
 void Bullet::Animate(float fTimeElapsed)
 {
-	//MoveForward(2.0f);
-	MoveDir(m_moveDir, 2.0f);
+	if (!m_live) return;
+
+	if (m_crash) {
+		releasePhys();
+		m_live = false;
+		m_crash = false;
+		return;
+	}
+
+	EffectInstanceObject::Animate(fTimeElapsed);
+
+	m_Controller->move(XMtoPX(m_moveDir) * m_speed, 0.1f, 1, m_ControllerFilter);
+	SetPosition(PXtoXM(m_Controller->getPosition()));
+	m_timer += 1;
+	if (m_timer >= MAX_BULLET_TIME) {
+		m_live = false;
+		m_timer = 0;
+		releasePhys();
+	}
 }
 
-void Bullet::Shoot(XMFLOAT3 pos, XMFLOAT3 target)
+void Bullet::Shoot(BasePhysX* phys, XMFLOAT3 pos, XMFLOAT3 target)
 {
 	m_live = true;
+	m_crash = false;
+	m_fNowXCount = 0.0f;
+	m_fNowYCount = 0.0f;
 	SetPosition(pos);
-	//SetLookAt(target);
 	m_moveDir = Vector3::Subtract(target, pos, true);
+	m_Controller = phys->getBoxController(XMtoPXEx(pos), &m_Callback);
+	//if (m_Controller)
+	//	cout << *(string*)(m_Controller->getUserData()) << endl;
+}
+//
+//void Bullet::SetPhys(BasePhysX * phys)
+//{
+//	m_collisionBox = phys->GetBoxMesh(XMtoPX(GetPosition()));
+//}
+
+void Bullet::releasePhys()
+{
+	if (m_Controller)
+		m_Controller->release();
 }
 
 Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
@@ -37,7 +75,6 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 {
 	m_Callback.SetJump(&m_Jump);
 	m_Callback.SetCrash(&m_Crash);
-	//Rotate(0, 180, 0);
 }
 
 Enemy::~Enemy()

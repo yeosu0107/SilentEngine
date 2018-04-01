@@ -7,6 +7,8 @@ class ProjectileShader : public BillboardShader
 private:
 	UINT m_ActiveBullet;
 	UINT m_now;
+
+	XMFLOAT3 m_crashes[10];
 public:
 
 	ProjectileShader() : BillboardShader() {
@@ -23,5 +25,6 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 	virtual void Animate(float fTimeElapsed);
 
-	void Shoot(XMFLOAT3 myPos, XMFLOAT3 targetPos);
+	void Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos);
+	XMFLOAT3* returnCollisionPos(UINT& num);
 };

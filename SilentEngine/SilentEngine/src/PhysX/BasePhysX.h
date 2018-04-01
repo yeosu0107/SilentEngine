@@ -64,10 +64,10 @@ public:
 
 	void Addapt(XMFLOAT3& pos);
 
-	PxShape*					GetBoxMesh();
+	PxRigidStatic*				GetBoxMesh(PxVec3& t);
 	PxTriangleMesh*			GetTriangleMesh(mesh* meshes, UINT count);
 	PxCapsuleController*	getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback);
-	PxBoxController*			getBoxController(PxUserControllerHitReport* collisionCallback);
+	PxBoxController*			getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback);
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }

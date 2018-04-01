@@ -49,12 +49,21 @@ LoadModel::LoadModel(const string& fileName)
 
 	if (m_pScene) {
 		m_meshes.resize(m_pScene->mNumMeshes);
-		m_numMaterial = m_pScene->mNumMaterials;
 		m_numBones = 0;
 
 		InitScene();
 		m_ModelMeshes.resize(m_meshes.size());
 	}
+}
+
+LoadModel::LoadModel(const LoadModel & T)
+{
+	m_meshes = T.m_meshes;
+	m_ModelMeshes = T.m_ModelMeshes;
+	m_Bones = T.m_Bones;
+
+	m_numVertices = T.m_numVertices;
+	m_numBones = T.m_numBones;
 }
 
 inline void CalculateTangentArray(UINT vertexCount, vector<vertexDatas>& vertices, long triangleCount, vector<int>& indeies)

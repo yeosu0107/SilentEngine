@@ -25,6 +25,7 @@ private:
 	float										m_animSpeed;
 public:
 	LoadAnimation(string filename);
+	LoadAnimation(const LoadAnimation& T);
 	~LoadAnimation() {}
 
 	void setBones(vector<pair<string, Bone>>* bones) {

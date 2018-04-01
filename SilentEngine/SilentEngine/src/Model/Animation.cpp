@@ -21,6 +21,16 @@ LoadAnimation::LoadAnimation(string filename) :
 	}
 }
 
+LoadAnimation::LoadAnimation(const LoadAnimation & T)
+{
+	m_pScene = T.m_pScene;
+	m_pAnim = T.m_pAnim;
+	m_GlobalInverse = XMMatrixIdentity();
+	start_time = T.start_time;
+	end_time = T.end_time;
+	now_time = T.now_time;
+}
+
 void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 {
 	XMMATRIX Identity = XMMatrixIdentity();
