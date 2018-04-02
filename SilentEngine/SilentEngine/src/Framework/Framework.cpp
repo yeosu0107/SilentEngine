@@ -274,7 +274,7 @@ void Framework::OnResize()
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
 		&depthStencilDesc,
-		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
 		&optClear,
 		IID_PPV_ARGS(m_pDepthStencilBuffer.GetAddressOf()))
 	);
@@ -287,7 +287,7 @@ void Framework::OnResize()
 	dsvDesc.Texture2D.MipSlice = 0;
 	m_pD3dDevice->CreateDepthStencilView(m_pDepthStencilBuffer.Get(), &dsvDesc, DepthStencilView());
 
-	CTexture *pTexture = new CTexture(m_nRenderTargetBuffers, RESOURCE_TEXTURE2D_ARRAY, 0);
+	CTexture *pTexture = new CTexture(m_nRenderTargetBuffers, RESOURCE_TEXTURE2D, 0);
 
 	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM,{ 1.0f, 1.0f, 1.0f, 1.0f } };
 	for (UINT i = 0; i < m_nRenderTargetBuffers; i++)
@@ -308,8 +308,8 @@ void Framework::OnResize()
 	m_pTextureToFullScreenShader = make_unique<TextureToFullScreen>();
 	m_pTextureToFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
 
-	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer.Get(),
-		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	//m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer.Get(),
+	//	D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
 	ThrowIfFailed(m_pCommandList->Close());
 	ID3D12CommandList* cmdList[] = { m_pCommandList.Get() };

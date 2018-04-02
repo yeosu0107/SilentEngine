@@ -26,7 +26,7 @@ public:
 		CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 
 		CreateGraphicsRootSignature(pd3dDevice);
-		BuildPSO(pd3dDevice);
+		BuildPSO(pd3dDevice, nRenderTargets);
 
 		if (globalModels->isMat(modelIndex)) {
 			CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);

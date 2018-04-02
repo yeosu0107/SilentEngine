@@ -38,7 +38,8 @@ void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
 	psoDesc.SampleMask				= UINT_MAX;
 	psoDesc.PrimitiveTopologyType	= D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets		= nRenderTargets;
-	psoDesc.RTVFormats[0]			= DXGI_FORMAT_R8G8B8A8_UNORM;
+	for (UINT i = 0; i < nRenderTargets; i++) 
+		psoDesc.RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.SampleDesc.Count		= 1;
 	psoDesc.DSVFormat				= DXGI_FORMAT_D24_UNORM_S8_UINT;
 	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPSO.GetAddressOf())));
@@ -1031,7 +1032,7 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 0, false);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 0, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
