@@ -88,7 +88,6 @@ public:
 	Bullet();
 	~Bullet();
 
-	virtual void SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList);
 
 	ProjectileCollisionCallback* getCollisionCallback() { return &m_Callback; }
 	XMFLOAT3 getCrashPos() const { return m_crashPos; }

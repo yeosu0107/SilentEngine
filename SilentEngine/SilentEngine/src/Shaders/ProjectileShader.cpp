@@ -10,7 +10,6 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		if (m_ppObjects[i]->isLive()) {
 			XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
-			//XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 			cBuffer.m_nMaterial = 0;
 			m_ObjectCB->CopyData(index, cBuffer);
 
@@ -94,16 +93,6 @@ void ProjectileShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camer
 
 	if (m_ppObjects[0])
 		m_ppObjects[0]->Render(pd3dCommandList, m_ActiveBullet, pCamera);
-}
-
-void ProjectileShader::Animate(float fTimeElapsed)
-{
-	BillboardShader::Animate(fTimeElapsed);
-	//for (int i = 0; i < m_nObjects; ++i) {
-	//	if (m_ppObjects[i]->isLive()) {
-	//		m_ppObjects[i]->Animate(fTimeElapsed);
-	//	}
-	//}
 }
 
 void ProjectileShader::Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos)

@@ -23,7 +23,27 @@ void EffectInstanceObject::Animate(float fTimeElapsed)
 	if (m_fNowXCount >= m_fMaxXCount) {
 		m_fNowXCount = 0.0f;
 		m_fNowYCount += 1.0f;
-		if (m_fNowYCount >= m_fMaxYCount)
+		if (m_fNowYCount >= m_fMaxYCount) {
 			m_fNowYCount = 0.0f;
+		}
 	}
+}
+
+PaticleObject::PaticleObject()
+{
+	m_live = false;
+	m_fAnimationSpeed = 100.0f;
+}
+
+void PaticleObject::Animate(float fTimeElapsed)
+{
+	EffectInstanceObject::Animate(fTimeElapsed);
+	if (m_fNowXCount == 0 && m_fNowYCount == 0)
+		m_live = false;
+}
+
+void PaticleObject::SetPosition(XMFLOAT3 xmf3Position)
+{
+	GameObject::SetPosition(xmf3Position);
+	m_live = true;
 }

@@ -845,7 +845,7 @@ D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 
 void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_nObjects = 1;
+	m_nObjects = 10;
 
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
@@ -914,11 +914,6 @@ void BillboardShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera
 	
 	if (m_ppObjects[0])
 		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
-}
-
-void BillboardShader::SetPos(XMFLOAT3 pos)
-{
-	m_ppObjects[0]->SetPosition(pos);
 }
 
 void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)

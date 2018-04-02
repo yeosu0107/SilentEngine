@@ -16,12 +16,6 @@ Bullet::~Bullet()
 {
 }
 
-void Bullet::SetRootParameter(ID3D12GraphicsCommandList * pd3dCommandList)
-{
-	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
-	pd3dCommandList->SetGraphicsRootDescriptorTable(4, m_d3dEffectCbvGPUDescriptorHandle);
-}
-
 void Bullet::Animate(float fTimeElapsed)
 {
 	if (!m_live) return;
@@ -57,11 +51,6 @@ void Bullet::Shoot(BasePhysX* phys, XMFLOAT3 pos, XMFLOAT3 target)
 	//if (m_Controller)
 	//	cout << *(string*)(m_Controller->getUserData()) << endl;
 }
-//
-//void Bullet::SetPhys(BasePhysX * phys)
-//{
-//	m_collisionBox = phys->GetBoxMesh(XMtoPX(GetPosition()));
-//}
 
 void Bullet::releasePhys()
 {

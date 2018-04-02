@@ -223,6 +223,7 @@
     <ClInclude Include="src\Room\Room.h" />
     <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\Shaders\EnemyShader.h" />
+    <ClInclude Include="src\Shaders\PaticleShader.h" />
     <ClInclude Include="src\Shaders\PlayerShader.h" />
     <ClInclude Include="src\Shaders\ProjectileShader.h" />
     <ClInclude Include="src\Shaders\Shaders.h" />

@@ -28,3 +28,14 @@ public:
 protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE					m_d3dEffectCbvGPUDescriptorHandle;
 };
+
+class PaticleObject : public EffectInstanceObject
+{
+private:
+public:
+	PaticleObject();
+	~PaticleObject() {}
+
+	virtual void Animate(float fTimeElapsed);
+	virtual void SetPosition(XMFLOAT3 xmf3Position);
+};

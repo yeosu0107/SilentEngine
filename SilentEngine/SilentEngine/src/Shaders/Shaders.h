@@ -160,9 +160,8 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
-	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; };
-
-	virtual void SetPos(XMFLOAT3 pos);
+	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
+	virtual void SetPos(XMFLOAT3* getPos, UINT num) {}
 protected:
 	Camera * m_pCamera = nullptr;
 	float m_fElapsedTime = 0.0f;

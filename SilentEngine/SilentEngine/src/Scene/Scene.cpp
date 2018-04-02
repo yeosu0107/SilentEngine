@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Scene.h"
-#include "InstanceObjectShader.h"
 #include "..\Shaders\PlayerShader.h"
+#include "..\Shaders\PaticleShader.h"
 #include "..\Model\InstanceModelShader.h"
 
 ostream& operator<<(ostream& os, XMFLOAT3& p)
@@ -155,11 +155,15 @@ void TestScene::Update(const Timer & gt)
 		XMFLOAT3* pos;
 		UINT tmp=0;
 		pos = m_Projectile->returnCollisionPos(tmp);
-		for (UINT i = 0; i < tmp; ++i) {
+		/*for (UINT i = 0; i < tmp; ++i) {
 			cout << pos[i];
-		}
+		}*/
+		if(tmp>0) 
+			m_EffectShaders->SetPos(pos, tmp);
 		m_Projectile->Animate(gt.DeltaTime());
 	}
+
+	m_EffectShaders->Animate(gt.DeltaTime());
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -175,7 +179,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 40.0f, -100.0f));
 	m_Camera->SetTimeLag(0.25f);
 
-	m_nShaders = 2;
+	m_nShaders = 1;
 	m_ppShaders = new Shaders*[m_nShaders];
 
 	m_nRoom = 2;
@@ -193,7 +197,15 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	pNormalObject->SetCamera(m_Camera.get());
-	m_ppShaders[1] = pNormalObject;
+	pNormalObject->BuildObjects(pDevice, pCommandList, 2, m_physics);
+	
+	PaticleShader<PaticleObject>* test = new PaticleShader<PaticleObject>();
+	test->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	test->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	test->SetCamera(m_Camera.get());
+	test->BuildObjects(pDevice, pCommandList, 2, m_physics);
+	
+	m_EffectShaders = test;
 
 	InstanceModelShader* map= new InstanceModelShader(3);
 	map->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -268,6 +280,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
 	
 	m_Projectile->Render(pCommandList, m_Camera.get());
+	m_EffectShaders->Render(pCommandList, m_Camera.get());
 }
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)

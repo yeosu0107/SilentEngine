@@ -23,7 +23,6 @@ public:
 	virtual void ReleaseObjects() { }
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
-	virtual void Animate(float fTimeElapsed);
 
 	void Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos);
 	XMFLOAT3* returnCollisionPos(UINT& num);
