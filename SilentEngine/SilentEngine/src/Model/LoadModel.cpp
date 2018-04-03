@@ -189,7 +189,8 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 {
 	for (UINT i = 0; i < pMesh->mNumBones; ++i) {
 		int BoneIndex = -1;
-		string BoneName(pMesh->mBones[i]->mName.data);
+		const aiBone* pBone = pMesh->mBones[i];
+		string BoneName(pBone->mName.data);
 
 		int tmpIndex = 0;
 		for (const auto& p : m_Bones) { //이미 존재하는 뼈인지 검색
@@ -208,11 +209,11 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 			//인덱스는 현재 뼈의 개수 (0개일 경우 0부터 시작)
 
 			Bone bone;
-			bone.BoneOffset = aiMatrixToXMMatrix(pMesh->mBones[i]->mOffsetMatrix);
+			bone.BoneOffset = aiMatrixToXMMatrix(pBone->mOffsetMatrix);
 			m_Bones.emplace_back(make_pair(BoneName, bone));
 		}
 
-		const aiBone* pBone = pMesh->mBones[i];
+		
 		for (UINT b = 0; b < pBone->mNumWeights; ++b) {
 			UINT vertexID = pBone->mWeights[b].mVertexId;
 			float weight = pBone->mWeights[b].mWeight;

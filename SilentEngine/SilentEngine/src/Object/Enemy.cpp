@@ -43,6 +43,7 @@ void Bullet::Shoot(BasePhysX* phys, XMFLOAT3 pos, XMFLOAT3 target)
 {
 	m_live = true;
 	m_crash = false;
+	m_timer = 0;
 	m_fNowXCount = 0.0f;
 	m_fNowYCount = 0.0f;
 	SetPosition(pos);

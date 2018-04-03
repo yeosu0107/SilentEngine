@@ -44,7 +44,7 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	tmp->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
 	tmp->SetPhysController((BasePhysX*)pContext, tmp->getCollisionCallback(), &PxExtendedVec3(0, -170, 0));
 	if (m_myCamera)
-		tmp->SetCamera(m_myCamera);
+		tmp->SetCamera(m_myCamera, (BasePhysX*)pContext);
 	tmp->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
 	m_ppObjects[0] = tmp;
 }

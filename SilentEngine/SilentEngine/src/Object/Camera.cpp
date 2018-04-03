@@ -346,8 +346,10 @@ void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 		if (fLength < 0.01f) fDistance = fLength;
 		if (fDistance > 0)
 		{
-			m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Direction, fDistance);
+			//m_xmf3Position = Vector3::Add(m_xmf3Position, xmf3Direction, fDistance);
 			SetLookAt(xmf3LookAt);
+			//xmf3LookAt에 변화량을 대입, 실제 카메라 이동은 PhysX 에서 담당
+			xmf3LookAt = Vector3::ScalarProduct(xmf3Direction, fDistance, false);
 		}
 	}
 }

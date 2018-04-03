@@ -94,7 +94,6 @@ public:
 	//카메라 로컬축 보정(서로 직교하도록)
 	void RegenerateViewMatrix();
 
-
 	//투영변환행렬 생성
 	void GenerateProjectionMatrix(float fNearPlaneDistance, float fFarPlaneDistance, float fAspectRatio, float fFOVAngle);
 	void SetPlayer(Player *pPlayer) { m_pPlayer = pPlayer; }
@@ -141,7 +140,6 @@ public:
 		m_xmf3Position.y += xmf3Shift.y;
 		m_xmf3Position.z += xmf3Shift.z;
 	}
-
 	virtual void Move(ULONG dwDirection, float fDistance, bool bVelocity = false);
 
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
@@ -165,5 +163,4 @@ public:
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed);
 	virtual void SetLookAt(XMFLOAT3& vLookAt);
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
-
 };

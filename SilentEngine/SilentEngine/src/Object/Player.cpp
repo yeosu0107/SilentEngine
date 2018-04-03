@@ -122,16 +122,22 @@ void Player::Animate(float fTime)
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
 	}
 	if (m_pCamera) {
-		m_pCamera->Update(GetPosition(), 1.0f/60.0f);
-		m_pCamera->SetLookAt(GetPosition());
+		XMFLOAT3 nowPos = GetPosition();
+		m_pCamera->Update(nowPos, fTime);
+		//Update함수에서 카메라 이동백터를 nowPos에 반환, move함수에서 실제 카메라 이동
+		m_cameraController->move(XMtoPX(nowPos), 0.01f, fTime, m_ControllerFilter);
+		//physX에서 연산한 이동값을 실제 카메라에 대입 후 Matrix 재생성
+		m_pCamera->SetPosition(PXtoXM(m_cameraController->getPosition()));
 		m_pCamera->RegenerateViewMatrix();
 	}
 	if (!m_Jump.mJump)
 		m_Jump.startJump(PxF32(0)); //중력 작용
 }
 
-void Player::SetCamera(Camera * tCamera)
+void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 {
 	m_pCamera = tCamera;
 	m_pCamera->SetPlayer(this);
+
+	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback);
 }

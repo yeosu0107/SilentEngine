@@ -47,6 +47,22 @@ public:
 	}
 };
 
+class CameraCollisionCallback : public PxUserControllerHitReport
+{
+private:
+	PxControllerFilters		m_ControllerFilter;
+public:
+	void onShapeHit(const PxControllerShapeHit &hit) {
+		//cout << "cameraHit!" << endl;
+	}
+	void 	onControllerHit(const PxControllersHit &hit) {
+
+	}
+	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
+		
+	}
+};
+
 class Player : public ModelObject
 {
 protected:
@@ -60,10 +76,13 @@ protected:
 	float           			m_fRoll = 0.0f;
 
 	Camera*				m_pCamera;
+	PxBoxController*		m_cameraController;
 
 	Jump							m_Jump;
 
 	PlayerCollisionCallback	m_Callback;
+	CameraCollisionCallback	m_CameraCallback;
+	
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();
@@ -84,5 +103,5 @@ public:
 	virtual bool Movement(DWORD input);
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);
-	void SetCamera(Camera* tCamera);
+	void SetCamera(Camera* tCamera, BasePhysX* phys);
 };
