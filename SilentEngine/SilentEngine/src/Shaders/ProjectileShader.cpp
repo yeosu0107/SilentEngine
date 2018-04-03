@@ -7,6 +7,16 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 	CB_EFFECT_INFO cEffectBuffer;
 	m_ActiveBullet = 0;
 	int index = 0;
+	Camera* pCamera = m_pCamera;
+
+	std::sort(m_ppObjects.begin(), m_ppObjects.end(), [pCamera](GameObject* a, GameObject* b) {
+
+		Camera* pLamdaCamera = (Camera*)pCamera;
+		float aLengthToCamera = Vector3::Length(Vector3::Subtract(pLamdaCamera->GetPosition(), a->GetPosition(), false));
+		float bLengthToCamera = Vector3::Length(Vector3::Subtract(pLamdaCamera->GetPosition(),b->GetPosition(),false));
+		return aLengthToCamera > bLengthToCamera; }
+	);
+	
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		if (m_ppObjects[i]->isLive()) {
 			XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
@@ -77,9 +87,13 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 	for (int i=1; i < m_nObjects; ++i) {
 		Bullet* pGameObjects = new Bullet();
+		pGameObjects->SetMesh(0, pBoard);
 		pGameObjects->SetPosition(0,0,0);
 		pGameObjects->m_fMaxXCount = 4.0f;
 		pGameObjects->m_fMaxYCount = 4.0f;
+		pGameObjects->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize) * 0);
+		pGameObjects->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (1)));
+
 		m_ppObjects[i] = pGameObjects;
 	}
 }

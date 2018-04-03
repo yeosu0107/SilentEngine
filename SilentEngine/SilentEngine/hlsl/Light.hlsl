@@ -139,7 +139,6 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex)
 	cColor += (gcGlobalAmbientLight * gMaterials[nMatindex].m_cAmbient);
 	cColor.a = gMaterials[nMatindex].m_cDiffuse.a;
 	
-	cColor = ceil(cColor * 5) / float(5);
 	return(cColor);
 }
 
@@ -172,14 +171,18 @@ VS_TEXTURED_LIGHTING_OUTPUT VSTexturedLighting(VS_TEXTURED_LIGHTING_INPUT input)
 	return(output);
 };
 
-float4 PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial);
 	
-	return(cColor * cIllumination);
+	output.color = cColor * cIllumination;
+	output.normal = float4(input.normalW, 1.0f);
+	return(output);
 };
 
 ////////////////// Instance //////////////////////
@@ -210,12 +213,16 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSInstanceTexturedLighting(VS_TEXTURED_LIGH
 	return(output);
 };
 
-float4 PSInstanceTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat);
 
-	return(cColor * cIllumination);
+	output.color = cColor * cIllumination;
+	output.normal = float4(input.normalW, 1.0f);
+	return(output);
 };

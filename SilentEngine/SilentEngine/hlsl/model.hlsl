@@ -110,43 +110,65 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSDynamicInstanceModel(VS_MODEL_INPUT input
 }
 
 // nPrimitiveID : 삼각형의 정보 
-float4 PSStaticModel(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticModel(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial);
 
-	return(cColor * cIllumination);
+	output.color = cColor * cIllumination;
+	output.normal = float4(input.normalW, 1.0f);
+
+	return (output);
 };
 
-float4 PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat);
 
-	return(cColor * cIllumination);
+	output.color = cColor * cIllumination;
+	output.normal = float4(input.normalW, 1.0f);
+
+	return (output);
 }
 
 //지금은 고정,동적 모델의 PS가 같음
-float4 PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat);
 
-	return(cColor * cIllumination);
+	cColor = ceil(cColor * 10) / float(10);
+
+	output.color = cColor * cIllumination;
+	output.normal = float4(input.normalW, 1.0f);
+
+	return (output);
 };
 
-float4 PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
 {
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat);
 
-	return(cColor * cIllumination);
+	output.color = cColor * cIllumination;
+	output.normal = float4(input.normalW, 1.0f);
+
+	return (output);
 }

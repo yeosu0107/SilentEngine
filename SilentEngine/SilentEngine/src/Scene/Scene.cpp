@@ -143,7 +143,7 @@ void TestScene::Update(const Timer & gt)
 
 	if (m_Enemys) {
 		m_testTimer += 1;
-		if (m_testTimer % 120 == 0) {
+		if (m_testTimer % 50 == 0) {
 			XMFLOAT3 tPos = m_Enemys[0]->GetPosition();
 			tPos.y += 20.0f;
 			XMFLOAT3 ttPos = m_testPlayer->GetPosition();

@@ -90,6 +90,9 @@ public:
 			//pGameObjects->SetPosition(0, 0, 0);
 			pGameObjects->m_fMaxXCount = m_fMaxXCount;
 			pGameObjects->m_fMaxYCount = m_fMaxYCount;
+			pGameObjects->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize));
+			pGameObjects->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 1));
+
 			m_ppObjects[i] = pGameObjects;
 		}
 	}

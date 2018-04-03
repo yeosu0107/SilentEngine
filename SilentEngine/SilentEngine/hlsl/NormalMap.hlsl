@@ -59,10 +59,11 @@ VS_NORMAL_OUTPUT VSNormalMap(VS_NORMAL_INPUT input) {
 	return output;
 }
 
-float4 PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Target
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Target
 {
 	MATERIAL matData = gMaterials[gnMaterial];
-
+	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
 	float  roughness = 0.1f;
@@ -88,6 +89,8 @@ float4 PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Target
 	//float3 fresnelFactor = float3(1.0f, 1.0f, 1.0f);
 	litColor.rgb += shininess * fresnelFactor * litColor.rgb;
 
+	output.color = litColor;
+	output.normal = float4(input.normalW, 1.0f);
 	//return cColor;
-	return litColor;
+	return output;
 }

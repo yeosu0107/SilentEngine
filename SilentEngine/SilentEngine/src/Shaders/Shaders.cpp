@@ -548,11 +548,11 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	m_nObjects = 1;
 
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "VSNormalMap", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "PSNormalMap", "ps_5_0");
+	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSMultirender", "ps_5_0");
 
 	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks.dds", 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks_nmap.dds", 1);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks_nm.dds", 1);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
@@ -574,7 +574,7 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		m_ppObjects[i] = new GameObject();
-		m_ppObjects[i]->SetPosition(i * 50.0f + 50.0f, i * 50.0f - 50.0f, i * 50.0f);
+		m_ppObjects[i]->SetPosition(i * 50.0f + 50.0f, i * 50.0f - 150.0f, i * 50.0f);
 		m_ppObjects[i]->SetMesh(0, pCubeMesh);
 		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
@@ -892,19 +892,22 @@ void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	for (; i < m_nObjects; ++i) {
 		EffectInstanceObject* pGameObjects = new EffectInstanceObject();
-		pGameObjects->SetPosition(115.89f, -182.542f, 57.931f);
+		pGameObjects->SetPosition(10.0f, -150.0f, 50.0f + 10.0f * i);
 		m_ppObjects[i] = pGameObjects;
 	}
 }
 
 void BillboardShader::Animate(float fTimeElapsed)
 {
+	Camera* pCamera = m_pCamera;
+
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		if (m_ppObjects[i]->isLive()) {
 			m_ppObjects[i]->SetLookAt(m_pCamera->GetPosition());
 			m_ppObjects[i]->Animate(fTimeElapsed);
 		}
 	}
+
 }
 
 void BillboardShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)

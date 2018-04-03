@@ -5,6 +5,7 @@
 //***************************************************************************************
 
 #include "Cbuffer.hlsl"
+//#include "NormalMap.hlsl"
 #include "Sampler.hlsl"
 #include "Texture.hlsl"
 
@@ -57,7 +58,6 @@ VS_TEXTURED_OUTPUT InstanceVS(VS_TEXTURED_INPUT input, uint instanceID : SV_Inst
 //////////////////////////////////////////////////////
 
 
-
 float4 VSTextureToFullScreen(uint nVertexID : SV_VertexID) : SV_POSITION
 {
 	if (nVertexID == 0) return(float4(-1.0f, +1.0f, 0.0f, 1.0f));	// 스크린 왼쪽 위 
@@ -89,17 +89,17 @@ float4 PSTextureToFullScreen(float4 position : SV_POSITION) : SV_Target
 		}
 	
 		// 엣지 정도에 따라 색상을 조금 변화 시킨다. 
-		fEdgeness = cEdgeness.r * 0.3f + cEdgeness.g * 0.59f + cEdgeness.b * 0.11f;
+		fEdgeness = cEdgeness.r * 0.3f + cEdgeness.g * 0.3f + cEdgeness.b * 0.4f;
 		cEdgeness = float3(fEdgeness, fEdgeness, fEdgeness);
 	}
 	
 	float3 cColor = gScreenTexture[int2(position.xy)].rgb;
 	
 	// fEdgeness가 크면 : 엣지일 가능성이 높음 fEdgeeness가 작으면 같은 평면일 가능성이 높음 
-	cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55f) ? float4(0.0f, 0.0f, 0.0f, 0.0f) : float4(cEdgeness,1.0f));
+	cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55f) ? (cColor - cEdgeness) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
 	
 	// 최종 결과 : 엣지 강도에 따라 테두리 색상이 다르다.
-	
+
 	return(float4(cColor, 1.0f));
 
 }

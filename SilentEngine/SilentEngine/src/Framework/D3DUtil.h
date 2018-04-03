@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 #include "d3dx12.h"
 //#include "DDSTextureLoader.h"
 #include "DDSTextureLoader12.h"

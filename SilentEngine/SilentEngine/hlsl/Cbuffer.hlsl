@@ -50,6 +50,12 @@ struct MATERIALDATA
 
 };
 
+struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
+{
+	float4 color : SV_TARGET0;
+	float4 normal : SV_TARGET1;
+};
+
 struct LIGHT
 {
 	float4				m_cAmbient;
