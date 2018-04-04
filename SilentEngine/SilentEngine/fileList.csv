@@ -10,5 +10,5 @@ res\\ModelData\\P_Walk.FBX,,
 res\\ModelData\\P_Attack.FBX,,
 res\\ModelData\\P_MakeAHole.FBX,,
 res\\ModelData\\P_Hitted.FBX,,
-res\\ModelData\\map.FBX,0,res\\Texture\\map.dds
-res\\ModelData\\map3.FBX,0,res\\Texture\\map3.dds
+res\\MapData\\stone.FBX,0,res\\MapData\\stone.dds
+res\\MapData\\tree.FBX,0,res\\MapData\\tree.dds

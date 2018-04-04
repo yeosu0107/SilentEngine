@@ -236,17 +236,18 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_testPlayer = player->getPlayer(0);
 	
 	Point startPoint[4] = {
-		Point(330,-190, 0),
-		Point(-330, -190, 0),
-		Point(0, - 190,-470),
-		Point(0, - 190,470)
+		Point(430, -180,0),
+		Point(-430, -180,0),
+		Point(0,-180, -380),
+		Point(0, -180, 380)
 	};
 
 	Point startPoint2[4] = {
-		Point(350, -190,	0),
-		Point(-350,-190,0),
-		Point(0, -190,-170),
-		Point(0,	-190,170)
+		Point(220, -180,0),
+		Point(-220,	-180,0),
+		Point(0, -180,-360),
+		Point(0,-180,360)
+		
 	};
 
 	m_Room[0]->SetMapShader(map);
@@ -271,15 +272,17 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
 
-	if(m_Room[m_nowRoom]->IsEnemy())
-		m_Room[m_nowRoom]->GetEnemyShader()->Render(pCommandList, m_Camera.get());
-
+	//맵랜더링
 	m_Room[m_nowRoom]->GetMapShader()->Render(pCommandList, m_Camera.get());
-	
+	//플레이어 랜더링
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
-	
-	m_Projectile->Render(pCommandList, m_Camera.get());
+	//이너미 & 발사체 랜더링
+	if (m_Room[m_nowRoom]->IsEnemy()) {
+		m_Room[m_nowRoom]->GetEnemyShader()->Render(pCommandList, m_Camera.get());
+		m_Projectile->Render(pCommandList, m_Camera.get());
+	}
+	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
 }
 
@@ -304,7 +307,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 		cout << m_testPlayer->GetPosition();
 	
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-		RoomChange(1, START_NORTH);
+		RoomChange(1, START_SOUTH);
 
 
 	

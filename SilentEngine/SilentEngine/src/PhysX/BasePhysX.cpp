@@ -123,7 +123,6 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 	meshDesc.triangles.data = meshes->m_indices.data();
 
 	meshDesc.flags = PxMeshFlags(0);
-	
 	PxCookingParams params = gCooking->getParams();
 	params.midphaseDesc = PxMeshMidPhase::eBVH33;
 	params.suppressTriangleMeshRemapTable = true;

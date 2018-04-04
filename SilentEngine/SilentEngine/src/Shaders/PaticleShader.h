@@ -71,7 +71,7 @@ public:
 		m_pMaterial->SetReflection(1);
 
 		i = 0;
-		CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 25.0f, 25.0f, 0.0f);
+		CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f);
 
 		m_ppObjects = vector<GameObject*>(m_nObjects);
 

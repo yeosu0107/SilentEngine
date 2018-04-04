@@ -32,7 +32,7 @@ void EffectInstanceObject::Animate(float fTimeElapsed)
 PaticleObject::PaticleObject()
 {
 	m_live = false;
-	m_fAnimationSpeed = 100.0f;
+	m_fAnimationSpeed = 150.0f;
 }
 
 void PaticleObject::Animate(float fTimeElapsed)
