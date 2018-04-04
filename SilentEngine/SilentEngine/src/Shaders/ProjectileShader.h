@@ -26,4 +26,6 @@ public:
 
 	void Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos);
 	XMFLOAT3* returnCollisionPos(UINT& num);
+
+	void releasePhys();
 };

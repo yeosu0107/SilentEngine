@@ -364,7 +364,6 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 {
 	CB_DYNAMICOBJECT_INFO cBone;
 	for (int i = 0; i < m_nObjects; ++i) {
-		//cBone.m_xmf4x4World = m_ppObjects[i]->m_xmf4x4World;
 		XMStoreFloat4x4(&cBone.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBone.m_nMaterial = 0;
 

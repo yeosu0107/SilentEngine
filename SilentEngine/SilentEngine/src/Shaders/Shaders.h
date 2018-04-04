@@ -155,7 +155,7 @@ public:
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
-	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+
 	virtual void Animate(float fTimeElapsed);
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
@@ -167,12 +167,6 @@ protected:
 	float m_fElapsedTime = 0.0f;
 
 	unique_ptr<UploadBuffer<CB_EFFECT_INFO>>	m_EffectCB = nullptr;
-
-	float  m_fAnimationSpeed = 10.0f;
-	float	m_fMaxXCount = 0.0f;
-	float	m_fNowXCount = 0.0f;
-	float	m_fMaxYCount = 0.0f;
-	float	m_fNowYCount = 0.0f;
 };
 
 class TextureToFullScreen : public Shaders

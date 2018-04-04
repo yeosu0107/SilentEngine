@@ -192,20 +192,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	
 	m_ppShaders[0] = player;
-
-	BillboardShader* pNormalObject = new BillboardShader();
-	pNormalObject->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	pNormalObject->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	pNormalObject->SetCamera(m_Camera.get());
-	pNormalObject->BuildObjects(pDevice, pCommandList, 2, m_physics);
 	
-	PaticleShader<PaticleObject>* test = new PaticleShader<PaticleObject>();
-	test->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	test->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	test->SetCamera(m_Camera.get());
-	test->BuildObjects(pDevice, pCommandList, 2, m_physics);
+	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
+	Explosion->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	Explosion->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	Explosion->SetCamera(m_Camera.get());
+	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
 	
-	m_EffectShaders = test;
+	m_EffectShaders = Explosion;
 
 	InstanceModelShader* map= new InstanceModelShader(3);
 	map->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -226,7 +220,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	bullet->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetCamera(m_Camera.get());
-	bullet->BuildObjects(pDevice, pCommandList ,2 );
+	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
 	m_Projectile = bullet;
 
 	for(UINT i=0; i<m_nShaders; ++i)

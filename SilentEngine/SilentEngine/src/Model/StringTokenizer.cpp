@@ -1,11 +1,3 @@
-//////////////////////////////////////////////
-// StringTokenizer v0.1						//
-// copyright : arer							//
-// homepage : http://arer.tistroy.com		//
-// 본 코드의 저작권은 tistory의 arer에게 있고 //
-// 무단 수정 및 배포를 금지합니다.			//
-// 사용시 출처를 밝혀주시기 바랍니다.			//
-//////////////////////////////////////////////
 #include "stdafx.h"
 #include "StringTokenizer.h"
 

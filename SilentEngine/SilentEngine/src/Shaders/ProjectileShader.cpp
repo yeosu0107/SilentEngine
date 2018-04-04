@@ -47,12 +47,11 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
 
-	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\blackLight.dds", 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\blackLight_n.dds", 1);
+	TextureDataForm* mtexture = (TextureDataForm*)pContext;
 
-	m_fMaxXCount = 4.0f;
-	m_fMaxYCount = 4.0f;
+	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_normal.c_str(), 1);
 
 	unsigned int i = 0;
 
@@ -78,8 +77,8 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	Bullet* pInstnaceObject = new Bullet();
 	pInstnaceObject->SetMesh(0, pBoard);
 	pInstnaceObject->SetPosition(0,0,0);
-	pInstnaceObject->m_fMaxXCount = 4.0f;
-	pInstnaceObject->m_fMaxYCount = 4.0f;
+	pInstnaceObject->m_fMaxXCount = mtexture->m_MaxX;
+	pInstnaceObject->m_fMaxYCount = mtexture->m_MaxY;
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
 
@@ -89,8 +88,8 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 		Bullet* pGameObjects = new Bullet();
 		pGameObjects->SetMesh(0, pBoard);
 		pGameObjects->SetPosition(0,0,0);
-		pGameObjects->m_fMaxXCount = 4.0f;
-		pGameObjects->m_fMaxYCount = 4.0f;
+		pGameObjects->m_fMaxXCount = mtexture->m_MaxX;
+		pGameObjects->m_fMaxYCount = mtexture->m_MaxY;
 		pGameObjects->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize) * 0);
 		pGameObjects->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (1)));
 
@@ -139,4 +138,11 @@ XMFLOAT3* ProjectileShader::returnCollisionPos(UINT & num)
 	num = start;
 
 	return m_crashes;
+}
+
+void ProjectileShader::releasePhys()
+{
+	for (auto& p : m_ppObjects) {
+		reinterpret_cast<Bullet*>(p)->releasePhys();
+	}
 }

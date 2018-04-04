@@ -201,6 +201,7 @@
     <ClInclude Include="src\Framework\D3DUtil.h" />
     <ClInclude Include="src\Framework\d3dx12.h" />
     <ClInclude Include="src\Framework\DDSTextureLoader12.h" />
+    <ClInclude Include="src\Framework\FileLoader.h" />
     <ClInclude Include="src\Framework\Framework.h" />
     <ClInclude Include="src\Framework\SilentEngine.h" />
     <ClInclude Include="src\Framework\Timer.h" />

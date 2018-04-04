@@ -285,6 +285,9 @@
     <ClInclude Include="src\Shaders\PaticleShader.h">
       <Filter>Shaders\Header</Filter>
     </ClInclude>
+    <ClInclude Include="src\Framework\FileLoader.h">
+      <Filter>Util\Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Sampler.hlsl">

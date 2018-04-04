@@ -844,59 +844,6 @@ D3D12_BLEND_DESC BillboardShader::CreateBlendState()
 	return d3dBlendDesc;
 }
 
-void BillboardShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
-{
-	m_nObjects = 10;
-
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
-
-	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\exp.dds", 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\exp_n.dds", 1);
-
-	m_fMaxXCount = 8.0f;
-	m_fMaxYCount = 6.0f;
-	m_fAnimationSpeed = 100.0f;
-	unsigned int i = 0;
-
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 4);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, i++, sizeof(CB_GAMEOBJECT_INFO), false);
-	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_EffectCB->Resource(), 4, i++, sizeof(CB_EFFECT_INFO),  false);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 2, true);
-
-	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
-
-	m_pMaterial = new CMaterial();
-	m_pMaterial->SetTexture(pTexture);
-	m_pMaterial->SetReflection(1);
-
-	i = 0;
-
-	CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 25.0f, 25.0f, 0.0f);
-
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-	EffectInstanceObject* pInstnaceObject = new EffectInstanceObject();
-	pInstnaceObject->SetMesh(0, pBoard);
-	pInstnaceObject->SetPosition(243.711, -165.542, -51.021);
-	pInstnaceObject->m_fMaxXCount = m_fMaxXCount;
-	pInstnaceObject->m_fMaxYCount = m_fMaxYCount;
-	pInstnaceObject->m_fAnimationSpeed = m_fAnimationSpeed;
-	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
-
-	m_ppObjects[i++] = pInstnaceObject;
-
-	for (; i < m_nObjects; ++i) {
-		EffectInstanceObject* pGameObjects = new EffectInstanceObject();
-		pGameObjects->SetPosition(10.0f, -150.0f, 50.0f + 10.0f * i);
-		m_ppObjects[i] = pGameObjects;
-	}
-}
-
 void BillboardShader::Animate(float fTimeElapsed)
 {
 	Camera* pCamera = m_pCamera;

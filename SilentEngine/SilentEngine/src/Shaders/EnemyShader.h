@@ -1,12 +1,13 @@
 #pragma once
 
 #include "..\Model\ModelShader.h"
+//#include "..\Model\InstanceModelShader.h"
 
 template<class T>
 class EnemyShader : public DynamicModelShader
 {
 private:
-	vector<T*>		m_pEnemy;
+	//vector<T*>		m_pEnemy;
 public:
 	EnemyShader(int index) : DynamicModelShader(index) { }
 	~EnemyShader() { }
@@ -18,7 +19,7 @@ public:
 
 		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
-		m_pEnemy = vector<T*>(m_nObjects);
+		//m_pEnemy = vector<T*>(m_nObjects);
 
 
 		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
@@ -46,19 +47,20 @@ public:
 			//t_enemy->SetPhysController((BasePhysX*)pContext, t_enemy->getCollisionCallback(), &XMtoPXEx(t_enemy->GetPosition()));
 			t_enemy->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 			m_ppObjects[i] = t_enemy;
-			m_pEnemy[i] = t_enemy;
+			//m_pEnemy[i] = t_enemy;
 		}
 	}
 
 	void setPhys(BasePhysX* phys) {
-		for (auto& p : m_pEnemy) {
-			p->SetPhysController(phys, p->getCollisionCallback(), &XMtoPXEx(p->GetPosition()));
+		for (auto& p : m_ppObjects) {
+			T* tmp = reinterpret_cast<T*>(p);
+			tmp->SetPhysController(phys, tmp->getCollisionCallback(), &XMtoPXEx(tmp->GetPosition()));
 		}
 	}
 
 	void releasePhys() {
-		for (auto& p : m_pEnemy) {
-			p->releasePhys();
+		for (auto& p : m_ppObjects) {
+			reinterpret_cast<T*>(p)->releasePhys();
 		}
 	}
 };
@@ -72,7 +74,7 @@ public:
 //	EnemyShader(int index) : InstanceDynamicModelShader(index) { }
 //	~EnemyShader() { }
 //
-//	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, void * pContext) {
+//	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext) {
 //
 //		m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicInstanceModel", "vs_5_1");
 //		m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicInstanceModel", "ps_5_1");
@@ -87,7 +89,7 @@ public:
 //		CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_BoneCB->Resource(), 1, false);
 //
 //		CreateGraphicsRootSignature(pd3dDevice);
-//		BuildPSO(pd3dDevice);
+//		BuildPSO(pd3dDevice, nRenderTargets);
 //
 //		if (globalModels->isMat(modelIndex)) {
 //			CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);

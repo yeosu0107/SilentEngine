@@ -48,12 +48,11 @@ public:
 		m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
 		m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
 
-		CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\exp.dds", 0);
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\exp_n.dds", 1);
+		TextureDataForm* mtexture = (TextureDataForm*)pContext;
 
-		m_fMaxXCount = 8.0f;
-		m_fMaxYCount = 6.0f;
+		CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_normal.c_str(), 1);
 
 		UINT i = 0;
 
@@ -77,9 +76,9 @@ public:
 
 		T* pInstnaceObject = new T();
 		pInstnaceObject->SetMesh(0, pBoard);
-		//pInstnaceObject->SetPosition(0, 0, 0);
-		pInstnaceObject->m_fMaxXCount = m_fMaxXCount;
-		pInstnaceObject->m_fMaxYCount = m_fMaxYCount;
+
+		pInstnaceObject->m_fMaxXCount = mtexture->m_MaxX;
+		pInstnaceObject->m_fMaxYCount = mtexture->m_MaxY;
 		pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
 
@@ -87,9 +86,9 @@ public:
 
 		for (int i = 1; i < m_nObjects; ++i) {
 			T* pGameObjects = new T();
-			//pGameObjects->SetPosition(0, 0, 0);
-			pGameObjects->m_fMaxXCount = m_fMaxXCount;
-			pGameObjects->m_fMaxYCount = m_fMaxYCount;
+
+			pGameObjects->m_fMaxXCount = mtexture->m_MaxX;
+			pGameObjects->m_fMaxYCount = mtexture->m_MaxY;
 			pGameObjects->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize));
 			pGameObjects->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 1));
 
