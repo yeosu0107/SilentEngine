@@ -37,7 +37,7 @@ void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 
 	if (!m_pScene) {
 		//애니메이션 파일을 로드못 했을 경우 수행
-		for (int i = 0; i < m_NumBones; ++i) {
+		for (UINT i = 0; i < m_NumBones; ++i) {
 			XMStoreFloat4x4(&transforms[i], Identity);
 		}
 		return;

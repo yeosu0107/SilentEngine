@@ -44,9 +44,9 @@ ModelLoader::ModelLoader(string fileName)
 			animStack->push_back(tmpAnim); //애니메이션을 벡터에 적재
 		}
 		m_Objects.emplace_back(make_pair(tmpModel, animStack));
-		cout << "Load Success!" << m_Objects.size() << endl;
+		cout << "Model Load Success!" << m_Objects.size() << endl;
 	}
-	m_numModels = m_Objects.size();
+	m_numModels = (UINT)m_Objects.size();
 	in.close();
 }
 
@@ -62,4 +62,41 @@ void ModelLoader::LodingModels(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	for (auto& p : m_Objects) {
 		p.first->SetMeshes(pd3dDevice, pd3dCommandList);
 	}
+}
+
+MapLoader::MapLoader(string fileName)
+{
+	ifstream in(fileName);
+
+	string tmpName;
+	string delim = ",";
+
+	float horizontal, vertical;
+	StringTokenizer st = StringTokenizer("");
+
+	//csv 파일 기반 로드
+	while (getline(in, tmpName)) {
+		st = StringTokenizer(tmpName, delim); //string을 delim기준으로 분할해서 큐에 저장
+		LoadModel* tmpModel = new LoadModel(st.nextToken()); //모델파일 로딩
+		matList.emplace_back(st.nextToken()); //텍스쳐 파일
+
+		horizontal = atof(st.nextToken().c_str());
+		vertical = atof(st.nextToken().c_str());
+		StartList point = {
+			Point(horizontal, -180, 0), Point(-horizontal, -180, 0),
+			Point(0,-180, vertical), Point(0,-180, -vertical)
+		};
+		
+		m_Objects.emplace_back(make_pair(tmpModel, nullptr)); //map 파일은 애니메이션이 없다.
+		m_startPoint.push_back(point);
+
+		cout << "Map Load Success!" << m_Objects.size() << endl;
+	}
+	m_numModels = (UINT)m_Objects.size();
+	in.close();
+}
+
+
+MapLoader::~MapLoader()
+{
 }

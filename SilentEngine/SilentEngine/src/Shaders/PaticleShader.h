@@ -84,7 +84,7 @@ public:
 
 		m_ppObjects[i++] = pInstnaceObject;
 
-		for (int i = 1; i < m_nObjects; ++i) {
+		for (UINT i = 1; i < m_nObjects; ++i) {
 			T* pGameObjects = new T();
 
 			pGameObjects->m_fMaxXCount = mtexture->m_MaxX;

@@ -423,7 +423,7 @@ CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3d
 
 	array<CNormalMapVertex, 4> pVertices;
 
-	for (int i = 0; i < m_nVertices; ++i)
+	for (UINT i = 0; i < m_nVertices; ++i)
 		pVertices[i] = CNormalMapVertex(pxmf3Positions[i], pxmf3Normal[i], pxmf2TexCoord[i], pxmf3Tangent[i]);
 
 	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices.data(), m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
@@ -587,7 +587,7 @@ NormalMappingCube::NormalMappingCube(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 	D3DUtil::CalculateTangentArray(m_nVertices, pxmf3Positions.data(), pxmf3Normal.data(), pxmf2TexCoord.data(), m_nVertices / 2, pIndices.data(), pxmf3Tangent.data());
 
 	array<CNormalMapVertex, 24> pVertices;
-	for (int i = 0; i < m_nVertices; ++i)
+	for (UINT i = 0; i < m_nVertices; ++i)
 		pVertices[i] = CNormalMapVertex(pxmf3Positions[i], pxmf3Normal[i], pxmf2TexCoord[i], pxmf3Tangent[i]);
 
 	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices.data(), m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);

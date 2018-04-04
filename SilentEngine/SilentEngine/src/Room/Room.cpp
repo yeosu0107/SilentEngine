@@ -2,7 +2,8 @@
 #include "Room.h"
 
 Room::Room(UINT type) : m_type(type), 
-	m_enemyShader(nullptr), m_mapShader(nullptr), isEnemy(false)
+	m_enemyShader(nullptr), m_mapShader(nullptr), m_Projectile(nullptr),
+	isEnemy(false), isProjectile(false)
 {
 }
 
@@ -34,8 +35,28 @@ Point* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 			m_enemyShader->releasePhys();
 		if (m_mapShader)
 			m_mapShader->releasePhys();
+		if (m_Projectile)
+			m_Projectile->releasePhys();
 
 		return nullptr;
 	}
 }
 
+void Room::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	m_mapShader->Render(pd3dCommandList, pCamera);
+	if (isEnemy)
+		m_enemyShader->Render(pd3dCommandList, pCamera);
+	if (isProjectile)
+		m_Projectile->Render(pd3dCommandList, pCamera);
+}
+
+void Room::Animate(float fTime)
+{
+	//맵은 애니메이션이 없기에 애니메이트 X
+	//m_mapShader->Animate(fTime);
+	if (isEnemy)
+		m_enemyShader->Animate(fTime);
+	if (isProjectile)
+		m_Projectile->Animate(fTime);
+}

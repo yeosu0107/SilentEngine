@@ -46,7 +46,7 @@ void ModelShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12Graphic
 void ModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_GAMEOBJECT_INFO cBuffer;
-	for (int i = 0; i < m_nObjects; ++i) {
+	for (UINT i = 0; i < m_nObjects; ++i) {
 		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
@@ -113,7 +113,7 @@ void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 
-	for (int j = 0; j < m_nObjects; j++)
+	for (UINT j = 0; j < m_nObjects; j++)
 	{
 		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 	}
@@ -231,7 +231,7 @@ void DynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 void DynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_DYNAMICOBJECT_INFO cBone;
-	for (int i = 0; i < m_nObjects; ++i) {
+	for (UINT i = 0; i < m_nObjects; ++i) {
 		//cBone.m_xmf4x4World = m_ppObjects[i]->m_xmf4x4World;
 		XMStoreFloat4x4(&cBone.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBone.m_nMaterial = 0;

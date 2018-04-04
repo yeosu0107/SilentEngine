@@ -29,11 +29,12 @@ public:
 			data.m_texture = wstring(tmpName.begin(), tmpName.end());
 			tmpName = st.nextToken(); //³ë¸»¸Ê
 			data.m_normal = wstring(tmpName.begin(), tmpName.end());
-			data.m_MaxX = atoi(st.nextToken().c_str());
-			data.m_MaxY = atoi(st.nextToken().c_str());
+			data.m_MaxX = atof(st.nextToken().c_str()); //x°¹¼ö
+			data.m_MaxY = atof(st.nextToken().c_str()); //y°¹¼ö
 
 			m_textureList.emplace_back(data);
 		}
+		in.close();
 	};
 	~EffectLoader() {
 		m_textureList.clear();
@@ -42,5 +43,5 @@ public:
 	TextureDataForm* getTextureFile(UINT index) {
 		return &m_textureList[index];
 	}
-	UINT getNumTexture() const { return m_textureList.size(); }
+	UINT getNumTexture() const { return (UINT)m_textureList.size(); }
 };

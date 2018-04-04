@@ -6,7 +6,7 @@ Bullet::Bullet()
 	m_live = false;
 	m_crash = false;
 	m_speed = 2.0f;
-	m_timer = 0.0f;
+	m_timer = 0;
 	m_crashPos = XMFLOAT3(0, 0, 0);
 	m_moveDir = XMFLOAT3(0, 0, 0);
 	m_Callback.SetCrash(&m_crash, &m_crashPos);

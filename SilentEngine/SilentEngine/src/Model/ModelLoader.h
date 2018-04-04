@@ -5,7 +5,7 @@
 
 class ModelLoader
 {
-private:
+protected:
 	UINT m_numModels;
 	vector<pair<LoadModel*, vector<LoadAnimation*>*>> m_Objects;
 	vector<string> matList;
@@ -28,4 +28,22 @@ public:
 	}
 
 	UINT getNumModel() const { return m_numModels; }
+};
+
+
+
+class MapLoader : public ModelLoader
+{
+private:
+	struct StartList {
+		Point	point[4];
+
+		Point* returnPoint() { return point; }
+	};
+	vector<StartList> m_startPoint;
+public:
+	MapLoader(string fileName);
+	~MapLoader();
+
+	StartList getStartpoint(UINT index) const { return m_startPoint[index]; }
 };

@@ -17,6 +17,7 @@ Framework::Framework(HINSTANCE hInstance)
 	m_pFramework = this;
 
 	globalModels = new ModelLoader("GameModelList.csv");
+	globalMaps = new MapLoader("MapList.csv");
 	globalEffects = new EffectLoader("EffectList.csv");
 }
 
@@ -586,6 +587,7 @@ void Framework::BuildObjects()
 	m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr);
 
 	globalModels->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
+	globalMaps->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	m_pTestScene = make_unique<TestScene>();
 	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
@@ -876,8 +878,6 @@ void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 
 void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	float cxDelta = 0.0f, cyDelta = 0.0f;
-	POINT ptCursorPos;
 	if (GetCapture() == m_hMainWnd)
 	{
 		SetCursor(NULL);

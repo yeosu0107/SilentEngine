@@ -114,7 +114,7 @@ inline void CalculateTangentArray(UINT vertexCount, vector<vertexDatas>& vertice
 
 	}
 
-	for (long a = 0; a < vertexCount; a++)
+	for (UINT a = 0; a < vertexCount; a++)
 	{
 		XMFLOAT3& n = vertices[a].m_normal;
 		XMFLOAT3& t = tan1[a];

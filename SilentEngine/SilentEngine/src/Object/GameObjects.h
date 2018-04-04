@@ -142,7 +142,7 @@ public:
 	XMFLOAT4X4									m_xmf4x4World;
 
 	vector<unique_ptr<MeshGeometry>>			m_ppMeshes;
-	int											m_nMeshes;
+	UINT														m_nMeshes;
 
 	CMaterial									*m_pMaterial = NULL;
 

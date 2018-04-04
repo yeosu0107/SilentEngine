@@ -128,41 +128,30 @@ void TestScene::UpdateShaderVarialbes() {
 
 void TestScene::Update(const Timer & gt)
 {
-	//m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(0.0f, 50.0f, 0.0f));
-
 	m_physics->stepPhysics(false);
-
-	
-
-	if(m_Room[m_nowRoom]->IsEnemy())
-		m_Room[m_nowRoom]->GetEnemyShader()->Animate(gt.DeltaTime());
 
 	for (UINT i = 0; i < m_nShaders; ++i) {
 		m_ppShaders[i]->Animate(gt.DeltaTime());
 	}
 
-	if (m_Enemys) {
+	if (m_Projectile) {
 		m_testTimer += 1;
 		if (m_testTimer % 50 == 0) {
 			XMFLOAT3 tPos = m_Enemys[0]->GetPosition();
 			tPos.y += 20.0f;
 			XMFLOAT3 ttPos = m_testPlayer->GetPosition();
 			ttPos.y += 20.0f;
+			
 			m_Projectile->Shoot(m_physics, tPos, ttPos);
 			m_testTimer = 0;
 		}
-
 		XMFLOAT3* pos;
 		UINT tmp=0;
 		pos = m_Projectile->returnCollisionPos(tmp);
-		/*for (UINT i = 0; i < tmp; ++i) {
-			cout << pos[i];
-		}*/
 		if(tmp>0) 
 			m_EffectShaders->SetPos(pos, tmp);
-		m_Projectile->Animate(gt.DeltaTime());
 	}
-
+	m_Room[m_nowRoom]->Animate(gt.DeltaTime());
 	m_EffectShaders->Animate(gt.DeltaTime());
 }
 
@@ -184,8 +173,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	m_nRoom = 2;
 	m_Room = new Room*[m_nRoom];
-	m_Room[0] = new Room(Room::RoomType::ICE);
-	m_Room[1] = new Room(Room::RoomType::NORMAL);
+	m_Room[0] = new Room(Room::RoomType::tree);
+	m_Room[1] = new Room(Room::RoomType::brick);
 	
 	PlayerShader* player = new PlayerShader(1, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -201,15 +190,18 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	m_EffectShaders = Explosion;
 
-	InstanceModelShader* map= new InstanceModelShader(3);
-	map->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	map->BuildObjects(pDevice, pCommandList,2, m_physics);
+	InstanceModelShader* map = nullptr;
 
-	InstanceModelShader* map2 = new InstanceModelShader(2);
-	map2->SetLightsUploadBuffer(m_pd3dcbLights.get());
-	map2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	map2->BuildObjects(pDevice, pCommandList, 2, m_physics);
+	int tmp[2] = { 8,6 };
+
+	for (UINT i = 0; i < m_nRoom; ++i) {
+		map= new InstanceModelShader(tmp[i]);
+		map->SetLightsUploadBuffer(m_pd3dcbLights.get());
+		map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+		map->BuildObjects(pDevice, pCommandList, 2);
+		m_Room[i]->SetMapShader(map);
+		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(i + 2).returnPoint());
+	}
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -221,37 +213,17 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
-	m_Projectile = bullet;
 
 	for(UINT i=0; i<m_nShaders; ++i)
 		m_ppShaders[i]->BuildObjects(pDevice, pCommandList,2, m_physics);
 
-
 	m_testPlayer = player->getPlayer(0);
 	
-	Point startPoint[4] = {
-		Point(430, -180,0),
-		Point(-430, -180,0),
-		Point(0,-180, -380),
-		Point(0, -180, 380)
-	};
-
-	Point startPoint2[4] = {
-		Point(220, -180,0),
-		Point(-220,	-180,0),
-		Point(0, -180,-360),
-		Point(0,-180,360)
-		
-	};
-
-	m_Room[0]->SetMapShader(map);
 	m_Room[0]->SetEnemyShader(eShader);
-	m_Room[0]->SetStartPoint(startPoint);
-	m_Room[1]->SetMapShader(map2);
-	m_Room[1]->SetStartPoint(startPoint2);
+	m_Room[0]->SetProjectileShader(bullet);
+
 	RoomChange(0, START_SOUTH);
-	//RoomChange(1);
-	//RoomChange(0);
+
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -265,17 +237,11 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
-
-	//맵랜더링
-	m_Room[m_nowRoom]->GetMapShader()->Render(pCommandList, m_Camera.get());
 	//플레이어 랜더링
-	for(UINT i=0; i<m_nShaders; ++i)
+	for (UINT i = 0; i<m_nShaders; ++i)
 		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
-	//이너미 & 발사체 랜더링
-	if (m_Room[m_nowRoom]->IsEnemy()) {
-		m_Room[m_nowRoom]->GetEnemyShader()->Render(pCommandList, m_Camera.get());
-		m_Projectile->Render(pCommandList, m_Camera.get());
-	}
+	//맵, 적, 발사체 랜더링
+	m_Room[m_nowRoom]->Render(pCommandList, m_Camera.get());
 	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
 }
@@ -302,9 +268,6 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 		RoomChange(1, START_SOUTH);
-
-
-	
 
 	if(!m_testPlayer->Movement(input))
 		m_testPlayer->Move(moveInpout, 1.1f);
@@ -336,15 +299,21 @@ void TestScene::RoomChange(int roomIndex, const char& location)
 	if (m_nowRoom != START_ROOM)
 		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
 
-	Point* tmp;
-	tmp = m_Room[roomIndex]->RegistShader(m_physics, true, location);
+	Point* playerPos;
+	playerPos = m_Room[roomIndex]->RegistShader(m_physics, true, location);
 
-	m_testPlayer->SetPosition(tmp->xPos, tmp->yPos, tmp->zPos);
+	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
 
 	if (m_Room[roomIndex]->IsEnemy())
 		m_Enemys = m_Room[roomIndex]->GetEnemyShader()->getObjects(m_nEnemy);
 	else
 		m_Enemys = nullptr;
+
+	if (m_Room[roomIndex]->IsProjectile())
+		m_Projectile = m_Room[roomIndex]->GetProjectileShader();
+	else
+		m_Projectile = nullptr;
+
 	m_nowRoom = roomIndex;
 }
 

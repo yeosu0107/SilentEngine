@@ -174,9 +174,9 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
 
-	if (globalModels->isMat(modelIndex)) {
+	if (globalMaps->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), 0);
 		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, false);
 
 		m_pMaterial = new CMaterial();
@@ -185,7 +185,7 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	}
 
 	int num = 0;
-	ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
+	ModelObject* object = new ModelObject(globalMaps->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	object->SetPosition(XMFLOAT3(0, 0, 0));
 	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * num));
 	m_ppObjects[num] = object;
@@ -363,7 +363,7 @@ void InstanceDynamicModelShader::CreateShaderResourceViews(ID3D12Device * pd3dDe
 void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_DYNAMICOBJECT_INFO cBone;
-	for (int i = 0; i < m_nObjects; ++i) {
+	for (UINT i = 0; i < m_nObjects; ++i) {
 		XMStoreFloat4x4(&cBone.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBone.m_nMaterial = 0;
 

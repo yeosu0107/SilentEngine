@@ -143,7 +143,7 @@ GameObject::GameObject(int nMeshes)
 	if (m_nMeshes > 0)
 	{
 		m_ppMeshes = vector<unique_ptr<MeshGeometry>>(m_nMeshes);
-		for (int i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = nullptr;
+		for (UINT i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = nullptr;
 	}
 }
 
@@ -242,7 +242,7 @@ void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCam
 
 	if (!m_ppMeshes.empty())
 	{
-		for (int i = 0; i < m_nMeshes; i++)
+		for (UINT i = 0; i < m_nMeshes; i++)
 		{
 			if (m_ppMeshes[i]) 
 				m_ppMeshes[i]->Render(pd3dCommandList);
@@ -273,7 +273,7 @@ void GameObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, UINT nObjec
 
 	if (!m_ppMeshes.empty())
 	{
-		for (int i = 0; i < m_nMeshes; i++)
+		for (UINT i = 0; i < m_nMeshes; i++)
 		{
 			if (m_ppMeshes[i])
 				m_ppMeshes[i]->Render(pd3dCommandList, nObject);
@@ -286,7 +286,7 @@ void GameObject::ReleaseUploadBuffers()
 {
 	if (!m_ppMeshes.empty())
 	{
-		for (int i = 0; i < m_nMeshes; i++)
+		for (UINT i = 0; i < m_nMeshes; i++)
 		{
 			if (m_ppMeshes[i]) 
 				m_ppMeshes[i]->ReleaseUploadBuffers();

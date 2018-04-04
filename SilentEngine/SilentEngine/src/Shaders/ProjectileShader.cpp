@@ -84,7 +84,7 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 	m_ppObjects[i++] = pInstnaceObject;
 
-	for (int i=1; i < m_nObjects; ++i) {
+	for (UINT i=1; i < m_nObjects; ++i) {
 		Bullet* pGameObjects = new Bullet();
 		pGameObjects->SetMesh(0, pBoard);
 		pGameObjects->SetPosition(0,0,0);
@@ -143,6 +143,7 @@ XMFLOAT3* ProjectileShader::returnCollisionPos(UINT & num)
 void ProjectileShader::releasePhys()
 {
 	for (auto& p : m_ppObjects) {
-		reinterpret_cast<Bullet*>(p)->releasePhys();
+		if(p->isLive())
+			reinterpret_cast<Bullet*>(p)->releasePhys();
 	}
 }
