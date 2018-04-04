@@ -182,3 +182,21 @@ public:
 protected:
 	unique_ptr<CTexture> m_pTexture;
 };
+
+class ShadowShader : public Shaders
+{
+public:
+	ShadowShader();
+	virtual ~ShadowShader();
+
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+
+protected:
+	unique_ptr<CTexture> m_pTexture;
+
+	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
+	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
+};

@@ -1001,3 +1001,42 @@ void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Ca
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
+
+//////////////////////////////////////////
+
+ShadowShader::ShadowShader()
+{
+}
+
+ShadowShader::~ShadowShader()
+{
+}
+
+D3D12_INPUT_LAYOUT_DESC ShadowShader::CreateInputLayout()
+{
+	D3D12_INPUT_LAYOUT_DESC inputLayout;
+
+	m_pInputElementDesc =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0 , D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT	, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+	};	
+
+	inputLayout = { m_pInputElementDesc.data(), (UINT)m_pInputElementDesc.size() };
+
+	return inputLayout;
+}
+
+void ShadowShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+{
+}
+
+void ShadowShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+}
+
+void ShadowShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+}

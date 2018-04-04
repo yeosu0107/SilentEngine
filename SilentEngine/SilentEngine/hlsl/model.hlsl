@@ -150,8 +150,6 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT inp
 	input.normalW = normalize(input.normalW);
 	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat);
 
-	cColor = ceil(cColor * 10) / float(10);
-
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);
 
