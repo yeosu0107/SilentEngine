@@ -8,7 +8,7 @@
 #include "..\Object\GameObjects.h"
 
 
-#pragma comment(lib, "lib/assimp.lib")
+#pragma comment(lib, "lib/assimp-vc140-mt.lib")
 
 
 inline XMMATRIX aiMatrixToXMMatrix(const aiMatrix4x4& offset)
