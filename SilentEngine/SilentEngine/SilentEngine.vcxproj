@@ -114,7 +114,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>LowLevelAABBDEBUG.lib;LowLevelClothDEBUG.lib;LowLevelDEBUG.lib;LowLevelDynamicsDEBUG.lib;LowLevelParticlesDEBUG.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3DEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PhysX3VehicleDEBUG.lib;PsFastXmlDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxPvdSDKDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;SnippetUtilsDEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LowLevelAABBDEBUG.lib;LowLevelClothDEBUG.lib;LowLevelDEBUG.lib;LowLevelDynamicsDEBUG.lib;LowLevelParticlesDEBUG.lib;PhysX3CharacterKinematicDEBUG_x64.lib;PhysX3CommonDEBUG_x64.lib;PhysX3CookingDEBUG_x64.lib;PhysX3DEBUG_x64.lib;PhysX3ExtensionsDEBUG.lib;PhysX3VehicleDEBUG.lib;PsFastXmlDEBUG_x64.lib;PxFoundationDEBUG_x64.lib;PxPvdSDKDEBUG_x64.lib;PxTaskDEBUG_x64.lib;SceneQueryDEBUG.lib;SimulationControllerDEBUG.lib;SnippetUtilsDEBUG.lib;SilentsTools_DEBUG.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -151,7 +151,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>LowLevel.lib;LowLevelAABB.lib;LowLevelCloth.lib;LowLevelDynamics.lib;LowLevelParticles.lib;PhysX3CharacterKinematic_x64.lib;PhysX3Common_x64.lib;PhysX3Cooking_x64.lib;PhysX3Extensions.lib;PhysX3Vehicle.lib;PhysX3_x64.lib;PsFastXml_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;PxTask_x64.lib;SceneQuery.lib;SimulationController.lib;SnippetUtils.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LowLevel.lib;LowLevelAABB.lib;LowLevelCloth.lib;LowLevelDynamics.lib;LowLevelParticles.lib;PhysX3CharacterKinematic_x64.lib;PhysX3Common_x64.lib;PhysX3Cooking_x64.lib;PhysX3Extensions.lib;PhysX3Vehicle.lib;PhysX3_x64.lib;PsFastXml_x64.lib;PxFoundation_x64.lib;PxPvdSDK_x64.lib;PxTask_x64.lib;SceneQuery.lib;SimulationController.lib;SnippetUtils.lib;SilentsTools.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -222,6 +222,7 @@
     <ClInclude Include="src\Object\Player.h" />
     <ClInclude Include="src\PhysX\BasePhysX.h" />
     <ClInclude Include="src\Room\Room.h" />
+    <ClInclude Include="src\Room\Stage.h" />
     <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\Shaders\EnemyShader.h" />
     <ClInclude Include="src\Shaders\PaticleShader.h" />

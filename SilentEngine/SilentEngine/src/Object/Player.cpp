@@ -41,8 +41,8 @@ void Player::Rotate(float x, float y, float z)
 		if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
 	}
 	if (m_pCamera) {
-		//m_pCamera->Rotate(x, y, z);
-		m_pCamera->Rotate(0, y, 0); //y축 회전만 허용
+		m_pCamera->Rotate(x, y, z);
+		//m_pCamera->Rotate(0, y, 0); //y축 회전만 허용
 	}
 }
 

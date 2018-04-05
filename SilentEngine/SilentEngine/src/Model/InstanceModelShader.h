@@ -4,7 +4,6 @@
 class InstanceModelShader : public ModelShader
 {
 protected:
-	vector<ModelObject*> m_InstanceModel;
 public:
 	InstanceModelShader(UINT index);
 	~InstanceModelShader();
@@ -25,9 +24,19 @@ public:
 
 	virtual void SetPhys(BasePhysX* phys);
 	virtual void releasePhys();
+
+	virtual void SetPositions(Point * pos);
 protected:
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
+};
+
+class MapShader : public InstanceModelShader
+{
+public:
+	MapShader(UINT index) : InstanceModelShader(index) {}
+	~MapShader() {}
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 };
 
 class InstanceDynamicModelShader : public DynamicModelShader

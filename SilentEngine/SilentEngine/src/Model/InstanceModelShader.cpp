@@ -163,9 +163,85 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
 
+	m_nObjects = 4;
+	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	if (globalMaps->isMat(modelIndex)) {
+		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), 0);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, false);
+
+		m_pMaterial = new CMaterial();
+		m_pMaterial->SetTexture(pTexture);
+		m_pMaterial->SetReflection(1);
+	}
+
+	for (UINT i = 0; i < m_nObjects; ++i) {
+		ModelObject* object = new ModelObject(globalMaps->getModel(modelIndex), pd3dDevice, pd3dCommandList);
+		object->SetScale(0.8f);
+		object->SetPosition(0, -180, 0);
+		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+
+		m_ppObjects[i] = object;
+	}
+}
+
+void InstanceModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	Shaders::OnPrepareRender(pd3dCommandList);
+	Shaders::Render(pd3dCommandList, pCamera);
+
+	if (m_pMaterial) 
+		m_pMaterial->UpdateShaderVariables(pd3dCommandList);
+
+	if (m_ppObjects[0])
+		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects,pCamera);
+}
+
+void InstanceModelShader::SetPhys(BasePhysX * phys)
+{
+	for (auto& p : m_ppObjects) {
+		reinterpret_cast<ModelObject*>(p)->SetPhysMesh(phys, PhysMesh::Mesh_Tri);
+	}
+}
+
+void InstanceModelShader::releasePhys()
+{
+	for (auto& p : m_ppObjects) {
+		reinterpret_cast<ModelObject*>(p)->releasePhys();
+	}
+}
+
+void InstanceModelShader::SetPositions(Point * pos)
+{
+	//m_ppObjects[0]->Rotate(0, 90, 0);
+	//m_ppObjects[1]->Rotate(0, 90, 0);
+	float rot[4] = { 90,90,0,0 };
+	for (UINT i = 0; i < 4; ++i) {
+		ModelObject* door = reinterpret_cast<ModelObject*>(m_ppObjects[i]);
+		door->SetActorPos(pos[i].xPos, pos[i].yPos - 20.0f, pos[i].zPos, rot[i]);
+	}
+	//for (UINT i = 0; i < m_nObjects; ++i) {
+
+	//	m_ppObjects[i]->SetPosition(pos[i].xPos,pos[i].yPos -20.0f,pos[i].zPos);
+	//}
+	
+}
+
+void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
+	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
+
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
-	m_InstanceModel = vector<ModelObject*>(m_nObjects);
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -189,33 +265,6 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	object->SetPosition(XMFLOAT3(0, 0, 0));
 	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * num));
 	m_ppObjects[num] = object;
-	m_InstanceModel[num] = object;
-}
-
-void InstanceModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
-{
-	Shaders::OnPrepareRender(pd3dCommandList);
-	Shaders::Render(pd3dCommandList, pCamera);
-
-	if (m_pMaterial) 
-		m_pMaterial->UpdateShaderVariables(pd3dCommandList);
-
-	if (m_ppObjects[0])
-		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects,pCamera);
-}
-
-void InstanceModelShader::SetPhys(BasePhysX * phys)
-{
-	for (auto& p : m_InstanceModel) {
-		p->SetPhysMesh(phys, PhysMesh::Mesh_Tri);
-	}
-}
-
-void InstanceModelShader::releasePhys()
-{
-	for (auto& p : m_InstanceModel) {
-		p->releasePhys();
-	}
 }
 
 InstanceDynamicModelShader::InstanceDynamicModelShader(int index) :
@@ -420,3 +469,5 @@ void InstanceDynamicModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandL
 	if (m_ppObjects[0])
 		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
 }
+
+

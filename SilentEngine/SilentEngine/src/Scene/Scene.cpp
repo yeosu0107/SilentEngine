@@ -3,6 +3,7 @@
 #include "..\Shaders\PlayerShader.h"
 #include "..\Shaders\PaticleShader.h"
 #include "..\Model\InstanceModelShader.h"
+#include "..\Room\Stage.h"
 
 ostream& operator<<(ostream& os, XMFLOAT3& p)
 {
@@ -34,6 +35,10 @@ TestScene::TestScene()
 	m_testPlayer = nullptr;
 	m_nowRoom = START_ROOM;
 	m_isRoomChange = Door(0, START_SOUTH, true);
+
+	//STAGE::MapGenerator tMap(rand());
+	//tMap.SetMap(7, 3);
+	//tMap.printMap();
 }
 
 TestScene::~TestScene()
@@ -171,7 +176,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 60.0f, -100.0f));
 	m_Camera->SetTimeLag(0.30f);
 
-	m_nShaders = 1;
+	m_nShaders = 2;
 	m_ppShaders = new Shaders*[m_nShaders];
 
 	m_nRoom = 2;
@@ -182,6 +187,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	PlayerShader* player = new PlayerShader(1, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	player->BuildObjects(pDevice, pCommandList, 2, m_physics);
 	
 	m_ppShaders[0] = player;
 	
@@ -194,17 +200,25 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_EffectShaders = Explosion;
 
 	InstanceModelShader* map = nullptr;
-
-
-
 	for (UINT i = 0; i < m_nRoom; ++i) {
-		map= new InstanceModelShader(i+8);
+		map= new MapShader(i+8);
 		map->SetLightsUploadBuffer(m_pd3dcbLights.get());
 		map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 		map->BuildObjects(pDevice, pCommandList, 2);
 		m_Room[i]->SetMapShader(map);
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(i+8).returnPoint());
 	}
+
+	InstanceModelShader* gateShader = new InstanceModelShader(10);
+	gateShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	gateShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	gateShader->BuildObjects(pDevice, pCommandList, 2);
+	gateShader->SetPhys(m_physics);
+	gateShader->SetPositions(globalMaps->getStartpoint(8).returnPoint());
+	
+	//
+	m_ppShaders[1] = gateShader;
+
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -217,15 +231,16 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
 
-	for(UINT i=0; i<m_nShaders; ++i)
-		m_ppShaders[i]->BuildObjects(pDevice, pCommandList,2, m_physics);
-
+	//for(UINT i=0; i<m_nShaders; ++i)
+	//	m_ppShaders[i]->BuildObjects(pDevice, pCommandList,2, m_physics);
+	
 	m_testPlayer = player->getPlayer(0);
 	
 	m_Room[0]->SetEnemyShader(eShader);
 	m_Room[0]->SetProjectileShader(bullet);
 
 	RoomChange();
+	m_testPlayer->SetPosition(0, -180, 0);
 
 }
 

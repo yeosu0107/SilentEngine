@@ -109,7 +109,6 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
 		m_Actor = PxCreateStatic(*phys->getPhys(), location, meshGeo, *mat);
 
 		m_Actor->setName("tmpmap");
-
 		phys->getScene()->addActor(*m_Actor);
 		//phys->getScene()->removeActor
 	}
@@ -119,6 +118,14 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
 void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos)
 {
 	m_Controller = control->getCapsuleController(*pos, callback);
+}
+
+void ModelObject::SetActorPos(float xPos, float yPos, float zPos, float rot)
+{
+	m_Actor->setGlobalPose(PxTransform(xPos, yPos, zPos, PxQuat(XMConvertToRadians(rot), PxVec3(0,1,0))));
+	XMFLOAT3 axis(0, 1, 0);
+	Rotate(&axis, rot);
+	SetPosition(xPos, yPos, zPos);
 }
 
 void ModelObject::releasePhys()

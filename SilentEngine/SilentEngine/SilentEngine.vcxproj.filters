@@ -288,6 +288,9 @@
     <ClInclude Include="src\Framework\FileLoader.h">
       <Filter>Util\Header</Filter>
     </ClInclude>
+    <ClInclude Include="src\Room\Stage.h">
+      <Filter>Room</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Sampler.hlsl">
