@@ -18,7 +18,7 @@ ModelShader::~ModelShader()
 {
 }
 
-D3D12_INPUT_LAYOUT_DESC ModelShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC ModelShader::CreateInputLayout(int index)
 {
 	D3D12_INPUT_LAYOUT_DESC inputLayout;
 
@@ -66,6 +66,10 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 
 	m_nObjects = 25;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -252,6 +256,9 @@ void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
 	
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);

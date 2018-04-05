@@ -3,7 +3,7 @@
 #include "Camera.h"
 #include "InstanceObject.h"
 
-D3D12_INPUT_LAYOUT_DESC InstanceObjectShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC InstanceObjectShader::CreateInputLayout(int index)
 {
 	//vector<D3D12_INPUT_ELEMENT_DESC> inputElementDesc;
 	D3D12_INPUT_LAYOUT_DESC inputLayout;
@@ -163,6 +163,10 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 	m_nObjects = 10;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
+
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);
 
@@ -208,7 +212,7 @@ void InstanceObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, C
 		m_ppObjects[0]->Render(pd3dCommandList, pCamera);
 }
 
-D3D12_INPUT_LAYOUT_DESC InstanceIlluminatedObjectShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC InstanceIlluminatedObjectShader::CreateInputLayout(int index)
 {
 	D3D12_INPUT_LAYOUT_DESC inputLayout;
 
@@ -333,6 +337,10 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);

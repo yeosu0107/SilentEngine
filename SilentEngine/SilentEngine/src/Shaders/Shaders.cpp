@@ -23,7 +23,7 @@ CompiledShaders * CompiledShaders::Instance()
 }
 
 
-void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
+void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets, int index)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 	::ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
@@ -42,7 +42,7 @@ void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets)
 		psoDesc.RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.SampleDesc.Count		= 1;
 	psoDesc.DSVFormat				= DXGI_FORMAT_D24_UNORM_S8_UINT;
-	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPSO.GetAddressOf())));
+	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPSO[index].GetAddressOf())));
 }
 
 void Shaders::BuildPSO(ID3D12Device * pd3dDevice, ID3D12RootSignature * pd3dRootSignature, UINT nRenderTargets)
@@ -263,22 +263,22 @@ void Shaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 }
 
-D3D12_INPUT_LAYOUT_DESC Shaders::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC Shaders::CreateInputLayout(int index)
 {
 	return D3D12_INPUT_LAYOUT_DESC();
 }
 
-D3D12_RASTERIZER_DESC Shaders::CreateRasterizerState()
+D3D12_RASTERIZER_DESC Shaders::CreateRasterizerState(int index)
 {
 	return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 }
 
-D3D12_BLEND_DESC Shaders::CreateBlendState()
+D3D12_BLEND_DESC Shaders::CreateBlendState(int index)
 {
 	return CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 }
 
-D3D12_DEPTH_STENCIL_DESC Shaders::CreateDepthStencilState()
+D3D12_DEPTH_STENCIL_DESC Shaders::CreateDepthStencilState(int index)
 {
 	return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 }
@@ -336,13 +336,13 @@ void Shaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCame
 	pCamera->UpdateShaderVariables(pd3dCommandList);
 }
 
-void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
+void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList, int index)
 {
 	if (m_RootSignature)
 		pd3dCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
 
 	if (m_pPSO)
-		pd3dCommandList->SetPipelineState(m_pPSO.Get());
+		pd3dCommandList->SetPipelineState(m_pPSO[index].Get());
 
 	pd3dCommandList->SetDescriptorHeaps(1, m_CbvSrvDescriptorHeap.GetAddressOf());
 
@@ -351,7 +351,7 @@ void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
 //
 //// /////////////////////////////////////////////////
 
-D3D12_INPUT_LAYOUT_DESC ObjectShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC ObjectShader::CreateInputLayout(int index)
 {
 	//vector<D3D12_INPUT_ELEMENT_DESC> inputElementDesc;
 	D3D12_INPUT_LAYOUT_DESC inputLayout;
@@ -482,6 +482,9 @@ void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);
 
@@ -526,7 +529,7 @@ NormalMapShader::~NormalMapShader()
 {
 }
 
-D3D12_INPUT_LAYOUT_DESC NormalMapShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC NormalMapShader::CreateInputLayout(int index)
 {
 	D3D12_INPUT_LAYOUT_DESC inputLayout;
 
@@ -549,6 +552,10 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "VSNormalMap", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSMultirender", "ps_5_0");
+
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
 
 	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks.dds", 0);
@@ -823,7 +830,7 @@ void BillboardShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12Gra
 	m_EffectCB = make_unique<UploadBuffer<CB_EFFECT_INFO>>(pd3dDevice, m_nObjects, false);
 }
 
-D3D12_BLEND_DESC BillboardShader::CreateBlendState()
+D3D12_BLEND_DESC BillboardShader::CreateBlendState(int index)
 {
 	D3D12_BLEND_DESC d3dBlendDesc;
 	::ZeroMemory(&d3dBlendDesc, sizeof(D3D12_BLEND_DESC));
@@ -979,6 +986,9 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextureToFullScreen", "ps_5_0");
 
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -1012,7 +1022,7 @@ ShadowShader::~ShadowShader()
 {
 }
 
-D3D12_INPUT_LAYOUT_DESC ShadowShader::CreateInputLayout()
+D3D12_INPUT_LAYOUT_DESC ShadowShader::CreateInputLayout(int index)
 {
 	D3D12_INPUT_LAYOUT_DESC inputLayout;
 
@@ -1033,7 +1043,7 @@ void ShadowShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 }
 
-D3D12_RASTERIZER_DESC ShadowShader::CreateRasterizerState()
+D3D12_RASTERIZER_DESC ShadowShader::CreateRasterizerState(int index)
 {
 	D3D12_RASTERIZER_DESC d3dRasterizerDesc;
 	::ZeroMemory(&d3dRasterizerDesc, sizeof(D3D12_RASTERIZER_DESC));
@@ -1060,6 +1070,9 @@ void ShadowShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 
 	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
 	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextureToFullScreen", "ps_5_0");
+
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());

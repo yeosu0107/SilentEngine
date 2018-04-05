@@ -96,7 +96,7 @@ float4 PSTextureToFullScreen(float4 position : SV_POSITION) : SV_Target
 	float3 cColor = gScreenTexture[int2(position.xy)].rgb;
 	
 	// fEdgeness가 크면 : 엣지일 가능성이 높음 fEdgeeness가 작으면 같은 평면일 가능성이 높음 
-	cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55f) ? (cColor - cEdgeness) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
+	cColor = (fEdgeness < 0.01f) ? cColor : ((fEdgeness < 0.8) ? (cColor - cEdgeness * 1.3) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
 	
 	// 최종 결과 : 엣지 강도에 따라 테두리 색상이 다르다.
 

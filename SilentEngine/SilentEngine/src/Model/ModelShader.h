@@ -13,7 +13,7 @@ public:
 	ModelShader(UINT index);
 	~ModelShader();
 
-	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout();
+	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout(int index = 0);
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);

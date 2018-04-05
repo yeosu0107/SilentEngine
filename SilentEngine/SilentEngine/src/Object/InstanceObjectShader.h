@@ -10,7 +10,7 @@ public:
 	~InstanceObjectShader() {};
 
 public:
-	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout();
+	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout(int index = 0);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12Resource* pd3dConstantBuffers, UINT nRootParameterStartIndex, bool bAutoIncrement);
@@ -32,7 +32,7 @@ public:
 	~InstanceIlluminatedObjectShader() {};
 
 public:
-	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout();
+	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout(int index = 0);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 

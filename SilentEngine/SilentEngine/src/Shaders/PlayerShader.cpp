@@ -21,6 +21,10 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
+
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

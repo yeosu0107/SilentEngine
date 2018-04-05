@@ -45,6 +45,10 @@ public:
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext) {
 		m_nObjects = 10;
 
+		m_nPSO = 1;
+		m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
+
 		m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
 		m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
 

@@ -34,17 +34,17 @@ public:
 	virtual ~Shaders() {};
 
 public:
-	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout();
-	virtual D3D12_RASTERIZER_DESC		CreateRasterizerState();
-	virtual D3D12_BLEND_DESC			CreateBlendState();
-	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState();
+	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout(int index = 0);
+	virtual D3D12_RASTERIZER_DESC		CreateRasterizerState(int index = 0);
+	virtual D3D12_BLEND_DESC			CreateBlendState(int index = 0);
+	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
 
 	void Release() {};
 
-	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1) ;
+	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1, int index = 0) ;
 	virtual void BuildPSO(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRootSignature, UINT nRenderTargets = 1);
 	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement);
 	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
@@ -66,14 +66,14 @@ public:
 	virtual void ReleaseObjects() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
-	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int index = 0);
 	
 	virtual void Animate(float fTimeElapsed) {}
 protected:
 	ComPtr<ID3D12RootSignature>						m_RootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CBVHeap = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CbvSrvDescriptorHeap = nullptr;
-	ComPtr<ID3D12PipelineState>						m_pPSO = nullptr;
+	ComPtr<ID3D12PipelineState>*					m_pPSO = nullptr;
 	ComPtr<ID3DBlob>								m_VSByteCode = nullptr;
 	ComPtr<ID3DBlob>								m_PSByteCode = nullptr;
 
@@ -81,6 +81,7 @@ protected:
 	vector<GameObject* >							m_ppObjects;
 	CMaterial										*m_pMaterial = NULL;
 	UINT											m_nObjects = 0;
+	UINT											m_nPSO = 1;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dCbvGPUDescriptorStartHandle;
@@ -97,7 +98,7 @@ public:
 	~ObjectShader() {};
 
 public:
-	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout();
+	virtual D3D12_INPUT_LAYOUT_DESC		CreateInputLayout(int index = 0);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
@@ -117,7 +118,7 @@ public:
 	~NormalMapShader();
 
 public:
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int index = 0);
 
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void AnimateObjects(float fTimeElapsed) {};
@@ -150,7 +151,7 @@ public:
 	BillboardShader() {};
 	~BillboardShader() {};
 
-	virtual D3D12_BLEND_DESC CreateBlendState();
+	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
@@ -189,8 +190,8 @@ public:
 	ShadowShader();
 	virtual ~ShadowShader();
 
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout();
-	virtual D3D12_RASTERIZER_DESC	CreateRasterizerState();
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int index = 0);
+	virtual D3D12_RASTERIZER_DESC	CreateRasterizerState(int index = 0);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);

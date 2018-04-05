@@ -166,6 +166,10 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_nObjects = 4;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
+
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
@@ -242,6 +246,10 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -432,6 +440,10 @@ void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12G
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
