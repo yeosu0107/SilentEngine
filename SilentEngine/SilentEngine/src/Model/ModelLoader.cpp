@@ -22,7 +22,7 @@ ModelLoader::ModelLoader(string fileName)
 	//csv 파일 기반 로드
 	while (getline(in, tmpName)) {
 		st = StringTokenizer(tmpName, delim); //string을 delim기준으로 분할해서 큐에 저장
-		LoadModel* tmpModel = new LoadModel(st.nextToken()); //모델파일 로딩
+		LoadModel* tmpModel = new LoadModel(st.nextToken(), false); //모델파일 로딩
 
 		animCount = atoi(st.nextToken().c_str()); //string을 int형으로 변환
 		vector<LoadAnimation*>* animStack = new vector<LoadAnimation*>; //애니메이션을 적재할 벡터 생성
@@ -72,19 +72,20 @@ MapLoader::MapLoader(string fileName)
 	string delim = ",";
 
 	float horizontal, vertical;
+	float height = -180.0f;
 	StringTokenizer st = StringTokenizer("");
 
 	//csv 파일 기반 로드
 	while (getline(in, tmpName)) {
 		st = StringTokenizer(tmpName, delim); //string을 delim기준으로 분할해서 큐에 저장
-		LoadModel* tmpModel = new LoadModel(st.nextToken()); //모델파일 로딩
+		LoadModel* tmpModel = new LoadModel(st.nextToken(), true); //모델파일 로딩
 		matList.emplace_back(st.nextToken()); //텍스쳐 파일
 
 		horizontal = atof(st.nextToken().c_str());
 		vertical = atof(st.nextToken().c_str());
 		StartList point = {
-			Point(horizontal, -180, 0), Point(-horizontal, -180, 0),
-			Point(0,-180, vertical), Point(0,-180, -vertical)
+			Point(horizontal, height, 0), Point(-horizontal, height, 0),		//WEST, EAST
+			Point(0,height, -vertical), Point(0,height, vertical)				//SOUTH, NORTH
 		};
 		
 		m_Objects.emplace_back(make_pair(tmpModel, nullptr)); //map 파일은 애니메이션이 없다.

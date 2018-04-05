@@ -8,7 +8,6 @@
 #include "..\Model\ModelObject.h"
 #include "..\Room\Room.h"
 
-const UINT START_ROOM = 100;
 
 
 
@@ -68,7 +67,7 @@ public:
 	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
 	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
 	
-	virtual void RoomChange(int roomIndex, const char& location);
+	virtual void RoomChange();
 protected:
 	Shaders** m_ppShaders = nullptr;
 	BillboardShader*	 m_EffectShaders = nullptr;
@@ -80,6 +79,8 @@ protected:
 	UINT m_nProjectile = 0;
 	UINT	m_nRoom = 0;
 	UINT m_nowRoom;
+
+	Door m_isRoomChange;
 	
 	LIGHTS*										m_pLights;
 	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;

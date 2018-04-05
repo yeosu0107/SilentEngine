@@ -95,7 +95,7 @@ private:
 	UINT							m_numVertices;
 	UINT							m_numBones;
 public:
-	LoadModel(const string& fileName);
+	LoadModel(const string& fileName, bool isStatic);
 	LoadModel(const LoadModel& T);
 	~LoadModel();
 

@@ -33,6 +33,7 @@ TestScene::TestScene()
 	m_physics = new BasePhysX(60.0f);
 	m_testPlayer = nullptr;
 	m_nowRoom = START_ROOM;
+	m_isRoomChange = Door(0, START_SOUTH, true);
 }
 
 TestScene::~TestScene()
@@ -151,8 +152,10 @@ void TestScene::Update(const Timer & gt)
 		if(tmp>0) 
 			m_EffectShaders->SetPos(pos, tmp);
 	}
-	m_Room[m_nowRoom]->Animate(gt.DeltaTime());
+	m_Room[m_nowRoom]->Animate(gt.DeltaTime(), m_testPlayer->GetPosition(), m_isRoomChange);
 	m_EffectShaders->Animate(gt.DeltaTime());
+
+	RoomChange();
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -192,15 +195,15 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	InstanceModelShader* map = nullptr;
 
-	int tmp[2] = { 8,6 };
+
 
 	for (UINT i = 0; i < m_nRoom; ++i) {
-		map= new InstanceModelShader(tmp[i]);
+		map= new InstanceModelShader(i+8);
 		map->SetLightsUploadBuffer(m_pd3dcbLights.get());
 		map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 		map->BuildObjects(pDevice, pCommandList, 2);
 		m_Room[i]->SetMapShader(map);
-		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(i + 2).returnPoint());
+		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(i+8).returnPoint());
 	}
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
@@ -222,7 +225,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[0]->SetEnemyShader(eShader);
 	m_Room[0]->SetProjectileShader(bullet);
 
-	RoomChange(0, START_SOUTH);
+	RoomChange();
 
 }
 
@@ -266,8 +269,8 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		cout << m_testPlayer->GetPosition();
 	
-	if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-		RoomChange(1, START_SOUTH);
+	//if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+	//	RoomChange(1, START_WEST);
 
 	if(!m_testPlayer->Movement(input))
 		m_testPlayer->Move(moveInpout, 1.1f);
@@ -291,30 +294,34 @@ bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y)
 	return true;
 }
 
-void TestScene::RoomChange(int roomIndex, const char& location)
+void TestScene::RoomChange()
 {
-	if (m_nowRoom == roomIndex)
+	if (m_nowRoom == m_isRoomChange.m_roomNum)
+		return;
+
+	if (!m_isRoomChange.m_isChange)
 		return;
 	
 	if (m_nowRoom != START_ROOM)
 		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
 
 	Point* playerPos;
-	playerPos = m_Room[roomIndex]->RegistShader(m_physics, true, location);
+	playerPos = m_Room[m_isRoomChange.m_roomNum]->RegistShader(m_physics, true, m_isRoomChange.m_dir);
 
 	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
-
-	if (m_Room[roomIndex]->IsEnemy())
-		m_Enemys = m_Room[roomIndex]->GetEnemyShader()->getObjects(m_nEnemy);
+	//카메라 맵 이동 함수 제작해야 됨
+	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy())
+		m_Enemys = m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(m_nEnemy);
 	else
 		m_Enemys = nullptr;
 
-	if (m_Room[roomIndex]->IsProjectile())
-		m_Projectile = m_Room[roomIndex]->GetProjectileShader();
+	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile())
+		m_Projectile = m_Room[m_isRoomChange.m_roomNum]->GetProjectileShader();
 	else
 		m_Projectile = nullptr;
-
-	m_nowRoom = roomIndex;
+	
+	m_nowRoom = m_isRoomChange.m_roomNum;
+	m_isRoomChange.m_isChange = false;
 }
 
 void TestScene::BuildLightsAndMaterials()
