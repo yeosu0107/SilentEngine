@@ -39,8 +39,8 @@ public:
 	virtual D3D12_BLEND_DESC			CreateBlendState(int index = 0);
 	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
 
-	virtual D3D12_SHADER_BYTECODE CreateVertexShader();
-	virtual D3D12_SHADER_BYTECODE CreatePixelShader();
+	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int index = 0);
+	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int index = 0);
 
 	void Release() {};
 
@@ -74,12 +74,13 @@ protected:
 	ComPtr<ID3D12DescriptorHeap>					m_CBVHeap = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CbvSrvDescriptorHeap = nullptr;
 	ComPtr<ID3D12PipelineState>*					m_pPSO = nullptr;
-	ComPtr<ID3DBlob>								m_VSByteCode = nullptr;
-	ComPtr<ID3DBlob>								m_PSByteCode = nullptr;
+	ComPtr<ID3DBlob>*								m_VSByteCode = nullptr;
+	ComPtr<ID3DBlob>*								m_PSByteCode = nullptr;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_pInputElementDesc;
 	vector<GameObject* >							m_ppObjects;
 	CMaterial										*m_pMaterial = NULL;
+	
 	UINT											m_nObjects = 0;
 	UINT											m_nPSO = 1;
 

@@ -61,15 +61,17 @@ void ModelShader::ReleaseShaderVariables()
 
 void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticModel", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticModel", "ps_5_0");
-
-	m_nObjects = 25;
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
 	m_nPSO = 1;
 	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticModel", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticModel", "ps_5_0");
+
+	m_nObjects = 25;
+	m_ppObjects = vector<GameObject*>(m_nObjects);
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -251,16 +253,19 @@ void DynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dC
 
 void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticModel", "ps_5_0");
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticModel", "ps_5_0");
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));

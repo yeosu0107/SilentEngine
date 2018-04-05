@@ -160,15 +160,17 @@ void InstanceModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 
 void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
-
-	m_nObjects = 4;
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
 	m_nPSO = 1;
 	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
+
+	m_nObjects = 4;
+	m_ppObjects = vector<GameObject*>(m_nObjects);
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -241,15 +243,17 @@ void InstanceModelShader::SetPositions(Point * pos)
 
 void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
-
-	m_nObjects = 1;
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
 	m_nPSO = 1;
 	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
+
+	m_nObjects = 1;
+	m_ppObjects = vector<GameObject*>(m_nObjects);
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -435,14 +439,18 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 
 void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicInstanceModel", "vs_5_1");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicInstanceModel", "ps_5_1");
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicInstanceModel", "vs_5_1");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicInstanceModel", "ps_5_1");
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);

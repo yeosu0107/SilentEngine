@@ -283,22 +283,22 @@ D3D12_DEPTH_STENCIL_DESC Shaders::CreateDepthStencilState(int index)
 	return CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 }
 
-D3D12_SHADER_BYTECODE Shaders::CreateVertexShader()
+D3D12_SHADER_BYTECODE Shaders::CreateVertexShader(int index)
 {
 	D3D12_SHADER_BYTECODE byteCode;
 	::ZeroMemory(&byteCode, sizeof(D3D12_SHADER_BYTECODE));
-	byteCode.pShaderBytecode = m_VSByteCode->GetBufferPointer();
-	byteCode.BytecodeLength = m_VSByteCode->GetBufferSize();
+	byteCode.pShaderBytecode = m_VSByteCode[index]->GetBufferPointer();
+	byteCode.BytecodeLength = m_VSByteCode[index]->GetBufferSize();
 
 	return byteCode;
 }
 
-D3D12_SHADER_BYTECODE Shaders::CreatePixelShader()
+D3D12_SHADER_BYTECODE Shaders::CreatePixelShader(int index)
 {
 	D3D12_SHADER_BYTECODE byteCode;
 	::ZeroMemory(&byteCode, sizeof(D3D12_SHADER_BYTECODE));
-	byteCode.pShaderBytecode = m_PSByteCode->GetBufferPointer();
-	byteCode.BytecodeLength = m_PSByteCode->GetBufferSize();
+	byteCode.pShaderBytecode = m_PSByteCode[index]->GetBufferPointer();
+	byteCode.BytecodeLength = m_PSByteCode[index]->GetBufferSize();
 
 	return byteCode;
 }
@@ -475,15 +475,21 @@ void ObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommand
 
 void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	// 셰이더 코드 컴파일, Blob에 저장을 한다.
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextured", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_0");
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+	
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
 
+	// 셰이더 코드 컴파일, Blob에 저장을 한다.
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_0");
+	
+	
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+	
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);
@@ -549,13 +555,14 @@ D3D12_INPUT_LAYOUT_DESC NormalMapShader::CreateInputLayout(int index)
 void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nObjects = 1;
-
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "VSNormalMap", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSMultirender", "ps_5_0");
-
 	m_nPSO = 1;
 	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "VSNormalMap", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSMultirender", "ps_5_0");
 
 	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks.dds", 0);
@@ -983,12 +990,14 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
 
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextureToFullScreen", "ps_5_0");
-
 	m_nPSO = 1;
 	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextureToFullScreen", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -1068,12 +1077,14 @@ void ShadowShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
 
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextureToFullScreen", "ps_5_0");
-
 	m_nPSO = 1;
 	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextureToFullScreen", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

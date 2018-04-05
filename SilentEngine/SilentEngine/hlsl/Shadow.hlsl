@@ -22,6 +22,38 @@ struct VS_OUTPUT {
 
 Texture2D gtxtProjection : register(t10);
 
+
+float CalcShadowFactor(float4 shadowPosH)
+{
+	shadowPosH.xyz /= shadowPosH.w;
+
+	float depth = shadowPosH.z;
+
+	uint width, height, numMips;
+	gShadowMap.GetDimensions(0, width, height, numMips);
+
+	float dx = 1.0f / (float)width;
+
+	float percentLit = 0.0f;
+	const float2 offsets[9] =
+	{
+		float2(-dx,  -dx), float2(0.0f,  -dx), float2(dx,  -dx),
+		float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+		float2(-dx,  +dx), float2(0.0f,  +dx), float2(dx,  +dx)
+	};
+
+	[unroll]
+	for (int i = 0; i < 9; ++i)
+	{
+		percentLit += gShadowMap.SampleCmpLevelZero(gsamShadow,
+			shadowPosH.xy + offsets[i], depth).r;
+	}
+
+	return percentLit / 9.0f;
+}
+
+
+
 VS_OUTPUT VSTextureProjection(VS_INPUT input) {
 	VS_OUTPUT output = (VS_OUTPUT)0.0f;
 
@@ -41,3 +73,21 @@ float4 PSTextureProjection(VS_OUTPUT input) : SV_Target{
 	return(gtxtProjection.Sample(gssProjection, input.texCoord.xy / input.texCoord.ww) * cIlluminaion);
 
 }
+
+VS_TEXTURED_OUTPUT VSShadowMap(VS_TEXTURED_INPUT input)
+{
+	VS_TEXTURED_OUTPUT output;
+
+	output.position = mul(mul(mul(float4(input.position, 1.0f), gmtxGameObject), gmtxView), gmtxProjection);
+	output.uv = input.uv;
+
+	return(output);
+};
+
+void PSShadowMap(VS_TEXTURED_OUTPUT input)
+{
+	float3 uvw = float3(input.uv, 0);
+	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
+
+	clip(diffuseAlbedo.a - 0.1f);
+};

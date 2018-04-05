@@ -156,16 +156,19 @@ void InstanceObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3
 
 void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	// 셰이더 코드 컴파일, Blob에 저장을 한다.
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "InstanceVS", "vs_5_1");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_1");
-
-	m_nObjects = 10;
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
 	m_nPSO = 1;
 	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+
+	// 셰이더 코드 컴파일, Blob에 저장을 한다.
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "InstanceVS", "vs_5_1");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_1");
+
+	m_nObjects = 10;
+	m_ppObjects = vector<GameObject*>(m_nObjects);
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);
@@ -331,15 +334,19 @@ void InstanceIlluminatedObjectShader::UpdateShaderVariables(ID3D12GraphicsComman
 
 void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	m_nPSO = 1;
+	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+
+	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+
+
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
-	m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_1");
-	m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "PSInstanceTexturedLighting", "ps_5_1");
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_1");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "PSInstanceTexturedLighting", "ps_5_1");
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);

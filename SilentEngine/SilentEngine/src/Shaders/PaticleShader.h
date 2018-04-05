@@ -48,9 +48,11 @@ public:
 		m_nPSO = 1;
 		m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
 
+		m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+		m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
 
-		m_VSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
-		m_PSByteCode = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
+		m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
+		m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
 
 		TextureDataForm* mtexture = (TextureDataForm*)pContext;
 
