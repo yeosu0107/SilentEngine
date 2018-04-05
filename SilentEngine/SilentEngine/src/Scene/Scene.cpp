@@ -309,7 +309,7 @@ void TestScene::RoomChange()
 	playerPos = m_Room[m_isRoomChange.m_roomNum]->RegistShader(m_physics, true, m_isRoomChange.m_dir);
 
 	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
-	//카메라 맵 이동 함수 제작해야 됨
+	
 	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy())
 		m_Enemys = m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(m_nEnemy);
 	else

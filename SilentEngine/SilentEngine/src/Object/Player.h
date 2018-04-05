@@ -103,5 +103,6 @@ public:
 	virtual bool Movement(DWORD input);
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);
+
 	void SetCamera(Camera* tCamera, BasePhysX* phys);
 };

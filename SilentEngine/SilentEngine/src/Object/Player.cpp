@@ -107,7 +107,15 @@ bool Player::Movement(DWORD input)
 
 void Player::SetPosition(float x, float y, float z)
 {
+	//플레이어 강제 이동 함수 (텔레포트)
+	//방에서 방 이동시 호출
 	m_Controller->setPosition(PxExtendedVec3(x, y, z));
+	if (m_pCamera) {
+		//카메라를 플레이어 위치로 강제이동 (물리 작용X, 텔레포트)
+		m_cameraController->setPosition(m_Controller->getPosition());
+		m_pCamera->SetPosition(PXtoXM(m_cameraController->getPosition()));
+		m_pCamera->RegenerateViewMatrix();
+	}
 }
 
 void Player::Animate(float fTime)
@@ -121,6 +129,7 @@ void Player::Animate(float fTime)
 		//cout << m_xmf3Position.x << "\t" << m_xmf3Position.y << "\t" << m_xmf3Position.z << endl;
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
 	}
+
 	if (m_pCamera) {
 		XMFLOAT3 nowPos = GetPosition();
 		m_pCamera->Update(nowPos, fTime);
@@ -130,6 +139,7 @@ void Player::Animate(float fTime)
 		m_pCamera->SetPosition(PXtoXM(m_cameraController->getPosition()));
 		m_pCamera->RegenerateViewMatrix();
 	}
+
 	if (!m_Jump.mJump)
 		m_Jump.startJump(PxF32(0)); //중력 작용
 }
