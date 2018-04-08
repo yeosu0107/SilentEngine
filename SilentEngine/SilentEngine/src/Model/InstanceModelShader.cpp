@@ -189,7 +189,6 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	for (UINT i = 0; i < m_nObjects; ++i) {
 		ModelObject* object = new ModelObject(globalMaps->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 		object->SetScale(0.8f);
-		object->SetPosition(0, -180, 0);
 		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 
 		m_ppObjects[i] = object;
@@ -224,18 +223,22 @@ void InstanceModelShader::releasePhys()
 
 void InstanceModelShader::SetPositions(Point * pos)
 {
-	//m_ppObjects[0]->Rotate(0, 90, 0);
-	//m_ppObjects[1]->Rotate(0, 90, 0);
 	float rot[4] = { 90,90,0,0 };
 	for (UINT i = 0; i < 4; ++i) {
 		ModelObject* door = reinterpret_cast<ModelObject*>(m_ppObjects[i]);
 		door->SetActorPos(pos[i].xPos, pos[i].yPos - 20.0f, pos[i].zPos, rot[i]);
 	}
-	//for (UINT i = 0; i < m_nObjects; ++i) {
+}
 
-	//	m_ppObjects[i]->SetPosition(pos[i].xPos,pos[i].yPos -20.0f,pos[i].zPos);
-	//}
-	
+void InstanceModelShader::Animate(float fTime)
+{
+	//for gate
+	float rot[4] = { 1,-1,-1,1 };
+
+	for (UINT i = 0; i < 4; ++i) {
+		ModelObject* door = reinterpret_cast<ModelObject*>(m_ppObjects[i]);
+		door->RotationYAxis(rot[i]);
+	}
 }
 
 void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)

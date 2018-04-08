@@ -1,12 +1,16 @@
 #pragma once
 #include "D3DUtil.h"
 #include "Mesh.h"
-#include "Shaders.h"
-#include "..\Shaders\ProjectileShader.h"
-#include "Camera.h"
 #include "Timer.h"
+#include "Camera.h"
+
 #include "..\Model\ModelObject.h"
 #include "..\Room\Room.h"
+
+#include "Shaders.h"
+#include "..\Shaders\PlayerShader.h"
+#include "..\Shaders\ProjectileShader.h"
+#include "..\Model\InstanceModelShader.h"
 
 
 
@@ -71,24 +75,25 @@ public:
 	
 	virtual void RoomChange();
 protected:
-	Shaders** m_ppShaders = nullptr;
-	BillboardShader*	 m_EffectShaders = nullptr;
-	ProjectileShader* m_Projectile = nullptr;
+	PlayerShader*					m_playerShader = nullptr;
+	InstanceModelShader*		m_gateShader = nullptr;
+	BillboardShader*				m_EffectShaders = nullptr;
+	ProjectileShader*			m_Projectile = nullptr;
 
-	Room**		m_Room = nullptr;
+	Room**							m_Room = nullptr;
 	
-	UINT m_nShaders = 0;
-	UINT m_nProjectile = 0;
-	UINT	m_nRoom = 0;
-	UINT m_nowRoom;
+	UINT								m_nShaders = 0;
+	UINT								m_nProjectile = 0;
+	UINT								m_nRoom = 0;
+	UINT								m_nowRoom;
 
-	Door m_isRoomChange;
+	Door								m_isRoomChange;
 	
-	LIGHTS*										m_pLights;
+	LIGHTS*												m_pLights;
 	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
 
-	MATERIALS*									m_pMaterials;
-	unique_ptr<UploadBuffer<MATERIALS>>			m_pd3dcbMaterials = nullptr;
+	MATERIALS*											m_pMaterials;
+	unique_ptr<UploadBuffer<MATERIALS>>	m_pd3dcbMaterials = nullptr;
 
 	GameObject*		m_testPlayer=nullptr;
 	GameObject**	m_Enemys=nullptr;

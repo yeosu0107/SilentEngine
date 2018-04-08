@@ -38,6 +38,7 @@ protected:
 	UINT m_AnimIndex;				//현재 애니메이션
 	UINT m_NumofAnim;			//애니메이션 갯수
 
+	float							m_MaxRot = 0.0f;
 	//for Dynamic
 	PxCapsuleController*	m_Controller;
 	PxControllerFilters		m_ControllerFilter;
@@ -65,6 +66,7 @@ public:
 	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos);
 
 	void SetActorPos(float xPos, float yPos, float zPos, float rot);
+	void RotationYAxis(float rot);
 
 	void releasePhys();
 };

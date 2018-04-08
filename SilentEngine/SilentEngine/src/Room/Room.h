@@ -28,6 +28,7 @@ struct Door
 class Room
 {
 private:
+	Point									m_gatePoint[4];
 	Point									m_startPoint[4]; //플레이어 시작지점 4방향 문
 	RECT									m_doorRect[4];
 	UINT									m_type;
@@ -64,8 +65,12 @@ public:
 
 	bool IsEnemy() const { return isEnemy; }
 	bool IsProjectile() const { return isProjectile; }
+	bool IsClear() const { return isClear; }
+
+	void SetClear(bool clear) { isClear = clear; }
 
 	Point* RegistShader(BasePhysX* phys, bool state, const char& loc);
+	Point* GetGatePos() { return m_gatePoint; }
 
 	ModelShader* GetMapShader() { return m_mapShader; }
 	EnemyShader<Enemy>* GetEnemyShader() { return m_enemyShader; }

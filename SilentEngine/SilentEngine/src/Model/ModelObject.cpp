@@ -122,16 +122,31 @@ void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitRepor
 
 void ModelObject::SetActorPos(float xPos, float yPos, float zPos, float rot)
 {
+	m_MaxRot = 0.0f;
+	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());	//위치, 회전 초기화
 	m_Actor->setGlobalPose(PxTransform(xPos, yPos, zPos, PxQuat(XMConvertToRadians(rot), PxVec3(0,1,0))));
 	XMFLOAT3 axis(0, 1, 0);
 	Rotate(&axis, rot);
 	SetPosition(xPos, yPos, zPos);
 }
 
+void ModelObject::RotationYAxis(float rot)
+{
+	if (m_MaxRot <= 90.0f) {
+		Rotate(rot, 0, 0);
+		m_MaxRot += 1.0f;
+	}
+}
+
 void ModelObject::releasePhys()
 {
-	if (m_Actor)
+	
+	if (m_Actor) {
 		m_Actor->release();
-	if (m_Controller)
+		m_Actor = nullptr;
+	}
+	if (m_Controller) {
 		m_Controller->release();
+		m_Controller = nullptr;
+	}
 }

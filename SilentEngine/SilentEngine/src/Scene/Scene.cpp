@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "Scene.h"
-#include "..\Shaders\PlayerShader.h"
-#include "..\Shaders\PaticleShader.h"
-#include "..\Model\InstanceModelShader.h"
 #include "..\Room\Stage.h"
+#include "..\Shaders\PaticleShader.h"
+
+
 
 ostream& operator<<(ostream& os, XMFLOAT3& p)
 {
@@ -134,12 +134,15 @@ void TestScene::UpdateShaderVarialbes() {
 
 void TestScene::Update(const Timer & gt)
 {
+	//물리 시물레이트
 	m_physics->stepPhysics(false);
+	//플레이어 애니메이트
+	m_playerShader->Animate(gt.DeltaTime());
+	//게이트 애니메이트(문 열리는 애니메이션, 방 클리어 시만 수행)
+	if (m_Room[m_nowRoom]->IsClear())
+		m_gateShader->Animate(gt.DeltaTime());
 
-	for (UINT i = 0; i < m_nShaders; ++i) {
-		m_ppShaders[i]->Animate(gt.DeltaTime());
-	}
-
+	//발사체 있을 경우 발사체 경로계산 및 발사
 	if (m_Projectile) {
 		m_testTimer += 1;
 		if (m_testTimer % 50 == 0) {
@@ -157,7 +160,12 @@ void TestScene::Update(const Timer & gt)
 		if(tmp>0) 
 			m_EffectShaders->SetPos(pos, tmp);
 	}
+	//적 및 발사체 애니메이트 
 	m_Room[m_nowRoom]->Animate(gt.DeltaTime(), m_testPlayer->GetPosition(), m_isRoomChange);
+	//m_isRoomChange변수에 방 이동정보가 들어옴 (방 이동을 하는지, 어느 방으로 이동하는지)
+
+
+	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
 
 	//m_pLights[1].m_pLights->m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(20.0f, 20.0f, 0.0f));
@@ -166,6 +174,7 @@ void TestScene::Update(const Timer & gt)
 	m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(50.0f, 50.0f, 0.0f));
 	m_pLights->m_pLights[0].m_xmf3Direction = Vector3::Subtract(m_testPlayer->GetPosition(), m_pLights->m_pLights[0].m_xmf3Position, true);
 
+	//방 체인지
 	RoomChange();
 }
 
@@ -182,9 +191,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 60.0f, -100.0f));
 	m_Camera->SetTimeLag(0.30f);
 
-	m_nShaders = 2;
-	m_ppShaders = new Shaders*[m_nShaders];
-
 	m_nRoom = 2;
 	m_Room = new Room*[m_nRoom];
 	m_Room[0] = new Room(Room::RoomType::tree);
@@ -195,7 +201,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	player->BuildObjects(pDevice, pCommandList, 2, m_physics);
 	
-	m_ppShaders[0] = player;
+	m_playerShader = player;
 	
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
 	Explosion->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -220,10 +226,9 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	gateShader->BuildObjects(pDevice, pCommandList, 2);
 	gateShader->SetPhys(m_physics);
-	gateShader->SetPositions(globalMaps->getStartpoint(8).returnPoint());
+	//gateShader->SetPositions(globalMaps->getStartpoint(8).returnPoint());
 	
-	//
-	m_ppShaders[1] = gateShader;
+	m_gateShader = gateShader;
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -236,16 +241,12 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
 
-	//for(UINT i=0; i<m_nShaders; ++i)
-	//	m_ppShaders[i]->BuildObjects(pDevice, pCommandList,2, m_physics);
-	
 	m_testPlayer = player->getPlayer(0);
 	
 	m_Room[0]->SetEnemyShader(eShader);
 	m_Room[0]->SetProjectileShader(bullet);
 
 	RoomChange();
-	m_testPlayer->SetPosition(0, -180, 0);
 
 }
 
@@ -261,9 +262,10 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
 	//플레이어 랜더링
-	for (UINT i = 0; i<m_nShaders; ++i)
-		m_ppShaders[i]->Render(pCommandList, m_Camera.get());
-	//맵, 적, 발사체 랜더링
+	m_playerShader->Render(pCommandList, m_Camera.get());
+	//문 랜더링
+	m_gateShader->Render(pCommandList, m_Camera.get());
+	//맵, 적, 발사체 랜더링 (방)
 	m_Room[m_nowRoom]->Render(pCommandList, m_Camera.get());
 	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
@@ -297,8 +299,10 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		cout << m_testPlayer->GetPosition();
 	
-	//if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-	//	RoomChange(1, START_WEST);
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+		m_Room[m_nowRoom]->SetClear(true);
+		//m_gateShader->releasePhys();
+	}
 
 	if(!m_testPlayer->Movement(input))
 		m_testPlayer->Move(moveInpout, 1.1f);
@@ -324,32 +328,42 @@ bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y)
 
 void TestScene::RoomChange()
 {
+	//현재 방번호가 변화시키는 방번호와 같으면 바로 리턴
 	if (m_nowRoom == m_isRoomChange.m_roomNum)
 		return;
 
+	//방이 변화한다는 플래그가 false 이면 바로 리턴 (오류 처리를 위해 별도 선언)
 	if (!m_isRoomChange.m_isChange)
 		return;
 	
-	if (m_nowRoom != START_ROOM)
+	//맨처음 시작인 경우는 물리가 적용된 방이 없으므로 방에 물리해제를 할 필요가 없다
+	if (m_nowRoom != START_ROOM) {
 		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
+	}
 
+	//플레이어 위치 변화 (이동하는 방 문앞으로 이동)
 	Point* playerPos;
 	playerPos = m_Room[m_isRoomChange.m_roomNum]->RegistShader(m_physics, true, m_isRoomChange.m_dir);
-
 	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
 	
+	//이동한 방에 적이 있을 경우 적의 포인터를 씬으로 가져옴
 	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy())
 		m_Enemys = m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(m_nEnemy);
 	else
 		m_Enemys = nullptr;
 
+	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴
 	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile())
 		m_Projectile = m_Room[m_isRoomChange.m_roomNum]->GetProjectileShader();
 	else
 		m_Projectile = nullptr;
 	
+	//실제 방이동
 	m_nowRoom = m_isRoomChange.m_roomNum;
+	//방이동이 완료하였으므로 change플레그를 false로 바꿔줌
 	m_isRoomChange.m_isChange = false;
+	
+	m_gateShader->SetPositions(m_Room[m_nowRoom]->GetGatePos());
 }
 
 void TestScene::BuildLightsAndMaterials()

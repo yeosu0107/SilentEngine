@@ -15,28 +15,34 @@ Room::~Room()
 
 void Room::SetStartPoint(Point * point)
 {
-	for (UINT i = 0; i < 4; ++i) 
+	for (UINT i = 0; i < 4; ++i) {
+		m_gatePoint[i] = point[i];
 		m_startPoint[i] = point[i];
+	}
 	
-	m_doorRect[0].left			= point[0].xPos;
+	m_doorRect[0].left			= point[0].xPos-30.0f;
 	m_doorRect[0].top			= point[0].zPos + 30.0f;
-	m_doorRect[0].right		= point[0].xPos + 30.0f;
+	m_doorRect[0].right		= point[0].xPos;
 	m_doorRect[0].bottom	= point[0].zPos - 30.0f;
+	m_startPoint[0].xPos -= 50.0f;
 
-	m_doorRect[1].left			= point[1].xPos - 30.0f;
+	m_doorRect[1].left			= point[1].xPos;
 	m_doorRect[1].top			= point[1].zPos + 30.0f;
-	m_doorRect[1].right		= point[1].xPos;
+	m_doorRect[1].right		= point[1].xPos+30.0f;
 	m_doorRect[1].bottom	= point[1].zPos - 30.0f;
+	m_startPoint[1].xPos += 50.0f;
 
 	m_doorRect[2].left			= point[2].xPos - 30.0f;
-	m_doorRect[2].top			= point[2].zPos;
+	m_doorRect[2].top			= point[2].zPos +30.0f;
 	m_doorRect[2].right		= point[2].xPos + 30.0f;
-	m_doorRect[2].bottom	= point[2].zPos - 30.0f;
+	m_doorRect[2].bottom	= point[2].zPos;
+	m_startPoint[2].zPos += 50.0f;
 
 	m_doorRect[3].left			= point[3].xPos - 30.0f;
-	m_doorRect[3].top			= point[3].zPos + 30.0f;
+	m_doorRect[3].top			= point[3].zPos;
 	m_doorRect[3].right		= point[3].xPos + 30.0f;
-	m_doorRect[3].bottom	= point[3].zPos;
+	m_doorRect[3].bottom	= point[3].zPos-30.0f;
+	m_startPoint[3].zPos -= 50.0f;
 }
 
 Point* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
@@ -47,7 +53,7 @@ Point* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 		if(m_mapShader)
 			m_mapShader->SetPhys(phys);
 
-		return &m_startPoint[loc];
+		return  &m_startPoint[loc];
 	}
 	else {
 		if (m_enemyShader)
