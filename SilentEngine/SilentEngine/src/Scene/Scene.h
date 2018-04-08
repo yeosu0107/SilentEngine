@@ -59,6 +59,8 @@ public:
 	virtual void Update(const Timer& gt);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	
 	void BuildLightsAndMaterials();
 
@@ -93,6 +95,8 @@ protected:
 	UINT					m_nEnemy = 0;
 
 	UINT					m_testTimer = 0;
+
+	float					m_fTestAngle = 1.0f;
 };
 
 class GameScene : public Scene

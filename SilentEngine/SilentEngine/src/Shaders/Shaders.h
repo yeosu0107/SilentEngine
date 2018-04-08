@@ -45,7 +45,6 @@ public:
 	void Release() {};
 
 	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1, int index = 0) ;
-	virtual void BuildPSO(ID3D12Device* pd3dDevice, ID3D12RootSignature* pd3dRootSignature, UINT nRenderTargets = 1);
 	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement);
 	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 	virtual void CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12Resource* pd3dConstantBuffers, UINT nRootParameterStartIndex, UINT nPreConstanceBuffers, UINT nElementSize, bool bAutoIncrement);
@@ -54,7 +53,7 @@ public:
 //	void CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
-	ID3D12RootSignature *GetGraphicsRootSignature() { return(m_RootSignature.Get()); }
+	ID3D12RootSignature *GetGraphicsRootSignature(const UINT index = 0) { return(m_RootSignature[index].Get()); }
 
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -69,8 +68,10 @@ public:
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int index = 0);
 	
 	virtual void Animate(float fTimeElapsed) {}
+	virtual void CreatePipelineParts();
+
 protected:
-	ComPtr<ID3D12RootSignature>						m_RootSignature = nullptr;
+	ComPtr<ID3D12RootSignature>*					m_RootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CBVHeap = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CbvSrvDescriptorHeap = nullptr;
 	ComPtr<ID3D12PipelineState>*					m_pPSO = nullptr;
@@ -185,7 +186,7 @@ protected:
 	unique_ptr<CTexture> m_pTexture;
 };
 
-class ShadowShader : public Shaders
+class ShadowShader : public NormalMapShader
 {
 public:
 	ShadowShader();
@@ -193,14 +194,13 @@ public:
 
 	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int index = 0);
 	virtual D3D12_RASTERIZER_DESC	CreateRasterizerState(int index = 0);
+	virtual D3D12_SHADER_BYTECODE  CreatePixelShader(int index = 0);
 
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) {};
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
 protected:
 	unique_ptr<CTexture> m_pTexture;
-
-	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
-	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
 };

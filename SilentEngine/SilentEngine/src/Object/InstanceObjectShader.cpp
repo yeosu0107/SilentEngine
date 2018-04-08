@@ -91,7 +91,7 @@ void InstanceObjectShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice
 	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
 		pd3dSignatureBlob->GetBufferPointer(),
 		pd3dSignatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature.GetAddressOf()))
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
 }
 
@@ -157,10 +157,7 @@ void InstanceObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3
 void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	CreatePipelineParts();
 
 
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
@@ -276,7 +273,6 @@ void InstanceIlluminatedObjectShader::CreateGraphicsRootSignature(ID3D12Device *
 	pd3dRootParameters[4].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0]; //Texture
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
 	d3dSamplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
@@ -314,7 +310,7 @@ void InstanceIlluminatedObjectShader::CreateGraphicsRootSignature(ID3D12Device *
 	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
 		pd3dSignatureBlob->GetBufferPointer(),
 		pd3dSignatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature.GetAddressOf()))
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
 }
 
@@ -335,11 +331,7 @@ void InstanceIlluminatedObjectShader::UpdateShaderVariables(ID3D12GraphicsComman
 void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-
+	CreatePipelineParts();
 
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_1");
@@ -347,7 +339,6 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
-
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);

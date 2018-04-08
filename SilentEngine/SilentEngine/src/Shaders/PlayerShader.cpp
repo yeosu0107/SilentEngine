@@ -15,27 +15,27 @@ PlayerShader::~PlayerShader()
 
 void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
+	m_nPSO = 2;
 
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-
+	CreatePipelineParts();
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicModel", "ps_5_0");
 
+	m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Shadow.hlsl", nullptr, "VSShadowMap", "vs_5_0");
+	m_PSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Shadow.hlsl", nullptr, "PSShadowMap", "ps_5_0");
+
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
+
+	//BuildPSO(pd3dDevice, 0, PSO_SHADOWMAP);
+	BuildPSO(pd3dDevice, nRenderTargets, PSO_OBJECT);
 
 	if (globalModels->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -46,7 +46,6 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 		m_pMaterial->SetTexture(pTexture);
 		m_pMaterial->SetReflection(1);
 	}
-
 
 	Player* tmp = new Player(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	tmp->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));

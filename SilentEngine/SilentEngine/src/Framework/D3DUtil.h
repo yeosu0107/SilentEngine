@@ -226,6 +226,9 @@ struct Texture
 #define MAX_LIGHTS	  8
 #define MAX_MATERIALS 8
 
+#define PSO_OBJECT					0
+#define PSO_SHADOWMAP				1
+
 #define POINT_LIGHT				1	// ¡÷∫Ø±§
 #define SPOT_LIGHT				2
 #define DIRECTIONAL_LIGHT		3

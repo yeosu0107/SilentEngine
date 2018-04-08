@@ -93,7 +93,7 @@ void InstanceModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
 		pd3dSignatureBlob->GetBufferPointer(),
 		pd3dSignatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature.GetAddressOf()))
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
 }
 
@@ -161,10 +161,7 @@ void InstanceModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	CreatePipelineParts();
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
@@ -244,11 +241,7 @@ void InstanceModelShader::SetPositions(Point * pos)
 void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-
+	CreatePipelineParts();
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
 
@@ -371,7 +364,7 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
 		pd3dSignatureBlob->GetBufferPointer(),
 		pd3dSignatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature.GetAddressOf()))
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
 }
 
@@ -440,10 +433,7 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	CreatePipelineParts();
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicInstanceModel", "vs_5_1");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicInstanceModel", "ps_5_1");

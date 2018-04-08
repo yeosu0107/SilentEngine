@@ -138,7 +138,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
 	output.normal = float4(input.normalW, 1.0f);
 
 	return (output);
-}
+};
 
 //지금은 고정,동적 모델의 PS가 같음
 PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET

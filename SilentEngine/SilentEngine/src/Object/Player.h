@@ -15,6 +15,7 @@
 #define ROOT_PARAMETER_LIGHT		3
 #define ROOT_PARAMETER_TEXTURE		4
 
+
 enum PlayerAni
 {
 	Idle=0, Move=1, Attack=2, Skill=3, Hitted=4

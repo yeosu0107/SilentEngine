@@ -31,6 +31,7 @@ D3D12_INPUT_LAYOUT_DESC ModelShader::CreateInputLayout(int index)
 		{ "BORNINDEX",	0, DXGI_FORMAT_R32G32B32A32_UINT, 0,		44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "WEIGHT",		0, DXGI_FORMAT_R32G32B32_FLOAT,		0,		60, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
 	};
+
 	inputLayout = { m_pInputElementDesc.data(), (UINT)m_pInputElementDesc.size() };
 
 	return inputLayout;
@@ -62,10 +63,7 @@ void ModelShader::ReleaseShaderVariables()
 void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
+	CreatePipelineParts();
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticModel", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticModel", "ps_5_0");
@@ -230,7 +228,7 @@ void DynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
 		pd3dSignatureBlob->GetBufferPointer(),
 		pd3dSignatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature.GetAddressOf()))
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
 }
 
@@ -254,11 +252,7 @@ void DynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dC
 void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	m_nPSO = 1;
-	m_pPSO = new ComPtr<ID3D12PipelineState>[m_nPSO];
-
-	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
-
+	CreatePipelineParts();
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticModel", "ps_5_0");

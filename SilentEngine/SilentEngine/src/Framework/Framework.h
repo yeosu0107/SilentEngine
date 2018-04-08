@@ -44,6 +44,7 @@ protected:
 	virtual void CreateRtvAndDsvDescriptorHeaps();
 	virtual void OnResize();
 	virtual void Update();
+	virtual void RenderShadow();
 	virtual void Render();
 
 	virtual void OnKeyboardInput(const Timer& gt);
@@ -101,7 +102,11 @@ protected:
 	static const int m_nSwapChainBuffers = 2;
 	int m_nCurrBuffer = 0;
 	ComPtr<ID3D12Resource> m_ppSwapChainBuffer[m_nSwapChainBuffers];
-	ComPtr<ID3D12Resource> m_pDepthStencilBuffer;
+
+	static const int m_nDepthStencilBuffers = 2;
+	ComPtr<ID3D12Resource> m_pDepthStencilBuffer[m_nDepthStencilBuffers];
+	UINT					m_nDsvIncresementSize;
+
 	ComPtr<ID3D12DescriptorHeap> m_pRtvHeap;
 	ComPtr<ID3D12DescriptorHeap> m_pDsvHeap;
 
@@ -139,5 +144,6 @@ protected:
 
 	Camera*								m_pCamera = nullptr;
 	unique_ptr<TextureToFullScreen>		m_pTextureToFullScreenShader;
+	unique_ptr<ShadowShader>			m_pShadowShader;
 };
 
