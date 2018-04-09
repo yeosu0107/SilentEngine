@@ -196,7 +196,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[0] = new Room(Room::RoomType::tree);
 	m_Room[1] = new Room(Room::RoomType::brick);
 	
-	PlayerShader* player = new PlayerShader(1, m_Camera.get());
+	PlayerShader* player = new PlayerShader(2, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	player->BuildObjects(pDevice, pCommandList, 2, m_physics);

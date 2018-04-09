@@ -9,7 +9,7 @@
 struct CB_DYNAMICOBJECT_INFO
 {
 	XMFLOAT4X4		m_xmf4x4World;
-	XMFLOAT4X4		m_bone[16];
+	XMFLOAT4X4		m_bone[32];
 	UINT					m_nMaterial = 0;
 };
 

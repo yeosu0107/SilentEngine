@@ -10,3 +10,7 @@ res\\ModelData\\P_Walk.FBX,,
 res\\ModelData\\P_Attack.FBX,,
 res\\ModelData\\P_MakeAHole.FBX,,
 res\\ModelData\\P_Hitted.FBX,,
+res\\ModelData\\T_player.FBX,2,res\\Texture\\player.dds
+res\\ModelData\\T_idle.FBX,,
+res\\ModelData\\T_walk.FBX,,
+res\\ModelData\\ghost.FBX,0,res\\Texture\\ghost.dds
