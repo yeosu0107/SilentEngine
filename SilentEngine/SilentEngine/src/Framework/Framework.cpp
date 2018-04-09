@@ -72,6 +72,7 @@ int Framework::Run()
 		else {
 				CalculateFrameState();
 				Update();
+				RenderShadow();
 				Render();
 		}
 	
@@ -376,6 +377,8 @@ void Framework::RenderShadow()
 
 	m_pCommandList->OMSetRenderTargets(0, nullptr, false, &m_pDsvHeap->GetCPUDescriptorHandleForHeapStart());
 	
+	m_pTestScene->CreateShadowMap(m_pD3dDevice.Get(), m_pCommandList.Get());
+
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[1].Get(),
 	D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 	

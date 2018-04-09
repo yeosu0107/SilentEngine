@@ -19,7 +19,8 @@ cbuffer cbCameraInfo : register(b1)
 {
 	matrix		gmtxView : packoffset(c0);
 	matrix		gmtxProjection : packoffset(c4);
-	float3			gvCameraPosition : packoffset(c8);
+    matrix		gmtxShadowProjection : packoffset(c8);
+	float3		gvCameraPosition : packoffset(c12);
 };
 
 cbuffer cbObjectInfo : register(b2)

@@ -316,15 +316,23 @@ void Shaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCame
 	OnPrepareRender(pd3dCommandList);
 
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
-	pCamera->UpdateShaderVariables(pd3dCommandList);
+	//pCamera->UpdateShaderVariables(pd3dCommandList);
+}
+
+void Shaders::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	OnPrepareRender(pd3dCommandList, PSO_SHADOWMAP);
+
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	//pCamera->UpdateShaderVariables(pd3dCommandList);
 }
 
 void Shaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList, int index)
 {
-	if (m_RootSignature)
-		pd3dCommandList->SetGraphicsRootSignature(m_RootSignature[PSO_OBJECT].Get());
+	if (m_RootSignature[index])
+		pd3dCommandList->SetGraphicsRootSignature(m_RootSignature[index].Get());
 
-	if (m_pPSO)
+	if (m_pPSO[index])
 		pd3dCommandList->SetPipelineState(m_pPSO[index].Get());
 
 	pd3dCommandList->SetDescriptorHeaps(1, m_CbvSrvDescriptorHeap.GetAddressOf());

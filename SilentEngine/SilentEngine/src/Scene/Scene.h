@@ -65,7 +65,8 @@ public:
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
-	
+	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo);
+
 	void BuildLightsAndMaterials();
 
 	virtual bool OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer);

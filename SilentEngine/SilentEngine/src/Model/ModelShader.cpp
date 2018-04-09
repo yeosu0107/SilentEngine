@@ -123,6 +123,17 @@ void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 	}
 }
 
+void ModelShader::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	Shaders::OnPrepareRender(pd3dCommandList, PSO_SHADOWMAP);
+	Shaders::RenderToDepthBuffer(pd3dCommandList, pCamera);
+
+	for (UINT j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}
+}
+
 void ModelShader::Animate(float fTimeElapsed)
 {
 	for (UINT i = 0; i < m_nObjects; ++i) {

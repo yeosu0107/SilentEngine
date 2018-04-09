@@ -1,4 +1,4 @@
-#include "Light.hlsl"
+#include "model.hlsl"
 
 //static matrix gmtxTexture = {
 //	+0.5f, +0.0f, +0.0f, +0.0f,
@@ -84,10 +84,16 @@ VS_TEXTURED_OUTPUT VSShadowMap(VS_TEXTURED_INPUT input)
 	return(output);
 };
 
-void PSShadowMap(VS_TEXTURED_OUTPUT input)
+void PSShadowMap(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
 {
-	float3 uvw = float3(input.uv, 0);
-	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
+    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 
-	clip(cColor.a - 0.1f);
+    float3 uvw = float3(input.uv, nPrimitiveID / 2);
+    float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
+    input.normalW = normalize(input.normalW);
+    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat);
+
+    output.color = cColor * cIllumination;
+    output.normal = float4(input.normalW, 1.0f);
+
 };

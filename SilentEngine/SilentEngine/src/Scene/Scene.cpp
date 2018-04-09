@@ -130,6 +130,7 @@ void TestScene::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsComm
 void TestScene::UpdateShaderVarialbes() {
 	m_pd3dcbLights->CopyData(0, *m_pLights);
 	m_pd3dcbMaterials->CopyData(0, *m_pMaterials);
+	
 }
 
 void TestScene::Update(const Timer & gt)
@@ -253,7 +254,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
-
+	m_Camera->UpdateShaderVariables(pCommandList);
 	UpdateShaderVarialbes();
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->Resource()->GetGPUVirtualAddress();
@@ -273,10 +274,48 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	
+
 }
 
 void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	m_playerShader->RenderToDepthBuffer(pCommandList, m_Camera.get());
+}
+
+void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
+{
+	LIGHT		targetLight = m_pLights->m_pLights[0];
+	
+	XMFLOAT3	lightDir		= targetLight.m_xmf3Direction;
+	XMFLOAT3	lightPos		= targetLight.m_xmf3Position;
+	XMFLOAT3	lightTarget		= m_testPlayer->GetPosition();
+	XMFLOAT3	lightUp			= XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+	XMFLOAT4X4	lightView		= Matrix4x4::LookAtLH(lightPos, lightTarget, lightUp);
+	XMFLOAT3	sphereCenterLS  = Vector3::TransformCoord(lightTarget, lightView);
+
+	float l = sphereCenterLS.x - targetLight.m_fFalloff;
+	float b = sphereCenterLS.y - targetLight.m_fFalloff;
+	float n = sphereCenterLS.z - targetLight.m_fFalloff;
+	float r = sphereCenterLS.x + targetLight.m_fFalloff;
+	float t = sphereCenterLS.y + targetLight.m_fFalloff;
+	float f = sphereCenterLS.z + targetLight.m_fFalloff;
+
+	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
+
+	XMMATRIX T(
+		0.5f, 0.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f, 1.0f);
+
+	XMMATRIX S = XMLoadFloat4x4(&lightView) * lightProj * T;
+
+	cameraInfo.m_xmf4x4View = lightView;
+	XMStoreFloat4x4(&cameraInfo.m_xmf4x4Projection, lightProj);
+	XMStoreFloat4x4(&cameraInfo.m_xmf4x4ShadowProjection, S);
+
 }
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
