@@ -187,21 +187,12 @@ protected:
 	unique_ptr<CTexture> m_pTexture;
 };
 
-class ShadowShader : public NormalMapShader
+class ShadowDebugShader : public TextureToFullScreen
 {
 public:
-	ShadowShader();
-	virtual ~ShadowShader();
+	ShadowDebugShader();
+	virtual ~ShadowDebugShader();
 
-	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int index = 0);
-	virtual D3D12_RASTERIZER_DESC	CreateRasterizerState(int index = 0);
-	virtual D3D12_SHADER_BYTECODE  CreatePixelShader(int index = 0);
-
-	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) {};
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
-
-protected:
-	unique_ptr<CTexture> m_pTexture;
 };
