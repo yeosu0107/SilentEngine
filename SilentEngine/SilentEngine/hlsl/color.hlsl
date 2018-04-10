@@ -93,3 +93,9 @@ float4 PSTextureToFullScreen(float4 position : SV_POSITION) : SV_Target
 
 }
 
+float4 PS(float4 position : SV_POSITION) : SV_Target
+{
+    float3 cColor = gShadowMap[int2(position.xy)].rrr;
+
+    return float4(cColor, 1.0f);
+}

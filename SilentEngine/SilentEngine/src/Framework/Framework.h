@@ -144,6 +144,6 @@ protected:
 
 	Camera*								m_pCamera = nullptr;
 	unique_ptr<TextureToFullScreen>		m_pTextureToFullScreenShader;
-	unique_ptr<ShadowShader>			m_pShadowShader;
+	unique_ptr<ShadowDebugShader>			m_pShadowShader;
 };
 

@@ -350,6 +350,11 @@ void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList *
 
 void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	VS_CB_CAMERA_INFO cameraInfo;
+	CalculateLightMatrix(cameraInfo);
+	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
+
+	m_Camera->UpdateShaderVariables(pCommandList, cameraInfo);
 	m_playerShader->RenderToDepthBuffer(pCommandList, m_Camera.get());
 }
 
@@ -382,9 +387,10 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
 
 	XMMATRIX S = XMLoadFloat4x4(&lightView) * lightProj * T;
 
-	cameraInfo.m_xmf4x4View = lightView;
-	XMStoreFloat4x4(&cameraInfo.m_xmf4x4Projection, lightProj);
-	XMStoreFloat4x4(&cameraInfo.m_xmf4x4ShadowProjection, S);
+	XMStoreFloat4x4(&cameraInfo.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&lightView)));
+	XMStoreFloat4x4(&cameraInfo.m_xmf4x4Projection, XMMatrixTranspose(lightProj));
+	XMStoreFloat4x4(&cameraInfo.m_xmf4x4ShadowProjection, XMMatrixTranspose(S));
+	::memcpy(&cameraInfo.m_xmf3Position, &lightPos, sizeof(XMFLOAT3));
 
 }
 
