@@ -75,6 +75,7 @@ public:
 	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
 	
 	virtual void RoomChange();
+	void RoomSetting();
 protected:
 	PlayerShader*					m_playerShader = nullptr;
 	InstanceModelShader*		m_gateShader = nullptr;

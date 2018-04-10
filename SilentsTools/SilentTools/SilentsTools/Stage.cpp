@@ -22,7 +22,7 @@ namespace STAGE {
 		default_random_engine dre;
 		dre.seed(seed);
 
-		uniform_int_distribution<int> type(1, roomType - 1);
+		uniform_int_distribution<int> type(1, roomType);
 		uniform_int_distribution<int> ui(40, 60);
 		uniform_int_distribution<int> index(0, x*y - 1);
 		

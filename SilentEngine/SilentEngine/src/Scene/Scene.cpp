@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "..\Room\Stage.h"
 #include "..\Shaders\PaticleShader.h"
+#include <ctime>
 
 
 
@@ -36,74 +37,7 @@ TestScene::TestScene()
 	m_nowRoom = START_ROOM;
 	m_isRoomChange = Door(0, START_SOUTH, true);
 
-	STAGE::MapGenerator tMap(rand(), 10);
-	tMap.SetMap(7, 3);
-	tMap.printMap();
-
-	int** flag = tMap.getCurrentMap().getMapFlags();
-
-	int count = 0;
-	m_virtualMap = new int*[3];
-	for (int i = 0; i < 3; ++i) {
-		m_virtualMap[i] = new int[7];
-		for (int j = 0; j < 7; ++j) {
-			m_virtualMap[i][j] = BLANK_ROOM;
-			if (flag[i][j] != 0)
-				count += 1;
-		}
-	}
-	m_nRoom = count;
-	m_Room = new Room*[m_nRoom];
-	
-	count = 0;
-	
-	for (int i = 0; i < 3; ++i) {
-		for (int j = 0; j < 7; ++j) {
-			if (flag[i][j] != 0) {
-				m_Room[count] = new Room(flag[i][j]);
-				m_Room[count]->m_mapPosX = j;
-				m_Room[count]->m_mapPosY = i;
-				m_virtualMap[i][j] = count;
-				count += 1;
-			}
-		}
-	}
-	cout << endl;
-	UINT nextRoom[4] = { BLANK_ROOM,BLANK_ROOM,BLANK_ROOM,BLANK_ROOM };
-	for (int i = 0; i < m_nRoom; ++i) {
-		int nowX = m_Room[i]->m_mapPosX;
-		int nowY = m_Room[i]->m_mapPosY;
-		for (int j = 0; j < m_nRoom; ++j) {
-			if (i == j)
-				continue;
-			if (nowX == m_Room[j]->m_mapPosX) {
-				if (m_Room[j]->m_mapPosY == nowY - 1)
-					nextRoom[0] = j;
-				if (m_Room[j]->m_mapPosY == nowY + 1)
-					nextRoom[1] = j;
-			}
-			if (nowY == m_Room[j]->m_mapPosY) {
-				if (m_Room[j]->m_mapPosX == nowX + 1)
-					nextRoom[2] = j;
-				if (m_Room[j]->m_mapPosX == nowX - 1)
-					nextRoom[3] = j;
-			}
-		}
-		m_Room[i]->SetNextRoom(nextRoom);
-		cout << i << "\t\t";
-		for (int k = 0; k < 4; ++k) {
-			cout << nextRoom[k] << "\t";
-			nextRoom[k] = BLANK_ROOM;
-		}
-		cout << endl;
-	}
-	cout << endl;
-	for (int i = 0; i < 3; ++i) {
-		for (int j = 0; j < 7; ++j) {
-			cout << m_virtualMap[i][j] << "\t";
-		}
-		cout << endl;
-	}
+	RoomSetting();
 }
 
 TestScene::~TestScene()
@@ -246,7 +180,6 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-
 	BuildRootSignature(pDevice, pCommandList);
 
 	BuildLightsAndMaterials();
@@ -254,19 +187,13 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	m_Camera = make_unique<CThirdPersonCamera>();
 	m_Camera->InitCamera(pDevice, pCommandList);
-	m_Camera->SetOffset(XMFLOAT3(0.0f, 60.0f, -100.0f));
+	m_Camera->SetOffset(XMFLOAT3(0.0f, 100.0f, -200.0f));
 	m_Camera->SetTimeLag(0.30f);
-
-	//m_nRoom = 2;
-	//m_Room = new Room*[m_nRoom];
-	//m_Room[0] = new Room(Room::RoomType::tree);
-	//m_Room[1] = new Room(Room::RoomType::brick);
 	
 	PlayerShader* player = new PlayerShader(2, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	player->BuildObjects(pDevice, pCommandList, 2, m_physics);
-	
 	m_playerShader = player;
 	
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
@@ -274,7 +201,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	Explosion->SetCamera(m_Camera.get());
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
-	
 	m_EffectShaders = Explosion;
 
 	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
@@ -283,8 +209,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		map[i]->SetLightsUploadBuffer(m_pd3dcbLights.get());
 		map[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 		map[i]->BuildObjects(pDevice, pCommandList, 2);
-		/*m_Room[i]->SetMapShader(map);
-		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(i+8).returnPoint());*/
 	}
 	for (UINT i = 0; i < m_nRoom; ++i) {
 		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
@@ -420,7 +344,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	}
 
 	if(!m_testPlayer->Movement(input))
-		m_testPlayer->Move(moveInpout, 1.1f);
+		m_testPlayer->Move(moveInpout, 2.0f);
 
 	return false;
 }
@@ -479,6 +403,78 @@ void TestScene::RoomChange()
 	m_isRoomChange.m_isChange = false;
 	cout << m_nowRoom << endl;
 	m_gateShader->SetPositions(m_Room[m_nowRoom]->GetGatePos());
+}
+
+void TestScene::RoomSetting()
+{
+	srand((UINT)time(0));
+	UINT sizeX = 7;
+	UINT sizeY = 3;
+	STAGE::MapGenerator tMap(rand(), 10);
+	tMap.SetMap(sizeX, sizeY);
+
+	int** flag = tMap.getCurrentMap().getMapFlags();
+
+	int count = 0;
+	m_virtualMap = new int*[sizeY];
+	for (int i = 0; i < sizeY; ++i) {
+		m_virtualMap[i] = new int[sizeX];
+		for (int j = 0; j < sizeX; ++j) {
+			m_virtualMap[i][j] = BLANK_ROOM;
+			if (flag[i][j] != 0)
+				count += 1;
+		}
+	}
+	m_nRoom = count;
+	m_Room = new Room*[m_nRoom];
+
+	count = 0;
+
+	for (int i = 0; i < sizeY; ++i) {
+		for (int j = 0; j < sizeX; ++j) {
+			if (flag[i][j] != 0) {
+				m_Room[count] = new Room(flag[i][j] - 1);
+				m_Room[count]->m_mapPosX = j;
+				m_Room[count]->m_mapPosY = i;
+				m_virtualMap[i][j] = count;
+				cout << count << "\t" << m_Room[count]->getType() << endl;
+				count += 1;
+			}
+		}
+	}
+	cout << endl;
+	for (int i = 0; i < sizeY; ++i) {
+		for (int j = 0; j < sizeX; ++j) {
+			cout << m_virtualMap[i][j] << "\t";
+		}
+		cout << endl;
+	}
+	cout << endl;
+	UINT nextRoom[4] = { BLANK_ROOM,BLANK_ROOM,BLANK_ROOM,BLANK_ROOM };
+	for (int i = 0; i < m_nRoom; ++i) {
+		int nowX = m_Room[i]->m_mapPosX;
+		int nowY = m_Room[i]->m_mapPosY;
+		for (int j = 0; j < m_nRoom; ++j) {
+			if (i == j)
+				continue;
+			if (nowX == m_Room[j]->m_mapPosX) {
+				if (m_Room[j]->m_mapPosY == nowY - 1)
+					nextRoom[0] = j;
+				if (m_Room[j]->m_mapPosY == nowY + 1)
+					nextRoom[1] = j;
+			}
+			if (nowY == m_Room[j]->m_mapPosY) {
+				if (m_Room[j]->m_mapPosX == nowX + 1)
+					nextRoom[2] = j;
+				if (m_Room[j]->m_mapPosX == nowX - 1)
+					nextRoom[3] = j;
+			}
+		}
+		m_Room[i]->SetNextRoom(nextRoom);
+		for (int k = 0; k < 4; ++k) {
+			nextRoom[k] = BLANK_ROOM;
+		}
+	}
 }
 
 void TestScene::BuildLightsAndMaterials()

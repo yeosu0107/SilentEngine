@@ -149,5 +149,7 @@ void ProjectileShader::releasePhys()
 	for (auto& p : m_ppObjects) {
 		if(p->isLive())
 			reinterpret_cast<Bullet*>(p)->releasePhys();
+		p->SetLive(false);
 	}
+	m_now = 0;
 }
