@@ -316,6 +316,9 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
 	XMStoreFloat4x4(&cameraInfo.m_xmf4x4ShadowProjection, XMMatrixTranspose(S));
 	::memcpy(&cameraInfo.m_xmf3Position, &lightPos, sizeof(XMFLOAT3));
 
+	XMFLOAT4X4 tmp;
+	XMStoreFloat4x4(&tmp, S);
+	m_Camera->SetShadowProjection(tmp);
 }
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)

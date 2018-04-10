@@ -32,6 +32,7 @@ public:
 	virtual void BuildDescriptorHeaps(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pCommandList, VS_CB_CAMERA_INFO& cbInfo);
+	virtual void SetShadowProjection(const XMFLOAT4X4& other) { m_xmf4x4ShadowProjection = other; }
 public:
 	void SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight,
 		float fMinZ = 0.0f, float fMaxZ = 1.0f);
