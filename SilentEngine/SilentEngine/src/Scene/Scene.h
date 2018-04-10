@@ -13,7 +13,7 @@
 #include "..\Model\InstanceModelShader.h"
 
 
-
+const UINT MAX_MAP = 10;
 
 // Scene 
 class Scene
@@ -86,6 +86,8 @@ protected:
 	UINT								m_nShaders = 0;
 	UINT								m_nProjectile = 0;
 	UINT								m_nRoom = 0;
+	int**								m_virtualMap = nullptr;
+
 	UINT								m_nowRoom;
 
 	Door								m_isRoomChange;

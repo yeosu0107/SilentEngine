@@ -75,10 +75,10 @@ Enemy::~Enemy()
 void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
-	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);
+	/*m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);
 	m_ani[EnemyAni::Move]->SetAnimSpeed(1.0f);
 	m_ani[EnemyAni::Attack]->SetAnimSpeed(0.5f);
-	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);
+	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);*/
 }
 
 bool Enemy::Move(float fDist, float fTime)

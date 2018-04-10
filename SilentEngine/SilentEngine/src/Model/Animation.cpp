@@ -18,6 +18,8 @@ LoadAnimation::LoadAnimation(string filename) :
 		//프레임 종료 시점에서 1.0 만큼 빼줘야 프레임이 안겹침
 		now_time = start_time;
 
+		//m_animSpeed = (end_time - start_time) / m_pAnim->mChannels[0]->mNumPositionKeys;
+		m_animSpeed = m_pAnim->mTicksPerSecond;
 	}
 }
 
@@ -29,9 +31,10 @@ LoadAnimation::LoadAnimation(const LoadAnimation & T)
 	start_time = T.start_time;
 	end_time = T.end_time;
 	now_time = T.now_time;
+	m_animSpeed = T.m_animSpeed;
 }
 
-void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
+void LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms)
 {
 	XMMATRIX Identity = XMMatrixIdentity();
 
@@ -44,7 +47,7 @@ void LoadAnimation::BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms)
 	}
 
 	// 미리 정해진 프레임 내에서 애니메이션 수행
-	now_time += m_animSpeed;
+	now_time += m_animSpeed * fTime;
 	if (now_time > end_time) {
 		now_time = start_time;
 		if (!animation_loof) {

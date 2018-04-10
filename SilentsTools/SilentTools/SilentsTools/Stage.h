@@ -1,8 +1,11 @@
 #pragma once
 #include <iostream>
+#include <random>
 
 namespace STAGE
 {
+	const int NONE = 0;
+
 	struct Room
 	{
 		int xPos;
@@ -28,7 +31,7 @@ namespace STAGE
 	{
 	private:
 		Room mapSize;
-		bool** mapFlags;
+		int** mapFlags;
 	public:
 		Map() {};
 		Room mapCenter() {
@@ -46,17 +49,17 @@ namespace STAGE
 			if (mapFlags)
 				delete mapFlags;
 
-			mapFlags = new bool*[mapSize.yPos];
+			mapFlags = new int*[mapSize.yPos];
 			for (int i = 0; i < mapSize.yPos; ++i) {
-				*(mapFlags + i) = new bool[mapSize.xPos];
+				*(mapFlags + i) = new int[mapSize.xPos];
 			}
 
 			for (int i = 0; i < y; ++i) {
-				memset(mapFlags[i], false, sizeof(bool)*x);
+				memset(mapFlags[i], NONE, sizeof(int)*x);
 			}
 		}
 
-		bool** getMapFlags() { return mapFlags; }
+		int** getMapFlags() { return mapFlags; }
 		int getMapSize() const { return mapSize.xPos * mapSize.yPos; }
 	};
 
@@ -65,15 +68,15 @@ namespace STAGE
 	private:
 		Map currentMap;
 		int seed;
+		int roomType;
 
 	public:
-		MapGenerator(int seed);
+		MapGenerator(int seed, int roomType);
 		~MapGenerator();
 
 		void SetMap(int x, int y);
 		bool MapFullyAccessed(bool** obstacleMap, int curObstacleCount);
 		void printMap();
-		void printMap(bool** tmp);
 
 		Map getCurrentMap() const { return currentMap; }
 	};

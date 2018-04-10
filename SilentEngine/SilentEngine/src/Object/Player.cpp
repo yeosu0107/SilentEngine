@@ -52,9 +52,8 @@ void Player::RegenerateMatrix()
 	m_xmf4x4World._12= m_xmf3Right.y; m_xmf4x4World._22 = m_xmf3Up.y; m_xmf4x4World._32 = m_xmf3Look.y;
 	m_xmf4x4World._13 = m_xmf3Right.z; m_xmf4x4World._23 = m_xmf3Up.z; m_xmf4x4World._33 = m_xmf3Look.z;
 	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
-	//cout << m_xmf3Right.x << "\t" << m_xmf3Up.y << "\t" << m_xmf3Look.z << "\t";
-	//GameObject::SetScale(0.5f);
-	//cout << m_xmf4x4World._11 << "\t" << m_xmf4x4World._22 <<"\t" <<m_xmf4x4World._33 << endl;
+
+	//스케일 0.5배
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMLoadFloat4x4(&m_xmf4x4World));
 	GameObject::Rotate(0, 180, 0); //정면 쳐다보기
 	
@@ -63,8 +62,8 @@ void Player::RegenerateMatrix()
 void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
-	m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
-	m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
+	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
+	//m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
 	//m_ani[PlayerAni::Attack]->SetAnimSpeed(0.5f);
 	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
 }
@@ -81,7 +80,7 @@ bool Player::Move(DWORD input, float fDist)
 		if (input & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDist);
 
 		if (m_Controller) {
-			m_Controller->move(XMtoPX(xmf3Shift), 1.0f, 1, m_ControllerFilter);
+			m_Controller->move(XMtoPX(xmf3Shift), 0.001f, 1, m_ControllerFilter);
 			//SetPosition(PXtoXM(m_Controller->getPosition())); //애니메에트에서 처리
 		}
 		//플레이어가 항상 카메라의 룩벡터만 바라보도록 보정

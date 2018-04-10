@@ -188,9 +188,7 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 
 	for (UINT i = 0; i < m_nObjects; ++i) {
 		ModelObject* object = new ModelObject(globalMaps->getModel(modelIndex), pd3dDevice, pd3dCommandList);
-		object->SetScale(0.8f);
 		object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-
 		m_ppObjects[i] = object;
 	}
 }
@@ -230,14 +228,16 @@ void InstanceModelShader::SetPositions(Point * pos)
 	}
 }
 
-void InstanceModelShader::Animate(float fTime)
+void InstanceModelShader::Animate(float fTime, UINT* next)
 {
 	//for gate
-	float rot[4] = { 1,-1,-1,1 };
+	float rot[4] = { -1,1,1,-1 };
 
 	for (UINT i = 0; i < 4; ++i) {
-		ModelObject* door = reinterpret_cast<ModelObject*>(m_ppObjects[i]);
-		door->RotationYAxis(rot[i]);
+		if (next[i] != 100) {
+			ModelObject* door = reinterpret_cast<ModelObject*>(m_ppObjects[i]);
+			door->RotationYAxis(rot[i]);
+		}
 	}
 }
 

@@ -27,7 +27,7 @@ public:
 	virtual void releasePhys();
 
 	virtual void SetPositions(Point * pos);
-	virtual void Animate(float fTime);
+	virtual void Animate(float fTime, UINT* next);
 protected:
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;

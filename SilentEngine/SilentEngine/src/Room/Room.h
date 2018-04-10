@@ -12,6 +12,7 @@ const char START_WEST		= 1;
 const char START_SOUTH	= 2;
 const char START_NORTH	= 3;
 const UINT START_ROOM = 100;
+const char BLANK_ROOM = 100;
 
 struct Door
 {
@@ -31,6 +32,8 @@ private:
 	Point									m_gatePoint[4];
 	Point									m_startPoint[4]; //플레이어 시작지점 4방향 문
 	RECT									m_doorRect[4];
+	UINT									m_nextRoom[4];
+	
 	UINT									m_type;
 
 	bool									isClear;
@@ -41,11 +44,12 @@ private:
 	EnemyShader<Enemy>*		m_enemyShader;
 	ProjectileShader*				m_Projectile;
 public:
+	UINT									m_mapPosX, m_mapPosY;
 	static enum RoomType {
-		brick=0, brick1=1, ice=2, ice2, 
+		NONE=0, 
+		brick=1, brick1=2, ice=3, ice2=4, 
 		soil, soil2, stone, stone2, tree, tree2
 	};
-
 	Room(UINT type);
 	~Room();
 
@@ -62,6 +66,7 @@ public:
 	}
 
 	void SetStartPoint(Point* point);
+	void SetNextRoom(UINT *room);
 
 	bool IsEnemy() const { return isEnemy; }
 	bool IsProjectile() const { return isProjectile; }
@@ -71,6 +76,8 @@ public:
 
 	Point* RegistShader(BasePhysX* phys, bool state, const char& loc);
 	Point* GetGatePos() { return m_gatePoint; }
+	UINT getType() const { return m_type; }
+	UINT* getNextRoom() { return m_nextRoom; }
 
 	ModelShader* GetMapShader() { return m_mapShader; }
 	EnemyShader<Enemy>* GetEnemyShader() { return m_enemyShader; }

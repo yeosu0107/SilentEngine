@@ -36,9 +36,74 @@ TestScene::TestScene()
 	m_nowRoom = START_ROOM;
 	m_isRoomChange = Door(0, START_SOUTH, true);
 
-	//STAGE::MapGenerator tMap(rand());
-	//tMap.SetMap(7, 3);
-	//tMap.printMap();
+	STAGE::MapGenerator tMap(rand(), 10);
+	tMap.SetMap(7, 3);
+	tMap.printMap();
+
+	int** flag = tMap.getCurrentMap().getMapFlags();
+
+	int count = 0;
+	m_virtualMap = new int*[3];
+	for (int i = 0; i < 3; ++i) {
+		m_virtualMap[i] = new int[7];
+		for (int j = 0; j < 7; ++j) {
+			m_virtualMap[i][j] = BLANK_ROOM;
+			if (flag[i][j] != 0)
+				count += 1;
+		}
+	}
+	m_nRoom = count;
+	m_Room = new Room*[m_nRoom];
+	
+	count = 0;
+	
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 7; ++j) {
+			if (flag[i][j] != 0) {
+				m_Room[count] = new Room(flag[i][j]);
+				m_Room[count]->m_mapPosX = j;
+				m_Room[count]->m_mapPosY = i;
+				m_virtualMap[i][j] = count;
+				count += 1;
+			}
+		}
+	}
+	cout << endl;
+	UINT nextRoom[4] = { BLANK_ROOM,BLANK_ROOM,BLANK_ROOM,BLANK_ROOM };
+	for (int i = 0; i < m_nRoom; ++i) {
+		int nowX = m_Room[i]->m_mapPosX;
+		int nowY = m_Room[i]->m_mapPosY;
+		for (int j = 0; j < m_nRoom; ++j) {
+			if (i == j)
+				continue;
+			if (nowX == m_Room[j]->m_mapPosX) {
+				if (m_Room[j]->m_mapPosY == nowY - 1)
+					nextRoom[0] = j;
+				if (m_Room[j]->m_mapPosY == nowY + 1)
+					nextRoom[1] = j;
+			}
+			if (nowY == m_Room[j]->m_mapPosY) {
+				if (m_Room[j]->m_mapPosX == nowX + 1)
+					nextRoom[2] = j;
+				if (m_Room[j]->m_mapPosX == nowX - 1)
+					nextRoom[3] = j;
+			}
+		}
+		m_Room[i]->SetNextRoom(nextRoom);
+		cout << i << "\t\t";
+		for (int k = 0; k < 4; ++k) {
+			cout << nextRoom[k] << "\t";
+			nextRoom[k] = BLANK_ROOM;
+		}
+		cout << endl;
+	}
+	cout << endl;
+	for (int i = 0; i < 3; ++i) {
+		for (int j = 0; j < 7; ++j) {
+			cout << m_virtualMap[i][j] << "\t";
+		}
+		cout << endl;
+	}
 }
 
 TestScene::~TestScene()
@@ -141,7 +206,7 @@ void TestScene::Update(const Timer & gt)
 	m_playerShader->Animate(gt.DeltaTime());
 	//게이트 애니메이트(문 열리는 애니메이션, 방 클리어 시만 수행)
 	if (m_Room[m_nowRoom]->IsClear())
-		m_gateShader->Animate(gt.DeltaTime());
+		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
 
 	//발사체 있을 경우 발사체 경로계산 및 발사
 	if (m_Projectile) {
@@ -192,10 +257,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 60.0f, -100.0f));
 	m_Camera->SetTimeLag(0.30f);
 
-	m_nRoom = 2;
-	m_Room = new Room*[m_nRoom];
-	m_Room[0] = new Room(Room::RoomType::tree);
-	m_Room[1] = new Room(Room::RoomType::brick);
+	//m_nRoom = 2;
+	//m_Room = new Room*[m_nRoom];
+	//m_Room[0] = new Room(Room::RoomType::tree);
+	//m_Room[1] = new Room(Room::RoomType::brick);
 	
 	PlayerShader* player = new PlayerShader(2, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -212,15 +277,20 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	m_EffectShaders = Explosion;
 
-	InstanceModelShader* map = nullptr;
-	for (UINT i = 0; i < m_nRoom; ++i) {
-		map= new MapShader(i+8);
-		map->SetLightsUploadBuffer(m_pd3dcbLights.get());
-		map->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-		map->BuildObjects(pDevice, pCommandList, 2);
-		m_Room[i]->SetMapShader(map);
-		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(i+8).returnPoint());
+	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
+	for (UINT i = 0; i < MAX_MAP; ++i) {
+		map[i] = new MapShader(i);
+		map[i]->SetLightsUploadBuffer(m_pd3dcbLights.get());
+		map[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+		map[i]->BuildObjects(pDevice, pCommandList, 2);
+		/*m_Room[i]->SetMapShader(map);
+		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(i+8).returnPoint());*/
 	}
+	for (UINT i = 0; i < m_nRoom; ++i) {
+		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
+		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
+	}
+
 
 	InstanceModelShader* gateShader = new InstanceModelShader(10);
 	gateShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
@@ -401,7 +471,7 @@ void TestScene::RoomChange()
 	m_nowRoom = m_isRoomChange.m_roomNum;
 	//방이동이 완료하였으므로 change플레그를 false로 바꿔줌
 	m_isRoomChange.m_isChange = false;
-	
+	cout << m_nowRoom << endl;
 	m_gateShader->SetPositions(m_Room[m_nowRoom]->GetGatePos());
 }
 

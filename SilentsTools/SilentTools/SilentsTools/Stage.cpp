@@ -1,6 +1,6 @@
 #include "Stage.h"
 
-#include <random>
+
 #include <queue>
 #include <time.h>
 
@@ -8,8 +8,10 @@
 using namespace std;
 
 namespace STAGE {
-	MapGenerator::MapGenerator(int seed) :seed(seed){
-
+	MapGenerator::MapGenerator(int seed, int type) :
+		seed(seed), roomType(type)
+	{
+		
 	}
 
 	MapGenerator::~MapGenerator() {
@@ -17,11 +19,13 @@ namespace STAGE {
 	}
 
 	void MapGenerator::SetMap(int x, int y) {
-		//random_device seed;
 		default_random_engine dre;
 		dre.seed(seed);
+
+		uniform_int_distribution<int> type(1, roomType - 1);
 		uniform_int_distribution<int> ui(40, 60);
 		uniform_int_distribution<int> index(0, x*y - 1);
+		
 
 
 		Room* shuffledRoom = new Room[x*y];
@@ -69,7 +73,7 @@ namespace STAGE {
 		for (int i = 0; i < y; ++i) {
 			for (int j = 0; j < x; ++j) {
 				if (!xroomMap[i][j])
-					currentMap.getMapFlags()[i][j] = true;
+					currentMap.getMapFlags()[i][j] = type(dre);
 			}
 		}
 	}
@@ -124,25 +128,12 @@ namespace STAGE {
 	void MapGenerator::printMap() {
 		for (int i = 0; i < currentMap.GetSize().yPos; ++i) {
 			for (int j = 0; j < currentMap.GetSize().xPos; ++j) {
-				if (currentMap.getMapFlags()[i][j])
-					cout << "бр";
+				if (currentMap.getMapFlags()[i][j]!=0)
+					cout << currentMap.getMapFlags()[i][j]<<"\t";
 				else
-					cout << "бс";
+					cout << 0 << "\t";
 			}
 			cout << endl;
 		}
-	}
-
-	void MapGenerator::printMap(bool** tmp) {
-		for (int i = 0; i < currentMap.GetSize().yPos; ++i) {
-			for (int j = 0; j < currentMap.GetSize().xPos; ++j) {
-				if (tmp[i][j])
-					cout << "бр";
-				else
-					cout << "бс";
-			}
-			cout << endl;
-		}
-		cout << "-----------------------" << endl;
 	}
 }

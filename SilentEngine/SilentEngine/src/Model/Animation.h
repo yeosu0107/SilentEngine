@@ -42,7 +42,7 @@ public:
 
 	void SetAnimSpeed(float speed) { m_animSpeed = speed; }
 
-	void BoneTransform(UINT& index, vector<XMFLOAT4X4>& transforms);
+	void BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms);
 	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const XMMATRIX& ParentTransform);
 	const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
 

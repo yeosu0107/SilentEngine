@@ -81,7 +81,7 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 void ModelObject::Animate(float fTime)
 {
 	if (m_ani) {
-		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, m_Bones);
+		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, fTime, m_Bones);
 	}
 }
 
@@ -124,6 +124,7 @@ void ModelObject::SetActorPos(float xPos, float yPos, float zPos, float rot)
 {
 	m_MaxRot = 0.0f;
 	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixIdentity());	//위치, 회전 초기화
+	GameObject::SetScale(0.8f);
 	m_Actor->setGlobalPose(PxTransform(xPos, yPos, zPos, PxQuat(XMConvertToRadians(rot), PxVec3(0,1,0))));
 	XMFLOAT3 axis(0, 1, 0);
 	Rotate(&axis, rot);
