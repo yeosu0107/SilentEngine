@@ -52,9 +52,12 @@ class CameraCollisionCallback : public PxUserControllerHitReport
 {
 private:
 	PxControllerFilters		m_ControllerFilter;
+	float							m_crashMove = 3.0f;
+
 public:
 	void onShapeHit(const PxControllerShapeHit &hit) {
 		//cout << "cameraHit!" << endl;
+		PxVec3 tmp = hit.dir * m_crashMove;
 	}
 	void 	onControllerHit(const PxControllersHit &hit) {
 
@@ -62,6 +65,7 @@ public:
 	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
 		
 	}
+
 };
 
 class Player : public ModelObject
@@ -106,4 +110,5 @@ public:
 	virtual void Animate(float fTime);
 
 	void SetCamera(Camera* tCamera, BasePhysX* phys);
+	void CalibrateLook();
 };

@@ -71,8 +71,7 @@ MapLoader::MapLoader(string fileName)
 	string tmpName;
 	string delim = ",";
 
-	float horizontal, vertical;
-	float height = -180.0f;
+	float horizontal, vertical, height;
 	StringTokenizer st = StringTokenizer("");
 
 	//csv 파일 기반 로드
@@ -82,6 +81,7 @@ MapLoader::MapLoader(string fileName)
 		matList.emplace_back(st.nextToken()); //텍스쳐 파일
 
 		horizontal = atof(st.nextToken().c_str());
+		height = atof(st.nextToken().c_str());
 		vertical = atof(st.nextToken().c_str());
 		StartList point = {
 			Point(horizontal, height, 0), Point(-horizontal, height, 0),		//WEST, EAST

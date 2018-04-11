@@ -67,7 +67,7 @@ public:
 	PxRigidStatic*				GetBoxMesh(PxVec3& t);
 	PxTriangleMesh*			GetTriangleMesh(mesh* meshes, UINT count);
 	PxCapsuleController*	getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback);
-	PxBoxController*			getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback);
+	PxBoxController*			getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback, float slopeDegree = 0.0f, float step = 0.0f);
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }

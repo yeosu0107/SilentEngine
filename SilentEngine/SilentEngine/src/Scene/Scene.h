@@ -13,7 +13,11 @@
 #include "..\Model\InstanceModelShader.h"
 
 
-const UINT MAX_MAP = 10;
+const UINT MAX_MAP		= 10;
+const UINT FADE_OFF		= 0;
+const UINT FADE_IN		= 1;
+const UINT FADE_OUT		= 2;
+const UINT FADE_END		= 3;
 
 // Scene 
 class Scene
@@ -74,25 +78,26 @@ public:
 	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
 	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
 	
-	virtual void RoomChange();
+	void RoomChange();
 	void RoomSetting();
+	void RoomFade();
+
 protected:
-	PlayerShader*					m_playerShader = nullptr;
-	InstanceModelShader*		m_gateShader = nullptr;
-	BillboardShader*				m_EffectShaders = nullptr;
-	ProjectileShader*			m_Projectile = nullptr;
-	FadeEffectShader*				m_pFadeEffectShader;
+	PlayerShader*											m_playerShader = nullptr;
+	InstanceModelShader*								m_gateShader = nullptr;
+	BillboardShader*										m_EffectShaders = nullptr;
+	ProjectileShader*									m_Projectile = nullptr;
+	FadeEffectShader*									m_pFadeEffectShader = nullptr;
 
-	Room**							m_Room = nullptr;
+	Room**													m_Room = nullptr;
 	
-	UINT								m_nShaders = 0;
-	UINT								m_nProjectile = 0;
-	UINT								m_nRoom = 0;
-	int**								m_virtualMap = nullptr;
+	UINT														m_nProjectile = 0;
+	UINT														m_nRoom = 0;
+	int**														m_virtualMap = nullptr;
 
-	UINT								m_nowRoom;
+	UINT														m_nowRoom;
 
-	Door								m_isRoomChange;
+	Door														m_isRoomChange;
 	
 	LIGHTS*												m_pLights;
 	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
@@ -100,13 +105,13 @@ protected:
 	MATERIALS*											m_pMaterials;
 	unique_ptr<UploadBuffer<MATERIALS>>	m_pd3dcbMaterials = nullptr;
 
-	GameObject*		m_testPlayer=nullptr;
-	GameObject**	m_Enemys=nullptr;
-	UINT					m_nEnemy = 0;
+	GameObject*											m_testPlayer=nullptr;
+	GameObject**										m_Enemys=nullptr;
+	UINT														m_nEnemy = 0;
 
-	UINT					m_testTimer = 0;
+	UINT														m_testTimer = 0;
 
-	float					m_fTestAngle = 1.0f;
+	UINT														m_changeFade = 0;
 };
 
 class GameScene : public Scene

@@ -4,8 +4,6 @@
 #include "..\Shaders\PaticleShader.h"
 #include <ctime>
 
-
-
 ostream& operator<<(ostream& os, XMFLOAT3& p)
 {
 	os << "[" << p.x << ", " << p.y << ", " << p.z << "]" << endl;
@@ -129,7 +127,6 @@ void TestScene::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsComm
 void TestScene::UpdateShaderVarialbes() {
 	m_pd3dcbLights->CopyData(0, *m_pLights);
 	m_pd3dcbMaterials->CopyData(0, *m_pMaterials);
-	
 }
 
 void TestScene::Update(const Timer & gt)
@@ -175,8 +172,10 @@ void TestScene::Update(const Timer & gt)
 	m_pLights->m_pLights[0].m_xmf3Direction = Vector3::Subtract(m_testPlayer->GetPosition(), m_pLights->m_pLights[0].m_xmf3Position, true);
 
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
-	//방 체인지
-	RoomChange();
+	
+	RoomChange();	//방 전환 (true일 경우만 작동)
+	RoomFade();		//방 전환이 있을 경우 페이드IN/OUT 처리
+	
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -222,8 +221,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	gateShader->BuildObjects(pDevice, pCommandList, 2);
 	gateShader->SetPhys(m_physics);
-	//gateShader->SetPositions(globalMaps->getStartpoint(8).returnPoint());
-	
 	m_gateShader = gateShader;
 
 	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
@@ -246,8 +243,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[0]->SetProjectileShader(bullet);
 
 	RoomChange();
-	m_pFadeEffectShader->SetFadeIn();
-
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -261,6 +256,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
+
 	//플레이어 랜더링
 	m_playerShader->Render(pCommandList, m_Camera.get());
 	//문 랜더링
@@ -269,7 +265,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	m_Room[m_nowRoom]->Render(pCommandList, m_Camera.get());
 	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
-
+	//페이트 INOUT 랜더링
 	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
 }
 
@@ -330,6 +326,10 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 {
+	if (m_changeFade > FADE_OFF) {
+		m_testPlayer->Movement(NULL);
+		return false;
+	}
 	DWORD moveInpout = 0;
 	DWORD input = 0;
 
@@ -350,7 +350,6 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
 		m_Room[m_nowRoom]->SetClear(true);
-		//m_gateShader->releasePhys();
 	}
 
 	if(!m_testPlayer->Movement(input))
@@ -371,6 +370,8 @@ bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y)
 
 bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y)
 {
+	if (m_changeFade > FADE_OFF)
+		return false;
 	m_testPlayer->Rotate(y, x, 0.0f);
 	return true;
 }
@@ -384,7 +385,7 @@ void TestScene::RoomChange()
 	//방이 변화한다는 플래그가 false 이면 바로 리턴 (오류 처리를 위해 별도 선언)
 	if (!m_isRoomChange.m_isChange)
 		return;
-	
+
 	//맨처음 시작인 경우는 물리가 적용된 방이 없으므로 방에 물리해제를 할 필요가 없다
 	if (m_nowRoom != START_ROOM) {
 		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
@@ -413,6 +414,8 @@ void TestScene::RoomChange()
 	m_isRoomChange.m_isChange = false;
 	cout << m_nowRoom << endl;
 	m_gateShader->SetPositions(m_Room[m_nowRoom]->GetGatePos());
+	//페이드 인아웃 설정
+	m_changeFade = FADE_IN;
 }
 
 void TestScene::RoomSetting()
@@ -483,6 +486,24 @@ void TestScene::RoomSetting()
 		m_Room[i]->SetNextRoom(nextRoom);
 		for (int k = 0; k < 4; ++k) {
 			nextRoom[k] = BLANK_ROOM;
+		}
+	}
+}
+
+void TestScene::RoomFade()
+{
+	if (m_changeFade > FADE_OFF) {
+		if (!m_pFadeEffectShader->IsUsdedFadeEffect()) {
+			if (m_changeFade == FADE_IN) {
+				m_pFadeEffectShader->SetFadeIn(true, 0.1f, false);
+				m_changeFade = FADE_OUT;
+			}
+			else if (m_changeFade == FADE_OUT) {
+				m_pFadeEffectShader->SetFadeIn(false, 1.0f, false);
+				m_changeFade = FADE_END;
+			}
+			else
+				m_changeFade = FADE_OFF;
 		}
 	}
 }

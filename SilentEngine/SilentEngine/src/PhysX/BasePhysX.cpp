@@ -172,7 +172,7 @@ PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserC
 	return controller;
 }
 
-PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport * collisionCallback)
+PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport * collisionCallback, float slopeDegree, float step)
 {
 	PxBoxControllerDesc boxDesc;
 	boxDesc.halfForwardExtent = 5.5f;
@@ -184,7 +184,8 @@ PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControlle
 	boxDesc.density = 1.0f;
 	boxDesc.material = gPhysics->createMaterial(1.0f, 1.0f, 1.0f);
 	boxDesc.contactOffset = 5.0f;
-	boxDesc.slopeLimit = 0.0f;
+	boxDesc.slopeLimit = slopeDegree;
+	boxDesc.stepOffset = step;
 
 	boxDesc.reportCallback = collisionCallback;
 

@@ -81,14 +81,9 @@ bool Player::Move(DWORD input, float fDist)
 
 		if (m_Controller) {
 			m_Controller->move(XMtoPX(xmf3Shift), 0.001f, 1, m_ControllerFilter);
-			//SetPosition(PXtoXM(m_Controller->getPosition())); //애니메에트에서 처리
+			//실제 게임 오브젝트의 이동은 애니메에트에서 처리 (현재는 물리적 이동만 처리)
 		}
-		//플레이어가 항상 카메라의 룩벡터만 바라보도록 보정
-		m_xmf3Look = m_pCamera->GetLookVector();
-		m_xmf3Look.y = 0.0f; //y축은 무시
-		m_xmf3Look = Vector3::Normalize(m_xmf3Look);
-		m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
-		m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+		CalibrateLook();
 		m_AnimIndex = PlayerAni::Move;
 		return true;
 	}
@@ -115,10 +110,26 @@ void Player::SetPosition(float x, float y, float z)
 	//방에서 방 이동시 호출
 	m_Controller->setPosition(PxExtendedVec3(x, y, z));
 	if (m_pCamera) {
+		//카메라 회전값 리셋
+		m_pCamera->ResetRotation();
+		if (x > z) {
+			if(x > 0)
+				m_pCamera->Rotate(0, 270, 0);
+			else 
+				m_pCamera->Rotate(0, 0, 0);
+		}
+		else {
+			if(z > 0)
+				m_pCamera->Rotate(0, 180, 0);
+			else
+				m_pCamera->Rotate(0, 90, 0);
+		}
 		//카메라를 플레이어 위치로 강제이동 (물리 작용X, 텔레포트)
 		m_cameraController->setPosition(m_Controller->getPosition());
 		m_pCamera->SetPosition(PXtoXM(m_cameraController->getPosition()));
 		m_pCamera->RegenerateViewMatrix();
+
+		//CalibrateLook();
 	}
 }
 
@@ -153,5 +164,15 @@ void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 	m_pCamera = tCamera;
 	m_pCamera->SetPlayer(this);
 
-	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback);
+	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, 30.0f, 10.0f);
+}
+
+void Player::CalibrateLook()
+{
+	//플레이어가 항상 카메라의 룩벡터만 바라보도록 보정
+	m_xmf3Look = m_pCamera->GetLookVector();
+	m_xmf3Look.y = 0.0f; //y축은 무시
+	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
+	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
+	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
 }

@@ -115,9 +115,6 @@
     <ClCompile Include="src\Framework\Timer.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Object\Camera.cpp">
-      <Filter>Object\Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Object\GameObjects.cpp">
       <Filter>Object\Source</Filter>
     </ClCompile>
@@ -184,6 +181,9 @@
     <ClCompile Include="src\Room\Room.cpp">
       <Filter>Room</Filter>
     </ClCompile>
+    <ClCompile Include="src\Object\Camera.cpp">
+      <Filter>Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -224,9 +224,6 @@
     </ClInclude>
     <ClInclude Include="src\Framework\Framework.h">
       <Filter>Framework\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Object\Camera.h">
-      <Filter>Object\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Framework\SilentEngine.h">
       <Filter>Framework\Header</Filter>
@@ -290,6 +287,9 @@
     </ClInclude>
     <ClInclude Include="src\Room\Stage.h">
       <Filter>Room</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\Camera.h">
+      <Filter>Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
