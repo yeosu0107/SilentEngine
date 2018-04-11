@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "Player.h"
 
+const float startSpeed = 30.0f;
+const float accelSpeed = 0.5f;
+const float maxSpeed = 100.0f;
+
 Player::Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList)
 	: ModelObject(model, pd3dDevice, pd3dCommandList)
 {
@@ -10,6 +14,8 @@ Player::Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_xmf3Look = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	m_pCamera = nullptr;
 	m_Callback.SetJump(&m_Jump);
+
+	m_moveSpeed = startSpeed;
 }
 
 Player::~Player()
@@ -68,9 +74,10 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
 }
 
-bool Player::Move(DWORD input, float fDist)
+bool Player::Move(DWORD input, float fTime)
 {
 	if (input) {
+		float fDist = m_moveSpeed * fTime;
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 		if (input & DIR_FORWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDist);
 		if (input & DIR_BACKWARD) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, -fDist);
@@ -78,7 +85,9 @@ bool Player::Move(DWORD input, float fDist)
 		if (input & DIR_LEFT) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Right, -fDist);
 		if (input & DIR_UP) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, fDist);
 		if (input & DIR_DOWN) xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Up, -fDist);
-
+		if (m_moveSpeed < maxSpeed)
+			m_moveSpeed += accelSpeed;
+		
 		if (m_Controller) {
 			m_Controller->move(XMtoPX(xmf3Shift), 0.001f, 1, m_ControllerFilter);
 			//실제 게임 오브젝트의 이동은 애니메에트에서 처리 (현재는 물리적 이동만 처리)
@@ -87,6 +96,7 @@ bool Player::Move(DWORD input, float fDist)
 		m_AnimIndex = PlayerAni::Move;
 		return true;
 	}
+	m_moveSpeed = startSpeed;
 	return false;
 }
 
@@ -139,7 +149,7 @@ void Player::Animate(float fTime)
 	
 	if (m_Controller) {
 		//중력작용 처리
-		m_Controller->move(PxVec3(0, m_Jump.getHeight(1.0f/60.0f), 0), 0.1f, 1.0f / 60.0f, m_ControllerFilter);
+		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
 		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
 		//cout << m_xmf3Position.x << "\t" << m_xmf3Position.y << "\t" << m_xmf3Position.z << endl;
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
@@ -163,8 +173,8 @@ void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 {
 	m_pCamera = tCamera;
 	m_pCamera->SetPlayer(this);
-
-	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, 30.0f, 10.0f);
+	string* tmp = new string("camera");
+	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, tmp, 30.0f, 10.0f);
 }
 
 void Player::CalibrateLook()

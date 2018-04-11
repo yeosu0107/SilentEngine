@@ -145,6 +145,8 @@ GameObject::GameObject(int nMeshes)
 		m_ppMeshes = vector<unique_ptr<MeshGeometry>>(m_nMeshes);
 		for (UINT i = 0; i < m_nMeshes; i++)	m_ppMeshes[i] = nullptr;
 	}
+
+	m_moveSpeed = 0.0f;
 }
 
 GameObject::~GameObject()

@@ -175,7 +175,6 @@ void TestScene::Update(const Timer & gt)
 	
 	RoomChange();	//방 전환 (true일 경우만 작동)
 	RoomFade();		//방 전환이 있을 경우 페이드IN/OUT 처리
-	
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -353,7 +352,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	}
 
 	if(!m_testPlayer->Movement(input))
-		m_testPlayer->Move(moveInpout, 2.0f);
+		m_testPlayer->Move(moveInpout, gt.DeltaTime());
 
 	return false;
 }

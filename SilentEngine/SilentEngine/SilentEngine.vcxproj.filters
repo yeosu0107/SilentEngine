@@ -46,12 +46,6 @@
     <Filter Include="Scene\Source">
       <UniqueIdentifier>{6a76e9c0-cfe0-404b-a1bf-e527ab9be4c7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object\Header">
-      <UniqueIdentifier>{db3a3d05-13cb-4327-8031-a05e9ec87795}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Object\Source">
-      <UniqueIdentifier>{cb4e91b9-eab1-45ac-ab1d-66ee82c3e7a6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Framework">
       <UniqueIdentifier>{57b31763-94dd-4e1d-b61c-f9e1ec7c735f}</UniqueIdentifier>
     </Filter>
@@ -61,32 +55,41 @@
     <Filter Include="Framework\Source">
       <UniqueIdentifier>{811148a5-3ae9-4105-bfe7-219dc01031d8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Model">
-      <UniqueIdentifier>{57a96355-7b0a-4ee8-891c-dd843bf88e0a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Model\Animation">
-      <UniqueIdentifier>{e446800b-0041-4943-93f4-bc81c888026e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Model\Loader">
-      <UniqueIdentifier>{a320e465-fd4a-4962-bb06-e43d268082b8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Model\Object%28model%29">
-      <UniqueIdentifier>{0e90240d-2576-4b7a-840f-07a02fcda54e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Model\Shader">
-      <UniqueIdentifier>{b1be8280-a9da-465c-83fb-d5a09a8f7123}</UniqueIdentifier>
-    </Filter>
     <Filter Include="PhysX">
       <UniqueIdentifier>{a472c4b4-7d9b-48e5-a647-1e7f5da9ef39}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Enemy">
+    <Filter Include="GameLogic">
+      <UniqueIdentifier>{d8f418e6-8f9c-4b6e-90bf-f397afea1d25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameLogic\Room">
+      <UniqueIdentifier>{95ad9aae-548a-4760-8654-efb80efaf07d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameLogic\Status">
+      <UniqueIdentifier>{3cd5f284-de17-46ac-8624-41473192eb6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Base">
+      <UniqueIdentifier>{db3a3d05-13cb-4327-8031-a05e9ec87795}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Model">
+      <UniqueIdentifier>{57a96355-7b0a-4ee8-891c-dd843bf88e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Model\Animation">
+      <UniqueIdentifier>{e446800b-0041-4943-93f4-bc81c888026e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Model\Loader">
+      <UniqueIdentifier>{a320e465-fd4a-4962-bb06-e43d268082b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Model\Object%28model%29">
+      <UniqueIdentifier>{0e90240d-2576-4b7a-840f-07a02fcda54e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Model\Shader">
+      <UniqueIdentifier>{b1be8280-a9da-465c-83fb-d5a09a8f7123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Enemy">
       <UniqueIdentifier>{b493942a-a096-490f-a4e3-699ebcd7b13d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Player">
+    <Filter Include="Object\Player">
       <UniqueIdentifier>{093a8fc2-0679-440e-9045-ec504a434520}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Room">
-      <UniqueIdentifier>{95ad9aae-548a-4760-8654-efb80efaf07d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -115,12 +118,6 @@
     <ClCompile Include="src\Framework\Timer.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Object\GameObjects.cpp">
-      <Filter>Object\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Object\Mesh\Mesh.cpp">
-      <Filter>Object\Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Scene\Scene.cpp">
       <Filter>Scene\Source</Filter>
     </ClCompile>
@@ -134,22 +131,22 @@
       <Filter>Framework\Source</Filter>
     </ClCompile>
     <ClCompile Include="src\Model\LoadModel.cpp">
-      <Filter>Model\Object%28model%29</Filter>
+      <Filter>Object\Model\Object%28model%29</Filter>
     </ClCompile>
     <ClCompile Include="src\Model\Animation.cpp">
-      <Filter>Model\Animation</Filter>
+      <Filter>Object\Model\Animation</Filter>
     </ClCompile>
     <ClCompile Include="src\Model\ModelObject.cpp">
-      <Filter>Model\Object%28model%29</Filter>
+      <Filter>Object\Model\Object%28model%29</Filter>
     </ClCompile>
     <ClCompile Include="src\Model\ModelShader.cpp">
-      <Filter>Model\Shader</Filter>
+      <Filter>Object\Model\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Model\StringTokenizer.cpp">
-      <Filter>Model\Loader</Filter>
+      <Filter>Object\Model\Loader</Filter>
     </ClCompile>
     <ClCompile Include="src\Model\ModelLoader.cpp">
-      <Filter>Model\Loader</Filter>
+      <Filter>Object\Model\Loader</Filter>
     </ClCompile>
     <ClCompile Include="src\Framework\DDSTextureLoader12.cpp">
       <Filter>Util\Source</Filter>
@@ -158,31 +155,40 @@
       <Filter>PhysX</Filter>
     </ClCompile>
     <ClCompile Include="src\Shaders\PlayerShader.cpp">
-      <Filter>Player</Filter>
+      <Filter>Object\Player</Filter>
     </ClCompile>
     <ClCompile Include="src\Model\InstanceModelShader.cpp">
-      <Filter>Model\Shader</Filter>
+      <Filter>Object\Model\Shader</Filter>
     </ClCompile>
     <ClCompile Include="src\Object\InstanceObjectShader.cpp">
       <Filter>Shaders\Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Object\InstanceObject.cpp">
-      <Filter>Object\Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Object\Player.cpp">
-      <Filter>Player</Filter>
+      <Filter>Object\Player</Filter>
     </ClCompile>
     <ClCompile Include="src\Object\Enemy.cpp">
-      <Filter>Enemy</Filter>
+      <Filter>Object\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="src\Shaders\ProjectileShader.cpp">
-      <Filter>Enemy</Filter>
+      <Filter>Object\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="src\Room\Room.cpp">
-      <Filter>Room</Filter>
+      <Filter>GameLogic\Room</Filter>
     </ClCompile>
     <ClCompile Include="src\Object\Camera.cpp">
-      <Filter>Player</Filter>
+      <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\GameObjects.cpp">
+      <Filter>Object\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\InstanceObject.cpp">
+      <Filter>Object\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\Mesh\Mesh.cpp">
+      <Filter>Object\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameLogic\Status.cpp">
+      <Filter>GameLogic\Status</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -217,10 +223,10 @@
       <Filter>Shaders\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Object\Mesh\Mesh.h">
-      <Filter>Object\Header</Filter>
+      <Filter>Object\Base</Filter>
     </ClInclude>
     <ClInclude Include="src\Object\GameObjects.h">
-      <Filter>Object\Header</Filter>
+      <Filter>Object\Base</Filter>
     </ClInclude>
     <ClInclude Include="src\Framework\Framework.h">
       <Filter>Framework\Header</Filter>
@@ -229,22 +235,22 @@
       <Filter>Framework\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\LoadModel.h">
-      <Filter>Model\Object%28model%29</Filter>
+      <Filter>Object\Model\Object%28model%29</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\Animation.h">
-      <Filter>Model\Animation</Filter>
+      <Filter>Object\Model\Animation</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\ModelObject.h">
-      <Filter>Model\Object%28model%29</Filter>
+      <Filter>Object\Model\Object%28model%29</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\ModelShader.h">
-      <Filter>Model\Shader</Filter>
+      <Filter>Object\Model\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\StringTokenizer.h">
-      <Filter>Model\Loader</Filter>
+      <Filter>Object\Model\Loader</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\ModelLoader.h">
-      <Filter>Model\Loader</Filter>
+      <Filter>Object\Model\Loader</Filter>
     </ClInclude>
     <ClInclude Include="src\Framework\DDSTextureLoader12.h">
       <Filter>Util\Header</Filter>
@@ -253,31 +259,31 @@
       <Filter>PhysX</Filter>
     </ClInclude>
     <ClInclude Include="src\Shaders\PlayerShader.h">
-      <Filter>Player</Filter>
+      <Filter>Object\Player</Filter>
     </ClInclude>
     <ClInclude Include="src\Model\InstanceModelShader.h">
-      <Filter>Model\Shader</Filter>
+      <Filter>Object\Model\Shader</Filter>
     </ClInclude>
     <ClInclude Include="src\Object\InstanceObjectShader.h">
       <Filter>Shaders\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Object\InstanceObject.h">
-      <Filter>Object\Header</Filter>
+      <Filter>Object\Base</Filter>
     </ClInclude>
     <ClInclude Include="src\Object\Player.h">
-      <Filter>Player</Filter>
+      <Filter>Object\Player</Filter>
     </ClInclude>
     <ClInclude Include="src\Object\Enemy.h">
-      <Filter>Enemy</Filter>
+      <Filter>Object\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="src\Shaders\EnemyShader.h">
-      <Filter>Enemy</Filter>
+      <Filter>Object\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="src\Shaders\ProjectileShader.h">
-      <Filter>Enemy</Filter>
+      <Filter>Object\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="src\Room\Room.h">
-      <Filter>Room</Filter>
+      <Filter>GameLogic\Room</Filter>
     </ClInclude>
     <ClInclude Include="src\Shaders\PaticleShader.h">
       <Filter>Shaders\Header</Filter>
@@ -286,10 +292,13 @@
       <Filter>Util\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Room\Stage.h">
-      <Filter>Room</Filter>
+      <Filter>GameLogic\Room</Filter>
     </ClInclude>
     <ClInclude Include="src\Object\Camera.h">
-      <Filter>Player</Filter>
+      <Filter>Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameLogic\Status.h">
+      <Filter>GameLogic\Status</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

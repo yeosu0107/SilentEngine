@@ -147,7 +147,7 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 	return triMesh;
 }
 
-PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback)
+PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback, string* name)
 {
 	PxCapsuleControllerDesc capsuleDesc;
 	capsuleDesc.height = 0.3f; //Height of capsule
@@ -167,12 +167,12 @@ PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserC
 	capsuleDesc.reportCallback = collisionCallback;
 	
 	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
-	string* tmp = new string("player");
-	controller->setUserData(tmp);
+;
+	controller->setUserData(name);
 	return controller;
 }
 
-PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport * collisionCallback, float slopeDegree, float step)
+PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport * collisionCallback, string* name, float slopeDegree, float step)
 {
 	PxBoxControllerDesc boxDesc;
 	boxDesc.halfForwardExtent = 5.5f;
@@ -190,8 +190,8 @@ PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControlle
 	boxDesc.reportCallback = collisionCallback;
 
 	PxBoxController* controller = static_cast<PxBoxController*>(gControllerMgr->createController(boxDesc));
-	string* tmp = new string("ttt");
-	controller->setUserData(tmp);
+
+	controller->setUserData(name);
 	return controller;
 }
 

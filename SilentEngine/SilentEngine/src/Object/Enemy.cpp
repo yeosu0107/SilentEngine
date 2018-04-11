@@ -1,11 +1,13 @@
 #include "stdafx.h"
 #include "Enemy.h"
 
+string* name = new string("bullet");
+
 Bullet::Bullet()
 {
 	m_live = false;
 	m_crash = false;
-	m_speed = 2.0f;
+	m_moveSpeed = 200.0f;
 	m_timer = 0;
 	m_crashPos = XMFLOAT3(0, 0, 0);
 	m_moveDir = XMFLOAT3(0, 0, 0);
@@ -29,7 +31,7 @@ void Bullet::Animate(float fTimeElapsed)
 
 	EffectInstanceObject::Animate(fTimeElapsed);
 
-	m_Controller->move(XMtoPX(m_moveDir) * m_speed, 0.1f, 1, m_ControllerFilter);
+	m_Controller->move(XMtoPX(m_moveDir) * m_moveSpeed * fTimeElapsed, 0.1f, 1, m_ControllerFilter);
 	SetPosition(PXtoXM(m_Controller->getPosition()));
 	m_timer += 1;
 	if (m_timer >= MAX_BULLET_TIME) {
@@ -48,7 +50,7 @@ void Bullet::Shoot(BasePhysX* phys, XMFLOAT3 pos, XMFLOAT3 target)
 	m_fNowYCount = 0.0f;
 	SetPosition(pos);
 	m_moveDir = Vector3::Subtract(target, pos, true);
-	m_Controller = phys->getBoxController(XMtoPXEx(pos), &m_Callback);
+	m_Controller = phys->getBoxController(XMtoPXEx(pos), &m_Callback, name);
 	//if (m_Controller)
 	//	cout << *(string*)(m_Controller->getUserData()) << endl;
 }
@@ -61,10 +63,11 @@ void Bullet::releasePhys()
 
 Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 	: ModelObject(model, pd3dDevice, pd3dCommandList), 
-	m_Speed(1.0f), m_Crash(false)
+	m_Crash(false)
 {
 	m_Callback.SetJump(&m_Jump);
 	m_Callback.SetCrash(&m_Crash);
+	m_moveSpeed = 100.0f;
 }
 
 Enemy::~Enemy()
@@ -81,9 +84,10 @@ void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);*/
 }
 
-bool Enemy::Move(float fDist, float fTime)
+bool Enemy::Move(float fTime)
 {
 	if (m_Controller) {
+		float fDist = -m_moveSpeed * fTime;
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 		xmf3Shift = Vector3::Add(xmf3Shift, GetLook(), fDist);
 		m_Controller->move(XMtoPX(xmf3Shift), 1.0f, fTime, m_ControllerFilter);
@@ -96,7 +100,7 @@ bool Enemy::Move(float fDist, float fTime)
 void Enemy::Animate(float fTime)
 {
 	m_AnimIndex = EnemyAni::Idle;
-	Move(-2.0f, fTime);
+	Move(fTime);
 	
 	ModelObject::Animate(fTime); //애니메이션
 	if (m_Crash) {
@@ -105,7 +109,7 @@ void Enemy::Animate(float fTime)
 	}
 	if (m_Controller) {
 		//중력작용 처리
-		m_Controller->move(PxVec3(0, m_Jump.getHeight(1.0f / 60.0f), 0), 0.1f, 1.0f / 60.0f, m_ControllerFilter);
+		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
 		//실제 이동
 		SetPosition(PXtoXM(m_Controller->getFootPosition()));
 	}

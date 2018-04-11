@@ -62,8 +62,8 @@ public:
 	}
 
 	//physX ¼¼ÆÃ
-	void SetPhysMesh(BasePhysX* phys, PhysMesh type);
-	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos);
+	void SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name = nullptr);
+	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos, string* name = nullptr);
 
 	void SetActorPos(float xPos, float yPos, float zPos, float rot);
 	void RotationYAxis(float rot);

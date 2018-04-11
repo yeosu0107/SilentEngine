@@ -140,21 +140,22 @@ public:
 	virtual ~GameObject();
 
 public:
-	XMFLOAT4X4									m_xmf4x4World;
+	XMFLOAT4X4													m_xmf4x4World;
 
-	vector<unique_ptr<MeshGeometry>>			m_ppMeshes;
-	UINT														m_nMeshes;
+	vector<unique_ptr<MeshGeometry>>					m_ppMeshes;
+	UINT																m_nMeshes;
 
-	CMaterial									*m_pMaterial = NULL;
+	CMaterial*														m_pMaterial = NULL;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE					m_d3dCbvGPUDescriptorHandle;
 
 protected:
 	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>   m_pd3dcbGameObject;
-	CB_GAMEOBJECT_INFO							 *m_pcbMappedGameObject = NULL;
+	CB_GAMEOBJECT_INFO*									m_pcbMappedGameObject = NULL;
 
-	bool										m_bIsLotate = false;
-	bool										m_live = true;
+	bool																m_bIsLotate = false;
+	bool																m_live = true;
+	float																m_moveSpeed = 0.0f;
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
@@ -193,7 +194,7 @@ public:
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
 	void MoveDir(XMFLOAT3 dir, float fDist = 1.0f);
-	virtual bool Move(DWORD dir, float fDist) { return false; }
+	virtual bool Move(DWORD dir, float fTime) { return false; }
 	virtual bool Movement(DWORD input) { return false; }
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);

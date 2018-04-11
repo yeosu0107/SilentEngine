@@ -8,6 +8,7 @@ class EnemyShader : public DynamicModelShader
 {
 private:
 	//vector<T*>		m_pEnemy;
+	string * name = new string("Enemy01");
 public:
 	EnemyShader(int index) : DynamicModelShader(index) { }
 	~EnemyShader() { }
@@ -56,9 +57,10 @@ public:
 	}
 
 	void setPhys(BasePhysX* phys) {
+		
 		for (auto& p : m_ppObjects) {
 			T* tmp = reinterpret_cast<T*>(p);
-			tmp->SetPhysController(phys, tmp->getCollisionCallback(), &XMtoPXEx(tmp->GetPosition()));
+			tmp->SetPhysController(phys, tmp->getCollisionCallback(), &XMtoPXEx(tmp->GetPosition()), name);
 		}
 	}
 

@@ -91,7 +91,7 @@ void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 }
 
 
-void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
+void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name)
 {
 	if (type == PhysMesh::Mesh_Tri) {
 		PxTriangleMesh* triMesh = phys->GetTriangleMesh(m_model->getMesh(0), m_model->getNumVertices());
@@ -107,17 +107,17 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type)
 		PxMaterial* mat = phys->getPhys()->createMaterial(0.2f, 0.2f, 0.2f);
 
 		m_Actor = PxCreateStatic(*phys->getPhys(), location, meshGeo, *mat);
-
-		m_Actor->setName("tmpmap");
+		if (name != nullptr)
+			m_Actor->setName(name->c_str());
 		phys->getScene()->addActor(*m_Actor);
 		//phys->getScene()->removeActor
 	}
 }
 
 
-void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos)
+void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos, string* name)
 {
-	m_Controller = control->getCapsuleController(*pos, callback);
+	m_Controller = control->getCapsuleController(*pos, callback, name);
 }
 
 void ModelObject::SetActorPos(float xPos, float yPos, float zPos, float rot)

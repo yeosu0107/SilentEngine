@@ -16,11 +16,9 @@ Room::~Room()
 void Room::SetStartPoint(Point * point)
 {
 	for (UINT i = 0; i < 4; ++i) {
-		//m_gatePoint[i] = point[i];
 		m_startPoint[i] = point[i];
 	}
 	
-
 	m_doorRect[0].left			= point[0].xPos-30.0f;
 	m_doorRect[0].top			= point[0].zPos + 30.0f;
 	m_doorRect[0].right		= point[0].xPos;

@@ -77,7 +77,6 @@ private:
 
 	XMFLOAT3														m_moveDir;
 	XMFLOAT3														m_crashPos;
-	float																m_speed;
 	bool																m_crash;
 	
 	UINT																m_timer;
@@ -106,7 +105,6 @@ class Enemy : public ModelObject
 {
 private:
 	EnemyCollisionCallback	m_Callback;
-	float								m_Speed;
 	bool								m_Crash;
 
 	Jump							m_Jump;
@@ -118,6 +116,6 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
-	bool Move(float fDist, float fTime);
+	bool Move(float fTime);
 	virtual void Animate(float fTime);
 };

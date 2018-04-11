@@ -87,7 +87,7 @@ protected:
 
 	PlayerCollisionCallback	m_Callback;
 	CameraCollisionCallback	m_CameraCallback;
-	
+
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();
@@ -104,7 +104,7 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
-	virtual bool Move(DWORD dir, float fDist);
+	virtual bool Move(DWORD dir, float fTime);
 	virtual bool Movement(DWORD input);
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);

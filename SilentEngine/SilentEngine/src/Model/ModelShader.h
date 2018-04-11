@@ -23,7 +23,7 @@ public:
 	virtual void RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	virtual void Animate(float fTimeElapsed);
 
-	virtual void SetPhys(BasePhysX* phys) {}
+	virtual void SetPhys(BasePhysX* phys, string* name = nullptr) {}
 	virtual void releasePhys() {}
 };
 

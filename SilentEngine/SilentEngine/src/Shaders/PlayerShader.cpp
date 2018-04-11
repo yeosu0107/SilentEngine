@@ -122,10 +122,10 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 		m_pMaterial->SetTexture(pTexture);
 		m_pMaterial->SetReflection(1);
 	}
-
+	string* name = new string("player");
 	Player* tmp = new Player(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	tmp->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
-	tmp->SetPhysController((BasePhysX*)pContext, tmp->getCollisionCallback(), &PxExtendedVec3(0, -170, 0));
+	tmp->SetPhysController((BasePhysX*)pContext, tmp->getCollisionCallback(), &PxExtendedVec3(0, -170, 0), name);
 	
 	if (m_myCamera)
 		tmp->SetCamera(m_myCamera, (BasePhysX*)pContext);

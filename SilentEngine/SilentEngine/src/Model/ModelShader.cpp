@@ -68,7 +68,7 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticModel", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticModel", "ps_5_0");
 
-	m_nObjects = 25;
+	m_nObjects = 0;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
@@ -88,26 +88,6 @@ void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 		m_pMaterial->SetReflection(1);
 	}
 	
-	//for (int i = 0; i < m_nObjects; ++i) {
-	//	ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
-	//	object->SetPosition(XMFLOAT3(i*800, 0, 0));
-	//	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-	//	//object->SetScale(0.1f);
-	//	object->SetPhysMesh(globalPhysX, PhysMesh::Mesh_Tri);
-	//	m_ppObjects[i] = object;
-	//}
-	int num = 0;
-	for (int i = 0; i < 5; ++i) {
-		for (int j = 0; j < 5; ++j) {
-			ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
-			object->SetPosition(XMFLOAT3(i * 800, 0, j * 400));
-			object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * num));
-			//object->SetScale(0.1f);
-			object->SetPhysMesh((BasePhysX*)pContext, PhysMesh::Mesh_Tri);
-			m_ppObjects[num] = object;
-			num += 1;
-		}
-	}
 }
 
 void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
