@@ -173,6 +173,8 @@ protected:
 	unique_ptr<UploadBuffer<CB_EFFECT_INFO>>	m_EffectCB = nullptr;
 };
 
+
+
 class TextureToFullScreen : public Shaders
 {
 public:
@@ -185,6 +187,36 @@ public:
 
 protected:
 	unique_ptr<CTexture> m_pTexture;
+};
+
+class FadeEffectShader : public TextureToFullScreen
+{
+public:
+	FadeEffectShader();
+	virtual ~FadeEffectShader();
+
+	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
+
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void Animate(float fTimeElapsed);
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+	virtual void OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList, int index);
+	virtual void SetFadeIn(const bool bfadeType = true, const float fExistTime = 1.0f, const bool autoChange = true, const XMFLOAT3& xmf3Color = XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	virtual bool IsUsdedFadeEffect() const { return m_bFadeOn; }
+
+protected:
+	unique_ptr<UploadBuffer<XMFLOAT4>> m_FadeCB;
+	XMFLOAT4 m_Color;
+	
+	bool m_bFadeOn;
+	bool m_bFadeType; // true : 페이드 인 , false : 페이드 아웃
+	bool m_bAutoChange;	// 자동 페이드 변환
+	
+	float m_fExistTime;
 };
 
 class ShadowDebugShader : public TextureToFullScreen

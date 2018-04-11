@@ -92,3 +92,8 @@ cbuffer cbEffect : register(b6)
 	uint				gNowXCount;
 	uint				gNowYCount;
 }
+
+cbuffer cbFade : register(b7)
+{
+    float4              gFadeColor;
+}

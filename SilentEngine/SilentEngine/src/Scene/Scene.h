@@ -81,6 +81,7 @@ protected:
 	InstanceModelShader*		m_gateShader = nullptr;
 	BillboardShader*				m_EffectShaders = nullptr;
 	ProjectileShader*			m_Projectile = nullptr;
+	FadeEffectShader*				m_pFadeEffectShader;
 
 	Room**							m_Room = nullptr;
 	

@@ -174,6 +174,7 @@ void TestScene::Update(const Timer & gt)
 	m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(50.0f, 50.0f, 0.0f));
 	m_pLights->m_pLights[0].m_xmf3Direction = Vector3::Subtract(m_testPlayer->GetPosition(), m_pLights->m_pLights[0].m_xmf3Position, true);
 
+	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	//방 체인지
 	RoomChange();
 }
@@ -236,12 +237,16 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
 
+	m_pFadeEffectShader = new FadeEffectShader();
+	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1);
+
 	m_testPlayer = player->getPlayer(0);
 	
 	m_Room[0]->SetEnemyShader(eShader);
 	m_Room[0]->SetProjectileShader(bullet);
 
 	RoomChange();
+	m_pFadeEffectShader->SetFadeIn();
 
 }
 
@@ -264,6 +269,8 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	m_Room[m_nowRoom]->Render(pCommandList, m_Camera.get());
 	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
+
+	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
 }
 
 void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)

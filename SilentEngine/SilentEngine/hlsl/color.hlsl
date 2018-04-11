@@ -93,6 +93,11 @@ float4 PSTextureToFullScreen(float4 position : SV_POSITION) : SV_Target
 
 }
 
+float4 PSFadeEffect(float4 position : SV_POSITION) : SV_Target
+{
+    return gFadeColor;
+}
+
 float4 PS(float4 position : SV_POSITION) : SV_Target
 {
     float3 cColor = gShadowMap[int2(position.xy)].rrr;
