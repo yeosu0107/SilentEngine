@@ -7,6 +7,38 @@
 //#define _WITH_REFLECT
 
 
+float CalcShadowFactor(float4 shadowPosH)
+{
+    // Complete projection by doing division by w.
+    shadowPosH.xyz /= shadowPosH.w;
+
+    // Depth in NDC space.
+    float depth = shadowPosH.z;
+
+    uint width, height, numMips;
+    gShadowMap.GetDimensions(0, width, height, numMips);
+
+    // Texel size.
+    float dx = 1.0f / (float) width;
+
+    float percentLit = 0.0f;
+    const float2 offsets[9] =
+    {
+        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+    };
+
+    [unroll]
+    for (int i = 0; i < 9; ++i)
+    {
+        percentLit += gShadowMap.SampleCmpLevelZero(gsamShadow,
+            shadowPosH.xy + offsets[i], depth).r;
+    }
+    
+    return percentLit / 9.0f;
+}
+
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMatindex)
 {
 	float3 vToLight = -gLights[nIndex].m_vDirection;
@@ -116,11 +148,12 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera,
 }
 
 
-float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex)
+float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float3 shadowFactor)
 {
 	float3 vCameraPosition = float3(gvCameraPosition.x, gvCameraPosition.y, gvCameraPosition.z);
 	float3 vToCamera = normalize(vCameraPosition - vPosition);
 
+    int j = 0;
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
@@ -128,8 +161,9 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex)
 		{
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
-				cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex);
-			}
+                cColor += shadowFactor[1] * DirectionalLight(i, vNormal, vToCamera, nMatindex);
+                j++;
+            }
 			else if (gLights[i].m_nType == POINT_LIGHT)
 			{
 				cColor += PointLight(i, vPosition, vNormal, vToCamera, nMatindex);
@@ -158,6 +192,7 @@ struct VS_TEXTURED_LIGHTING_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float3 positionW : POSITION;
+    float4 ShadowPosH : POSITION1;
 	float3 normalW : NORMAL;
 	float2 uv : TEXCOORD;
 };
@@ -171,6 +206,7 @@ VS_TEXTURED_LIGHTING_OUTPUT VSTexturedLighting(VS_TEXTURED_LIGHTING_INPUT input)
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
 	output.uv = input.uv;
 
 	return(output);
@@ -183,7 +219,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial);
+    float3 shadowFactor = 1.0f;
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, shadowFactor);
 	
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);
@@ -196,6 +234,7 @@ struct VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE
 {
 	float4	position : SV_POSITION;
 	float3	positionW : POSITION;
+    float4  ShadowPosH : POSITION1;
 	float3	normalW : NORMAL;
 	float2	uv : TEXCOORD;
 	uint	mat : MATERIAL;
@@ -213,6 +252,7 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSInstanceTexturedLighting(VS_TEXTURED_LIGH
 	output.normalW = mul(input.normal, (float3x3)world);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
+    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
 	output.uv = input.uv;
 
 	return(output);
@@ -225,7 +265,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTIN
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-	float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat);
+    float3 shadowFactor = 1.0f;
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);

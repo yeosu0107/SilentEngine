@@ -6,6 +6,7 @@
 
 #include "Light.hlsl"
 
+
 struct VS_MODEL_INPUT
 {
 	float3 position : POSITION;
@@ -23,6 +24,8 @@ VS_TEXTURED_LIGHTING_OUTPUT VSStaticModel(VS_MODEL_INPUT input)
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
+    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+
 	output.uv = input.uv;
 
 	return(output);
@@ -39,6 +42,7 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSStaticInstanceModel(VS_MODEL_INPUT input,
 	output.normalW = mul(input.normal, (float3x3)world);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
+    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
 	output.uv = input.uv;
 
 	return(output);
@@ -70,6 +74,7 @@ VS_TEXTURED_LIGHTING_OUTPUT VSDynamicModel(VS_MODEL_INPUT input)
 	output.normalW = mul(normalL, (float3x3)gmtxObject);
 	output.positionW = (float3)mul(float4(posL, 1.0f), gmtxObject);
 	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
+    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
 	output.uv = input.uv;
 
 	return(output);
@@ -117,7 +122,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticModel(VS_TEXTURED_LIGHTING_OUTPUT inpu
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial);
+    float3 shadowFactor = 1.0f;
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, shadowFactor);
 
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);
@@ -132,7 +139,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-	float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat);
+
+    float3 shadowFactor = 1.0f;
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);
@@ -148,7 +158,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT inp
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-	float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat);
+    float3 shadowFactor = 1.0f;
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
 
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);
@@ -163,7 +175,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OU
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-	float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat);
+    float3 shadowFactor = 1.0f;
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);

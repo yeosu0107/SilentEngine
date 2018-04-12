@@ -135,6 +135,7 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList)
 void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList, VS_CB_CAMERA_INFO & cbInfo)
 {
 	m_ObjectCB->CopyData(0, cbInfo);
+	m_xmf4x4ShadowProjection = cbInfo.m_xmf4x4ShadowProjection;
 	pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, m_ObjectCB->Resource()->GetGPUVirtualAddress());
 }
 

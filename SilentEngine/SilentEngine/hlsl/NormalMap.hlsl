@@ -80,7 +80,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Targe
 	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
 
 	float3 shadowFactor = 1.0f;
-	float4 directLight = Lighting(input.positionW, bumpedNormalW, gnMaterial);
+    float4 directLight = Lighting(input.positionW, bumpedNormalW, gnMaterial, shadowFactor);
 	
 	float4 litColor = directLight * cColor;
 	float3 r = reflect(-toEyeW, bumpedNormalW);

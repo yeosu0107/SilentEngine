@@ -47,7 +47,7 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
 
 	float3 shadowFactor = 1.0f;
-	float4 directLight = Lighting(input.positionW, bumpedNormalW, 0.0f);
+    float4 directLight = Lighting(input.positionW, bumpedNormalW, 0.0f, shadowFactor);
 	
 	float4 litColor = directLight * cColor;
 	float3 r = reflect(-toEyeW, bumpedNormalW);

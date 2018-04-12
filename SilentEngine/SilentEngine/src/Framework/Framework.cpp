@@ -455,7 +455,7 @@ void Framework::Render()
 	m_pCommandList->ClearDepthStencilView(m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 	m_pCommandList->OMSetRenderTargets(2, m_pd3dRtvRenderTargetBufferCPUHandles, TRUE, &m_pDsvHeap->GetCPUDescriptorHandleForHeapStart());
 	
-
+	m_pShadowShader->RefreshShdowMap(m_pCommandList.Get());
 	m_pTestScene->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	ThrowIfFailed(m_pCommandList->Close());
