@@ -2,7 +2,6 @@
 
 #include "LoadModel.h"
 #include "Animation.h"
-
 class ModelLoader
 {
 protected:

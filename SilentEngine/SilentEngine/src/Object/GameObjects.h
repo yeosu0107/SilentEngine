@@ -200,6 +200,7 @@ public:
 	void MoveForward(float fDistance = 1.0f);
 	void MoveDir(XMFLOAT3 dir, float fDist = 1.0f);
 	virtual bool Move(DWORD dir, float fTime) { return false; }
+	virtual bool Move(float fTime, XMFLOAT3 dir) { return false; }
 	virtual bool Movement(DWORD input) { return false; }
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);

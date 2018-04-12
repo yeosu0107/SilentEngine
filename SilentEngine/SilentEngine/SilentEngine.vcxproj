@@ -168,6 +168,7 @@
     <ClCompile Include="src\Framework\Framework.cpp" />
     <ClCompile Include="src\Framework\SilentEngine.cpp" />
     <ClCompile Include="src\Framework\Timer.cpp" />
+    <ClCompile Include="src\GameLogic\StateMachine.cpp" />
     <ClCompile Include="src\GameLogic\Status.cpp" />
     <ClCompile Include="src\Model\Animation.cpp" />
     <ClCompile Include="src\Model\InstanceModelShader.cpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="src\Framework\SilentEngine.h" />
     <ClInclude Include="src\Framework\Timer.h" />
     <ClInclude Include="src\Framework\UploadBuffer.h" />
+    <ClInclude Include="src\GameLogic\StateMachine.h" />
     <ClInclude Include="src\GameLogic\Status.h" />
     <ClInclude Include="src\Model\Animation.h" />
     <ClInclude Include="src\Model\InstanceModelShader.h" />

@@ -15,7 +15,6 @@ Framework::Framework(HINSTANCE hInstance)
 {
 	assert(m_pFramework == nullptr);
 	m_pFramework = this;
-
 	globalModels = new ModelLoader("GameModelList.csv");
 	globalMaps = new MapLoader("MapList.csv");
 	globalEffects = new EffectLoader("EffectList.csv");

@@ -85,6 +85,9 @@
     <Filter Include="Object\Player">
       <UniqueIdentifier>{093a8fc2-0679-440e-9045-ec504a434520}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameLogic\StateMachine">
+      <UniqueIdentifier>{6303829d-59eb-4bbc-89a9-74e59c6d177b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -183,6 +186,9 @@
     </ClCompile>
     <ClCompile Include="src\Scene\Scene.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameLogic\StateMachine.cpp">
+      <Filter>GameLogic\StateMachine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -293,6 +299,9 @@
     </ClInclude>
     <ClInclude Include="src\Scene\Scene.h">
       <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameLogic\StateMachine.h">
+      <Filter>GameLogic\StateMachine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

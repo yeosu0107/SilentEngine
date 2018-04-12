@@ -3,6 +3,8 @@
 #include "D3DUtil.h"
 #include "..\Model\ModelObject.h"
 #include "..\Object\InstanceObject.h"
+#include "..\GameLogic\StateMachine.h"
+
 
 const UINT MAX_BULLET_TIME = 600;
 
@@ -107,7 +109,8 @@ private:
 	EnemyCollisionCallback	m_Callback;
 	bool								m_Crash;
 
-	Jump							m_Jump;
+	Jump								m_Jump;
+	BaseAI*							m_State = nullptr;
 public:
 	Enemy(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Enemy();
@@ -116,6 +119,6 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
-	bool Move(float fTime);
+	virtual bool Move(float fTime, XMFLOAT3 dir);
 	virtual void Animate(float fTime);
 };

@@ -68,6 +68,9 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_Callback.SetJump(&m_Jump);
 	m_Callback.SetCrash(&m_Crash);
 	m_moveSpeed = 100.0f;
+
+	m_State = new BaseAI(this, 60, true);
+	m_State->setFunc();
 }
 
 Enemy::~Enemy()
@@ -84,12 +87,12 @@ void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);*/
 }
 
-bool Enemy::Move(float fTime)
+bool Enemy::Move(float fTime, XMFLOAT3 dir)
 {
 	if (m_Controller) {
 		float fDist = -m_moveSpeed * fTime;
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		xmf3Shift = Vector3::Add(xmf3Shift, GetLook(), fDist);
+		xmf3Shift = Vector3::Add(xmf3Shift, dir, fDist);
 		m_Controller->move(XMtoPX(xmf3Shift), 1.0f, fTime, m_ControllerFilter);
 		m_AnimIndex = EnemyAni::Move;
 		return true;
@@ -100,13 +103,11 @@ bool Enemy::Move(float fTime)
 void Enemy::Animate(float fTime)
 {
 	m_AnimIndex = EnemyAni::Idle;
-	Move(fTime);
 	
+	m_State->update(fTime, new XMFLOAT3(0, 0, 0));
+
 	ModelObject::Animate(fTime); //애니메이션
-	if (m_Crash) {
-		Rotate(0, 90, 0);
-		m_Crash = false;
-	}
+
 	if (m_Controller) {
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
