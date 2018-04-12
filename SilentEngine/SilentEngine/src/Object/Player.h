@@ -110,5 +110,5 @@ public:
 	virtual void Animate(float fTime);
 
 	void SetCamera(Camera* tCamera, BasePhysX* phys);
-	void CalibrateLook();
+	void CalibrateLook(XMFLOAT3& look);
 };

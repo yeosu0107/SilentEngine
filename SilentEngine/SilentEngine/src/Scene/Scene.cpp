@@ -186,7 +186,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	m_Camera = make_unique<CThirdPersonCamera>();
 	m_Camera->InitCamera(pDevice, pCommandList);
-	m_Camera->SetOffset(XMFLOAT3(0.0f, 100.0f, -200.0f));
+	m_Camera->SetOffset(XMFLOAT3(0.0f, 100.0f, -60.0f));
 	m_Camera->SetTimeLag(0.30f);
 	
 	PlayerShader* player = new PlayerShader(2, m_Camera.get());

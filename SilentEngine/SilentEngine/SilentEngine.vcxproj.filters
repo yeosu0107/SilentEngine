@@ -40,12 +40,6 @@
     <Filter Include="Shaders\Source">
       <UniqueIdentifier>{1032f3a4-d697-48b8-99e4-6bd92ac0ef36}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Scene\Header">
-      <UniqueIdentifier>{c223780c-551f-4ede-b6e9-bcd265a7a187}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene\Source">
-      <UniqueIdentifier>{6a76e9c0-cfe0-404b-a1bf-e527ab9be4c7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Framework">
       <UniqueIdentifier>{57b31763-94dd-4e1d-b61c-f9e1ec7c735f}</UniqueIdentifier>
     </Filter>
@@ -118,9 +112,6 @@
     <ClCompile Include="src\Framework\Timer.cpp">
       <Filter>Util\Source</Filter>
     </ClCompile>
-    <ClCompile Include="src\Scene\Scene.cpp">
-      <Filter>Scene\Source</Filter>
-    </ClCompile>
     <ClCompile Include="src\Framework\Framework.cpp">
       <Filter>Framework\Source</Filter>
     </ClCompile>
@@ -190,6 +181,9 @@
     <ClCompile Include="src\GameLogic\Status.cpp">
       <Filter>GameLogic\Status</Filter>
     </ClCompile>
+    <ClCompile Include="src\Scene\Scene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -215,9 +209,6 @@
     </ClInclude>
     <ClInclude Include="src\Framework\UploadBuffer.h">
       <Filter>Util\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Scene\Scene.h">
-      <Filter>Scene\Header</Filter>
     </ClInclude>
     <ClInclude Include="src\Shaders\Shaders.h">
       <Filter>Shaders\Header</Filter>
@@ -299,6 +290,9 @@
     </ClInclude>
     <ClInclude Include="src\GameLogic\Status.h">
       <Filter>GameLogic\Status</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Scene\Scene.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
