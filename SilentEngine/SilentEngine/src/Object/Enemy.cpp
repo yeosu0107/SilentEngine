@@ -67,9 +67,9 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 {
 	m_Callback.SetJump(&m_Jump);
 	m_Callback.SetCrash(&m_Crash);
-	m_moveSpeed = 100.0f;
+	m_moveSpeed = 50.0f;
 
-	m_State = new BaseAI(this, 60, true);
+	m_State = new BaseAI(this, 300, true, 0);
 	m_State->setFunc();
 }
 
@@ -87,24 +87,40 @@ void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);*/
 }
 
-bool Enemy::Move(float fTime, XMFLOAT3 dir)
+bool Enemy::Move(float fTime)
 {
 	if (m_Controller) {
 		float fDist = -m_moveSpeed * fTime;
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
-		xmf3Shift = Vector3::Add(xmf3Shift, dir, fDist);
-		m_Controller->move(XMtoPX(xmf3Shift), 1.0f, fTime, m_ControllerFilter);
+		xmf3Shift = Vector3::Add(xmf3Shift, GetLook(), fDist);
+
+		if (m_Crash) {
+			xmf3Shift = Vector3::Add(xmf3Shift, GetRight(), fDist); //맵과 충돌시 장애물 우회
+			m_Crash = false;
+		}
+
+		m_Controller->move(XMtoPX(xmf3Shift), 0.001f, fTime, m_ControllerFilter);
 		m_AnimIndex = EnemyAni::Move;
 		return true;
 	}
 	return false;
 }
 
+void Enemy::Attack()
+{
+	m_AnimIndex = EnemyAni::Attack;
+}
+
+void Enemy::Skill()
+{
+	m_AnimIndex = EnemyAni::Skill;
+}
+
 void Enemy::Animate(float fTime)
 {
 	m_AnimIndex = EnemyAni::Idle;
 	
-	m_State->update(fTime, new XMFLOAT3(0, 0, 0));
+	m_State->update(fTime);
 
 	ModelObject::Animate(fTime); //애니메이션
 
@@ -117,5 +133,3 @@ void Enemy::Animate(float fTime)
 	if(!m_Jump.mJump)
 		m_Jump.startJump(PxF32(0)); //중력 작용
 }
-
-

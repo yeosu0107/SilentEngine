@@ -4,8 +4,6 @@
 #include "Camera.h"
 #include "Mesh.h"
 
-#include "..\GameLogic\Status.h"
-
 class Shaders;
 
 //이동 애니메이션
@@ -158,8 +156,6 @@ protected:
 	bool																m_bIsLotate = false;
 	bool																m_live = true;
 	float																m_moveSpeed = 0.0f;
-
-	Status															m_Status;
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
@@ -190,7 +186,6 @@ public:
 	XMFLOAT3 GetRight();
 	bool			isLive() const { return m_live; }
 
-	void SetStatus(Status& status);
 	virtual void SetPosition(float x, float y, float z);
 	virtual void SetPosition(XMFLOAT3 xmf3Position);
 	void SetLookAt(XMFLOAT3& xmf3Target);
@@ -199,9 +194,13 @@ public:
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
 	void MoveDir(XMFLOAT3 dir, float fDist = 1.0f);
+
 	virtual bool Move(DWORD dir, float fTime) { return false; }
-	virtual bool Move(float fTime, XMFLOAT3 dir) { return false; }
+	virtual bool Move(float fTime) { return false; }
 	virtual bool Movement(DWORD input) { return false; }
+
+	virtual void Attack() {}
+	virtual void Skill() {}
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);

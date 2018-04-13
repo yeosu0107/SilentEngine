@@ -135,6 +135,7 @@ void TestScene::Update(const Timer & gt)
 	m_physics->stepPhysics(false);
 	//플레이어 애니메이트
 	m_playerShader->Animate(gt.DeltaTime());
+
 	//게이트 애니메이트(문 열리는 애니메이션, 방 클리어 시만 수행)
 	if (m_Room[m_nowRoom]->IsClear())
 		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
@@ -179,6 +180,9 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	EffectLoader* globalEffects = GlobalVal::getInstance()->getEffectLoader();
+	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
+	
 	BuildRootSignature(pDevice, pCommandList);
 
 	BuildLightsAndMaterials();
@@ -237,6 +241,9 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1);
 
 	m_testPlayer = player->getPlayer(0);
+
+	m_testPlayer->GetPosition();
+	GlobalVal::getInstance()->setPlayer(m_testPlayer);
 	
 	m_Room[0]->SetEnemyShader(eShader);
 	m_Room[0]->SetProjectileShader(bullet);

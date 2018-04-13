@@ -15,9 +15,10 @@ Framework::Framework(HINSTANCE hInstance)
 {
 	assert(m_pFramework == nullptr);
 	m_pFramework = this;
-	globalModels = new ModelLoader("GameModelList.csv");
-	globalMaps = new MapLoader("MapList.csv");
-	globalEffects = new EffectLoader("EffectList.csv");
+
+	GlobalVal::getInstance()->LoadModels(new ModelLoader("GameModelList.csv"));
+	GlobalVal::getInstance()->LoadMaps(new MapLoader("MapList.csv"));
+	GlobalVal::getInstance()->LoadEffects(new EffectLoader("EffectList.csv"));
 }
 
 Framework* Framework::GetFramework()
@@ -664,8 +665,8 @@ void Framework::BuildObjects()
 
 	m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr);
 
-	globalModels->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
-	globalMaps->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
+	GlobalVal::getInstance()->getModelLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
+	GlobalVal::getInstance()->getMapLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	m_pTestScene = make_unique<TestScene>();
 	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());

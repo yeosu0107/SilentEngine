@@ -151,6 +151,7 @@ void InstanceModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 
 void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
 	m_nPSO = 1;
 	CreatePipelineParts();
 
@@ -234,6 +235,8 @@ void InstanceModelShader::Animate(float fTime, UINT* next)
 
 void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
+
 	m_nPSO = 1;
 	CreatePipelineParts();
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
@@ -426,6 +429,7 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 
 void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
 	m_nPSO = 1;
 	CreatePipelineParts();
 
@@ -434,8 +438,6 @@ void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12G
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);

@@ -298,11 +298,6 @@ void GameObject::ReleaseUploadBuffers()
 	if (m_pMaterial) m_pMaterial->ReleaseUploadBuffers();
 }
 
-void GameObject::SetStatus(Status& status)
-{
-	m_Status = status;
-}
-
 void GameObject::SetPosition(float x, float y, float z)
 {
 	m_xmf4x4World._41 = x;

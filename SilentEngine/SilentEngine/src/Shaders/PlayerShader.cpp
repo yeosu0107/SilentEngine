@@ -120,6 +120,8 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	BuildPSO(pd3dDevice, 0, PSO_SHADOWMAP);
 	BuildPSO(pd3dDevice, nRenderTargets, PSO_OBJECT);
 
+	ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
+
 	if (globalModels->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);

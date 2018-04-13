@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Status.h"
 
 class StateMachine
 {
@@ -14,19 +15,19 @@ protected:
 		death			//Á×À½»óÅÂ
 	};
 
+	Status* m_status = nullptr;
+
 	STATE m_state;
 	float fTimeElapsed;
 
-	void (StateMachine::*m_stateFunc[7])(void* pContext);
+	void (StateMachine::*m_stateFunc[7])();
 public:
 	StateMachine() : m_state(STATE::idle) {};
 	~StateMachine() {}
 
-	
-
-	virtual void update(float fTime, void* pContext = nullptr) {
+	virtual void update(float fTime) {
 		fTimeElapsed = fTime;
-		(this->*m_stateFunc[m_state])(pContext);
+		(this->*m_stateFunc[m_state])();
 	}
 	virtual void changeState(STATE newState) {
 		m_state = newState;
@@ -41,13 +42,13 @@ public:
 		m_stateFunc[5] = &StateMachine::avoidState;
 		m_stateFunc[6] = &StateMachine::deathState;
 	}
-	virtual void idleState(void* pContext = nullptr) = 0;
-	virtual void trackingState(void* pContext = nullptr) = 0;
-	virtual void patrolState(void* pContext = nullptr) = 0;
-	virtual void attackState(void* pContext = nullptr) = 0;
-	virtual void skillState(void* pContext = nullptr) = 0;
-	virtual void avoidState(void* pContext = nullptr) = 0;
-	virtual void deathState(void* pContext = nullptr) = 0;
+	virtual void idleState() = 0;
+	virtual void trackingState() = 0;
+	virtual void patrolState() = 0;
+	virtual void attackState() = 0;
+	virtual void skillState() = 0;
+	virtual void avoidState() = 0;
+	virtual void deathState() = 0;
 };
 
 class BaseAI : public StateMachine
@@ -59,19 +60,21 @@ private:
 	bool						m_aggrasive;
 
 	UINT						m_patrolTimer = 0;
+	float						m_personalRange;
 public:
-	BaseAI(GameObject* tmp, float range, bool agg);
+	BaseAI(GameObject* tmp, float range, bool agg, int index);
 	~BaseAI() {}
 
 
-	virtual void idleState(void* pContext = nullptr);
-	virtual void trackingState(void* pContext = nullptr);
-	virtual void patrolState(void* pContext = nullptr);
-	virtual void attackState(void* pContext = nullptr);
-	virtual void skillState(void* pContext = nullptr);
-	virtual void avoidState(void* pContext = nullptr);
-	virtual void deathState(void* pContext = nullptr);
+	virtual void idleState();
+	virtual void trackingState();
+	virtual void patrolState();
+	virtual void attackState();
+	virtual void skillState();
+	virtual void avoidState();
+	virtual void deathState();
 
-	bool recognize(XMFLOAT3* pos, float range);
-	XMFLOAT3 trackDir(XMFLOAT3* pos);
+	bool recognize(XMFLOAT3& pos, float range);
+	XMFLOAT3 trackDir(XMFLOAT3& pos);
+	float rotDir(XMFLOAT3& pos);
 };

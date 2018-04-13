@@ -28,7 +28,7 @@ public:
 		}
 	}
 	void 	onControllerHit(const PxControllersHit &hit) {
-		*crash = true;
+		//*crash = true;
 		//cout << "Crash!" << endl;
 	}
 	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
@@ -119,6 +119,9 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
-	virtual bool Move(float fTime, XMFLOAT3 dir);
+	virtual bool Move(float fTime);
+	virtual void Attack();
+	virtual void Skill();
+
 	virtual void Animate(float fTime);
 };

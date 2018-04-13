@@ -190,6 +190,9 @@
     <ClCompile Include="src\GameLogic\StateMachine.cpp">
       <Filter>GameLogic\StateMachine</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameLogic\GlobalVal.cpp">
+      <Filter>GameLogic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -302,6 +305,9 @@
     </ClInclude>
     <ClInclude Include="src\GameLogic\StateMachine.h">
       <Filter>GameLogic\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameLogic\GlobalVal.h">
+      <Filter>GameLogic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

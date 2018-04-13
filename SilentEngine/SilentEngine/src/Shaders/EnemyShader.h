@@ -13,13 +13,15 @@ public:
 	~EnemyShader() { }
 
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets = 1, void * pContext = NULL) {
+		ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
+		
 		m_nPSO = 1;
 		CreatePipelineParts();
 
 		m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 		m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicModel", "ps_5_0");
 
-		m_nObjects = 10;
+		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
 
 		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);

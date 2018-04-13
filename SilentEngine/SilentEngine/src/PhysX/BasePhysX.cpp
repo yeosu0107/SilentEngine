@@ -156,7 +156,7 @@ PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserC
 	capsuleDesc.material = gPhysics->createMaterial(1.0f,1.0f, 1.0f); //Material for capsule shape
 	capsuleDesc.density = 1.0f; //Desity of capsule shape
 	capsuleDesc.contactOffset = 1.01f; //외부 물체와 상호작용하는 크기 (지정한 충돌캡슐보다 조금 더 크게 형성위해)
-	capsuleDesc.slopeLimit = cosf(XMConvertToRadians(15.0f)); //경사 허용도(degree) 0에 가까울수록 경사를 못올라감
+	capsuleDesc.slopeLimit = cosf(XMConvertToRadians(0.0f)); //경사 허용도(degree) 0에 가까울수록 경사를 못올라감
 	capsuleDesc.stepOffset = 3.0f;	//자연스러운 이동 (약간의 고저에 부딫혔을 때 이동가능 여부)
 													//stepoffset보다 큰 높이에 부딛치면 멈춤
 	//capsuleDesc.maxJumpHeight = 2.0f; //최대 점프 높이

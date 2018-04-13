@@ -62,6 +62,7 @@ void ModelShader::ReleaseShaderVariables()
 
 void ModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
 	m_nPSO = 1;
 	CreatePipelineParts();
 
@@ -234,6 +235,7 @@ void DynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dC
 
 void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
 	m_nPSO = 1;
 	CreatePipelineParts();
 
