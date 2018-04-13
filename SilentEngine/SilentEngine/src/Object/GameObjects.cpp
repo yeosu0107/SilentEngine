@@ -5,15 +5,17 @@
 
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 {
-	m_nTextureType = nTextureType;
 	m_nTextures = nTextures;
 	if (m_nTextures > 0)
 	{
-		m_pRootArgumentInfos = new SRVROOTARGUMENTINFO[m_nTextures];
+		m_pRootArgumentInfos = vector<SRVROOTARGUMENTINFO>();
 		m_ppd3dTextureUploadBuffers = vector<ComPtr<ID3D12Resource>>(m_nTextures);
 		m_ppd3dTextures = vector<ComPtr<ID3D12Resource>>(m_nTextures);
-		for (int i = 0; i < m_nTextures; i++) 
+		m_pTextureType = vector<UINT>(m_nTextures);
+		for (int i = 0; i < m_nTextures; i++) {
 			m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = nullptr;
+			m_pTextureType[i] = nTextureType;
+		}
 	}
 
 	m_nSamplers = nSamplers;
@@ -28,18 +30,15 @@ CTexture::~CTexture()
 		m_ppd3dTextures.clear();
 	}
 
-	if (m_pRootArgumentInfos)
-	{
-		delete[] m_pRootArgumentInfos;
-	}
-
 	if (m_pd3dSamplerGpuDescriptorHandles) delete[] m_pd3dSamplerGpuDescriptorHandles;
 }
 
 void CTexture::SetRootArgument(int nIndex, UINT nRootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGpuDescriptorHandle)
 {
-	m_pRootArgumentInfos[nIndex].m_nRootParameterIndex = nRootParameterIndex;
-	m_pRootArgumentInfos[nIndex].m_d3dSrvGpuDescriptorHandle = d3dSrvGpuDescriptorHandle;
+	SRVROOTARGUMENTINFO info;
+	info.m_nRootParameterIndex = nRootParameterIndex;
+	info.m_d3dSrvGpuDescriptorHandle = d3dSrvGpuDescriptorHandle;
+	m_pRootArgumentInfos.push_back(info);
 }
 
 void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuDescriptorHandle)
@@ -47,9 +46,17 @@ void CTexture::SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuD
 	m_pd3dSamplerGpuDescriptorHandles[nIndex] = d3dSamplerGpuDescriptorHandle;
 }
 
+void CTexture::AddTexture(ID3D12Resource * texture, ID3D12Resource * uploadbuffer, UINT textureType)
+{
+	m_nTextures++;
+	m_ppd3dTextures.push_back(texture);
+	m_ppd3dTextureUploadBuffers.push_back(uploadbuffer);
+	m_pTextureType.push_back(textureType);
+}
+
 void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 {
-	if (m_nTextureType == RESOURCE_TEXTURE2D_ARRAY)
+	if (m_pTextureType[0] == RESOURCE_TEXTURE2D_ARRAY)
 	{
 		pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootArgumentInfos[0].m_nRootParameterIndex, m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
 	}
@@ -218,7 +225,7 @@ void GameObject::OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, Cam
 void GameObject::SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList)
 {
 	//pd3dCommandList->SetGraphicsRootConstantBufferView(1, m_d3dCbvGPUDescriptorHandle.ptr);
-	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
+	pd3dCommandList->SetGraphicsRootDescriptorTable(m_nRootIndex, m_d3dCbvGPUDescriptorHandle);
 }
 
 void GameObject::Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera)

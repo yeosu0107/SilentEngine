@@ -71,12 +71,11 @@ public:
 private:
 	int								m_nReferences = 0;
 
-	UINT							m_nTextureType = RESOURCE_TEXTURE2D;
 	int								m_nTextures = 0;
 	vector<ComPtr<ID3D12Resource>>	m_ppd3dTextures;
 	vector<ComPtr<ID3D12Resource>>	m_ppd3dTextureUploadBuffers;
-	SRVROOTARGUMENTINFO				*m_pRootArgumentInfos = NULL;
-
+	vector<SRVROOTARGUMENTINFO>		m_pRootArgumentInfos;
+	vector<UINT>					m_pTextureType;
 	int								m_nSamplers = 0;
 	D3D12_GPU_DESCRIPTOR_HANDLE		*m_pd3dSamplerGpuDescriptorHandles = NULL;
 
@@ -87,16 +86,22 @@ public:
 	void SetRootArgument(int nIndex, UINT nRootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dsrvGpuDescriptorHandle);
 	void SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuDescriptorHandle);
 
+	void AddTexture(ID3D12Resource* texture, ID3D12Resource* uploadbuffer, UINT textureType = RESOURCE_TEXTURE2D);
+
 	void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
 	void UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, int nIndex);
 	void ReleaseShaderVariables();
+	D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHandle(int index) { return m_pRootArgumentInfos[index].m_d3dSrvGpuDescriptorHandle; }
 
 	void LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, const wchar_t *pszFileName, UINT nIndex);
 	ComPtr<ID3D12Resource> CreateTexture(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE *pd3dClearValue, UINT nIndex);
 
 	int GetTextureCount() { return(m_nTextures); }
+	
 	ComPtr<ID3D12Resource> GetTexture(int nIndex) { return(m_ppd3dTextures[nIndex]); }
-	UINT GetTextureType() { return(m_nTextureType); }
+	ComPtr<ID3D12Resource> GetUploadBuffer(int nIndex) { return(m_ppd3dTextureUploadBuffers[nIndex]); }
+
+	UINT GetTextureType(int index) { return(m_pTextureType[index]); }
 
 	void ReleaseUploadBuffers();
 };
@@ -156,6 +161,7 @@ protected:
 	bool																m_bIsLotate = false;
 	bool																m_live = true;
 	float																m_moveSpeed = 0.0f;
+	int																	m_nRootIndex = 1;
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
@@ -179,6 +185,7 @@ public:
 
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 	virtual void ReleaseUploadBuffers();
+	virtual void SetRootParameterIndex(const int index) { m_nRootIndex = index; }
 
 	XMFLOAT3 GetPosition();
 	XMFLOAT3 GetLook();
@@ -194,7 +201,6 @@ public:
 	void MoveUp(float fDistance = 1.0f);
 	void MoveForward(float fDistance = 1.0f);
 	void MoveDir(XMFLOAT3 dir, float fDist = 1.0f);
-
 	virtual bool Move(DWORD dir, float fTime) { return false; }
 	virtual bool Move(float fTime) { return false; }
 	virtual bool Movement(DWORD input) { return false; }

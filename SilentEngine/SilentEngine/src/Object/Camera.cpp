@@ -125,7 +125,7 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList)
 	VS_CB_CAMERA_INFO cameraConstant; 
 	XMStoreFloat4x4(&cameraConstant.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
 	XMStoreFloat4x4(&cameraConstant.m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
-	XMStoreFloat4x4(&cameraConstant.m_xmf4x4ShadowProjection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4ShadowProjection)));
+	XMStoreFloat4x4(&cameraConstant.m_xmf4x4ShadowProjection, XMLoadFloat4x4(&m_xmf4x4ShadowProjection));
 	::memcpy(&cameraConstant.m_xmf3Position, &m_xmf3Position, sizeof(XMFLOAT3));
 	
 	m_ObjectCB->CopyData(0, cameraConstant);

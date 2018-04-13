@@ -88,7 +88,7 @@ bool Framework::Initialize()
 	if (!InitDirect3D())
 		return false;
 
-	OnResize();
+	
 
 	return true;
 }
@@ -298,8 +298,7 @@ void Framework::OnResize()
 		D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, 0
 	);
 
-	m_pShadowShader = make_unique<ShadowDebugShader>();
-	m_pShadowShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pShadowMapTexture);
+	ShadowShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pShadowMapTexture);
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	::ZeroMemory(&dsvDesc, sizeof(D3D12_DEPTH_STENCIL_VIEW_DESC));
@@ -419,7 +418,7 @@ void Framework::Render()
 	m_pCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 	m_pCommandList->OMSetRenderTargets(1, &CurrentBackBufferView(), true, &DepthStencilView());
 
-	m_pShadowShader->Render(m_pCommandList.Get(), m_pCamera);
+	ShadowShader->Render(m_pCommandList.Get(), m_pCamera);
 
 	//m_pTestScene->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
 
@@ -452,10 +451,9 @@ void Framework::Render()
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[0], pfClearColor, 0, NULL);
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[1], pfClearColor, 0, NULL);
 
-	m_pCommandList->ClearDepthStencilView(m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-	m_pCommandList->OMSetRenderTargets(2, m_pd3dRtvRenderTargetBufferCPUHandles, TRUE, &m_pDsvHeap->GetCPUDescriptorHandleForHeapStart());
+	m_pCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
+	m_pCommandList->OMSetRenderTargets(2, m_pd3dRtvRenderTargetBufferCPUHandles, TRUE, &DepthStencilView());
 	
-	m_pShadowShader->RefreshShdowMap(m_pCommandList.Get());
 	m_pTestScene->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	ThrowIfFailed(m_pCommandList->Close());
@@ -479,7 +477,7 @@ void Framework::Render()
 
 	m_pCommandList->ClearDepthStencilView(m_pDsvHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], pfClearColor/*Colors::Azure*/, 0, NULL);
-	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], TRUE, &m_pDsvHeap->GetCPUDescriptorHandleForHeapStart());
+	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], TRUE, &DepthStencilView());
 
 	m_pTextureToFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
 
@@ -654,6 +652,7 @@ bool Framework::InitDirect3D()
 	CreateCommandObjects();
 	CreateSwapChain();
 	CreateRtvAndDsvDescriptorHeaps();
+	OnResize();
 	BuildObjects();
 
 	return true;
@@ -665,9 +664,9 @@ void Framework::BuildObjects()
 
 	m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr);
 
-	GlobalVal::getInstance()->getModelLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
+	GlobalVal::getInstance()->getModelLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get()); 
 	GlobalVal::getInstance()->getMapLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
-
+	
 	m_pTestScene = make_unique<TestScene>();
 	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
 

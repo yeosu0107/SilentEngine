@@ -26,9 +26,9 @@ void PlayerShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
-	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[2].InitAsConstantBufferView(4);
-	pd3dRootParameters[3].InitAsConstantBufferView(5);
+	pd3dRootParameters[1].InitAsConstantBufferView(4);
+	pd3dRootParameters[2].InitAsConstantBufferView(5);
+	pd3dRootParameters[3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
 
@@ -111,7 +111,7 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 2);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 
@@ -125,7 +125,8 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	if (globalModels->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, false);
+		pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
 
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -139,10 +140,28 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	if (m_myCamera)
 		tmp->SetCamera(m_myCamera, (BasePhysX*)pContext);
 	tmp->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
+	tmp->SetRootParameterIndex(3);
 	m_ppObjects[0] = tmp;
 }
 
 void PlayerShader::Animate(float fTimeElapsed)
 {
 	ModelShader::Animate(fTimeElapsed);
+}
+
+void PlayerShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CB_DYNAMICOBJECT_INFO cBone;
+	for (UINT i = 0; i < m_nObjects; ++i) {
+		//cBone.m_xmf4x4World = m_ppObjects[i]->m_xmf4x4World;
+		XMStoreFloat4x4(&cBone.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
+		cBone.m_nMaterial = 0;
+
+		memcpy(cBone.m_bone, m_ppObjects[i]->GetBoneData(), sizeof(XMFLOAT4X4) * m_ppObjects[i]->GetBoneNum());
+
+		m_BoneCB->CopyData(i, cBone);
+	}
+
+	pd3dCommandList->SetGraphicsRootConstantBufferView(1, m_MatCB->Resource()->GetGPUVirtualAddress());
+	pd3dCommandList->SetGraphicsRootConstantBufferView(2, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }

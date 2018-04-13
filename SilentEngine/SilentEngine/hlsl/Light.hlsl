@@ -7,6 +7,7 @@
 //#define _WITH_REFLECT
 
 
+/*
 float CalcShadowFactor(float4 shadowPosH)
 {
     // Complete projection by doing division by w.
@@ -37,6 +38,22 @@ float CalcShadowFactor(float4 shadowPosH)
     }
     
     return percentLit / 9.0f;
+}
+*/
+float CalcShadowFactor(float4 shadowPosH)
+{
+    float shadowFactor = 0.3f;
+    
+    float fBias = 0.006;
+   
+    shadowPosH.xyz /= shadowPosH.w;
+
+    float fsDepth = gShadowMap.Sample(gDefaultSamplerState, shadowPosH.xy).r;
+
+    if (shadowPosH.z <= (fsDepth + fBias))
+        shadowFactor = 1.0f;
+    
+    return shadowFactor;
 }
 
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMatindex)
@@ -161,8 +178,8 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float3 shadowF
 		{
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
-                cColor += shadowFactor[1] * DirectionalLight(i, vNormal, vToCamera, nMatindex);
-                j++;
+                cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex);
+              
             }
 			else if (gLights[i].m_nType == POINT_LIGHT)
 			{
@@ -170,8 +187,8 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float3 shadowF
 			}
 			else if (gLights[i].m_nType == SPOT_LIGHT)
 			{
-				cColor += SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
-			}
+                cColor += shadowFactor[j] * SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
+            }
 		}
 	}
 
@@ -266,7 +283,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTIN
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
     float3 shadowFactor = 1.0f;
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH) * 10;
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;

@@ -135,7 +135,6 @@ void TestScene::Update(const Timer & gt)
 	m_physics->stepPhysics(false);
 	//플레이어 애니메이트
 	m_playerShader->Animate(gt.DeltaTime());
-
 	//게이트 애니메이트(문 열리는 애니메이션, 방 클리어 시만 수행)
 	if (m_Room[m_nowRoom]->IsClear())
 		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
@@ -166,11 +165,8 @@ void TestScene::Update(const Timer & gt)
 	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
 
-	//m_pLights[1].m_pLights->m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(20.0f, 20.0f, 0.0f));
-	//m_pLights[1].m_pLights->m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	XMMATRIX mtxRotate = XMMatrixRotationAxis(XMLoadFloat3(&m_testPlayer->GetUp()), XMConvertToRadians(1.0f));
-	m_pLights->m_pLights[0].m_xmf3Position = Vector3::Add(m_testPlayer->GetPosition(), XMFLOAT3(50.0f, 50.0f, 0.0f));
-	m_pLights->m_pLights[0].m_xmf3Direction = Vector3::Subtract(m_testPlayer->GetPosition(), m_pLights->m_pLights[0].m_xmf3Position, true);
+	m_pLights->m_pLights[0].m_xmf3Position = m_Camera->GetPosition();
+	m_pLights->m_pLights[0].m_xmf3Direction = m_Camera->GetLookVector();
 
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	
@@ -182,7 +178,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 {
 	EffectLoader* globalEffects = GlobalVal::getInstance()->getEffectLoader();
 	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
-	
+
 	BuildRootSignature(pDevice, pCommandList);
 
 	BuildLightsAndMaterials();
@@ -241,7 +237,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1);
 
 	m_testPlayer = player->getPlayer(0);
-
 	m_testPlayer->GetPosition();
 	GlobalVal::getInstance()->setPlayer(m_testPlayer);
 	
@@ -249,6 +244,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[0]->SetProjectileShader(bullet);
 
 	RoomChange();
+
+
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -303,12 +300,12 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
 	XMFLOAT4X4	lightView		= Matrix4x4::LookAtLH(lightPos, lightTarget, lightUp);
 	XMFLOAT3	sphereCenterLS  = Vector3::TransformCoord(lightTarget, lightView);
 
-	float l = sphereCenterLS.x - targetLight.m_fFalloff;
-	float b = sphereCenterLS.y - targetLight.m_fFalloff;
-	float n = sphereCenterLS.z - targetLight.m_fFalloff;
-	float r = sphereCenterLS.x + targetLight.m_fFalloff;
-	float t = sphereCenterLS.y + targetLight.m_fFalloff;
-	float f = sphereCenterLS.z + targetLight.m_fFalloff;
+	float l = sphereCenterLS.x - 150.0f; //targetLight.m_fFalloff;
+	float b = sphereCenterLS.y - 150.0f; //targetLight.m_fFalloff;
+	float n = sphereCenterLS.z - 18.27 * 20; //targetLight.m_fFalloff;
+	float r = sphereCenterLS.x + 10.0f; //targetLight.m_fFalloff;
+	float t = sphereCenterLS.y + 18.27 * 2; //targetLight.m_fFalloff;
+	float f = sphereCenterLS.z + 18.27 * 100; //targetLight.m_fFalloff;
 
 	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
