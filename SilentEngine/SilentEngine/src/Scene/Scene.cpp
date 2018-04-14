@@ -140,7 +140,7 @@ void TestScene::Update(const Timer & gt)
 		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
 
 	//발사체 있을 경우 발사체 경로계산 및 발사
-	if (m_Projectile) {
+	/*if (m_Projectile) {
 		m_testTimer += 1;
 		if (m_testTimer % 50 == 0) {
 			XMFLOAT3 tPos = m_Enemys[0]->GetPosition();
@@ -156,7 +156,7 @@ void TestScene::Update(const Timer & gt)
 		pos = m_Projectile->returnCollisionPos(tmp);
 		if(tmp>0) 
 			m_EffectShaders->SetPos(pos, tmp);
-	}
+	}*/
 	//적 및 발사체 애니메이트 
 	m_Room[m_nowRoom]->Animate(gt.DeltaTime(), m_testPlayer->GetPosition(), m_isRoomChange);
 	//m_isRoomChange변수에 방 이동정보가 들어옴 (방 이동을 하는지, 어느 방으로 이동하는지)
@@ -349,6 +349,9 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 		moveInpout |= DIR_RIGHT;
 
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+		input |= ANI_ATTACK;
+
+	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 		cout << m_testPlayer->GetPosition();
 	
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
@@ -400,10 +403,14 @@ void TestScene::RoomChange()
 	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
 	
 	//이동한 방에 적이 있을 경우 적의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
-	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())
-		m_Enemys = m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(m_nEnemy);
-	else
-		m_Enemys = nullptr;
+	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear()) 
+		GlobalVal::getInstance()->setEnemy(m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(
+			*GlobalVal::getInstance()->getNumEnemy()
+		));
+	
+	else 
+		GlobalVal::getInstance()->setEnemy(nullptr);
+	
 
 	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
 	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())

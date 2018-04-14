@@ -10,7 +10,7 @@ BaseAI::BaseAI(GameObject* tmp, float range, bool agg, int index) : StateMachine
 	else
 		m_personalRange = 60.0f;
 
-	m_status = new Status(49, 100, 50);
+	m_status = new Status(100, 100, 50);
 	m_owner->SetSpeed(m_status->m_moveSpeed);
 }
 
@@ -18,13 +18,16 @@ void BaseAI::idleState()
 {
 	if (m_owner == nullptr)
 		return;
+	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
+	if (recognize(playerPos, m_personalRange)) {
+		changeState(STATE::attack);
+		return;
+	}
 	if (m_aggrasive) {
 		changeState(STATE::patrol);
 		return;
 	}
 	m_owner->Idle();
-
-	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
 
 	if (recognize(playerPos, m_range)) {
 		changeState(STATE::tracking);
@@ -83,6 +86,7 @@ void BaseAI::attackState()
 
 	if (m_status->m_health < 50)
 		changeState(STATE::skill);
+
 	m_owner->Attack();
 
 	if(!recognize(playerPos, m_personalRange + 10.0f))
@@ -96,7 +100,7 @@ void BaseAI::skillState()
 {
 	m_owner->Skill();
 
-	if (m_owner->getAnimRoof())
+	if (m_owner->getAnimRoof() == LOOP_END)
 		changeState(STATE::tracking);
 
 	//스킬쓸 때는 무적 체력체크 안함
@@ -108,15 +112,15 @@ void BaseAI::avoidState()
 
 void BaseAI::hittedState()
 {
-	m_owner->Hitted();
-	if (m_owner->getAnimRoof())
+	//m_owner->Hitted();
+	if (m_owner->getAnimRoof() == LOOP_END)
 		changeState(STATE::idle);
 }
 
 void BaseAI::deathState()
 {
 	m_owner->Death();
-	if (m_owner->getAnimRoof()) {
+	if (m_owner->getAnimRoof() == LOOP_END) {
 		m_owner->SetLive(false);
 		reinterpret_cast<Enemy*>(m_owner)->releasePhys();
 	}

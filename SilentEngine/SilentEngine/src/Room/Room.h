@@ -45,7 +45,7 @@ private:
 	ProjectileShader*				m_Projectile;
 public:
 	UINT									m_mapPosX, m_mapPosY;
-	static enum RoomType {
+	enum RoomType {
 		NONE=0, 
 		brick=1, brick1=2, ice=3, ice2=4, 
 		soil, soil2, stone, stone2, tree, tree2

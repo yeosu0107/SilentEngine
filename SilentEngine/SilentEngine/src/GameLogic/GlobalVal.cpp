@@ -32,7 +32,17 @@ void GlobalVal::setPlayer(GameObject * object)
 	m_player = object;
 }
 
+void GlobalVal::setEnemy(GameObject ** objects)
+{
+	m_Enemys = objects;
+}
+
 GameObject * GlobalVal::getPlayer()
 {
 	return m_player;
+}
+
+GameObject ** GlobalVal::getEnemy()
+{
+	return m_Enemys;
 }

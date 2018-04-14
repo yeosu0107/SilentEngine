@@ -13,6 +13,8 @@ private:
 	EffectLoader*		m_globalEffects = nullptr;
 
 	GameObject*		m_player;
+	GameObject**	m_Enemys;
+	UINT					m_nEnemy;
 public:
 	static GlobalVal* getInstance();
 
@@ -34,8 +36,11 @@ public:
 	void LoadMaps(MapLoader* maps);
 	void LoadEffects(EffectLoader* effects);
 	void setPlayer(GameObject* object);
+	void setEnemy(GameObject** objects);
 
 	GameObject* getPlayer();
+	GameObject** getEnemy();
+	UINT* getNumEnemy() { return &m_nEnemy; }
 	ModelLoader* getModelLoader() { return m_globalModels; }
 	MapLoader* getMapLoader() { return m_globalMaps; }
 	EffectLoader* getEffectLoader() { return m_globalEffects; }

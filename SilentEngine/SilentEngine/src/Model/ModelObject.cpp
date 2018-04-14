@@ -67,12 +67,8 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 		m_AnimIndex = 0;
 		m_ani = new LoadAnimation*[m_NumofAnim];
 
-		//memcpy(m_ani, tmp, sizeof(LoadAnimation)*num);
-
 		for (UINT i = 0; i < m_NumofAnim; ++i) {
 			m_ani[i] = new LoadAnimation(*tmp[i]);
-			//memcpy(m_ani[i], tmp[i], sizeof(LoadAnimation));
-			//m_ani[i] = tmp[i];
 			m_ani[i]->setBones(m_model->GetBones());
 		}
 	}
@@ -81,7 +77,7 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 void ModelObject::Animate(float fTime)
 {
 	if (m_ani) {
-		m_roofCheck = m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, fTime, m_Bones);
+		m_loopCheck = m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, fTime, m_Bones);
 	}
 }
 
@@ -123,9 +119,9 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name)
 }
 
 
-void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos, string* name)
+void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos)
 {
-	m_Controller = control->getCapsuleController(*pos, callback, name);
+	m_Controller = control->getCapsuleController(*pos, callback);
 }
 
 void ModelObject::SetActorPos(float xPos, float yPos, float zPos, float rot)

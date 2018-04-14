@@ -105,11 +105,16 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
+
 	virtual bool Move(DWORD dir, float fTime);
 	virtual bool Movement(DWORD input);
+	virtual void Attack();
+
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);
 
 	void SetCamera(Camera* tCamera, BasePhysX* phys);
 	void CalibrateLook(XMFLOAT3& look);
+
+	void* getTriggerActor() { return m_weaponTrigger; }
 };

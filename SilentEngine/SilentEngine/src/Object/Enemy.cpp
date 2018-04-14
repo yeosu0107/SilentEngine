@@ -70,11 +70,18 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 
 	m_State = new BaseAI(this, 300, true, 0);
 	m_State->setFunc();
+
 }
 
 Enemy::~Enemy()
 {
 	ModelObject::~ModelObject();
+}
+
+void Enemy::SetPhysController(BasePhysX * control, PxUserControllerHitReport * callback, PxExtendedVec3 * pos)
+{
+	ModelObject::SetPhysController(control, &m_Callback, pos);
+	m_attackTrigger = control->getTrigger(PxVec3(100,100,100));
 }
 
 void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
@@ -85,6 +92,7 @@ void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[EnemyAni::Attack]->SetAnimSpeed(0.5f);
 	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);*/
 	m_ani[EnemyAni::Idle]->EnableLoof();
+	m_ani[EnemyAni::Hitted]->SetAnimSpeed(2.0f);
 }
 
 void Enemy::Idle()
@@ -114,6 +122,19 @@ bool Enemy::Move(float fTime)
 void Enemy::Attack()
 {
 	ChangeAnimation(EnemyAni::Attack);
+	if (m_loopCheck == LOOP_MID) {
+
+		PxTransform tmpTr(m_Controller->getPosition().x,
+			m_Controller->getPosition().y,
+			m_Controller->getPosition().z);
+
+		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
+			Vector3::ScalarProduct(GetLook(), -30, false)
+		)));
+
+		m_attackTrigger->setGlobalPose(tmpTr, true);
+
+	}
 }
 
 void Enemy::Skill()
@@ -124,6 +145,8 @@ void Enemy::Skill()
 void Enemy::Hitted()
 {
 	ChangeAnimation(EnemyAni::Hitted);
+	cout << "Enemy Hit!" << endl;
+	m_State->changeState(STATE::hitted);
 }
 
 void Enemy::Death()
@@ -133,6 +156,7 @@ void Enemy::Death()
 
 void Enemy::Animate(float fTime)
 {
+	m_attackTrigger->setGlobalPose(PxTransform(100, 100, 100), false);
 	m_State->update(fTime);
 
 	ModelObject::Animate(fTime); //애니메이션
@@ -142,6 +166,7 @@ void Enemy::Animate(float fTime)
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
 		//실제 이동
 		SetPosition(PXtoXM(m_Controller->getFootPosition()));
+		
 	}
 	if(!m_Jump.mJump)
 		m_Jump.startJump(PxF32(0)); //중력 작용

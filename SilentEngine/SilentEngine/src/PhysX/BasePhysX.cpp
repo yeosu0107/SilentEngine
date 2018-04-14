@@ -36,6 +36,8 @@ void BasePhysX::InitPhysics()
 		exit(1);
 	}
 #endif
+	//시뮬레이터 이벤트콜백 생성
+	//gSimulator = new PhysSimulation();
 
 	//scene 생성
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
@@ -43,7 +45,7 @@ void BasePhysX::InitPhysics()
 	sceneDesc.cpuDispatcher = PxDefaultCpuDispatcherCreate(1); //scene을 위한 cpuDispatcher 생성
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader; //
 	//sceneDesc.filterShader = contactReportFilterShader;
-	//sceneDesc.simulationEventCallback = &gCallback;	//충돌 콜백
+	sceneDesc.simulationEventCallback = &gSimulator;	//충돌 콜백
 
 	gScene = gPhysics->createScene(sceneDesc); //scene 등록
 
@@ -57,8 +59,7 @@ void BasePhysX::InitPhysics()
 		cout << "컨트롤러 생성 실패" << endl;
 #endif
 
-
-
+	
 }
 
 void BasePhysX::BuildPhysics()
@@ -74,6 +75,7 @@ void BasePhysX::stepPhysics(bool interactive)
 		gScene->simulate(gTimeStep);
 		gScene->fetchResults(true); //적용
 	}
+
 }
 
 
@@ -93,13 +95,6 @@ void BasePhysX::ReleasePhysics(bool interactive)
 #ifdef _DEBUG
 	cout << "PhysX CleanUp Done" << endl;
 #endif
-}
-
-void BasePhysX::Addapt(XMFLOAT3 & pos)
-{
-	PxRigidActor* tactor;
-	gScene->getActors(PxActorTypeFlag::eRIGID_DYNAMIC, reinterpret_cast<PxActor**>(&tactor), 1);
-	pos = XMFLOAT3(tactor->getGlobalPose().p.x, tactor->getGlobalPose().p.y, tactor->getGlobalPose().p.z);
 }
 
 PxRigidStatic * BasePhysX::GetBoxMesh(PxVec3& t)
@@ -149,17 +144,17 @@ PxTriangleMesh * BasePhysX::GetTriangleMesh(mesh* meshes, UINT count)
 	return triMesh;
 }
 
-PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback, string* name)
+PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback)
 {
 	PxCapsuleControllerDesc capsuleDesc;
-	capsuleDesc.height = 0.3f; //Height of capsule
+	capsuleDesc.height = 1.0f; //Height of capsule
 	capsuleDesc.radius = 15.0f; //Radius of casule
 	capsuleDesc.position = pos; //Initial position of capsule
 	capsuleDesc.material = gPhysics->createMaterial(1.0f,1.0f, 1.0f); //Material for capsule shape
 	capsuleDesc.density = 1.0f; //Desity of capsule shape
-	capsuleDesc.contactOffset = 1.01f; //외부 물체와 상호작용하는 크기 (지정한 충돌캡슐보다 조금 더 크게 형성위해)
+	capsuleDesc.contactOffset = 1.0f; //외부 물체와 상호작용하는 크기 (지정한 충돌캡슐보다 조금 더 크게 형성위해)
 	capsuleDesc.slopeLimit = cosf(XMConvertToRadians(0.0f)); //경사 허용도(degree) 0에 가까울수록 경사를 못올라감
-	capsuleDesc.stepOffset = 3.0f;	//자연스러운 이동 (약간의 고저에 부딫혔을 때 이동가능 여부)
+	capsuleDesc.stepOffset = 0.0f;	//자연스러운 이동 (약간의 고저에 부딫혔을 때 이동가능 여부)
 													//stepoffset보다 큰 높이에 부딛치면 멈춤
 	//capsuleDesc.maxJumpHeight = 2.0f; //최대 점프 높이
 	capsuleDesc.climbingMode = PxCapsuleClimbingMode::eEASY;
@@ -167,10 +162,9 @@ PxCapsuleController* BasePhysX::getCapsuleController(PxExtendedVec3 pos, PxUserC
 
 	//충돌 콜백 함수
 	capsuleDesc.reportCallback = collisionCallback;
-	
+
 	PxCapsuleController* controller = static_cast<PxCapsuleController*>(gControllerMgr->createController(capsuleDesc));
-;
-	controller->setUserData(name);
+
 	return controller;
 }
 
@@ -205,38 +199,8 @@ PxRigidStatic * BasePhysX::getTrigger(PxVec3 & t)
 
 	PxRigidStatic * staticActor = gPhysics->createRigidStatic(PxTransform(t));
 	staticActor->attachShape(*shape);
-	gScene->addActor(*staticActor);
 
+	gScene->addActor(*staticActor);
 	return staticActor;
 }
 
-Raycast::Raycast(PxGeometry* geom, XMFLOAT3* startPos) :
-	m_geom(geom), maxHit(3), m_startPos(startPos), m_closest(50)
-{
-	hitFlag = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL |
-		PxHitFlag::eDISTANCE | PxHitFlag::eUV | PxHitFlag::eMESH_ANY |
-		PxHitFlag::eMESH_BOTH_SIDES;
-}
-
-Raycast::~Raycast()
-{
-	delete m_geom;
-}
-
-PxAgain Raycast::onHit()
-{
-	UINT hit = PxGeometryQuery::raycast(XMtoPX(*m_startPos),
-		XMtoPX(m_dir), *m_geom, PxTransform(m_pos), m_closest, hitFlag, maxHit, &hitData);
-
-	if (hit != 0 && hitData.distance <= m_closest) {
-
-		return true;
-	}
-	return false;
-}
-
-void Raycast::setPos(PxExtendedVec3 pos)
-{
-	m_dir = Vector3::Subtract(PXtoXM(pos), *m_startPos, true);
-	m_pos = PxVec3(pos.x, pos.y, pos.z);
-}

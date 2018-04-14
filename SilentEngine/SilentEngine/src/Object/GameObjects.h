@@ -19,11 +19,15 @@ class Shaders;
 #define ANI_HITTED				0x100
 #define ANI_IDLE					0x120
 
-#define RESOURCE_TEXTURE2D			0x01
-#define RESOURCE_TEXTURE2D_ARRAY		0x02	//[]
-#define RESOURCE_TEXTURE2DARRAY		0x03
-#define RESOURCE_TEXTURE_CUBE			0x04
-#define RESOURCE_BUFFER				0x05
+const UINT LOOP_IN					= 0;
+const UINT LOOP_END				= 1;
+const UINT LOOP_MID				= 2;
+
+#define RESOURCE_TEXTURE2D						0x01
+#define RESOURCE_TEXTURE2D_ARRAY			0x02	//[]
+#define RESOURCE_TEXTURE2DARRAY			0x03
+#define RESOURCE_TEXTURE_CUBE				0x04
+#define RESOURCE_BUFFER							0x05
 #define RESOURCE_TEXTURE2D_SHADOWMAP	0x06
 
 struct CB_GAMEOBJECT_INFO
@@ -161,7 +165,7 @@ protected:
 	bool																m_bIsLotate = false;
 	bool																m_live = true;
 	float																m_moveSpeed = 0.0f;
-	bool																m_roofCheck = 0;	//애니메이션 한 루프 종료 여부 (종료시 true)
+	UINT																m_loopCheck = 0;	//애니메이션 한 루프 종료 여부 (종료시 1)
 	int																	m_nRootIndex = 1;
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
@@ -212,7 +216,7 @@ public:
 	virtual void Hitted() {}
 	virtual void Death() {}
 
-	bool getAnimRoof() const { return m_roofCheck; }
+	UINT getAnimRoof() const { return m_loopCheck; }
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
@@ -222,4 +226,7 @@ public:
 
 	void SetScale(float value);
 	void SetSpeed(float speed) { m_moveSpeed = speed; }
+
+	virtual void* getControllerActor() { return nullptr; }
+	virtual void* getTriggerActor() { return nullptr; }
 };

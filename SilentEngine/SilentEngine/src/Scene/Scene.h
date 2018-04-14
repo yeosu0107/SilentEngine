@@ -106,8 +106,6 @@ protected:
 	unique_ptr<UploadBuffer<MATERIALS>>	m_pd3dcbMaterials = nullptr;
 
 	GameObject*											m_testPlayer=nullptr;
-	GameObject**										m_Enemys=nullptr;
-	UINT														m_nEnemy = 0;
 
 	UINT														m_testTimer = 0;
 

@@ -137,14 +137,29 @@ bool Player::Movement(DWORD input)
 	m_AnimIndex = PlayerAni::Idle;
 	//ChangeAnimation(PlayerAni::Idle);
 	
-	if (input & ANI_ATTACK)
-		m_AnimIndex = PlayerAni::Attack;
+	if (input & ANI_ATTACK) {
+		//m_AnimIndex = PlayerAni::Attack;
+		Attack();
+	}
 	if (input & ANI_SKILL)
 		m_AnimIndex = PlayerAni::Skill;
 
 	if (input != 0)
 		return true;
 	return false;
+}
+
+void Player::Attack()
+{
+	PxTransform tmpTr(m_Controller->getPosition().x,
+		m_Controller->getPosition().y,
+		m_Controller->getPosition().z);
+
+	tmpTr = tmpTr.transform(PxTransform(XMtoPX(
+		Vector3::ScalarProduct(m_xmf3Look, 30, false)
+	)));
+
+	m_weaponTrigger->setGlobalPose(tmpTr, true);
 }
 
 void Player::SetPosition(float x, float y, float z)
@@ -186,16 +201,7 @@ void Player::Animate(float fTime)
 		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
 		//cout << m_xmf3Position.x << "\t" << m_xmf3Position.y << "\t" << m_xmf3Position.z << endl;
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
-		
-		PxTransform tmpTr(m_Controller->getPosition().x,
-			m_Controller->getPosition().y,
-			m_Controller->getPosition().z);
-
-		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
-			Vector3::ScalarProduct(m_xmf3Look, 30, false)
-		)));
-		
-		m_weaponTrigger->setGlobalPose(tmpTr, true);
+		m_weaponTrigger->setGlobalPose(PxTransform(100, 100, 100), false);
 	}
 
 	if (m_pCamera) {
@@ -219,7 +225,7 @@ void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 	string* tmp = new string("camera");
 	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, tmp, 30.0f, 10.0f);
 
-	m_weaponTrigger = phys->getTrigger(XMtoPX(GetPosition()));
+	m_weaponTrigger = phys->getTrigger(PxVec3(100,100,100));
 }
 
 void Player::CalibrateLook(XMFLOAT3& look)

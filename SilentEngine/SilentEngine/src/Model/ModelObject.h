@@ -63,12 +63,14 @@ public:
 
 	void ChangeAnimation(UINT nextIndex);
 
-	//physX 세팅
+	//physX 관련 함수
 	void SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name = nullptr);
-	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos, string* name = nullptr);
+	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos);
 
 	void SetActorPos(float xPos, float yPos, float zPos, float rot);
 	void RotationYAxis(float rot);
 
 	void releasePhys();
+
+	void* getControllerActor() { return m_Controller->getActor(); }
 };

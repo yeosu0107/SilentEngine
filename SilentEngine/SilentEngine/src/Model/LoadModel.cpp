@@ -195,11 +195,10 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 	for (UINT i = 0; i < pMesh->mNumBones; ++i) {
 		int BoneIndex = -1;
 		const aiBone* pBone = pMesh->mBones[i];
-		string BoneName(pBone->mName.data);
 
 		int tmpIndex = 0;
 		for (const auto& p : m_Bones) { //이미 존재하는 뼈인지 검색
-			if (p.first == BoneName) {
+			if (p.first == pBone->mName.data) {
 				BoneIndex = tmpIndex;
 				//현재 뼈가 이미 벡터에 저장된 뼈일 경우
 				//인덱스를 해당 뼈의 인덱스로 저장
@@ -215,7 +214,7 @@ void LoadModel::InitBones(UINT index, const aiMesh* pMesh)
 
 			Bone bone;
 			bone.BoneOffset = aiMatrixToXMMatrix(pBone->mOffsetMatrix);
-			m_Bones.emplace_back(make_pair(BoneName, bone));
+			m_Bones.emplace_back(make_pair(pBone->mName.data, bone));
 		}
 
 		

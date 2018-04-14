@@ -2,19 +2,20 @@
 
 #include "Status.h"
 
+enum STATE {
+	idle = 0,		//기본상태
+	tracking,	//추적상태
+	patrol,		//순찰상태
+	attack,		//공격상태
+	skill,			//스킬상태
+	avoid,		//회피/도망 상태
+	hitted,		//공격받은상태
+	death			//죽음상태
+};
+
 class StateMachine
 {
 protected:
-	enum STATE {
-		idle = 0,		//기본상태
-		tracking,	//추적상태
-		patrol,		//순찰상태
-		attack,		//공격상태
-		skill,			//스킬상태
-		avoid,		//회피/도망 상태
-		death			//죽음상태
-	};
-
 	Status* m_status = nullptr;
 
 	STATE m_state;

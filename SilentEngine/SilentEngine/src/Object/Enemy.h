@@ -28,8 +28,9 @@ public:
 		}
 	}
 	void 	onControllerHit(const PxControllersHit &hit) {
-		//*crash = true;
-		//cout << "Crash!" << endl;
+		if(hit.other->getActor() != 
+			GlobalVal::getInstance()->getPlayer()->getControllerActor())
+			*crash = true;
 	}
 	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
 	}
@@ -106,6 +107,8 @@ public:
 class Enemy : public ModelObject
 {
 private:
+	PxRigidActor *				m_attackTrigger;
+
 	EnemyCollisionCallback	m_Callback;
 	bool								m_Crash;
 
@@ -116,6 +119,7 @@ public:
 	~Enemy();
 	
 	EnemyCollisionCallback* getCollisionCallback() { return &m_Callback; }
+	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos);
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 

@@ -18,7 +18,9 @@ private:
 
 	float										start_time; //프레임 시작 시간
 	float										end_time;  //프레임 종료 시간
+	float										mid_time;	//프레임 중간 시간
 	float										now_time;  //현재 프레임
+	
 	BOOL									animation_loof;  //애니메이션 루프 여부 (기본은 true)
 	UINT										next_index;
 
@@ -40,9 +42,9 @@ public:
 		animation_loof = true;
 	}
 
-	void SetAnimSpeed(float speed) { m_animSpeed = speed; }
+	void SetAnimSpeed(float speed) { m_animSpeed *= speed; }
 
-	bool BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms);
+	UINT BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms);
 	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const XMMATRIX& ParentTransform);
 	const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
 

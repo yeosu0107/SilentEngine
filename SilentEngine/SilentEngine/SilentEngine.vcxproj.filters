@@ -193,6 +193,9 @@
     <ClCompile Include="src\GameLogic\GlobalVal.cpp">
       <Filter>GameLogic</Filter>
     </ClCompile>
+    <ClCompile Include="src\PhysX\PhysAddon.cpp">
+      <Filter>PhysX</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -308,6 +311,9 @@
     </ClInclude>
     <ClInclude Include="src\GameLogic\GlobalVal.h">
       <Filter>GameLogic</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PhysX\PhysAddon.h">
+      <Filter>PhysX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

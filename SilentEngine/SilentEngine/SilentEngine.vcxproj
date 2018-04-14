@@ -186,6 +186,7 @@
     <ClCompile Include="src\Object\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Object\Player.cpp" />
     <ClCompile Include="src\PhysX\BasePhysX.cpp" />
+    <ClCompile Include="src\PhysX\PhysAddon.cpp" />
     <ClCompile Include="src\Room\Room.cpp" />
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\Shaders\PlayerShader.cpp" />
@@ -227,6 +228,7 @@
     <ClInclude Include="src\Object\Mesh\Mesh.h" />
     <ClInclude Include="src\Object\Player.h" />
     <ClInclude Include="src\PhysX\BasePhysX.h" />
+    <ClInclude Include="src\PhysX\PhysAddon.h" />
     <ClInclude Include="src\Room\Room.h" />
     <ClInclude Include="src\Room\Stage.h" />
     <ClInclude Include="src\Scene\Scene.h" />

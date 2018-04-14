@@ -19,6 +19,7 @@ LoadAnimation::LoadAnimation(string filename) :
 		//프레임 시작 시점은 좌표 이동 프레임을 기준으로 맞춤
 		end_time = (float)m_pAnim->mChannels[0]->mPositionKeys[m_pAnim->mChannels[0]->mNumPositionKeys - 1].mTime - 1.0f; 
 		//프레임 종료 시점에서 1.0 만큼 빼줘야 프레임이 안겹침
+		mid_time = (end_time - start_time) / 2 + start_time;
 		now_time = start_time;
 
 		//m_animSpeed = (end_time - start_time) / m_pAnim->mChannels[0]->mNumPositionKeys;
@@ -34,10 +35,11 @@ LoadAnimation::LoadAnimation(const LoadAnimation & T)
 	start_time = T.start_time;
 	end_time = T.end_time;
 	now_time = T.now_time;
+	mid_time = T.mid_time;
 	m_animSpeed = T.m_animSpeed;
 }
 
-bool LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms)
+UINT LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms)
 {
 	XMMATRIX Identity = XMMatrixIdentity();
 
@@ -46,7 +48,7 @@ bool LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& 
 		for (UINT i = 0; i < m_NumBones; ++i) {
 			XMStoreFloat4x4(&transforms[i], Identity);
 		}
-		return false; 
+		return LOOP_IN;
 	}
 
 	//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
@@ -64,10 +66,13 @@ bool LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& 
 		if (!animation_loof) {
 			index = next_index;
 		}
-		return true; //애니메이션이 한 루프 끝남
+		return LOOP_END; //애니메이션이 한 루프 끝남
+	}
+	if (now_time > mid_time - 1 && now_time < mid_time + 1) {
+		return LOOP_MID;
 	}
 
-	return false; //애니메이션이 아직 실행중
+	return LOOP_IN; //애니메이션이 아직 실행중
 }
 
 void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, const XMMATRIX& ParentTransform)
