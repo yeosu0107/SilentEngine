@@ -165,8 +165,8 @@ void TestScene::Update(const Timer & gt)
 	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
 
-	m_pLights->m_pLights[0].m_xmf3Position = m_Camera->GetPosition();
-	m_pLights->m_pLights[0].m_xmf3Direction = m_Camera->GetLookVector();
+	//m_pLights->m_pLights[0].m_xmf3Position = m_Camera->GetPosition();
+	//m_pLights->m_pLights[0].m_xmf3Direction = m_Camera->GetLookVector();
 
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	
@@ -295,7 +295,7 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
 	
 	XMFLOAT3	lightDir		= targetLight.m_xmf3Direction;
 	XMFLOAT3	lightPos		= targetLight.m_xmf3Position;
-	XMFLOAT3	lightTarget		= m_testPlayer->GetPosition();
+	XMFLOAT3	lightTarget		= XMFLOAT3(59.3919f, -190.0f, 28.442f);
 	XMFLOAT3	lightUp			= XMFLOAT3(0.0f, 1.0f, 0.0f);
 
 	XMFLOAT4X4	lightView		= Matrix4x4::LookAtLH(lightPos, lightTarget, lightUp);
@@ -528,16 +528,16 @@ void TestScene::BuildLightsAndMaterials()
 
 	m_pLights->m_pLights[0].m_bEnable = true;
 	m_pLights->m_pLights[0].m_nType = SPOT_LIGHT;
-	m_pLights->m_pLights[0].m_fRange = 500.0f;
-	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_pLights->m_pLights[0].m_xmf4Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	m_pLights->m_pLights[0].m_fRange = 900.0f;
+	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_pLights->m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
-	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(-50.0f, 20.0f, -5.0f);
+	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(0.0f, 600.0f, 28.442f);
 	m_pLights->m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
 	m_pLights->m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	m_pLights->m_pLights[0].m_fFalloff = 8.0f;
-	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(40.0f));
-	m_pLights->m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
+	m_pLights->m_pLights[0].m_fFalloff = 40.0f;
+	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(90.0f));
+	m_pLights->m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
 
 	m_pLights->m_pLights[1].m_bEnable = true;
 	m_pLights->m_pLights[1].m_nType = POINT_LIGHT;
