@@ -286,6 +286,7 @@ void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandLis
 
 	m_Camera->UpdateShaderVariables(pCommandList, cameraInfo);
 	m_playerShader->RenderToDepthBuffer(pCommandList, m_Camera.get());
+	m_Room[m_nowRoom]->RenderToDepthBuffer(pCommandList, m_Camera.get());
 }
 
 void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
@@ -300,11 +301,11 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
 	XMFLOAT4X4	lightView		= Matrix4x4::LookAtLH(lightPos, lightTarget, lightUp);
 	XMFLOAT3	sphereCenterLS  = Vector3::TransformCoord(lightTarget, lightView);
 
-	float l = sphereCenterLS.x - 150.0f; //targetLight.m_fFalloff;
-	float b = sphereCenterLS.y - 150.0f; //targetLight.m_fFalloff;
-	float n = sphereCenterLS.z - 18.27 * 20; //targetLight.m_fFalloff;
-	float r = sphereCenterLS.x + 10.0f; //targetLight.m_fFalloff;
-	float t = sphereCenterLS.y + 18.27 * 2; //targetLight.m_fFalloff;
+	float l = sphereCenterLS.x - 250.0f; //targetLight.m_fFalloff;
+	float b = sphereCenterLS.y - 250.0f; //targetLight.m_fFalloff;
+	float n = sphereCenterLS.z - 100.0f; //targetLight.m_fFalloff;
+	float r = sphereCenterLS.x + 250.0f; //targetLight.m_fFalloff;
+	float t = sphereCenterLS.y + 250.0f; //targetLight.m_fFalloff;
 	float f = sphereCenterLS.z + 18.27 * 100; //targetLight.m_fFalloff;
 
 	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);

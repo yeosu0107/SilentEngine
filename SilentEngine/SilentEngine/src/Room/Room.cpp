@@ -86,6 +86,15 @@ void Room::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 	}
 }
 
+void Room::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	m_mapShader->RenderToDepthBuffer(pd3dCommandList, pCamera);
+	if (!isClear) {
+		if (isEnemy)
+			m_enemyShader->RenderToDepthBuffer(pd3dCommandList, pCamera);
+	}
+}
+
 void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 {
 	//맵은 애니메이션이 없기에 애니메이트 X

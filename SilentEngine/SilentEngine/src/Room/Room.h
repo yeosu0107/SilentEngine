@@ -84,5 +84,6 @@ public:
 	ProjectileShader* GetProjectileShader() { return m_Projectile; }
 
 	void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
+	void RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	void Animate(float fTime, XMFLOAT3& playerPos, Door& change);
 };

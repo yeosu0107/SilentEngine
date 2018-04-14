@@ -85,6 +85,12 @@ void InstanceModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 		pd3dSignatureBlob->GetBufferSize(),
 		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
+
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
+		pd3dSignatureBlob->GetBufferPointer(),
+		pd3dSignatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_RootSignature[PSO_SHADOWMAP].GetAddressOf()))
+	);
 }
 
 
@@ -241,10 +247,14 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 {
 	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
 
-	m_nPSO = 1;
+	m_nPSO = 2;
 	CreatePipelineParts();
+
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
+
+	m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
+	m_PSByteCode[1] = nullptr;
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
@@ -254,6 +264,8 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
 
 	CreateGraphicsRootSignature(pd3dDevice);
+
+	BuildPSO(pd3dDevice, 0, PSO_SHADOWMAP);
 	BuildPSO(pd3dDevice, nRenderTargets);
 
 	if (globalMaps->isMat(modelIndex)) {
