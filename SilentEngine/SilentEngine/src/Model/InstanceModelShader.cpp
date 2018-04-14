@@ -26,7 +26,7 @@ void InstanceModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[2].InitAsConstantBufferView(4);
 	pd3dRootParameters[3].InitAsConstantBufferView(5);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
@@ -117,13 +117,15 @@ void InstanceModelShader::CreateShaderResourceViews(ID3D12Device * pd3dDevice, I
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle = m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
 	int nTextures = pTexture->GetTextureCount();
-	int nTextureType = pTexture->GetTextureType();
+	
 
 	d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
 	d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
 
 	for (int i = 0; i < nTextures; i++)
 	{
+		int nTextureType = pTexture->GetTextureType(i);
+
 		ComPtr<ID3D12Resource> pShaderResource = pTexture->GetTexture(i);
 		D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
 		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = GetShaderResourceViewDesc(d3dResourceDesc, nTextureType);
@@ -152,6 +154,7 @@ void InstanceModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
+
 	m_nPSO = 1;
 	CreatePipelineParts();
 
@@ -161,7 +164,7 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_nObjects = 4;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
 
@@ -171,7 +174,8 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	if (globalMaps->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), 0);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, false);
+		pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, true);
 
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -245,7 +249,7 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
 
@@ -255,7 +259,8 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	if (globalMaps->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), 0);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, false);
+		pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, true);
 
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -393,13 +398,15 @@ void InstanceDynamicModelShader::CreateShaderResourceViews(ID3D12Device * pd3dDe
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle = m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
 	int nTextures = pTexture->GetTextureCount();
-	int nTextureType = pTexture->GetTextureType();
+	
 
 	d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
 	d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
 
 	for (int i = 0; i < nTextures; i++)
 	{
+		int nTextureType = pTexture->GetTextureType(i);
+
 		ComPtr<ID3D12Resource> pShaderResource = pTexture->GetTexture(i);
 		D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
 		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = GetShaderResourceViewDesc(d3dResourceDesc, nTextureType);
@@ -429,6 +436,7 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 
 void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+
 	ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
 	m_nPSO = 1;
 	CreatePipelineParts();
@@ -448,6 +456,7 @@ void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12G
 
 	if (globalModels->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
 		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, false);
 

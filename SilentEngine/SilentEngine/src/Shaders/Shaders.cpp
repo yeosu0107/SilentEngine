@@ -47,12 +47,10 @@ void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets, int index
 
 void Shaders::CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement)
 {
-
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle = m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
 	int nTextures = pTexture->GetTextureCount();
-	int nTextureType = pTexture->GetTextureType();
-
+	
 	//nInstanceParameterCount = Index앞에 존재하는 인스턴스 SRV개수
 
 	d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
@@ -60,6 +58,8 @@ void Shaders::CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12Graphic
 
 	for (int i = 0; i < nTextures; i++)
 	{
+		int nTextureType = pTexture->GetTextureType(i);
+
 		ComPtr<ID3D12Resource> pShaderResource = pTexture->GetTexture(i);
 		D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
 		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = GetShaderResourceViewDesc(d3dResourceDesc, nTextureType);
@@ -69,6 +69,7 @@ void Shaders::CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12Graphic
 		pTexture->SetRootArgument(i, (bAutoIncrement) ? (nRootParameterStartIndex + i) : nRootParameterStartIndex, d3dSrvGPUDescriptorHandle);
 		d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 	}
+
 }
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType)
@@ -126,9 +127,10 @@ void Shaders::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12Graphics
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle = m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
 	int nTextures = pTexture->GetTextureCount();
-	int nTextureType = pTexture->GetTextureType();
+	
 	for (int i = 0; i < nTextures; i++)
 	{
+		int nTextureType = pTexture->GetTextureType(i);
 		ComPtr<ID3D12Resource> pShaderResource = pTexture->GetTexture(i);
 		D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
 		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = GetShaderResourceViewDesc(d3dResourceDesc, nTextureType);
@@ -545,10 +547,11 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks.dds", 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks_nm.dds", 1);
+	pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 2);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
@@ -851,15 +854,17 @@ void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 6, 0, 0); // Texture
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 8, 0, 0); 
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8, 0, 0); 
+	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[3];
 
 	pd3dRootParameters[0].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -924,6 +929,8 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
 
+	m_pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+
 	m_nPSO = 1;
 	CreatePipelineParts();
 
@@ -947,7 +954,7 @@ void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Ca
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 	
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
-
+	
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
@@ -1043,6 +1050,9 @@ void ShadowDebugShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 0, true);
+	m_Srv = m_pTexture->GetDescriptorHandle(0);
+	m_Resource = m_pTexture->GetTexture(0);
+	m_UploadBuffer = m_pTexture->GetUploadBuffer(0);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
@@ -1057,6 +1067,15 @@ void ShadowDebugShader::RefreshShdowMap(ID3D12GraphicsCommandList * pd3dCommandL
 	OnPrepareRender(pd3dCommandList);
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 }
+
+ShadowDebugShader * ShadowDebugShader::Instance()
+{
+	static ShadowDebugShader instance;
+
+	return &instance;
+}
+
+////////////////////////////////////////////////////
 
 FadeEffectShader::FadeEffectShader()
 {
