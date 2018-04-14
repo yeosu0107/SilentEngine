@@ -14,20 +14,22 @@ void InstanceModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[4];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, 0); // GameObject
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, 0); // Texture
-	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, 0);
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0, 0); // NormTexture
+	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, 0); // Texture
+	pd3dDescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, 0); // ShadowMap
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[7];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
-	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[2].InitAsConstantBufferView(4);
 	pd3dRootParameters[3].InitAsConstantBufferView(5);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[6].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -181,7 +183,7 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), 0);
 		pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, true);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 1, true);
 
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -250,16 +252,16 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_nPSO = 2;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_1");
-
-	m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_1");
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceNORMModel", "vs_5_1");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "PSModelNormalMap", "ps_5_1");
+	
+	m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceNORMModel", "vs_5_1");
 	m_PSByteCode[1] = nullptr;
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 4);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
 
@@ -268,17 +270,23 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	BuildPSO(pd3dDevice, 0, PSO_SHADOWMAP);
 	BuildPSO(pd3dDevice, nRenderTargets);
 
+	int index = 0;
+	
 	if (globalMaps->isMat(modelIndex)) {
-		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), 0);
+		bool hadNormap = globalMaps->isNormat(modelIndex);
+		CTexture *pTexture = new CTexture(hadNormap ? 2 : 1, RESOURCE_TEXTURE2D, 0);
+		if (hadNormap)
+			pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getNorMat(modelIndex).c_str(), index++);
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), index);
+	
 		pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, true);
-
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5 - index, 1, true);
+	
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
 		m_pMaterial->SetReflection(1);
 	}
-
+	
 	int num = 0;
 	ModelObject* object = new ModelObject(globalMaps->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 	object->SetPosition(XMFLOAT3(0, 0, 0));

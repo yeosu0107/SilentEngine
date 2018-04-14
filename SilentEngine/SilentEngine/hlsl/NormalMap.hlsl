@@ -17,6 +17,7 @@ struct VS_NORMAL_OUTPUT
 	float2 uv : TEXCOORD;
 };
 
+
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
 {
 	float3 normalT = 2.0f * normalMapSample - 1.0f;
@@ -93,4 +94,41 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Targe
 	output.normal = float4(input.normalW, 1.0f);
 	//return cColor;
 	return output;
+}
+
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSModelNormalMap(VS_MODEL_NORMAL_OUTPUT input) : SV_Target
+{
+    MATERIAL matData = gMaterials[input.mat];
+    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	
+    float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
+    float roughness = 0.1f;
+
+    input.normalW = normalize(input.normalW);
+	
+    float4 normalMapSample = gBoxNormal.Sample(gDefaultSamplerState, float3(input.uv, 0.0f));
+    float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, input.normalW, input.tangentW);
+	
+    const float shininess = (1.0f - roughness) * normalMapSample.a;
+
+    cColor = gBoxTextured.Sample(gDefaultSamplerState, float3(input.uv, 0.0f));
+
+    float3 toEyeW = normalize(gvCameraPosition - input.positionW);
+
+    float3 shadowFactor = 1.0f;
+    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 directLight = Lighting(input.positionW, bumpedNormalW, input.mat, shadowFactor);
+	
+    float4 litColor = directLight * cColor;
+    float3 r = reflect(-toEyeW, bumpedNormalW);
+	
+    float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+	//float3 fresnelFactor = float3(1.0f, 1.0f, 1.0f);
+    litColor.rgb += shininess * fresnelFactor * litColor.rgb;
+
+    output.color = litColor;
+    output.normal = float4(input.normalW, 1.0f);
+	//return cColor;
+    return output;
 }

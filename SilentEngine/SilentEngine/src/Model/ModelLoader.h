@@ -7,7 +7,8 @@ class ModelLoader
 protected:
 	UINT m_numModels;
 	vector<pair<LoadModel*, vector<LoadAnimation*>*>> m_Objects;
-	vector<string> matList;
+	vector<string>		matList;
+	vector<string>		normMatList;
 public:
 	ModelLoader();
 	ModelLoader(string fileName);
@@ -20,8 +21,16 @@ public:
 	wstring getMat(UINT index) { 
 		return wstring(matList[index].begin(), matList[index].end());
 	}
+	wstring getNorMat(UINT index) {
+		return wstring(normMatList[index].begin(), normMatList[index].end());
+	}
 	bool isMat(UINT index) {
 		if (matList[index] != "null")
+			return true;
+		return false;
+	}
+	bool isNormat(UINT index) {
+		if (normMatList[index] != "null")
 			return true;
 		return false;
 	}
@@ -39,7 +48,8 @@ private:
 
 		Point* returnPoint() { return point; }
 	};
-	vector<StartList> m_startPoint;
+	vector<StartList>	m_startPoint;
+	
 public:
 	MapLoader(string fileName);
 	~MapLoader();

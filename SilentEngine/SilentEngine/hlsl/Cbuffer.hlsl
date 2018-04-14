@@ -57,6 +57,8 @@ struct PS_MULTIPLE_RENDER_TARGETS_OUTPUT
 	float4 normal : SV_TARGET1;
 };
 
+
+
 struct LIGHT
 {
 	float4				m_cAmbient;
@@ -104,4 +106,15 @@ static matrix gmtxTexture =
     0.0f, -0.5f, 0.0f, 0.0f,
     0.0f, 0.0f, 1.0f, 0.0f,
     0.5f, 0.5f, 0.0f, 1.0f
+};
+
+struct VS_MODEL_NORMAL_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float3 positionW : POSITION;
+    float4 ShadowPosH : POSITION1;
+    float3 normalW : NORMAL;
+    float2 uv : TEXCOORD;
+    float3 tangentW : TANGENT;
+    uint mat : MATERIAL;
 };

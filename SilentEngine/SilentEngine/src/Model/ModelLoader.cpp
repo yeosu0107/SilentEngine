@@ -79,7 +79,7 @@ MapLoader::MapLoader(string fileName)
 		st = StringTokenizer(tmpName, delim); //string을 delim기준으로 분할해서 큐에 저장
 		LoadModel* tmpModel = new LoadModel(st.nextToken(), true); //모델파일 로딩
 		matList.emplace_back(st.nextToken()); //텍스쳐 파일
-
+		normMatList.emplace_back(st.nextToken());	// 노말맵 텍스쳐 파일
 		horizontal = atof(st.nextToken().c_str());
 		height = atof(st.nextToken().c_str());
 		vertical = atof(st.nextToken().c_str());
@@ -101,3 +101,5 @@ MapLoader::MapLoader(string fileName)
 MapLoader::~MapLoader()
 {
 }
+
+///////////////////////////////////////////

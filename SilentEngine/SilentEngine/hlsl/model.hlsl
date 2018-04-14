@@ -48,6 +48,24 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSStaticInstanceModel(VS_MODEL_INPUT input,
 	return(output);
 }
 
+VS_MODEL_NORMAL_OUTPUT VSStaticInstanceNORMModel(VS_MODEL_INPUT input, uint instanceID : SV_InstanceID)
+{
+    VS_MODEL_NORMAL_OUTPUT output;
+
+    InstanceData instData = gInstanceData[instanceID];
+    float4x4 world = instData.mtxGameObject;
+
+    output.mat = instData.nMaterial;
+    output.normalW = mul(input.normal, (float3x3) world);
+    output.positionW = (float3) mul(float4(input.position, 1.0f), world);
+    output.tangentW = mul(input.tan, (float3x3) world);
+    output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
+    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    output.uv = input.uv;
+
+    return (output);
+}
+
 
 VS_TEXTURED_LIGHTING_OUTPUT VSDynamicModel(VS_MODEL_INPUT input)
 {
@@ -184,3 +202,4 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OU
 
 	return (output);
 }
+
