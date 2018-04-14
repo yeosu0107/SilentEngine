@@ -146,7 +146,6 @@ void Shaders::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D1
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle = m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
-
 	/*
 		nPreInstanceBuffers = 이전에 선언한 인스턴스 버퍼의 개수
 			ex) 
@@ -155,7 +154,6 @@ void Shaders::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D1
 			2. nPreInstanceBuffers = 1
 			3. nPreInstanceBuffers = 2
 	*/
-	
 	d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nPreInstanceBuffers;
 	d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nPreInstanceBuffers;
 
@@ -206,41 +204,6 @@ void Shaders::CreateConstantBufferViews(ID3D12Device * pd3dDevice, ID3D12Graphic
 
 void Shaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
-	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
-
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
-	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 2, 0, 0);
-
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2];
-
-	pd3dRootParameters[0].InitAsConstantBufferView(1);
-	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	
-	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
-	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
-	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
-	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
-	d3dRootSignatureDesc.NumStaticSamplers = 0;
-	d3dRootSignatureDesc.pStaticSamplers = NULL;
-	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
-
-	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
-	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
-	HRESULT hr =  D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
-
-	if (pd3dErrorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
-	}
-	ThrowIfFailed(hr);
-
-	ThrowIfFailed(pd3dDevice->CreateRootSignature(0, 
-		pd3dSignatureBlob->GetBufferPointer(), 
-		pd3dSignatureBlob->GetBufferSize(), 
-		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
-	);
-
 }
 
 D3D12_INPUT_LAYOUT_DESC Shaders::CreateInputLayout(int index)
@@ -250,7 +213,13 @@ D3D12_INPUT_LAYOUT_DESC Shaders::CreateInputLayout(int index)
 
 D3D12_RASTERIZER_DESC Shaders::CreateRasterizerState(int index)
 {
-	return CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	CD3DX12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	if (index == PSO_SHADOWMAP) {
+		rasterizerDesc.DepthBias = 9000;
+		rasterizerDesc.DepthBiasClamp = 0.0f;
+		rasterizerDesc.SlopeScaledDepthBias = 1.0f;
+	}
+	return rasterizerDesc;
 }
 
 D3D12_BLEND_DESC Shaders::CreateBlendState(int index)
@@ -288,29 +257,15 @@ D3D12_SHADER_BYTECODE Shaders::CreatePixelShader(int index)
 	return byteCode;
 }
 
-void Shaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
-{
-}
+void Shaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList) {}
 
-void Shaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
-{
-}
+void Shaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList) {}
 
-void Shaders::ReleaseShaderVariables()
-{
-	
-}
+void Shaders::ReleaseShaderVariables() {}
 
-void Shaders::UpdateShaderVariable(ID3D12GraphicsCommandList * pd3dCommandList, XMFLOAT4X4 * pxmf4x4World)
-{
+void Shaders::UpdateShaderVariable(ID3D12GraphicsCommandList * pd3dCommandList, XMFLOAT4X4 * pxmf4x4World) {}
 
-}
-
-void Shaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
-{
-	
-	//m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_ObjectCB->Resource()->GetGPUVirtualAddress());
-}
+void Shaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext){}
 
 
 void Shaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -467,11 +422,8 @@ void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextured", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_0");
 	
-	
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-	
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);

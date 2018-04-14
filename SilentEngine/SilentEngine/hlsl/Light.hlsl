@@ -42,7 +42,7 @@ float CalcShadowFactor(float4 shadowPosH)
 */
 float CalcShadowFactor(float4 shadowPosH)
 {
-    float shadowFactor = 0.3f;
+    float shadowFactor = 0.2f;
     
     float fBias = 0.006;
    

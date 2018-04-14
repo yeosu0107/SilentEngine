@@ -15,11 +15,14 @@ public:
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets = 1, void * pContext = NULL) {
 		ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
 		
-		m_nPSO = 1;
+		m_nPSO = 2;
 		CreatePipelineParts();
 
 		m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 		m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicModel", "ps_5_0");
+
+		m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
+		m_PSByteCode[1] = nullptr;
 
 		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
@@ -29,12 +32,15 @@ public:
 		CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 
 		CreateGraphicsRootSignature(pd3dDevice);
+
+		BuildPSO(pd3dDevice, 0, PSO_SHADOWMAP);
 		BuildPSO(pd3dDevice, nRenderTargets);
 
 		if (globalModels->isMat(modelIndex)) {
 			CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 			pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
-			CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, false);
+			pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+			CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
 
 			m_pMaterial = new CMaterial();
 			m_pMaterial->SetTexture(pTexture);
