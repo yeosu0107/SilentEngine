@@ -27,7 +27,7 @@ public:
 		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
 
-		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
+		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 2);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 
