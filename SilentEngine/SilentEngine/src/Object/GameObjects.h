@@ -161,10 +161,8 @@ protected:
 	bool																m_bIsLotate = false;
 	bool																m_live = true;
 	float																m_moveSpeed = 0.0f;
-	bool m_roofCheck = 0;		//애니메이션 한 루프 종료 여부 (종료시 true)
-
+	bool																m_roofCheck = 0;	//애니메이션 한 루프 종료 여부 (종료시 true)
 	int																	m_nRootIndex = 1;
-
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
