@@ -72,6 +72,7 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	//m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
 	//m_ani[PlayerAni::Attack]->SetAnimSpeed(0.5f);
 	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
+	m_ani[PlayerAni::Idle]->EnableLoof();
 }
 
 bool Player::Move(DWORD input, float fTime)
@@ -123,8 +124,8 @@ bool Player::Move(DWORD input, float fTime)
 			m_Controller->move(XMtoPX(xmf3Shift), 0.001f, 1, m_ControllerFilter);
 			//실제 게임 오브젝트의 이동은 애니메에트에서 처리 (현재는 물리적 이동만 처리)
 		}
-		
 		m_AnimIndex = PlayerAni::Move;
+		//ChangeAnimation(PlayerAni::Move);
 		return true;
 	}
 	m_moveSpeed = startSpeed;
@@ -134,6 +135,7 @@ bool Player::Move(DWORD input, float fTime)
 bool Player::Movement(DWORD input)
 {
 	m_AnimIndex = PlayerAni::Idle;
+	//ChangeAnimation(PlayerAni::Idle);
 	
 	if (input & ANI_ATTACK)
 		m_AnimIndex = PlayerAni::Attack;
@@ -184,6 +186,16 @@ void Player::Animate(float fTime)
 		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
 		//cout << m_xmf3Position.x << "\t" << m_xmf3Position.y << "\t" << m_xmf3Position.z << endl;
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
+		
+		PxTransform tmpTr(m_Controller->getPosition().x,
+			m_Controller->getPosition().y,
+			m_Controller->getPosition().z);
+
+		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
+			Vector3::ScalarProduct(m_xmf3Look, 30, false)
+		)));
+		
+		m_weaponTrigger->setGlobalPose(tmpTr, true);
 	}
 
 	if (m_pCamera) {
@@ -206,6 +218,8 @@ void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 	m_pCamera->SetPlayer(this);
 	string* tmp = new string("camera");
 	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, tmp, 30.0f, 10.0f);
+
+	m_weaponTrigger = phys->getTrigger(XMtoPX(GetPosition()));
 }
 
 void Player::CalibrateLook(XMFLOAT3& look)

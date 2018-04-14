@@ -82,6 +82,7 @@ protected:
 
 	Camera*				m_pCamera;
 	PxBoxController*		m_cameraController;
+	PxRigidActor*			m_weaponTrigger;
 
 	Jump							m_Jump;
 

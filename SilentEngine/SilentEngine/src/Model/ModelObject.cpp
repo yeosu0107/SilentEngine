@@ -81,7 +81,7 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 void ModelObject::Animate(float fTime)
 {
 	if (m_ani) {
-		m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, fTime, m_Bones);
+		m_roofCheck = m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, fTime, m_Bones);
 	}
 }
 
@@ -90,6 +90,14 @@ void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 	GameObject::Render(pd3dCommandList, pCamera);
 }
 
+
+void ModelObject::ChangeAnimation(UINT nextIndex)
+{
+	if (nextIndex == m_AnimIndex)
+		return;
+	m_ani[m_AnimIndex]->ResetAnimation();
+	m_AnimIndex = nextIndex;
+}
 
 void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name)
 {

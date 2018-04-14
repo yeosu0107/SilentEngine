@@ -3,12 +3,15 @@
 #include "Animation.h"
 
 LoadAnimation::LoadAnimation(string filename) :
-	animation_loof(true), next_index(0), m_animSpeed(1.0f)
+	animation_loof(false), next_index(0), m_animSpeed(1.0f)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
 
 	if (m_pScene) {
-		m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
+		if(m_pScene->mNumAnimations>1)
+			m_pAnim = m_pScene->mAnimations[1];
+		else
+			m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
 		//m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
 		m_GlobalInverse = XMMatrixIdentity();
 
@@ -34,7 +37,7 @@ LoadAnimation::LoadAnimation(const LoadAnimation & T)
 	m_animSpeed = T.m_animSpeed;
 }
 
-void LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms)
+bool LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms)
 {
 	XMMATRIX Identity = XMMatrixIdentity();
 
@@ -43,17 +46,7 @@ void LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& 
 		for (UINT i = 0; i < m_NumBones; ++i) {
 			XMStoreFloat4x4(&transforms[i], Identity);
 		}
-		return;
-	}
-
-	// 미리 정해진 프레임 내에서 애니메이션 수행
-	now_time += m_animSpeed * fTime;
-	if (now_time > end_time) {
-		now_time = start_time;
-		if (!animation_loof) {
-			index = next_index;
-			return;
-		}
+		return false; 
 	}
 
 	//루트노드부터 계층구조를 훝어가며 변환 수행 및 뼈에 최종변환 계산
@@ -63,6 +56,18 @@ void LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& 
 		//뼈의 최종변환을 반환
 		XMStoreFloat4x4(&transforms[i], m_Bones[i].second.FinalTransformation);
 	}
+
+	// 미리 정해진 프레임 내에서 애니메이션 수행
+	now_time += m_animSpeed * fTime;
+	if (now_time > end_time) {
+		now_time = start_time;
+		if (!animation_loof) {
+			index = next_index;
+		}
+		return true; //애니메이션이 한 루프 끝남
+	}
+
+	return false; //애니메이션이 아직 실행중
 }
 
 void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, const XMMATRIX& ParentTransform)

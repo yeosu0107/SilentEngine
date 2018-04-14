@@ -67,7 +67,6 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 {
 	m_Callback.SetJump(&m_Jump);
 	m_Callback.SetCrash(&m_Crash);
-	m_moveSpeed = 50.0f;
 
 	m_State = new BaseAI(this, 300, true, 0);
 	m_State->setFunc();
@@ -85,6 +84,12 @@ void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[EnemyAni::Move]->SetAnimSpeed(1.0f);
 	m_ani[EnemyAni::Attack]->SetAnimSpeed(0.5f);
 	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);*/
+	m_ani[EnemyAni::Idle]->EnableLoof();
+}
+
+void Enemy::Idle()
+{
+	ChangeAnimation(EnemyAni::Idle);
 }
 
 bool Enemy::Move(float fTime)
@@ -100,7 +105,7 @@ bool Enemy::Move(float fTime)
 		}
 
 		m_Controller->move(XMtoPX(xmf3Shift), 0.001f, fTime, m_ControllerFilter);
-		m_AnimIndex = EnemyAni::Move;
+		ChangeAnimation(EnemyAni::Move);
 		return true;
 	}
 	return false;
@@ -108,18 +113,26 @@ bool Enemy::Move(float fTime)
 
 void Enemy::Attack()
 {
-	m_AnimIndex = EnemyAni::Attack;
+	ChangeAnimation(EnemyAni::Attack);
 }
 
 void Enemy::Skill()
 {
-	m_AnimIndex = EnemyAni::Skill;
+	ChangeAnimation(EnemyAni::Skill);
+}
+
+void Enemy::Hitted()
+{
+	ChangeAnimation(EnemyAni::Hitted);
+}
+
+void Enemy::Death()
+{
+	ChangeAnimation(EnemyAni::Death);
 }
 
 void Enemy::Animate(float fTime)
 {
-	m_AnimIndex = EnemyAni::Idle;
-	
 	m_State->update(fTime);
 
 	ModelObject::Animate(fTime); //애니메이션

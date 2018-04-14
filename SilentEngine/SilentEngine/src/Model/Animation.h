@@ -42,7 +42,7 @@ public:
 
 	void SetAnimSpeed(float speed) { m_animSpeed = speed; }
 
-	void BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms);
+	bool BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms);
 	void ReadNodeHeirarchy(float AnimationTime, const aiNode* pNode, const XMMATRIX& ParentTransform);
 	const aiNodeAnim* FindNodeAnim(const aiAnimation* pAnimation, const string NodeName);
 
@@ -53,4 +53,6 @@ public:
 	unsigned int FindScaling(float AnimationTime, const aiNodeAnim* pNodeAnim);
 	unsigned int FindRotation(float AnimationTime, const aiNodeAnim* pNodeAnim);
 	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
+
+	void ResetAnimation() { now_time = 0; }
 };

@@ -18,7 +18,16 @@ public:
 
 	virtual ~GlobalVal() {
 		instanceFlag = false;
+		delete m_globalModels;
+		delete m_globalMaps;
+		delete m_globalEffects;
 		delete g_instance;
+
+		m_globalModels = nullptr;
+		m_globalMaps = nullptr;
+		m_globalEffects = nullptr;
+		m_player = nullptr;
+		g_instance = nullptr;
 	}
 
 	void LoadModels(ModelLoader* models);

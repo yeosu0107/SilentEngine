@@ -76,6 +76,8 @@ void BasePhysX::stepPhysics(bool interactive)
 	}
 }
 
+
+
 void BasePhysX::ReleasePhysics(bool interactive)
 {
 	PX_UNUSED(interactive);
@@ -193,6 +195,19 @@ PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControlle
 
 	controller->setUserData(name);
 	return controller;
+}
+
+PxRigidStatic * BasePhysX::getTrigger(PxVec3 & t)
+{
+	PxShape* shape = gPhysics->createShape(PxBoxGeometry(10,10,10), *gPhysics->createMaterial(0.2f, 0.2f, 0.2f));
+	shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);	//시물레이션 off
+	shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);			//트리거링 on
+
+	PxRigidStatic * staticActor = gPhysics->createRigidStatic(PxTransform(t));
+	staticActor->attachShape(*shape);
+	gScene->addActor(*staticActor);
+
+	return staticActor;
 }
 
 Raycast::Raycast(PxGeometry* geom, XMFLOAT3* startPos) :

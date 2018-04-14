@@ -10,7 +10,7 @@ const UINT MAX_BULLET_TIME = 600;
 
 enum EnemyAni
 {
-	Idle = 0, Move = 1, Attack = 2, Skill = 3, Hitted = 4
+	Idle = 0, Move = 1, Attack = 2, Skill = 3, Hitted = 4, Death = 5
 };
 
 class EnemyCollisionCallback : public PxUserControllerHitReport
@@ -119,9 +119,12 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
+	virtual void Idle();
 	virtual bool Move(float fTime);
 	virtual void Attack();
 	virtual void Skill();
+	virtual void Hitted();
+	virtual void Death();
 
 	virtual void Animate(float fTime);
 };

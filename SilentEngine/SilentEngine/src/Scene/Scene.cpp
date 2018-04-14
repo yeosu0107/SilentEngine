@@ -402,14 +402,14 @@ void TestScene::RoomChange()
 	playerPos = m_Room[m_isRoomChange.m_roomNum]->RegistShader(m_physics, true, m_isRoomChange.m_dir);
 	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
 	
-	//이동한 방에 적이 있을 경우 적의 포인터를 씬으로 가져옴
-	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy())
+	//이동한 방에 적이 있을 경우 적의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
+	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())
 		m_Enemys = m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(m_nEnemy);
 	else
 		m_Enemys = nullptr;
 
-	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴
-	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile())
+	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
+	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())
 		m_Projectile = m_Room[m_isRoomChange.m_roomNum]->GetProjectileShader();
 	else
 		m_Projectile = nullptr;

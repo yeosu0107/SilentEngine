@@ -61,6 +61,8 @@ public:
 		return (int)m_Bones.size();
 	}
 
+	void ChangeAnimation(UINT nextIndex);
+
 	//physX ¼¼ÆÃ
 	void SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name = nullptr);
 	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos, string* name = nullptr);

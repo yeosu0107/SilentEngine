@@ -56,7 +56,7 @@ void Room::SetNextRoom(UINT * room)
 Point* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 {
 	if (state) {
-		if(m_enemyShader)
+		if(m_enemyShader && !isClear)
 			m_enemyShader->setPhys(phys);
 		if(m_mapShader)
 			m_mapShader->SetPhys(phys);
@@ -78,10 +78,12 @@ Point* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 void Room::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
 	m_mapShader->Render(pd3dCommandList, pCamera);
-	if (isEnemy)
-		m_enemyShader->Render(pd3dCommandList, pCamera);
-	if (isProjectile)
-		m_Projectile->Render(pd3dCommandList, pCamera);
+	if (!isClear) {
+		if (isEnemy)
+			m_enemyShader->Render(pd3dCommandList, pCamera);
+		if (isProjectile)
+			m_Projectile->Render(pd3dCommandList, pCamera);
+	}
 }
 
 void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
@@ -115,8 +117,10 @@ void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 			}
 		}
 	}
-	if (isEnemy)
-		m_enemyShader->Animate(fTime);
-	if (isProjectile)
-		m_Projectile->Animate(fTime);
+	else {
+		if (isEnemy)
+			m_enemyShader->Animate(fTime);
+		if (isProjectile)
+			m_Projectile->Animate(fTime);
+	}
 }

@@ -20,7 +20,7 @@ protected:
 	STATE m_state;
 	float fTimeElapsed;
 
-	void (StateMachine::*m_stateFunc[7])();
+	void (StateMachine::*m_stateFunc[8])();
 public:
 	StateMachine() : m_state(STATE::idle) {};
 	~StateMachine() {}
@@ -40,7 +40,8 @@ public:
 		m_stateFunc[3] = &StateMachine::attackState;
 		m_stateFunc[4] = &StateMachine::skillState;
 		m_stateFunc[5] = &StateMachine::avoidState;
-		m_stateFunc[6] = &StateMachine::deathState;
+		m_stateFunc[6] = &StateMachine::hittedState;
+		m_stateFunc[7] = &StateMachine::deathState;
 	}
 	virtual void idleState() = 0;
 	virtual void trackingState() = 0;
@@ -48,6 +49,7 @@ public:
 	virtual void attackState() = 0;
 	virtual void skillState() = 0;
 	virtual void avoidState() = 0;
+	virtual void hittedState() = 0;
 	virtual void deathState() = 0;
 };
 
@@ -65,13 +67,13 @@ public:
 	BaseAI(GameObject* tmp, float range, bool agg, int index);
 	~BaseAI() {}
 
-
 	virtual void idleState();
 	virtual void trackingState();
 	virtual void patrolState();
 	virtual void attackState();
 	virtual void skillState();
 	virtual void avoidState();
+	virtual void hittedState();
 	virtual void deathState();
 
 	bool recognize(XMFLOAT3& pos, float range);

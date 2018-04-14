@@ -27,8 +27,6 @@ inline XMFLOAT3 PXtoXM(const PxExtendedVec3& pos) {
 	return XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
-
-
 enum PhysMesh {
 	Mesh_Box=0, Mesh_Capsule=1, Mesh_Tri=2
 };
@@ -60,6 +58,7 @@ public:
 	void BuildPhysics();
 
 	void stepPhysics(bool interactive);
+
 	void ReleasePhysics(bool interactive);
 
 	void Addapt(XMFLOAT3& pos);
@@ -68,6 +67,8 @@ public:
 	PxTriangleMesh*			GetTriangleMesh(mesh* meshes, UINT count);
 	PxCapsuleController*	getCapsuleController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback, string* name = nullptr);
 	PxBoxController*			getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback, string* name = nullptr, float slopeDegree = 0.0f, float step = 0.0f);
+
+	PxRigidStatic*				getTrigger(PxVec3& t);
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }

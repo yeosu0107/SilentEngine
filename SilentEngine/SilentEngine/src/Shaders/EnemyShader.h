@@ -61,7 +61,8 @@ public:
 
 	void releasePhys() {
 		for (auto& p : m_ppObjects) {
-			reinterpret_cast<T*>(p)->releasePhys();
+			if(p->isLive())
+				reinterpret_cast<T*>(p)->releasePhys();
 		}
 	}
 };

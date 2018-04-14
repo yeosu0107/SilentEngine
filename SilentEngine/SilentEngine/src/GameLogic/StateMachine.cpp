@@ -9,6 +9,9 @@ BaseAI::BaseAI(GameObject* tmp, float range, bool agg, int index) : StateMachine
 		m_personalRange = 32.0f;
 	else
 		m_personalRange = 60.0f;
+
+	m_status = new Status(49, 100, 50);
+	m_owner->SetSpeed(m_status->m_moveSpeed);
 }
 
 void BaseAI::idleState()
@@ -19,15 +22,27 @@ void BaseAI::idleState()
 		changeState(STATE::patrol);
 		return;
 	}
+	m_owner->Idle();
+
 	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
 
-	if (recognize(playerPos, m_range))
+	if (recognize(playerPos, m_range)) {
 		changeState(STATE::tracking);
+		return;
+	}
+
+	if (m_status->m_health <= 0)
+		changeState(STATE::death);
 }
 
 void BaseAI::trackingState()
 {
 	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
+
+	if (recognize(playerPos, m_personalRange)) {
+		changeState(STATE::attack);
+		return;
+	}
 
 	XMFLOAT3 track = trackDir(playerPos);
 
@@ -39,8 +54,8 @@ void BaseAI::trackingState()
 	m_owner->Rotate(&m_owner->GetUp(), angle);
 	m_owner->Move(fTimeElapsed);		//플레이어 방향으로 이동
 
-	if (recognize(playerPos, m_personalRange))
-		changeState(STATE::attack);
+	if (m_status->m_health <= 0)
+		changeState(STATE::death);
 }
 
 void BaseAI::patrolState()
@@ -57,28 +72,54 @@ void BaseAI::patrolState()
 
 	if (recognize(playerPos, m_range))
 		changeState(STATE::tracking);
+
+	if (m_status->m_health <= 0)
+		changeState(STATE::death);
 }
 
 void BaseAI::attackState()
 {
 	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
 
+	if (m_status->m_health < 50)
+		changeState(STATE::skill);
 	m_owner->Attack();
 
 	if(!recognize(playerPos, m_personalRange + 10.0f))
 		changeState(STATE::tracking);
+
+	if (m_status->m_health <= 0)
+		changeState(STATE::death);
 }
 
 void BaseAI::skillState()
 {
+	m_owner->Skill();
+
+	if (m_owner->getAnimRoof())
+		changeState(STATE::tracking);
+
+	//스킬쓸 때는 무적 체력체크 안함
 }
 
 void BaseAI::avoidState()
 {
 }
 
+void BaseAI::hittedState()
+{
+	m_owner->Hitted();
+	if (m_owner->getAnimRoof())
+		changeState(STATE::idle);
+}
+
 void BaseAI::deathState()
 {
+	m_owner->Death();
+	if (m_owner->getAnimRoof()) {
+		m_owner->SetLive(false);
+		reinterpret_cast<Enemy*>(m_owner)->releasePhys();
+	}
 }
 
 bool BaseAI::recognize(XMFLOAT3& pos, float local_range)

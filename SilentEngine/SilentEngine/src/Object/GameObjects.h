@@ -156,6 +156,8 @@ protected:
 	bool																m_bIsLotate = false;
 	bool																m_live = true;
 	float																m_moveSpeed = 0.0f;
+
+	bool m_roofCheck = 0;		//애니메이션 한 루프 종료 여부 (종료시 true)
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
@@ -199,8 +201,13 @@ public:
 	virtual bool Move(float fTime) { return false; }
 	virtual bool Movement(DWORD input) { return false; }
 
+	virtual void Idle() {}
 	virtual void Attack() {}
 	virtual void Skill() {}
+	virtual void Hitted() {}
+	virtual void Death() {}
+
+	bool getAnimRoof() const { return m_roofCheck; }
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);
@@ -209,55 +216,5 @@ public:
 	virtual int GetBoneNum() const { return 0; }
 
 	void SetScale(float value);
+	void SetSpeed(float speed) { m_moveSpeed = speed; }
 };
-
-class CRotatingObject : public GameObject
-{
-public:
-	CRotatingObject(int nMeshes = 1);
-	virtual ~CRotatingObject();
-
-private:
-	XMFLOAT3					m_xmf3RotationAxis;
-	float						m_fRotationSpeed;
-
-public:
-	void SetRotationSpeed(float fRotationSpeed) { m_fRotationSpeed = fRotationSpeed; }
-	void SetRotationAxis(XMFLOAT3 xmf3RotationAxis) { m_xmf3RotationAxis = xmf3RotationAxis; }
-
-	virtual void Animate(float fTimeElapsed);
-	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera = NULL);
-};
-
-class CRevolvingObject : public GameObject
-{
-public:
-	CRevolvingObject(int nMeshes = 1);
-	virtual ~CRevolvingObject();
-
-private:
-	XMFLOAT3					m_xmf3RevolutionAxis;
-	float						m_fRevolutionSpeed;
-
-public:
-	void SetRevolutionSpeed(float fRevolutionSpeed) { m_fRevolutionSpeed = fRevolutionSpeed; }
-	void SetRevolutionAxis(XMFLOAT3 xmf3RevolutionAxis) { m_xmf3RevolutionAxis = xmf3RevolutionAxis; }
-
-	virtual void Animate(float fTimeElapsed);
-};
-
-class CBillboardObject : public GameObject
-{
-public:
-	CBillboardObject(int nMeshes = 1);
-	virtual ~CBillboardObject();
-
-public:
-	virtual void Animate(float fTimeElapsed);
-	void SetCamera(Camera* pCamera);
-
-protected:
-	Camera* m_pCamera;
-};
-
-//////////////////////////////////////////////
