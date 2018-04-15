@@ -52,6 +52,8 @@ public:
 	virtual void avoidState() = 0;
 	virtual void hittedState() = 0;
 	virtual void deathState() = 0;
+
+	Status* getStatus() { return m_status; }
 };
 
 class BaseAI : public StateMachine
@@ -65,7 +67,7 @@ private:
 	UINT						m_patrolTimer = 0;
 	float						m_personalRange;
 public:
-	BaseAI(GameObject* tmp, float range, bool agg, int index);
+	BaseAI(GameObject* tmp, float range, bool agg);
 	~BaseAI() {}
 
 	virtual void idleState();

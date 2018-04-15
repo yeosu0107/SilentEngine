@@ -66,9 +66,10 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_Callback.SetJump(&m_Jump);
 	m_Callback.SetCrash(&m_Crash);
 
-	m_State = new BaseAI(this, 300, true, 0);
+	m_State = new BaseAI(this, 300, true);
 	m_State->setFunc();
 
+	m_status = m_State->getStatus();
 }
 
 Enemy::~Enemy()
@@ -143,7 +144,9 @@ void Enemy::Skill()
 void Enemy::Hitted()
 {
 	ChangeAnimation(EnemyAni::Hitted);
-	cout << "Enemy Hit!" << endl;
+	m_status->m_health -= 10;
+	cout << "Enemy Hit!" << "\t";
+	cout << "remain HP : " << m_status->m_health << endl;
 	m_State->changeState(STATE::hitted);
 }
 
@@ -156,7 +159,8 @@ void Enemy::Animate(float fTime)
 {
 	m_attackTrigger->setGlobalPose(PxTransform(100, 100, 100), false);
 	m_State->update(fTime);
-
+	if (m_status->m_health <= 0)
+		m_State->changeState(STATE::death);
 	ModelObject::Animate(fTime); //애니메이션
 
 	if (m_Controller) {

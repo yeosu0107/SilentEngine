@@ -185,6 +185,9 @@
     <ClCompile Include="src\Framework\SilentEngine.cpp">
       <Filter>Framework\winBase</Filter>
     </ClCompile>
+    <ClCompile Include="src\GameLogic\PlayerLogic.cpp">
+      <Filter>Object\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Framework\D3DUtil.h">
@@ -303,6 +306,9 @@
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Framework\winBase</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameLogic\PlayerLogic.h">
+      <Filter>Object\Player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -24,7 +24,7 @@ public:
 		m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 		m_PSByteCode[1] = nullptr;
 
-		m_nObjects = 5;
+		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
 
 		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 2);

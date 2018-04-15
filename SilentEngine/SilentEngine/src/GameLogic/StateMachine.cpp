@@ -2,7 +2,7 @@
 #include "StateMachine.h"
 #include "..\Object\Enemy.h"
 
-BaseAI::BaseAI(GameObject* tmp, float range, bool agg, int index) : StateMachine(),
+BaseAI::BaseAI(GameObject* tmp, float range, bool agg) : StateMachine(),
 	m_owner(tmp), m_range(range), m_aggrasive(agg)
 {
 	if (m_aggrasive)
@@ -33,9 +33,6 @@ void BaseAI::idleState()
 		changeState(STATE::tracking);
 		return;
 	}
-
-	if (m_status->m_health <= 0)
-		changeState(STATE::death);
 }
 
 void BaseAI::trackingState()
@@ -56,9 +53,6 @@ void BaseAI::trackingState()
 
 	m_owner->Rotate(&m_owner->GetUp(), angle);
 	m_owner->Move(fTimeElapsed);		//플레이어 방향으로 이동
-
-	if (m_status->m_health <= 0)
-		changeState(STATE::death);
 }
 
 void BaseAI::patrolState()
@@ -75,9 +69,6 @@ void BaseAI::patrolState()
 
 	if (recognize(playerPos, m_range))
 		changeState(STATE::tracking);
-
-	if (m_status->m_health <= 0)
-		changeState(STATE::death);
 }
 
 void BaseAI::attackState()
@@ -91,9 +82,6 @@ void BaseAI::attackState()
 
 	if(!recognize(playerPos, m_personalRange + 10.0f))
 		changeState(STATE::tracking);
-
-	if (m_status->m_health <= 0)
-		changeState(STATE::death);
 }
 
 void BaseAI::skillState()
@@ -102,8 +90,6 @@ void BaseAI::skillState()
 
 	if (m_owner->getAnimRoof() == LOOP_END)
 		changeState(STATE::tracking);
-
-	//스킬쓸 때는 무적 체력체크 안함
 }
 
 void BaseAI::avoidState()

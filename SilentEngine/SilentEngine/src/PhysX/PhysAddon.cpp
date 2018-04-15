@@ -8,6 +8,8 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 
 	for (UINT i = 0; i < *GlobalVal::getInstance()->getNumEnemy(); ++i) {
 		enemy = GlobalVal::getInstance()->getEnemy()[i];
+		if (!enemy->isLive())
+			continue;
 		if (CollisionObject == enemy->getControllerActor()) {
 			enemy->Hitted();
 			return;
@@ -17,7 +19,8 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 
 void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
-	cout << "Player Hit!" << endl;
+	GlobalVal::getInstance()->getPlayer()->Hitted();
+	return;
 }
 
 void PhysSimulation::onTrigger(PxTriggerPair * pairs, PxU32 count)

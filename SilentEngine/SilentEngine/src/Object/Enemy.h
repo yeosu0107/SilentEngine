@@ -110,6 +110,7 @@ private:
 
 	Jump								m_Jump;
 	BaseAI*							m_State = nullptr;
+	Status*							m_status = nullptr;
 public:
 	Enemy(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Enemy();

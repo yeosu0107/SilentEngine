@@ -2,6 +2,7 @@
 
 #include "D3DUtil.h"
 #include "..\Model\ModelObject.h"
+#include "..\GameLogic\PlayerLogic.h"
 
 #define ASPECT_RATIO (float(FRAME_BUFFER_WIDTH) / float(FRAME_BUFFER_HEIGHT))
 
@@ -82,6 +83,8 @@ protected:
 	PlayerCollisionCallback	m_Callback;
 	CameraCollisionCallback	m_CameraCallback;
 
+	PlayerLogic*					m_playerLogic;
+	Status*							m_status;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();
@@ -102,6 +105,7 @@ public:
 	virtual bool Move(DWORD dir, float fTime);
 	virtual bool Movement(DWORD input);
 	virtual void Attack();
+	virtual void Hitted();
 
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);

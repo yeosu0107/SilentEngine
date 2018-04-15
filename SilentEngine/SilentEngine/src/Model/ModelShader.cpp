@@ -100,7 +100,8 @@ void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 
 	for (UINT j = 0; j < m_nObjects; j++)
 	{
-		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+		if (m_ppObjects[j] && m_ppObjects[j]->isLive()) 
+			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 	}
 }
 

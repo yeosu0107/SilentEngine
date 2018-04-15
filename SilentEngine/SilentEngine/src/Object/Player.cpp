@@ -16,6 +16,9 @@ Player::Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommand
 	m_Callback.SetJump(&m_Jump);
 
 	m_moveSpeed = startSpeed;
+	m_playerLogic = new PlayerLogic(this);
+	m_playerLogic->setFunc();
+	m_status = m_playerLogic->getStatus();
 }
 
 Player::~Player()
@@ -124,42 +127,56 @@ bool Player::Move(DWORD input, float fTime)
 			m_Controller->move(XMtoPX(xmf3Shift), 0.001f, 1, m_ControllerFilter);
 			//실제 게임 오브젝트의 이동은 애니메에트에서 처리 (현재는 물리적 이동만 처리)
 		}
-		m_AnimIndex = PlayerAni::Move;
-		//ChangeAnimation(PlayerAni::Move);
+		//m_AnimIndex = PlayerAni::Move;
+		ChangeAnimation(PlayerAni::Move);
+		m_playerLogic->changeState(STATE::tracking);
 		return true;
 	}
 	m_moveSpeed = startSpeed;
+	ChangeAnimation(PlayerAni::Idle);
+	m_playerLogic->changeState(STATE::idle);
 	return false;
 }
 
 bool Player::Movement(DWORD input)
 {
-	m_AnimIndex = PlayerAni::Idle;
-	//ChangeAnimation(PlayerAni::Idle);
-	
 	if (input & ANI_ATTACK) {
-		//m_AnimIndex = PlayerAni::Attack;
-		Attack();
+		m_playerLogic->changeState(STATE::attack);
+		//Attack();
 	}
 	if (input & ANI_SKILL)
 		m_AnimIndex = PlayerAni::Skill;
 
 	if (input != 0)
 		return true;
+
 	return false;
 }
 
 void Player::Attack()
 {
-	PxTransform tmpTr(m_Controller->getPosition().x,
-		m_Controller->getPosition().y,
-		m_Controller->getPosition().z);
+	UINT tmp = m_playerLogic->getAttackIndex()+2;
+	cout << tmp << endl;
+	{
+		PxTransform tmpTr(m_Controller->getPosition().x,
+			m_Controller->getPosition().y,
+			m_Controller->getPosition().z);
 
-	tmpTr = tmpTr.transform(PxTransform(XMtoPX(
-		Vector3::ScalarProduct(m_xmf3Look, 30, false)
-	)));
+		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
+			Vector3::ScalarProduct(m_xmf3Look, 30, false)
+		)));
 
-	m_weaponTrigger->setGlobalPose(tmpTr, true);
+		m_weaponTrigger->setGlobalPose(tmpTr, true);
+	}
+}
+
+void Player::Hitted()
+{
+	//ChangeAnimation(EnemyAni::Hitted);
+	m_status->m_health -= 10;
+	cout << "Player Hit!" << "\t";
+	cout << "remain HP : " << m_status->m_health << endl;;
+	m_playerLogic->changeState(STATE::hitted);
 }
 
 void Player::SetPosition(float x, float y, float z)
@@ -193,6 +210,10 @@ void Player::SetPosition(float x, float y, float z)
 
 void Player::Animate(float fTime)
 {
+	m_weaponTrigger->setGlobalPose(PxTransform(100, 100, 100), false); //공격 트리거 박스 초기화
+	m_playerLogic->update(fTime); //상태머신 수행
+	if (m_status->m_health <= 0)
+		m_playerLogic->changeState(STATE::death);
 	ModelObject::Animate(fTime); //애니메이션
 	
 	if (m_Controller) {
@@ -200,7 +221,7 @@ void Player::Animate(float fTime)
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
 		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
-		m_weaponTrigger->setGlobalPose(PxTransform(100, 100, 100), false);
+		
 	}
 
 	if (m_pCamera) {
