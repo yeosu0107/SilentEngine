@@ -128,8 +128,8 @@ protected:
 
 	DXGI_FORMAT							m_BackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 	DXGI_FORMAT							m_DepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	int									m_nClientWidth = 1280;
-	int									m_nClientHeight = 720;
+	int									m_nClientWidth = FRAME_BUFFER_WIDTH;
+	int									m_nClientHeight = FRAME_BUFFER_HEIGHT;
 
 	const UINT							m_nMaxScene = 3;
 	UINT								m_nNowScene = 0;

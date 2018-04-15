@@ -307,7 +307,7 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
+	D3D12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
 
 	pd3dDescriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	pd3dDescriptorRanges[0].NumDescriptors = 1;
@@ -321,7 +321,13 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[5];
+	pd3dDescriptorRanges[2].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pd3dDescriptorRanges[2].NumDescriptors = 1;
+	pd3dDescriptorRanges[2].BaseShaderRegister = 9; //Texture2DArray
+	pd3dDescriptorRanges[2].RegisterSpace = 0;
+	pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
+
+	D3D12_ROOT_PARAMETER pd3dRootParameters[6];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -347,6 +353,11 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dRootParameters[4].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[4].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0]; //Texture
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[5].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[5].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //Texture
+	pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
@@ -388,6 +399,12 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 		pd3dSignatureBlob->GetBufferSize(),
 		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
+
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
+		pd3dSignatureBlob->GetBufferPointer(),
+		pd3dSignatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_RootSignature[PSO_SHADOWMAP].GetAddressOf()))
+	);
 }
 
 void InstanceDynamicModelShader::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12Resource * pd3dConstantBuffers, UINT nRootParameterStartIndex, bool bAutoIncrement)
@@ -419,7 +436,6 @@ void InstanceDynamicModelShader::CreateShaderResourceViews(ID3D12Device * pd3dDe
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
 	int nTextures = pTexture->GetTextureCount();
 	
-
 	d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
 	d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
 
@@ -457,40 +473,6 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 
-	ModelLoader* globalModels = GlobalVal::getInstance()->getModelLoader();
-	m_nPSO = 1;
-	CreatePipelineParts();
-
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicInstanceModel", "vs_5_1");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicInstanceModel", "ps_5_1");
-
-	m_nObjects = 1;
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_BoneCB->Resource(), 1, false);
-
-	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
-
-	if (globalModels->isMat(modelIndex)) {
-		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, 1, false);
-
-		m_pMaterial = new CMaterial();
-		m_pMaterial->SetTexture(pTexture);
-		m_pMaterial->SetReflection(1);
-	}
-
-	int num = 0;
-	ModelObject* object = new ModelObject(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
-	object->SetPosition(XMFLOAT3(0, 0, 0));
-	object->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * num));
-
-	m_ppObjects[num] = object;
 }
 
 void InstanceDynamicModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -501,8 +483,16 @@ void InstanceDynamicModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandL
 	if (m_pMaterial)
 		m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 
+	if (m_ppObjects[0]) {
+		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
+	}
+}
+
+void InstanceDynamicModelShader::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	Shaders::OnPrepareRender(pd3dCommandList, PSO_SHADOWMAP);
+	Shaders::RenderToDepthBuffer(pd3dCommandList, pCamera);
+
 	if (m_ppObjects[0])
 		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
 }
-
-

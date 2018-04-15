@@ -284,8 +284,9 @@ void GameObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, UINT nObjec
 	{
 		for (UINT i = 0; i < m_nMeshes; i++)
 		{
-			if (m_ppMeshes[i])
+			if (m_ppMeshes[i]) {
 				m_ppMeshes[i]->Render(pd3dCommandList, nObject);
+			}
 		}
 	}
 }

@@ -27,8 +27,11 @@ struct InstanceEffectData
 struct InstanceAnimateInfo
 {
 	matrix		gInstmtxObject;
-	matrix		gInstBoneTransforms[32];
+	matrix		gInstBoneTransforms[30];
 	uint			gInstnMat;
+    uint           gnInstTrashData1;
+    uint           gnInstTrashData2;
+    uint           gnInstTrashData3;
 };
 
 

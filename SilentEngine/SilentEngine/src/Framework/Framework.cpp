@@ -92,7 +92,7 @@ bool Framework::Initialize()
 
 	return true;
 }
-
+BOOL fullScreenState = FALSE;
 LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -171,8 +171,28 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 		if (wParam == VK_ESCAPE) 
 			PostQuitMessage(0);
-		else if ((int)wParam == VK_F2)
-			Set4xMassState(!m_b4xMassState);
+		//else if ((int)wParam == VK_F2)
+		//	Set4xMassState(!m_b4xMassState);
+
+		if (wParam == VK_F9) {
+			m_pSwapChain->GetFullscreenState(&fullScreenState, NULL);
+			if (!fullScreenState) {
+				DXGI_MODE_DESC dxgiTarget;
+				dxgiTarget.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				dxgiTarget.Width = m_nClientWidth;
+				dxgiTarget.Height = m_nClientHeight;
+
+				dxgiTarget.RefreshRate.Numerator = 60;
+				dxgiTarget.RefreshRate.Denominator = 1;
+
+				dxgiTarget.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+				dxgiTarget.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+				m_pSwapChain->ResizeTarget(&dxgiTarget);
+			}
+			m_pSwapChain->SetFullscreenState(!fullScreenState, NULL);
+
+			OnResize();
+		}
 		return 0;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
@@ -550,42 +570,13 @@ bool Framework::InitMainWindow()
 
 bool Framework::InitDirect3D()
 {
-/*
-#if defined(DEBUG) || defined(_DEBUG)
-{
-	ComPtr<ID3D12Debug> pDebugController;
-	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
-	pDebugController->EnableDebugLayer();
-}
-#endif
-	
-	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_pDxgiFactory)));
-
-	HRESULT hr = D3D12CreateDevice(
-		nullptr,
-		D3D_FEATURE_LEVEL_12_0,
-		IID_PPV_ARGS(&m_pD3dDevice)
-	);
-
-	if (FAILED(hr))
-	{
-		ComPtr<IDXGIAdapter> pWarpAdapter;
-		ThrowIfFailed(m_pDxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&pWarpAdapter)));
-
-		ThrowIfFailed(D3D12CreateDevice(
-			pWarpAdapter.Get(),
-			D3D_FEATURE_LEVEL_11_0,
-			IID_PPV_ARGS(&m_pD3dDevice))
-		);
-	}
-*/
 	HRESULT hResult;
 
-#if defined(_DEBUG)
+
 	ComPtr<ID3D12Debug> pDebugController;
 	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
 	pDebugController->EnableDebugLayer();
-#endif
+
 
 	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_pDxgiFactory)));
 

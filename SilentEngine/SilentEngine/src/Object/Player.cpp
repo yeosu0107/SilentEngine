@@ -199,7 +199,6 @@ void Player::Animate(float fTime)
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
 		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
-		//cout << m_xmf3Position.x << "\t" << m_xmf3Position.y << "\t" << m_xmf3Position.z << endl;
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
 		m_weaponTrigger->setGlobalPose(PxTransform(100, 100, 100), false);
 	}

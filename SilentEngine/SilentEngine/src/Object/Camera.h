@@ -83,8 +83,8 @@ protected:
 	//카메라 소유 플레이어 포인터
 	Player *m_pPlayer = NULL;
 
-	const UINT			m_ClientWidth = 1280;
-	const UINT			m_ClientHeight = 720;
+	const UINT			m_ClientWidth = FRAME_BUFFER_WIDTH;
+	const UINT			m_ClientHeight = FRAME_BUFFER_HEIGHT;
 	UINT				m_nCbvSrvDescriptorSize = 0;
 
 	ComPtr<ID3D12DescriptorHeap>				m_SrvDescriptorHeap = nullptr;

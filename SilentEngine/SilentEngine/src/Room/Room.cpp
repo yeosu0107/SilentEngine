@@ -79,8 +79,9 @@ void Room::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
 	m_mapShader->Render(pd3dCommandList, pCamera);
 	if (!isClear) {
-		if (isEnemy)
+		if (isEnemy) {
 			m_enemyShader->Render(pd3dCommandList, pCamera);
+		}
 		if (isProjectile)
 			m_Projectile->Render(pd3dCommandList, pCamera);
 	}
@@ -90,8 +91,9 @@ void Room::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Came
 {
 	m_mapShader->RenderToDepthBuffer(pd3dCommandList, pCamera);
 	if (!isClear) {
-		if (isEnemy)
+		if (isEnemy) {
 			m_enemyShader->RenderToDepthBuffer(pd3dCommandList, pCamera);
+		}
 	}
 }
 

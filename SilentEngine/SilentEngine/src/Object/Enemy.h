@@ -51,7 +51,6 @@ private:
 	XMFLOAT3* crashPos;
 public:
 	void onShapeHit(const PxControllerShapeHit &hit) {
-		//cout << "shape" << endl;
 		*crashPos = PXtoXM(hit.worldPos);
 		*crash = true;
 
@@ -59,13 +58,10 @@ public:
 	void 	onControllerHit(const PxControllersHit &hit) {
 		*crashPos = PXtoXM(hit.worldPos);
 		*crash = true;
-		
 		//hit는 자기자신
 		//hit.other는 나와 부딪친 객체
-		//cout<<*(string*)(hit.other->getUserData());
 	}
-	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
-	}
+	void 	onObstacleHit(const PxControllerObstacleHit &hit) { }
 
 	void SetCrash(bool* tmp, XMFLOAT3* pos) {
 		crash = tmp;

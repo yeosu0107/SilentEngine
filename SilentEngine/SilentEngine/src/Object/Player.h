@@ -29,19 +29,13 @@ private:
 	Jump * jump;
 public:
 	void onShapeHit(const PxControllerShapeHit &hit) {
-		//cout << hit.actor->getName() << endl;
+	
 		if (jump->mJump) {
 			jump->stopJump();
-			//cout << hit.dir.x << " " << hit.dir.y << " " << hit.dir.z << endl;
 		}
 	}
-	void 	onControllerHit(const PxControllersHit &hit) {
-		//hit.controller.get
-		//string tt = (string*)(hit.controller->getUserData());
-		//cout << *(string*)(hit.controller->getUserData()) << endl;
-	}
-	void 	onObstacleHit(const PxControllerObstacleHit &hit) {
-	}
+	void 	onControllerHit(const PxControllersHit &hit) {	}
+	void 	onObstacleHit(const PxControllerObstacleHit &hit) {	}
 
 	void SetJump(Jump* tmp) {
 		jump = tmp;
@@ -56,7 +50,6 @@ private:
 
 public:
 	void onShapeHit(const PxControllerShapeHit &hit) {
-		//cout << "cameraHit!" << endl;
 		PxVec3 tmp = hit.dir * m_crashMove;
 	}
 	void 	onControllerHit(const PxControllersHit &hit) {

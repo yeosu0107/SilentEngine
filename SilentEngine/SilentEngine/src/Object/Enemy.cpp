@@ -51,8 +51,6 @@ void Bullet::Shoot(BasePhysX* phys, XMFLOAT3 pos, XMFLOAT3 target)
 	SetPosition(pos);
 	m_moveDir = Vector3::Subtract(target, pos, true);
 	m_Controller = phys->getBoxController(XMtoPXEx(pos), &m_Callback, name);
-	//if (m_Controller)
-	//	cout << *(string*)(m_Controller->getUserData()) << endl;
 }
 
 void Bullet::releasePhys()
