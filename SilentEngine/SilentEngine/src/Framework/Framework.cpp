@@ -88,8 +88,6 @@ bool Framework::Initialize()
 	if (!InitDirect3D())
 		return false;
 
-	
-
 	return true;
 }
 BOOL fullScreenState = FALSE;
@@ -224,6 +222,11 @@ void Framework::CreateRtvAndDsvDescriptorHeaps()
 	::gnCbvSrvDescriptorIncrementSize = m_pD3dDevice->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
+void Framework::OnWakeUp()
+{
+	m_pTextureToFullScreenShader = make_unique<TextureToFullScreen>();
+}
+
 void Framework::OnResize()
 {
 	assert(m_pD3dDevice);
@@ -235,13 +238,10 @@ void Framework::OnResize()
 	/* ÃÊ±âÈ­ */
 	ThrowIfFailed(m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr));
 
-	if (m_pTextureToFullScreenShader.get())
-		m_pTextureToFullScreenShader.reset();
-
 	for (int i = 0; i < m_nSwapChainBuffers; ++i)
 		m_ppSwapChainBuffer[i].Reset();
 
-	for ( int i = 0 ; i < m_nDepthStencilBuffers; ++i)
+	for ( int i = 0 ; i < m_nDepthStencilBuffers - 1; ++i)
 		m_pDepthStencilBuffer[i].Reset();
 
 	ThrowIfFailed(m_pSwapChain->ResizeBuffers(
@@ -311,15 +311,18 @@ void Framework::OnResize()
 	}
 
 	// ½¦µµ¿ì ¸ÊÀ» À§ÇÑ DSV 
-	CTexture *pShadowMapTexture = new CTexture(1, RESOURCE_TEXTURE2D_SHADOWMAP, 0);
-	m_pDepthStencilBuffer[m_nDepthStencilBuffers - 1] = pShadowMapTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(),
-		m_nClientWidth, m_nClientHeight,
-		DXGI_FORMAT_R24G8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
-		D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, 0
-	);
+	if (!m_bInitialized) {
 
-	ShadowShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pShadowMapTexture);
-
+		CTexture *pShadowMapTexture = new CTexture(1, RESOURCE_TEXTURE2D_SHADOWMAP, 0);
+		m_pDepthStencilBuffer[m_nDepthStencilBuffers - 1] = pShadowMapTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(),
+			m_nClientWidth, m_nClientHeight,
+			DXGI_FORMAT_R24G8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
+			D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, 0
+		);
+		ShadowShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pShadowMapTexture);
+	}
+	
+	m_bInitialized = true;
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	::ZeroMemory(&dsvDesc, sizeof(D3D12_DEPTH_STENCIL_VIEW_DESC));
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
@@ -344,7 +347,6 @@ void Framework::OnResize()
 	d3dRtvCPUDescriptorHandle = m_pRtvHeap->GetCPUDescriptorHandleForHeapStart();
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBuffers * m_nRtvDescriptorIncrementSize);
 
-	//m_pDepthStencilBuffer = pTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(), m_nClientWidth, m_nClientHeight, DXGI_FORMAT_R24G8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL, D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, 2);
 
 	for (UINT i = 0; i < m_nRenderTargetBuffers; i++)
 	{ 
@@ -353,7 +355,6 @@ void Framework::OnResize()
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
 
-	m_pTextureToFullScreenShader = make_unique<TextureToFullScreen>();
 	m_pTextureToFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
 
 	//m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer.Get(),
@@ -519,6 +520,7 @@ void Framework::Render()
 
 bool Framework::InitMainWindow()
 {
+	DWORD flags = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
 	WNDCLASS wc;
 	wc.style			= CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc		= MainWndProc;
@@ -538,7 +540,7 @@ bool Framework::InitMainWindow()
 	}
 
 	RECT R = { 0, 0, m_nClientWidth, m_nClientHeight };
-	AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
+	AdjustWindowRect(&R, flags, false);
 	
 	int nWidth = R.right - R.left;
 	int nHeight = R.bottom - R.top;
@@ -546,7 +548,7 @@ bool Framework::InitMainWindow()
 	m_hMainWnd = CreateWindow(
 		L"MainWnd", 
 		m_sMainWndCaption.c_str(),
-		WS_OVERLAPPEDWINDOW, 
+		flags,
 		CW_USEDEFAULT, 
 		CW_USEDEFAULT, 
 		nWidth, 
@@ -639,7 +641,7 @@ bool Framework::InitDirect3D()
 #ifdef _DEBUG
 	LogAdapters();
 #endif
-
+	OnWakeUp();
 	CreateCommandObjects();
 	CreateSwapChain();
 	CreateRtvAndDsvDescriptorHeaps();
