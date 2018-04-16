@@ -14,5 +14,6 @@ res\\ModelData\\P_Hitted.FBX,,
 res\\ModelData\\TT_walk.FBX,2,res\\Texture\\player.dds
 res\\ModelData\\TT_idle.FBX,,
 res\\ModelData\\TT_run.FBX,,
-res\\ModelData\\ghost.FBX,0,res\\Texture\\ghost.dds
-res\\ModelData\\Sword.FBX,0,null
+res\\ModelData\\ghost_idle.FBX,2,res\\Texture\\ghost.dds
+res\\ModelData\\ghost_idle.FBX,,
+res\\ModelData\\ghost_move.FBX,,

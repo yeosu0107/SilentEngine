@@ -2,6 +2,7 @@
 #include "Scene.h"
 #include "..\Room\Stage.h"
 #include "..\Shaders\PaticleShader.h"
+#include "..\Enemys\GhostEnemy.h"
 #include <ctime>
 
 ostream& operator<<(ostream& os, XMFLOAT3& p)
@@ -139,24 +140,14 @@ void TestScene::Update(const Timer & gt)
 	if (m_Room[m_nowRoom]->IsClear())
 		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
 
-	//발사체 있을 경우 발사체 경로계산 및 발사
-	/*if (m_Projectile) {
-		m_testTimer += 1;
-		if (m_testTimer % 50 == 0) {
-			XMFLOAT3 tPos = m_Enemys[0]->GetPosition();
-			tPos.y += 20.0f;
-			XMFLOAT3 ttPos = m_testPlayer->GetPosition();
-			ttPos.y += 20.0f;
-			
-			m_Projectile->Shoot(m_physics, tPos, ttPos);
-			m_testTimer = 0;
-		}
+	//발사체 있을 경우 충돌좌표 받아옴 (없는 경우도 있음)
+	if (m_Projectile) {
 		XMFLOAT3* pos;
-		UINT tmp=0;
-		pos = m_Projectile->returnCollisionPos(tmp);
-		if(tmp>0) 
-			m_EffectShaders->SetPos(pos, tmp);
-	}*/
+		UINT collisionCount=0;
+		pos = m_Projectile->returnCollisionPos(collisionCount);
+		if(collisionCount>0)
+			m_EffectShaders->SetPos(pos, collisionCount);
+	}
 	//적 및 발사체 애니메이트 
 	m_Room[m_nowRoom]->Animate(gt.DeltaTime(), m_testPlayer->GetPosition(), m_isRoomChange);
 	//m_isRoomChange변수에 방 이동정보가 들어옴 (방 이동을 하는지, 어느 방으로 이동하는지)
@@ -219,19 +210,25 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	gateShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	gateShader->BuildObjects(pDevice, pCommandList, 2);
-	gateShader->SetPhys(m_physics);
+	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
 
-	EnemyShader<Enemy>* eShader = new EnemyShader<Enemy>(0);
+	EnemyShader<Ghost>* eShader = new EnemyShader<Ghost>(3);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->BuildObjects(pDevice, pCommandList,2, m_physics);
+
+	EnemyShader<Enemy>* eShader2 = new EnemyShader<Enemy>(0);
+	eShader2->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	eShader2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	eShader2->BuildObjects(pDevice, pCommandList, 2, m_physics);
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
+	bullet->setPhys(m_physics);
 
 	m_pFadeEffectShader = new FadeEffectShader();
 	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1);
@@ -242,6 +239,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	m_Room[0]->SetEnemyShader(eShader);
 	m_Room[0]->SetProjectileShader(bullet);
+	m_Room[1]->SetEnemyShader(eShader2);
 
 	RoomChange();
 
@@ -414,10 +412,14 @@ void TestScene::RoomChange()
 	
 
 	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
-	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())
+	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile() && !m_Room[m_isRoomChange.m_roomNum]->IsClear()) {
 		m_Projectile = m_Room[m_isRoomChange.m_roomNum]->GetProjectileShader();
-	else
+		GlobalVal::getInstance()->setPorjectile(m_Projectile);
+	}
+	else {
 		m_Projectile = nullptr;
+		GlobalVal::getInstance()->setPorjectile(nullptr);
+	}
 	
 	//실제 방이동
 	m_nowRoom = m_isRoomChange.m_roomNum;

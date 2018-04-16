@@ -112,7 +112,7 @@ void ProjectileShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camer
 		m_ppObjects[0]->Render(pd3dCommandList, m_ActiveBullet, pCamera);
 }
 
-void ProjectileShader::Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos)
+void ProjectileShader::Shoot(XMFLOAT3 myPos, XMFLOAT3 targetPos)
 {
 	UINT start = m_now;
 	while (m_ppObjects[m_now]->isLive()) {
@@ -123,7 +123,7 @@ void ProjectileShader::Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos
 			m_now = 0;
 		}
 	}
-	reinterpret_cast<Bullet*>(m_ppObjects[m_now])->Shoot(phys, myPos, targetPos);
+	reinterpret_cast<Bullet*>(m_ppObjects[m_now])->Shoot(myPhys, myPos, targetPos);
 	m_now += 1;
 	if (m_now >= m_nObjects)
 		m_now = 0;

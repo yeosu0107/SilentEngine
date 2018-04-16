@@ -41,7 +41,7 @@ private:
 	bool									isProjectile;
 
 	ModelShader*						m_mapShader;
-	EnemyShader<Enemy>*		m_enemyShader;
+	ModelShader*		m_enemyShader;
 	ProjectileShader*				m_Projectile;
 public:
 	UINT									m_mapPosX, m_mapPosY;
@@ -56,7 +56,7 @@ public:
 	void SetMapShader(ModelShader* map) { 
 		m_mapShader = map; 
 	}
-	void SetEnemyShader(EnemyShader<Enemy>* enemy) { 
+	void SetEnemyShader(ModelShader* enemy) {
 		isEnemy = true;
 		m_enemyShader = enemy; 
 	}
@@ -80,7 +80,7 @@ public:
 	UINT* getNextRoom() { return m_nextRoom; }
 
 	ModelShader* GetMapShader() { return m_mapShader; }
-	EnemyShader<Enemy>* GetEnemyShader() { return m_enemyShader; }
+	ModelShader* GetEnemyShader() { return m_enemyShader; }
 	ProjectileShader* GetProjectileShader() { return m_Projectile; }
 
 	void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);

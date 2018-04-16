@@ -77,6 +77,15 @@
     <Filter Include="Framework\winBase">
       <UniqueIdentifier>{05a18e1a-609f-4532-b0da-2d9d8ebc4ad7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Enemy\base">
+      <UniqueIdentifier>{dd040b3d-985b-4b72-9fa0-dbd6db6f6868}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Enemy\Shader">
+      <UniqueIdentifier>{19cc7b36-63bc-47d5-8dec-502f9c2d34e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object\Enemy\expansion">
+      <UniqueIdentifier>{478a7657-acb5-4d31-9108-ec6fa4c1990b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -140,12 +149,6 @@
     <ClCompile Include="src\Object\Player.cpp">
       <Filter>Object\Player</Filter>
     </ClCompile>
-    <ClCompile Include="src\Object\Enemy.cpp">
-      <Filter>Object\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Shaders\ProjectileShader.cpp">
-      <Filter>Object\Enemy</Filter>
-    </ClCompile>
     <ClCompile Include="src\Room\Room.cpp">
       <Filter>GameLogic\Room</Filter>
     </ClCompile>
@@ -187,6 +190,15 @@
     </ClCompile>
     <ClCompile Include="src\GameLogic\PlayerLogic.cpp">
       <Filter>Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\Enemy.cpp">
+      <Filter>Object\Enemy\base</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Shaders\ProjectileShader.cpp">
+      <Filter>Object\Enemy\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Enemys\GhostEnemy.cpp">
+      <Filter>Object\Enemy\expansion</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -253,15 +265,6 @@
     <ClInclude Include="src\Object\Player.h">
       <Filter>Object\Player</Filter>
     </ClInclude>
-    <ClInclude Include="src\Object\Enemy.h">
-      <Filter>Object\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shaders\EnemyShader.h">
-      <Filter>Object\Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shaders\ProjectileShader.h">
-      <Filter>Object\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="src\Room\Room.h">
       <Filter>GameLogic\Room</Filter>
     </ClInclude>
@@ -309,6 +312,18 @@
     </ClInclude>
     <ClInclude Include="src\GameLogic\PlayerLogic.h">
       <Filter>Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\Enemy.h">
+      <Filter>Object\Enemy\base</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shaders\ProjectileShader.h">
+      <Filter>Object\Enemy\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shaders\EnemyShader.h">
+      <Filter>Object\Enemy\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Enemys\GhostEnemy.h">
+      <Filter>Object\Enemy\expansion</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

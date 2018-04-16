@@ -2,14 +2,9 @@
 #include "StateMachine.h"
 #include "..\Object\Enemy.h"
 
-BaseAI::BaseAI(GameObject* tmp, float range, bool agg) : StateMachine(),
-	m_owner(tmp), m_range(range), m_aggrasive(agg)
+BaseAI::BaseAI(GameObject* tmp) : StateMachine(),
+	m_owner(tmp)
 {
-	if (m_aggrasive)
-		m_personalRange = 32.0f;
-	else
-		m_personalRange = 60.0f;
-
 	m_status = new Status(100, 100, 50);
 	m_owner->SetSpeed(m_status->m_moveSpeed);
 }
@@ -23,16 +18,17 @@ void BaseAI::idleState()
 		changeState(STATE::attack);
 		return;
 	}
-	if (m_aggrasive) {
-		changeState(STATE::patrol);
-		return;
-	}
+	//if (m_melee) {
+	//	changeState(STATE::patrol);
+	//	return;
+	//}
 	m_owner->Idle();
 
 	if (recognize(playerPos, m_range)) {
 		changeState(STATE::tracking);
 		return;
 	}
+	changeState(STATE::patrol);
 }
 
 void BaseAI::trackingState()
@@ -78,6 +74,17 @@ void BaseAI::attackState()
 	if (m_status->m_health < 50)
 		changeState(STATE::skill);
 
+	if (!m_melee) {
+		XMFLOAT3 track = trackDir(playerPos);
+
+		float angle = Vector3::Angle(track, m_owner->GetLook());
+
+		if (rotDir(track) > 0)
+			angle *= -1;
+
+		m_owner->Rotate(&m_owner->GetUp(), angle);
+	}
+
 	m_owner->Attack();
 
 	if(!recognize(playerPos, m_personalRange + 10.0f))
@@ -110,6 +117,13 @@ void BaseAI::deathState()
 		m_owner->SetLive(false);
 		reinterpret_cast<Enemy*>(m_owner)->releasePhys();
 	}
+}
+
+void BaseAI::setValue(float range, float personal, bool agg)
+{
+	m_range = range;
+	m_melee = agg;
+	m_personalRange = personal;
 }
 
 bool BaseAI::recognize(XMFLOAT3& pos, float local_range)

@@ -60,13 +60,13 @@ void Bullet::releasePhys()
 }
 
 Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
-	: ModelObject(model, pd3dDevice, pd3dCommandList), 
-	m_Crash(false)
+	: ModelObject(model, pd3dDevice, pd3dCommandList), m_Crash(false)
 {
 	m_Callback.SetJump(&m_Jump);
 	m_Callback.SetCrash(&m_Crash);
 
-	m_State = new BaseAI(this, 300, true);
+	m_State = new BaseAI(this);
+	m_State->setValue(200, 32, true);
 	m_State->setFunc();
 
 	m_status = m_State->getStatus();

@@ -23,8 +23,9 @@ public:
 	virtual void RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	virtual void Animate(float fTimeElapsed);
 
-	virtual void SetPhys(BasePhysX* phys, string* name = nullptr) {}
+	virtual void setPhys(BasePhysX* phys) {}
 	virtual void releasePhys() {}
+	virtual GameObject** getObjects(UINT& num) { return nullptr; }
 };
 
 class DynamicModelShader : public ModelShader
@@ -47,7 +48,7 @@ public:
 	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
 	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 
-	GameObject* getObject(int index) { return m_ppObjects[index]; }
+	virtual GameObject* getObject(int index) { return m_ppObjects[index]; }
 	virtual GameObject** getObjects(UINT& num) { 
 		num = m_nObjects;
 		return m_ppObjects.data(); 

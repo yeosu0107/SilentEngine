@@ -9,11 +9,14 @@ private:
 	UINT m_now;
 
 	XMFLOAT3 m_crashes[10];
+
+	BasePhysX* myPhys;
 public:
 
 	ProjectileShader() : BillboardShader() {
 		m_ActiveBullet=0;
 		m_now = 0;
+		myPhys = nullptr;
 	};
 	~ProjectileShader() {};
 
@@ -24,8 +27,9 @@ public:
 
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
-	void Shoot(BasePhysX* phys, XMFLOAT3 myPos, XMFLOAT3 targetPos);
+	void Shoot(XMFLOAT3 myPos, XMFLOAT3 targetPos);
 	XMFLOAT3* returnCollisionPos(UINT& num);
 
+	void setPhys(BasePhysX* phys) { myPhys = phys; }
 	void releasePhys();
 };

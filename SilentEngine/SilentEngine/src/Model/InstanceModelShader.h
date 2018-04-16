@@ -23,7 +23,7 @@ public:
 	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
 	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 
-	virtual void SetPhys(BasePhysX* phys, string* name=nullptr);
+	virtual void setPhys(BasePhysX* phys);
 	virtual void releasePhys();
 
 	virtual void SetPositions(Point * pos);

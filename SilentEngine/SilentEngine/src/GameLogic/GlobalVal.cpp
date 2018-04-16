@@ -37,6 +37,10 @@ void GlobalVal::setEnemy(GameObject ** objects)
 	m_Enemys = objects;
 }
 
+void GlobalVal::setPorjectile(void * pContext)
+{
+	m_projecttile = pContext;
+}
 GameObject * GlobalVal::getPlayer()
 {
 	return m_player;

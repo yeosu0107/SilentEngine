@@ -59,7 +59,7 @@ Point* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 		if(m_enemyShader && !isClear)
 			m_enemyShader->setPhys(phys);
 		if(m_mapShader)
-			m_mapShader->SetPhys(phys);
+			m_mapShader->setPhys(phys);
 
 		return  &m_startPoint[loc];
 	}

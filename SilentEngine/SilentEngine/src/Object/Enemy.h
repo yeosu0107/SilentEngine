@@ -58,6 +58,10 @@ public:
 	void 	onControllerHit(const PxControllersHit &hit) {
 		*crashPos = PXtoXM(hit.worldPos);
 		*crash = true;
+		if (hit.other->getActor() ==
+			GlobalVal::getInstance()->getPlayer()->getControllerActor()) {
+			GlobalVal::getInstance()->getPlayer()->Hitted();
+		}
 		//hit는 자기자신
 		//hit.other는 나와 부딪친 객체
 	}
@@ -102,7 +106,7 @@ public:
 
 class Enemy : public ModelObject
 {
-private:
+protected:
 	PxRigidActor *				m_attackTrigger;
 
 	EnemyCollisionCallback	m_Callback;

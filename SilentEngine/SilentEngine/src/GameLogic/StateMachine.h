@@ -62,12 +62,12 @@ private:
 	GameObject*			m_owner;
 
 	float						m_range;
-	bool						m_aggrasive;
+	bool						m_melee;
 
 	UINT						m_patrolTimer = 0;
 	float						m_personalRange;
 public:
-	BaseAI(GameObject* tmp, float range, bool agg);
+	BaseAI(GameObject* tmp);
 	~BaseAI() {}
 
 	virtual void idleState();
@@ -78,6 +78,8 @@ public:
 	virtual void avoidState();
 	virtual void hittedState();
 	virtual void deathState();
+
+	void setValue(float range, float personal, bool agg);
 
 	bool recognize(XMFLOAT3& pos, float range);
 	XMFLOAT3 trackDir(XMFLOAT3& pos);

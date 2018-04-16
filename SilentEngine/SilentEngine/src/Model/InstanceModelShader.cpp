@@ -209,10 +209,10 @@ void InstanceModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Ca
 		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects,pCamera);
 }
 
-void InstanceModelShader::SetPhys(BasePhysX * phys, string* name)
+void InstanceModelShader::setPhys(BasePhysX * phys)
 {
 	for (auto& p : m_ppObjects) {
-		reinterpret_cast<ModelObject*>(p)->SetPhysMesh(phys, PhysMesh::Mesh_Tri, name);
+		reinterpret_cast<ModelObject*>(p)->SetPhysMesh(phys, PhysMesh::Mesh_Tri);
 	}
 }
 
