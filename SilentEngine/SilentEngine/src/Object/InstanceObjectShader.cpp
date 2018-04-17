@@ -162,8 +162,8 @@ void InstanceObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphic
 
 
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "InstanceVS", "vs_5_1");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_1");
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "InstanceVS", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_0");
 
 	m_nObjects = 10;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
@@ -335,8 +335,8 @@ void InstanceIlluminatedObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID
 	CreatePipelineParts();
 
 	// 셰이더 코드 컴파일, Blob에 저장을 한다.
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_1");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "PSInstanceTexturedLighting", "ps_5_1");
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "VSInstanceTexturedLighting", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Light.hlsl", nullptr, "PSInstanceTexturedLighting", "ps_5_0");
 
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);

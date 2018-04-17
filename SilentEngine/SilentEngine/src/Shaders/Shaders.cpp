@@ -215,7 +215,7 @@ D3D12_RASTERIZER_DESC Shaders::CreateRasterizerState(int index)
 {
 	CD3DX12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	if (index == PSO_SHADOWMAP) {
-		rasterizerDesc.DepthBias = 9000;
+		rasterizerDesc.DepthBias = 10000;
 		rasterizerDesc.DepthBiasClamp = 0.0f;
 		rasterizerDesc.SlopeScaledDepthBias = 1.0f;
 	}
@@ -415,35 +415,6 @@ void ObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommand
 
 void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_nPSO = 1;
-	CreatePipelineParts();
-
-	// 셰이더 코드 컴파일, Blob에 저장을 한다.
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextured", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_0");
-	
-	m_nObjects = 1;
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\StonesArray.dds", 0);
-
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1);
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO)));
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, false);
-	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
-
-	m_pMaterial = new CMaterial();
-	m_pMaterial->SetTexture(pTexture);
-	m_pMaterial->SetReflection(1);
-
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		m_ppObjects[0] = new GameObject();
-		m_ppObjects[0]->SetMesh(0, new MeshGeometryCube(pd3dDevice, pd3dCommandList, 10.0f, 10.0f, 10.0f));
-		m_ppObjects[0]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-	}
 }
 
 void ObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -499,7 +470,8 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2DARRAY, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks.dds", 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks_nm.dds", 1);
-	pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+	for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
@@ -639,17 +611,18 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
-
+	int i = 0;
 	
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[5];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[4 + NUM_DIRECTION_LIGHTS];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, 0);
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 3, 0, 0);
 	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4, 0, 0);
 	pd3dDescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5, 0, 0);
-	pd3dDescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, 0);
+	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dDescriptorRanges[4 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[8];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[7 + NUM_DIRECTION_LIGHTS];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
@@ -658,7 +631,8 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	pd3dRootParameters[6].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[7].InitAsDescriptorTable(1, &pd3dDescriptorRanges[4], D3D12_SHADER_VISIBILITY_PIXEL);
+	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dRootParameters[7 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[4 + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
@@ -804,19 +778,22 @@ TextureToFullScreen::~TextureToFullScreen()
 
 void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
+	int i = 0;
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2 + NUM_DIRECTION_LIGHTS];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 6, 0, 0); // Texture
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8, 0, 0); 
-	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, 0);
+	for(i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dDescriptorRanges[2 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[3];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2 + NUM_DIRECTION_LIGHTS];
 
 	pd3dRootParameters[0].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dRootParameters[2 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2 + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -881,7 +858,8 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
 
-	m_pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+	for(int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		m_pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
 
 	m_nPSO = 1;
 	CreatePipelineParts();
@@ -923,14 +901,17 @@ ShadowDebugShader::~ShadowDebugShader()
 
 void ShadowDebugShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
+	int i = 0;
+
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_DIRECTION_LIGHTS];
+	for(i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0); 
 
-	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, 0); 
-
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[1];
-	pd3dRootParameters[0].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL);
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_DIRECTION_LIGHTS];
+	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dRootParameters[i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1002,10 +983,11 @@ void ShadowDebugShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 0, true);
-	m_Srv = m_pTexture->GetDescriptorHandle(0);
-	m_Resource = m_pTexture->GetTexture(0);
-	m_UploadBuffer = m_pTexture->GetUploadBuffer(0);
-
+	
+	for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i) {
+		m_Resource[i] = m_pTexture->GetTexture(i);
+		m_UploadBuffer[i] = m_pTexture->GetUploadBuffer(i);
+	}
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
 }

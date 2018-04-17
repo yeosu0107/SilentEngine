@@ -68,8 +68,8 @@ public:
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
-	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
-	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo);
+	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index = 0);
+	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo, int index);
 
 	void BuildLightsAndMaterials();
 

@@ -64,7 +64,7 @@ static int2 gnOffsets[9] = { { -1,-1 },{ 0,-1 },{ 1,-1 },{ -1,0 },{ 0,0 },{ 1,0 
 
 float4 PSTextureToFullScreen(float4 position : SV_POSITION) : SV_Target
 {
-    //return float4(gShadowMap[int2(position.xy)].rrr, 1.0f);
+    //return float4(gShadowMap[1][int2(position.xy)].rrr, 1.0f);
 	//return(gNormalTexture[int2(position.xy)]);
 	float fEdgeness = 0.0f;
 	float3 cEdgeness = float3(0.0f, 0.0f, 0.0f);
@@ -101,7 +101,7 @@ float4 PSFadeEffect(float4 position : SV_POSITION) : SV_Target
 
 float4 PS(float4 position : SV_POSITION) : SV_Target
 {
-    float3 cColor = gShadowMap[int2(position.xy)].rrr;
+    float3 cColor = gShadowMap[0][int2(position.xy)].rrr;
 
     return float4(cColor, 1.0f);
 }

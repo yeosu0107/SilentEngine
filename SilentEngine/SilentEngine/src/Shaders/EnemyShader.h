@@ -27,7 +27,7 @@ public:
 		m_nObjects = 1;
 		m_ppObjects = vector<GameObject*>(m_nObjects);
 
-		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 2);
+		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1 + NUM_DIRECTION_LIGHTS);
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 
@@ -39,7 +39,9 @@ public:
 		if (globalModels->isMat(modelIndex)) {
 			CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 			pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalModels->getMat(modelIndex).c_str(), 0);
-			pTexture->AddTexture(ShadowShader->Rsc(), ShadowShader->UploadBuffer(), RESOURCE_TEXTURE2D_SHADOWMAP);
+			for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+				pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
+
 			CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
 
 			m_pMaterial = new CMaterial();

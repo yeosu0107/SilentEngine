@@ -8,7 +8,7 @@ Camera::Camera()
 	m_xmf4x4View = Matrix4x4::Identity();
 	m_xmf4x4Projection = Matrix4x4::Identity();
 	m_xmf4x4Rotate = Matrix4x4::Identity();
-	m_xmf4x4ShadowProjection = Matrix4x4::Identity();
+	m_xmf4x4ShadowProjection[0] = Matrix4x4::Identity();
 
 	m_d3dViewport = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT, 0.0f, 1.0f };
 	m_d3dRect = { 0, 0, FRAME_BUFFER_WIDTH , FRAME_BUFFER_HEIGHT };
@@ -125,7 +125,8 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList)
 	VS_CB_CAMERA_INFO cameraConstant; 
 	XMStoreFloat4x4(&cameraConstant.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
 	XMStoreFloat4x4(&cameraConstant.m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
-	XMStoreFloat4x4(&cameraConstant.m_xmf4x4ShadowProjection, XMLoadFloat4x4(&m_xmf4x4ShadowProjection));
+	for(int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		XMStoreFloat4x4(&cameraConstant.m_xmf4x4ShadowProjection[i], XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4ShadowProjection[i])));
 	::memcpy(&cameraConstant.m_xmf3Position, &m_xmf3Position, sizeof(XMFLOAT3));
 	
 	m_ObjectCB->CopyData(0, cameraConstant);
@@ -135,7 +136,6 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList)
 void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList, VS_CB_CAMERA_INFO & cbInfo)
 {
 	m_ObjectCB->CopyData(0, cbInfo);
-	m_xmf4x4ShadowProjection = cbInfo.m_xmf4x4ShadowProjection;
 	pCommandList->SetGraphicsRootConstantBufferView(ROOT_PARAMETER_CAMERA, m_ObjectCB->Resource()->GetGPUVirtualAddress());
 }
 

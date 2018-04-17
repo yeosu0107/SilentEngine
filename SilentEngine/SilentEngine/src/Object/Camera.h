@@ -14,7 +14,7 @@ struct VS_CB_CAMERA_INFO
 {
 	XMFLOAT4X4						m_xmf4x4View;
 	XMFLOAT4X4						m_xmf4x4Projection;
-	XMFLOAT4X4						m_xmf4x4ShadowProjection;
+	XMFLOAT4X4						m_xmf4x4ShadowProjection[NUM_DIRECTION_LIGHTS];
 	XMFLOAT3						m_xmf3Position;
 };
 
@@ -32,7 +32,7 @@ public:
 	virtual void BuildDescriptorHeaps(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pCommandList, VS_CB_CAMERA_INFO& cbInfo);
-	virtual void SetShadowProjection(const XMFLOAT4X4& other) { m_xmf4x4ShadowProjection = other; }
+	virtual void SetShadowProjection(const XMFLOAT4X4& other, int index) { m_xmf4x4ShadowProjection[index] = other; }
 public:
 	void SetViewport(int xTopLeft, int yTopLeft, int nWidth, int nHeight,
 		float fMinZ = 0.0f, float fMaxZ = 1.0f);
@@ -73,7 +73,7 @@ protected:
 	// 카메라 회전 행렬
 	XMFLOAT4X4 m_xmf4x4Rotate;
 
-	XMFLOAT4X4 m_xmf4x4ShadowProjection;
+	XMFLOAT4X4 m_xmf4x4ShadowProjection[NUM_DIRECTION_LIGHTS];
 
 	//뷰포트
 	D3D12_VIEWPORT m_d3dViewport;

@@ -87,12 +87,12 @@ void Room::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 	}
 }
 
-void Room::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+void Room::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera, XMFLOAT3& cameraPos, float offset)
 {
-	m_mapShader->RenderToDepthBuffer(pd3dCommandList, pCamera);
+	m_mapShader->RenderToDepthBuffer(pd3dCommandList, pCamera, cameraPos, offset);
 	if (!isClear) {
 		if (isEnemy) {
-			m_enemyShader->RenderToDepthBuffer(pd3dCommandList, pCamera);
+			m_enemyShader->RenderToDepthBuffer(pd3dCommandList, pCamera, cameraPos, offset);
 		}
 	}
 }
