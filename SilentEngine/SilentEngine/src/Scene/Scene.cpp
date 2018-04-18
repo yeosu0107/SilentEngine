@@ -180,7 +180,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 100.0f, -60.0f));
 	m_Camera->SetTimeLag(0.30f);
 	
-	PlayerShader* player = new PlayerShader(2, m_Camera.get());
+	PlayerShader* player = new PlayerShader(1, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	player->BuildObjects(pDevice, pCommandList, 2, m_physics);
@@ -213,7 +213,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
 
-	EnemyShader<Ghost>* eShader = new EnemyShader<Ghost>(3);
+	EnemyShader<Ghost>* eShader = new EnemyShader<Ghost>(2);
 	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->BuildObjects(pDevice, pCommandList,2, m_physics);

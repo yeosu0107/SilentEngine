@@ -106,6 +106,8 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	}
 	//부모노드에 변환값 중첩해서 곱하기
 	XMMATRIX GlobalTransformation = ParentTransform * NodeTransformation;
+	string name = pNode->mName.data;
+
 
 	//현재노드가 뼈 노드이면 변환정보를 뼈에 적용
 	for (auto& p : m_Bones) {

@@ -32,7 +32,7 @@ cbuffer cbObjectInfo : register(b2)
 cbuffer cbAnimateInfo : register(b3)
 {
 	matrix		gmtxObject;
-	matrix		gBoneTransforms[30];
+	matrix		gBoneTransforms[31];
 	uint			gnMat;
 }
 
