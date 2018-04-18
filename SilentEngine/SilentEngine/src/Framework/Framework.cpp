@@ -241,7 +241,7 @@ void Framework::OnResize()
 	for (int i = 0; i < m_nSwapChainBuffers; ++i)
 		m_ppSwapChainBuffer[i].Reset();
 
-	for ( int i = 0 ; i < m_nDepthStencilBuffers - 1; ++i)
+	for ( int i = 0 ; i < m_nDepthStencilBuffers - NUM_DIRECTION_LIGHTS; ++i)
 		m_pDepthStencilBuffer[i].Reset();
 
 	ThrowIfFailed(m_pSwapChain->ResizeBuffers(
@@ -299,30 +299,30 @@ void Framework::OnResize()
 
 
 	// ·»´õÅ¸°Ù Àü¿ë DSV 
-	for (int i = 0; i < m_nDepthStencilBuffers - 1; ++i) {
-		ThrowIfFailed(m_pD3dDevice->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&depthStencilDesc,
-			D3D12_RESOURCE_STATE_DEPTH_WRITE,
-			&optClear,
-			IID_PPV_ARGS(m_pDepthStencilBuffer[i].GetAddressOf()))
-		);
-	}
+	int i = 0; 
+	ThrowIfFailed(m_pD3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&depthStencilDesc,
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&optClear,
+		IID_PPV_ARGS(m_pDepthStencilBuffer[i++].GetAddressOf()))
+	);
 
 	// ½¦µµ¿ì ¸ÊÀ» À§ÇÑ DSV 
 	if (!m_bInitialized) {
-
-		CTexture *pShadowMapTexture = new CTexture(1, RESOURCE_TEXTURE2D_SHADOWMAP, 0);
-		m_pDepthStencilBuffer[m_nDepthStencilBuffers - 1] = pShadowMapTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(),
-			m_nClientWidth, m_nClientHeight,
-			DXGI_FORMAT_R24G8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
-			D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, 0
-		);
+		CTexture *pShadowMapTexture = new CTexture(NUM_DIRECTION_LIGHTS, RESOURCE_TEXTURE2D_SHADOWMAP, 0);
+		for (; i < m_nDepthStencilBuffers; ++i) {
+			m_pDepthStencilBuffer[i] = pShadowMapTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(),
+				m_nClientWidth, m_nClientHeight,
+				DXGI_FORMAT_R24G8_TYPELESS, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL,
+				D3D12_RESOURCE_STATE_GENERIC_READ, &optClear, i - 1
+			);
+		}
 		ShadowShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pShadowMapTexture);
 	}
-	
 	m_bInitialized = true;
+
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc;
 	::ZeroMemory(&dsvDesc, sizeof(D3D12_DEPTH_STENCIL_VIEW_DESC));
 	dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
@@ -357,9 +357,6 @@ void Framework::OnResize()
 
 	m_pTextureToFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
 
-	//m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer.Get(),
-	//	D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-
 	ThrowIfFailed(m_pCommandList->Close());
 	ID3D12CommandList* cmdList[] = { m_pCommandList.Get() };
 	m_pCommandQueue->ExecuteCommandLists(_countof(cmdList), cmdList);
@@ -386,34 +383,38 @@ void Framework::Update()
 
 void Framework::RenderShadow()
 {
-	ThrowIfFailed(m_pDirectCmdListAlloc->Reset());
-	ThrowIfFailed(m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr));
-
-	m_pCommandList->RSSetViewports(1, &m_ScreenViewport);
-	m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
-
-	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[1].Get(),
-		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	
 
 	auto pHandle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
-	pHandle.ptr += m_nDsvIncresementSize;
 
-	m_pCommandList->ClearDepthStencilView(pHandle,
-		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+	for (int i = 1; i < m_nDepthStencilBuffers; ++i) {
+		ThrowIfFailed(m_pDirectCmdListAlloc->Reset());
+		ThrowIfFailed(m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr));
 
-	m_pCommandList->OMSetRenderTargets(0, nullptr, false, &pHandle);
-	
-	m_pTestScene->CreateShadowMap(m_pD3dDevice.Get(), m_pCommandList.Get());
+		m_pCommandList->RSSetViewports(1, &m_ScreenViewport);
+		m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
 
-	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[1].Get(),
-	D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
-	
-	ID3D12CommandList* cmdsLists[] = { m_pCommandList.Get() };
-	ThrowIfFailed(m_pCommandList->Close());
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
+			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
 
-	m_pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+		pHandle.ptr += m_nDsvIncresementSize;
 
-	FlushCommandQueue();
+		m_pCommandList->ClearDepthStencilView(pHandle,
+			D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+		m_pCommandList->OMSetRenderTargets(0, nullptr, false, &pHandle);
+		m_pTestScene->CreateShadowMap(m_pD3dDevice.Get(), m_pCommandList.Get(), i - 1);
+
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
+			D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+		ID3D12CommandList* cmdsLists[] = { m_pCommandList.Get() };
+		ThrowIfFailed(m_pCommandList->Close());
+
+		m_pCommandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+		FlushCommandQueue();
+	}
 }
 
 //#define _SHADOWMAP_DEBUG

@@ -140,7 +140,7 @@ void TestScene::Update(const Timer & gt)
 	if (m_Room[m_nowRoom]->IsClear())
 		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
 
-	//발사체 있을 경우 충돌좌표 받아옴 (없는 경우도 있음)
+	//발사체 있을 경우 발사체 경로계산 및 발사
 	if (m_Projectile) {
 		XMFLOAT3* pos;
 		UINT collisionCount=0;
@@ -270,30 +270,29 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
 }
 
-void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
-{
-	
+void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList){ }
 
-}
-
-void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index)
 {
+	LIGHT light = m_pLights->m_pLights[index];
+	if (!light.m_bEnable)
+		return;
 	VS_CB_CAMERA_INFO cameraInfo;
-	CalculateLightMatrix(cameraInfo);
+	CalculateLightMatrix(cameraInfo, index);
 	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
 
 	m_Camera->UpdateShaderVariables(pCommandList, cameraInfo);
-	m_playerShader->RenderToDepthBuffer(pCommandList, m_Camera.get());
-	m_Room[m_nowRoom]->RenderToDepthBuffer(pCommandList, m_Camera.get());
+	m_playerShader->RenderToDepthBuffer(pCommandList, m_Camera.get(), light.m_xmf3Position, light.m_fRange);
+	m_Room[m_nowRoom]->RenderToDepthBuffer(pCommandList, m_Camera.get(), light.m_xmf3Position, light.m_fRange);
 }
 
-void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
+void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo, int index)
 {
-	LIGHT		targetLight = m_pLights->m_pLights[0];
-	
+	LIGHT		targetLight = m_pLights->m_pLights[index];
+
 	XMFLOAT3	lightDir		= targetLight.m_xmf3Direction;
 	XMFLOAT3	lightPos		= targetLight.m_xmf3Position;
-	XMFLOAT3	lightTarget		= XMFLOAT3(59.3919f, -190.0f, 28.442f);
+	XMFLOAT3	lightTarget		= Vector3::Add(targetLight.m_xmf3Position, XMFLOAT3(60.0f, -790.0f, 60.0f));
 	XMFLOAT3	lightUp			= XMFLOAT3(0.0f, 1.0f, 0.0f);
 
 	XMFLOAT4X4	lightView		= Matrix4x4::LookAtLH(lightPos, lightTarget, lightUp);
@@ -318,12 +317,13 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo)
 
 	XMStoreFloat4x4(&cameraInfo.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&lightView)));
 	XMStoreFloat4x4(&cameraInfo.m_xmf4x4Projection, XMMatrixTranspose(lightProj));
-	XMStoreFloat4x4(&cameraInfo.m_xmf4x4ShadowProjection, XMMatrixTranspose(S));
 	::memcpy(&cameraInfo.m_xmf3Position, &lightPos, sizeof(XMFLOAT3));
+
+	XMMATRIX transposeS = XMMatrixTranspose(S);
 
 	XMFLOAT4X4 tmp;
 	XMStoreFloat4x4(&tmp, S);
-	m_Camera->SetShadowProjection(tmp);
+	m_Camera->SetShadowProjection(tmp, index);
 }
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
@@ -400,32 +400,33 @@ void TestScene::RoomChange()
 	Point* playerPos;
 	playerPos = m_Room[m_isRoomChange.m_roomNum]->RegistShader(m_physics, true, m_isRoomChange.m_dir);
 	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
-	
+
 	//이동한 방에 적이 있을 경우 적의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
-	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear()) 
+	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())
 		GlobalVal::getInstance()->setEnemy(m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(
 			*GlobalVal::getInstance()->getNumEnemy()
 		));
-	
-	else 
+
+	else
 		GlobalVal::getInstance()->setEnemy(nullptr);
-	
+
 
 	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
 	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile() && !m_Room[m_isRoomChange.m_roomNum]->IsClear()) {
 		m_Projectile = m_Room[m_isRoomChange.m_roomNum]->GetProjectileShader();
 		GlobalVal::getInstance()->setPorjectile(m_Projectile);
 	}
+
 	else {
 		m_Projectile = nullptr;
 		GlobalVal::getInstance()->setPorjectile(nullptr);
 	}
-	
+
 	//실제 방이동
 	m_nowRoom = m_isRoomChange.m_roomNum;
 	//방이동이 완료하였으므로 change플레그를 false로 바꿔줌
 	m_isRoomChange.m_isChange = false;
-	cout << m_nowRoom << endl;
+	std::cout << m_nowRoom << endl;
 	m_gateShader->SetPositions(m_Room[m_nowRoom]->GetGatePos());
 	//페이드 인아웃 설정
 	m_changeFade = FADE_IN;
@@ -534,22 +535,25 @@ void TestScene::BuildLightsAndMaterials()
 	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	m_pLights->m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
-	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(0.0f, 600.0f, 28.442f);
+	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(-200.0f, 600.0f, 28.442f);
 	m_pLights->m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
 	m_pLights->m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
 	m_pLights->m_pLights[0].m_fFalloff = 40.0f;
-	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(90.0f));
-	m_pLights->m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
+	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
+	m_pLights->m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
 	m_pLights->m_pLights[1].m_bEnable = true;
-	m_pLights->m_pLights[1].m_nType = POINT_LIGHT;
-	m_pLights->m_pLights[1].m_fRange = 2000.0f;
-	m_pLights->m_pLights[1].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_pLights->m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.8f, 0.0f, 0.0f, 1.0f);
-	m_pLights->m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.25f);
-	m_pLights->m_pLights[1].m_xmf3Position = XMFLOAT3(0.0f, 125.0, 0.0f);
-	m_pLights->m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	m_pLights->m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.001f, 0.0001f);
+	m_pLights->m_pLights[1].m_nType = SPOT_LIGHT;
+	m_pLights->m_pLights[1].m_fRange = 900.0f;
+	m_pLights->m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_pLights->m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_pLights->m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
+	m_pLights->m_pLights[1].m_xmf3Position = XMFLOAT3(200, 600.0f, 28.442f);
+	m_pLights->m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	m_pLights->m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+	m_pLights->m_pLights[1].m_fFalloff = 40.0f;
+	m_pLights->m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
+	m_pLights->m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
 	m_pLights->m_pLights[2].m_bEnable = true;
 	m_pLights->m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
@@ -574,7 +578,7 @@ void TestScene::BuildLightsAndMaterials()
 	m_pMaterials = new MATERIALS();
 	::ZeroMemory(m_pMaterials, sizeof(MATERIALS));
 
-	m_pMaterials->m_pReflections[0] = { XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f), XMFLOAT4(0.5f, 0.5f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[0] = { XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f), XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[1] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
 	m_pMaterials->m_pReflections[2] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[3] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };

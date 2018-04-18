@@ -105,14 +105,19 @@ void ModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 	}
 }
 
-void ModelShader::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+void ModelShader::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera, XMFLOAT3& cameraPos, float offset)
 {
 	Shaders::OnPrepareRender(pd3dCommandList, PSO_SHADOWMAP);
 	Shaders::RenderToDepthBuffer(pd3dCommandList, pCamera);
 
 	for (UINT j = 0; j < m_nObjects; j++)
 	{
-		if (m_ppObjects[j]) m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+		if (m_ppObjects[j] && !m_ppObjects[j]->isLive())
+			continue;
+
+		float distance = Vector3::Length(Vector3::Subtract(m_ppObjects[j]->GetPosition(), cameraPos, false));
+		if(distance <= offset)
+			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 	}
 }
 
@@ -141,22 +146,25 @@ void DynamicModelShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12
 
 void DynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
+	int i = 0;
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2 + NUM_DIRECTION_LIGHTS];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 3, 0, 0); // GameObject
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, 0); // Texture
-	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9, 0, 0);
+	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dDescriptorRanges[2 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[5 + NUM_DIRECTION_LIGHTS];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[2].InitAsConstantBufferView(4);
 	pd3dRootParameters[3].InitAsConstantBufferView(5);
 	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		pd3dRootParameters[5 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2 + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
@@ -252,7 +260,7 @@ void DynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 1 + NUM_DIRECTION_LIGHTS);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 	

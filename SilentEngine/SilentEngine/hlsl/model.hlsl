@@ -24,7 +24,8 @@ VS_TEXTURED_LIGHTING_OUTPUT VSStaticModel(VS_MODEL_INPUT input)
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        output.ShadowPosH[i] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[i]);
 
 	output.uv = input.uv;
 
@@ -42,7 +43,9 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSStaticInstanceModel(VS_MODEL_INPUT input,
 	output.normalW = mul(input.normal, (float3x3)world);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        output.ShadowPosH[i] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[i]);
+    
 	output.uv = input.uv;
 
 	return(output);
@@ -60,7 +63,8 @@ VS_MODEL_NORMAL_OUTPUT VSStaticInstanceNORMModel(VS_MODEL_INPUT input, uint inst
     output.positionW = (float3) mul(float4(input.position, 1.0f), world);
     output.tangentW = mul(input.tan, (float3x3) world);
     output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+        output.ShadowPosH[i] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[i]);
     output.uv = input.uv;
 
     return (output);
@@ -92,7 +96,8 @@ VS_TEXTURED_LIGHTING_OUTPUT VSDynamicModel(VS_MODEL_INPUT input)
 	output.normalW = mul(normalL, (float3x3)gmtxObject);
 	output.positionW = (float3)mul(float4(posL, 1.0f), gmtxObject);
 	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int j = 0; j < NUM_DIRECTION_LIGHTS; j++)
+        output.ShadowPosH[j] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[j]);
 	output.uv = input.uv;
 
 	return(output);
@@ -129,7 +134,8 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSDynamicInstanceModel(VS_MODEL_INPUT input
     output.normalW = mul(normalL, (float3x3) world);
     output.positionW = (float3) mul(float4(posL, 1.0f), world);
     output.position = mul(mul(mul(float4(posL, 1.0f), world), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int j= 0; j < NUM_DIRECTION_LIGHTS; j++)
+        output.ShadowPosH[j] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[j]);
     output.uv = input.uv;
 
     return (output);
@@ -143,9 +149,17 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticModel(VS_TEXTURED_LIGHTING_OUTPUT inpu
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-    float3 shadowFactor = 1.0f;
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, shadowFactor);
+    float shadowFactors[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float4 factor;
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+    {
+        shadowFactors[i] = CalcShadowFactor(input.ShadowPosH[i], i);
+        if (shadowFactors[i] <= 0.5f)
+            break;
+    }
+    factor = float4(shadowFactors[0], shadowFactors[1], shadowFactors[2], shadowFactors[3]);
+
+    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, factor);
 
 	output.color = cColor * cIllumination;
 	output.normal = float4(input.normalW, 1.0f);
@@ -161,8 +175,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
 
-    float3 shadowFactor = 1.0f;
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 shadowFactor = 1.0f;
+    
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
@@ -179,8 +195,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT inp
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-    float3 shadowFactor = 1.0f;
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 shadowFactor = 1.0f;
+    
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
 
 	output.color = cColor * cIllumination;
@@ -196,8 +214,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OU
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-    float3 shadowFactor = 1.0f;
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 shadowFactor = 1.0f;
+    
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;

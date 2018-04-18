@@ -5,7 +5,7 @@ struct VS_SHADOW_TEXTURED_LIGHTING_OUTPUT
 {
     float4 position : SV_POSITION;
     float3 positionW : POSITION;
-    float4 ShadowPosH : POSITION1;
+    float4 ShadowPosH[NUM_DIRECTION_LIGHTS] : POSITION1;
     float3 normalW : NORMAL;
     float2 uv : TEXCOORD;
 };
@@ -36,7 +36,8 @@ VS_SHADOW_TEXTURED_LIGHTING_OUTPUT VSShadowDynamicModel(VS_MODEL_INPUT input)
     output.normalW = mul(normalL, (float3x3) gmtxObject);
     output.positionW = (float3) mul(float4(posL, 1.0f), gmtxObject);
     output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int j = 0; j < NUM_DIRECTION_LIGHTS; j++)
+        output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[j]);
     output.uv = input.uv;
 
     return (output);
@@ -49,8 +50,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSShadowDynamicModel(VS_SHADOW_TEXTURED_LIGHTI
     float3 uvw = float3(input.uv, nPrimitiveID / 2);
     float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 
-    float3 shadowFactor = float3(1.0f, 1.0f, 1.0f);
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 shadowFactor = 1.0f;
+    
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
 
     input.normalW = normalize(input.normalW);
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);

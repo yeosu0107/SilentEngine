@@ -231,15 +231,12 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void RefreshShdowMap(ID3D12GraphicsCommandList * pd3dCommandList);
-	virtual D3D12_GPU_DESCRIPTOR_HANDLE Srv() const { return m_Srv; }
-	virtual ID3D12Resource* Rsc() const { return m_Resource.Get(); }
-	virtual ID3D12Resource* UploadBuffer() const { return m_UploadBuffer.Get(); }
-
+	virtual ID3D12Resource* Rsc(const int index) const { return m_Resource[index].Get(); }
+	virtual ID3D12Resource* UploadBuffer(const int index) const { return m_UploadBuffer[index].Get(); }
 public:
 	static ShadowDebugShader* Instance();
 
 protected:
-	D3D12_GPU_DESCRIPTOR_HANDLE m_Srv;
-	ComPtr<ID3D12Resource> m_Resource;
-	ComPtr<ID3D12Resource> m_UploadBuffer;
+	ComPtr<ID3D12Resource> m_Resource[NUM_DIRECTION_LIGHTS];
+	ComPtr<ID3D12Resource> m_UploadBuffer[NUM_DIRECTION_LIGHTS];
 };

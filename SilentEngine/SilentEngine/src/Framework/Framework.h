@@ -105,7 +105,7 @@ protected:
 	int m_nCurrBuffer = 0;
 	ComPtr<ID3D12Resource> m_ppSwapChainBuffer[m_nSwapChainBuffers];
 
-	static const int m_nDepthStencilBuffers = 2;
+	static const int m_nDepthStencilBuffers = 1 + NUM_DIRECTION_LIGHTS;
 	ComPtr<ID3D12Resource> m_pDepthStencilBuffer[m_nDepthStencilBuffers];
 	UINT					m_nDsvIncresementSize;
 

@@ -3,6 +3,11 @@
 //
 // Transforms and colors geometry.
 //***************************************************************************************
+
+#ifndef NUM_DIRECTION_LIGHTS
+    #define NUM_DIRECTION_LIGHTS 2
+#endif
+
 #define MAX_LIGHTS			4 
 #define MAX_MATERIALS		10 
 
@@ -17,10 +22,10 @@ cbuffer cbPerObject : register(b0)
 
 cbuffer cbCameraInfo : register(b1)
 {
-	matrix		gmtxView : packoffset(c0);
-	matrix		gmtxProjection : packoffset(c4);
-    matrix		gmtxShadowProjection : packoffset(c8);
-	float3		gvCameraPosition : packoffset(c12);
+	matrix		gmtxView;
+	matrix		gmtxProjection ;
+    matrix      gmtxShadowProjection[NUM_DIRECTION_LIGHTS];
+    float3      gvCameraPosition;
 };
 
 cbuffer cbObjectInfo : register(b2)
@@ -112,7 +117,7 @@ struct VS_MODEL_NORMAL_OUTPUT
 {
     float4 position : SV_POSITION;
     float3 positionW : POSITION;
-    float4 ShadowPosH : POSITION1;
+    float4 ShadowPosH[NUM_DIRECTION_LIGHTS] : POSITION1;
     float3 normalW : NORMAL;
     float2 uv : TEXCOORD;
     float3 tangentW : TANGENT;

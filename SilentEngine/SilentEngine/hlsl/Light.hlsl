@@ -40,7 +40,7 @@ float CalcShadowFactor(float4 shadowPosH)
     return percentLit / 9.0f;
 }
 */
-float CalcShadowFactor(float4 shadowPosH)
+float CalcShadowFactor(float4 shadowPosH, int index)
 {
     float shadowFactor = 0.2f;
     
@@ -48,7 +48,7 @@ float CalcShadowFactor(float4 shadowPosH)
    
     shadowPosH.xyz /= shadowPosH.w;
 
-    float fsDepth = gShadowMap.Sample(gDefaultSamplerState, shadowPosH.xy).r;
+    float fsDepth = gShadowMap[index].Sample(gDefaultSamplerState, shadowPosH.xy).r;
 
     if (shadowPosH.z <= (fsDepth + fBias))
         shadowFactor = 1.0f;
@@ -165,11 +165,12 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera,
 }
 
 
-float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float3 shadowFactor)
+float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowFactor)
 {
 	float3 vCameraPosition = float3(gvCameraPosition.x, gvCameraPosition.y, gvCameraPosition.z);
 	float3 vToCamera = normalize(vCameraPosition - vPosition);
 
+    bool alreadyDrawshadow = false;
     int j = 0;
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < MAX_LIGHTS; i++)
@@ -187,7 +188,14 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float3 shadowF
 			}
 			else if (gLights[i].m_nType == SPOT_LIGHT)
 			{
-                cColor += shadowFactor[j] * SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
+                if (!alreadyDrawshadow && shadowFactor[j] <= 0.5f)
+                {
+                    alreadyDrawshadow = true;
+                    cColor += shadowFactor[j] * SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
+                }
+                else
+                    cColor += SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
+                j++;
             }
 		}
 	}
@@ -209,7 +217,7 @@ struct VS_TEXTURED_LIGHTING_OUTPUT
 {
 	float4 position : SV_POSITION;
 	float3 positionW : POSITION;
-    float4 ShadowPosH : POSITION1;
+    float4 ShadowPosH[NUM_DIRECTION_LIGHTS] : POSITION1;
 	float3 normalW : NORMAL;
 	float2 uv : TEXCOORD;
 };
@@ -223,7 +231,8 @@ VS_TEXTURED_LIGHTING_OUTPUT VSTexturedLighting(VS_TEXTURED_LIGHTING_INPUT input)
 	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+        output.ShadowPosH[i] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[i]);
 	output.uv = input.uv;
 
 	return(output);
@@ -236,8 +245,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-    float3 shadowFactor = 1.0f;
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH);
+    float4 shadowFactor = 1.0f;
+
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
+
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, shadowFactor);
 	
 	output.color = cColor * cIllumination;
@@ -251,7 +263,7 @@ struct VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE
 {
 	float4	position : SV_POSITION;
 	float3	positionW : POSITION;
-    float4  ShadowPosH : POSITION1;
+    float4  ShadowPosH[NUM_DIRECTION_LIGHTS] : POSITION1;
 	float3	normalW : NORMAL;
 	float2	uv : TEXCOORD;
 	uint	mat : MATERIAL;
@@ -269,7 +281,8 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSInstanceTexturedLighting(VS_TEXTURED_LIGH
 	output.normalW = mul(input.normal, (float3x3)world);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
-    output.ShadowPosH = mul(float4(output.positionW, 1.0f), gmtxShadowProjection);
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+        output.ShadowPosH[i] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[i]);
 	output.uv = input.uv;
 
 	return(output);
@@ -282,8 +295,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTIN
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-    float3 shadowFactor = 1.0f;
-    shadowFactor[0] = CalcShadowFactor(input.ShadowPosH) * 10;
+    float4 shadowFactor = 1.0f;
+  
+    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
+        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
