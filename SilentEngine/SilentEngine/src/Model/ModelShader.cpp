@@ -116,7 +116,7 @@ void ModelShader::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandLis
 			continue;
 
 		float distance = Vector3::Length(Vector3::Subtract(m_ppObjects[j]->GetPosition(), cameraPos, false));
-		if(distance <= offset)
+		//if(distance <= offset)
 			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
 	}
 }

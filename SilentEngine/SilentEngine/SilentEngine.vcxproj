@@ -185,6 +185,7 @@
     <ClCompile Include="src\Object\GameObjects.cpp" />
     <ClCompile Include="src\Object\InstanceObject.cpp" />
     <ClCompile Include="src\Object\InstanceObjectShader.cpp" />
+    <ClCompile Include="src\Object\LightObjects.cpp" />
     <ClCompile Include="src\Object\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Object\Player.cpp" />
     <ClCompile Include="src\PhysX\BasePhysX.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="src\Object\GameObjects.h" />
     <ClInclude Include="src\Object\InstanceObject.h" />
     <ClInclude Include="src\Object\InstanceObjectShader.h" />
+    <ClInclude Include="src\Object\LightObjects.h" />
     <ClInclude Include="src\Object\Mesh\Mesh.h" />
     <ClInclude Include="src\Object\Player.h" />
     <ClInclude Include="src\PhysX\BasePhysX.h" />

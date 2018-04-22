@@ -225,7 +225,7 @@ struct Texture
 };
 
 
-#define MAX_LIGHTS	  8
+#define MAX_LIGHTS	  4
 #define MAX_MATERIALS 8
 
 #define PSO_OBJECT					0
@@ -235,6 +235,18 @@ struct Texture
 #define SPOT_LIGHT				2
 #define DIRECTIONAL_LIGHT		3
 
+struct MATERIAL
+{
+	XMFLOAT4				m_xmf4Ambient;	// 앰비언트 반사 색상 
+	XMFLOAT4				m_xmf4Diffuse;
+	XMFLOAT4				m_xmf4Specular; //(r,g,b,a=power)
+	XMFLOAT4				m_xmf4Emissive;
+};
+
+struct MATERIALS
+{
+	MATERIAL				m_pReflections[MAX_MATERIALS];
+};
 
 struct LIGHT
 {
@@ -258,20 +270,6 @@ struct LIGHTS
 	LIGHT					m_pLights[MAX_LIGHTS];
 	XMFLOAT4				m_xmf4GlobalAmbient;
 };
-
-struct MATERIAL
-{
-	XMFLOAT4				m_xmf4Ambient;	// 앰비언트 반사 색상 
-	XMFLOAT4				m_xmf4Diffuse;
-	XMFLOAT4				m_xmf4Specular; //(r,g,b,a=power)
-	XMFLOAT4				m_xmf4Emissive;
-};
-
-struct MATERIALS
-{
-	MATERIAL				m_pReflections[MAX_MATERIALS];
-};
-
 
 
 #ifndef ThrowIfFailed
@@ -553,6 +551,12 @@ namespace Matrix4x4
 		return(xmmtx4x4Result);
 	}
 
+	inline XMFLOAT4X4 LookToLH(XMFLOAT3& xmf3EyePosition, XMFLOAT3& xmf3Direction, XMFLOAT3& xmf3UpDirection)
+	{
+		XMFLOAT4X4 xmmtx4x4Result;
+		XMStoreFloat4x4(&xmmtx4x4Result, XMMatrixLookToLH(XMLoadFloat3(&xmf3EyePosition), XMLoadFloat3(&xmf3Direction), XMLoadFloat3(&xmf3UpDirection)));
+		return(xmmtx4x4Result);
+	}
 
 }
 

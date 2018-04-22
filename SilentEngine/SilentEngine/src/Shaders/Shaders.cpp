@@ -215,7 +215,7 @@ D3D12_RASTERIZER_DESC Shaders::CreateRasterizerState(int index)
 {
 	CD3DX12_RASTERIZER_DESC rasterizerDesc = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	if (index == PSO_SHADOWMAP) {
-		rasterizerDesc.DepthBias = 10000;
+		rasterizerDesc.DepthBias = 100000;
 		rasterizerDesc.DepthBiasClamp = 0.0f;
 		rasterizerDesc.SlopeScaledDepthBias = 1.0f;
 	}
@@ -432,13 +432,9 @@ void ObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * 
 
 //////////////////////////////////////////////////////////////////////
 
-NormalMapShader::NormalMapShader() 
-{
-}
+NormalMapShader::NormalMapShader() { }
 
-NormalMapShader::~NormalMapShader()
-{
-}
+NormalMapShader::~NormalMapShader(){ }
 
 D3D12_INPUT_LAYOUT_DESC NormalMapShader::CreateInputLayout(int index)
 {
@@ -518,8 +514,6 @@ void NormalMapShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, m_MatCB->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(3, m_LightsCB->Resource()->GetGPUVirtualAddress());
-
-
 }
 
 void NormalMapShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)

@@ -8,6 +8,7 @@
 #include "..\Room\Room.h"
 
 #include "Shaders.h"
+#include "LightObjects.h"
 #include "..\Shaders\PlayerShader.h"
 #include "..\Shaders\ProjectileShader.h"
 #include "..\Model\InstanceModelShader.h"
@@ -54,6 +55,7 @@ protected:
 	BasePhysX*		m_physics;
 };
 
+
 class TestScene : public Scene
 {
 public:
@@ -69,7 +71,7 @@ public:
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index = 0);
-	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo, int index);
+	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo, int index, float offset);
 
 	void BuildLightsAndMaterials();
 
@@ -99,8 +101,8 @@ protected:
 
 	Door														m_isRoomChange;
 	
-	LIGHTS*												m_pLights;
-	unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
+	LightManagement*												m_pLights;
+	//unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
 
 	MATERIALS*											m_pMaterials;
 	unique_ptr<UploadBuffer<MATERIALS>>	m_pd3dcbMaterials = nullptr;

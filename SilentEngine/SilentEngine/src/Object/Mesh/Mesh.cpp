@@ -116,16 +116,20 @@ MeshGeometryTextured::MeshGeometryTextured(ID3D12Device * pd3dDevice, ID3D12Grap
 	m_nSlot = 0;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
+	float width = fWidth / 2.0f;
+	float height = fHeight / 2.0f;
+	float depth = fDepth / 2.0f;
+
 	array<CTexturedVertex, 8> pVertices =
 	{
-		CTexturedVertex({ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0f, 1.0f) }),
-		CTexturedVertex({ XMFLOAT3(-1.0f, +1.0f, -1.0f), XMFLOAT2(0.0f, 0.0f) }),
-		CTexturedVertex({ XMFLOAT3(+1.0f, +1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f) }),
-		CTexturedVertex({ XMFLOAT3(+1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 1.0f) }),
-		CTexturedVertex({ XMFLOAT3(-1.0f, -1.0f, +1.0f), XMFLOAT2(0.0f, 0.0f) }),
-		CTexturedVertex({ XMFLOAT3(-1.0f, +1.0f, +1.0f), XMFLOAT2(0.0f, 0.0f) }),
-		CTexturedVertex({ XMFLOAT3(+1.0f, +1.0f, +1.0f), XMFLOAT2(1.0f, 0.0f) }),
-		CTexturedVertex({ XMFLOAT3(+1.0f, -1.0f, +1.0f), XMFLOAT2(1.0f, 0.0f) })
+		CTexturedVertex({ XMFLOAT3(-width, -height, -depth), XMFLOAT2(0.0f, 1.0f) }),
+		CTexturedVertex({ XMFLOAT3(-width, +height, -depth), XMFLOAT2(0.0f, 0.0f) }),
+		CTexturedVertex({ XMFLOAT3(+width, +height, -depth), XMFLOAT2(1.0f, 0.0f) }),
+		CTexturedVertex({ XMFLOAT3(+width, -height, -depth), XMFLOAT2(1.0f, 1.0f) }),
+		CTexturedVertex({ XMFLOAT3(-width, -height, +depth), XMFLOAT2(0.0f, 0.0f) }),
+		CTexturedVertex({ XMFLOAT3(-width, +height, +depth), XMFLOAT2(0.0f, 0.0f) }),
+		CTexturedVertex({ XMFLOAT3(+width, +height, +depth), XMFLOAT2(1.0f, 0.0f) }),
+		CTexturedVertex({ XMFLOAT3(+width, -height, +depth), XMFLOAT2(1.0f, 0.0f) })
 	};
 
 	m_nIndices = 36;

@@ -42,21 +42,34 @@ float CalcShadowFactor(float4 shadowPosH)
 */
 float CalcShadowFactor(float4 shadowPosH, int index)
 {
-    float shadowFactor = 0.2f;
-    
-    float fBias = 0.006;
-   
     shadowPosH.xyz /= shadowPosH.w;
 
-    float fsDepth = gShadowMap[index].Sample(gDefaultSamplerState, shadowPosH.xy).r;
+    float depth = shadowPosH.z;
 
-    if (shadowPosH.z <= (fsDepth + fBias))
-        shadowFactor = 1.0f;
+    uint width, height, numMips;
+    gShadowMap[index].GetDimensions(0, width, height, numMips);
+
+    float dx = 1.0f / (float) width;
+
+    float percentLit = 0.0f;
+    const float2 offsets[9] =
+    {
+        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+    };
+
+    [unroll]
+    for (int i = 0; i < 9; ++i)
+    {
+        percentLit += gShadowMap[index].SampleCmpLevelZero(gsamShadow,
+            shadowPosH.xy + offsets[i], depth).r;
+    }
     
-    return shadowFactor;
+    return percentLit / 9.0f;
 }
 
-float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMatindex)
+float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMatindex, float fShadowFactor)
 {
 	float3 vToLight = -gLights[nIndex].m_vDirection;
 	float fDiffuseFactor = dot(vToLight, vNormal);
@@ -77,11 +90,11 @@ float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMati
 	}
 
 	return((gLights[nIndex].m_cAmbient * gMaterials[nMatindex].m_cAmbient) + 
-		(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse) +
-		(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular));
+		(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse) * fShadowFactor +
+		(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular) * fShadowFactor);
 }
 
-float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera, uint nMatindex)
+float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera, uint nMatindex, float fShadowFactor)
 {
 	float3 vToLight = gLights[nIndex].m_vPosition - vPosition;
 	float fDistance = length(vToLight);
@@ -110,8 +123,8 @@ float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera
 		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance*fDistance));
 
 		return(((gLights[nIndex].m_cAmbient * gMaterials[nMatindex].m_cAmbient) + 
-			(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse) +
-			(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular)) * 
+			(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse) * fShadowFactor +
+			(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular) * fShadowFactor) *
 			fAttenuationFactor);
 	}
 	return(float4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -179,23 +192,17 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowF
 		{
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
-                cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex);
-              
+                cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex, shadowFactor[j]);
+                j++;
             }
 			else if (gLights[i].m_nType == POINT_LIGHT)
 			{
-				cColor += PointLight(i, vPosition, vNormal, vToCamera, nMatindex);
-			}
+                cColor += PointLight(i, vPosition, vNormal, vToCamera, nMatindex, shadowFactor[j]);
+                j++;
+            }
 			else if (gLights[i].m_nType == SPOT_LIGHT)
 			{
-                if (!alreadyDrawshadow && shadowFactor[j] <= 0.5f)
-                {
-                    alreadyDrawshadow = true;
-                    cColor += shadowFactor[j] * SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
-                }
-                else
-                    cColor += SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
-                j++;
+                cColor += SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
             }
 		}
 	}

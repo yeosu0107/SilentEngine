@@ -172,6 +172,7 @@ public:
 	void SetShader(Shaders *pShader);
 	void SetMaterial(CMaterial *pMaterial);
 	void SetLive(bool live) { m_live = live; }
+	void SetMatrix(XMFLOAT4X4& mat) { m_xmf4x4World = mat; }
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }
 	void SetCbvGPUDescriptorHandlePtr(UINT64 nCbvGPUDescriptorHandlePtr) { m_d3dCbvGPUDescriptorHandle.ptr = nCbvGPUDescriptorHandlePtr; }

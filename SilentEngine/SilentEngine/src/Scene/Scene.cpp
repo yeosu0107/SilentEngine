@@ -121,12 +121,11 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 
 void TestScene::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_pd3dcbLights = std::make_unique<UploadBuffer<LIGHTS>>(pDevice, 1, true);
 	m_pd3dcbMaterials = std::make_unique<UploadBuffer<MATERIALS>>(pDevice, 1, true);
 }
 
 void TestScene::UpdateShaderVarialbes() {
-	m_pd3dcbLights->CopyData(0, *m_pLights);
+	m_pLights->UpdateShaderVariables();
 	m_pd3dcbMaterials->CopyData(0, *m_pMaterials);
 }
 
@@ -167,6 +166,9 @@ void TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	m_pLights = new LightManagement();
+	m_pLights->BuildObject(pDevice, pCommandList, 45.0f, XMFLOAT3(1.0f, 0.0f, .0f));
+	
 	EffectLoader* globalEffects = GlobalVal::getInstance()->getEffectLoader();
 	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
 
@@ -181,13 +183,13 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetTimeLag(0.30f);
 	
 	PlayerShader* player = new PlayerShader(1, m_Camera.get());
-	player->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	player->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	player->BuildObjects(pDevice, pCommandList, 2, m_physics);
 	m_playerShader = player;
 	
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
-	Explosion->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	Explosion->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	Explosion->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	Explosion->SetCamera(m_Camera.get());
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
@@ -196,7 +198,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
 	for (UINT i = 0; i < MAX_MAP; ++i) {
 		map[i] = new MapShader(i);
-		map[i]->SetLightsUploadBuffer(m_pd3dcbLights.get());
+		map[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 		map[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 		map[i]->BuildObjects(pDevice, pCommandList, 2);
 	}
@@ -207,24 +209,24 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 
 	InstanceModelShader* gateShader = new InstanceModelShader(10);
-	gateShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	gateShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	gateShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	gateShader->BuildObjects(pDevice, pCommandList, 2);
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
 
 	EnemyShader<Ghost>* eShader = new EnemyShader<Ghost>(2);
-	eShader->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	eShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->BuildObjects(pDevice, pCommandList,2, m_physics);
 
 	EnemyShader<Enemy>* eShader2 = new EnemyShader<Enemy>(0);
-	eShader2->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	eShader2->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader2->BuildObjects(pDevice, pCommandList, 2, m_physics);
 
 	ProjectileShader* bullet = new ProjectileShader();
-	bullet->SetLightsUploadBuffer(m_pd3dcbLights.get());
+	bullet->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
@@ -242,17 +244,16 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[1]->SetEnemyShader(eShader2);
 
 	RoomChange();
-
-
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
 	m_Camera->UpdateShaderVariables(pCommandList);
+	m_pLights->UpdateShaderVariables();
 	UpdateShaderVarialbes();
 
-	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pd3dcbLights->Resource()->GetGPUVirtualAddress();
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbLightsGpuVirtualAddress = m_pLights->LightUploadBuffer()->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(3, d3dcbLightsGpuVirtualAddress); //Lights
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
@@ -268,62 +269,30 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
 	//페이트 INOUT 랜더링
 	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
+
+	m_pLights->Render(pCommandList, m_Camera.get());
 }
 
 void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList){ }
 
 void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index)
 {
-	LIGHT light = m_pLights->m_pLights[index];
-	if (!light.m_bEnable)
+	VS_CB_CAMERA_INFO* info = m_pLights->LightMatrix(index);
+	LIGHT light = m_pLights->Light(index);
+	if (!info)
 		return;
-	VS_CB_CAMERA_INFO cameraInfo;
-	CalculateLightMatrix(cameraInfo, index);
+
 	pCommandList->SetGraphicsRootSignature(m_RootSignature.Get());
 
-	m_Camera->UpdateShaderVariables(pCommandList, cameraInfo);
+	m_Camera->UpdateShaderVariables(pCommandList, *info);
+	m_Camera->SetShadowProjection(info->m_xmf4x4ShadowProjection[0], index);
 	m_playerShader->RenderToDepthBuffer(pCommandList, m_Camera.get(), light.m_xmf3Position, light.m_fRange);
 	m_Room[m_nowRoom]->RenderToDepthBuffer(pCommandList, m_Camera.get(), light.m_xmf3Position, light.m_fRange);
 }
 
-void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo, int index)
+void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo, int index, float offset)
 {
-	LIGHT		targetLight = m_pLights->m_pLights[index];
-
-	XMFLOAT3	lightDir		= targetLight.m_xmf3Direction;
-	XMFLOAT3	lightPos		= targetLight.m_xmf3Position;
-	XMFLOAT3	lightTarget		= Vector3::Add(targetLight.m_xmf3Position, XMFLOAT3(60.0f, -790.0f, 60.0f));
-	XMFLOAT3	lightUp			= XMFLOAT3(0.0f, 1.0f, 0.0f);
-
-	XMFLOAT4X4	lightView		= Matrix4x4::LookAtLH(lightPos, lightTarget, lightUp);
-	XMFLOAT3	sphereCenterLS  = Vector3::TransformCoord(lightTarget, lightView);
-
-	float l = sphereCenterLS.x - 250.0f; //targetLight.m_fFalloff;
-	float b = sphereCenterLS.y - 250.0f; //targetLight.m_fFalloff;
-	float n = sphereCenterLS.z - 100.0f; //targetLight.m_fFalloff;
-	float r = sphereCenterLS.x + 250.0f; //targetLight.m_fFalloff;
-	float t = sphereCenterLS.y + 250.0f; //targetLight.m_fFalloff;
-	float f = sphereCenterLS.z + 18.27 * 100; //targetLight.m_fFalloff;
-
-	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
-
-	XMMATRIX T(
-		0.5f, 0.0f, 0.0f, 0.0f,
-		0.0f, -0.5f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.5f, 0.5f, 0.0f, 1.0f);
-
-	XMMATRIX S = XMLoadFloat4x4(&lightView) * lightProj * T;
-
-	XMStoreFloat4x4(&cameraInfo.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&lightView)));
-	XMStoreFloat4x4(&cameraInfo.m_xmf4x4Projection, XMMatrixTranspose(lightProj));
-	::memcpy(&cameraInfo.m_xmf3Position, &lightPos, sizeof(XMFLOAT3));
-
-	XMMATRIX transposeS = XMMatrixTranspose(S);
-
-	XMFLOAT4X4 tmp;
-	XMStoreFloat4x4(&tmp, S);
-	m_Camera->SetShadowProjection(tmp, index);
+	
 }
 
 bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
@@ -524,61 +493,11 @@ void TestScene::RoomFade()
 
 void TestScene::BuildLightsAndMaterials()
 {
-	m_pLights = new LIGHTS();
-	::ZeroMemory(m_pLights, sizeof(LIGHTS));
-
-	m_pLights->m_xmf4GlobalAmbient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	m_pLights->m_pLights[0].m_bEnable = true;
-	m_pLights->m_pLights[0].m_nType = SPOT_LIGHT;
-	m_pLights->m_pLights[0].m_fRange = 900.0f;
-	m_pLights->m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	m_pLights->m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	m_pLights->m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
-	m_pLights->m_pLights[0].m_xmf3Position = XMFLOAT3(-200.0f, 600.0f, 28.442f);
-	m_pLights->m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	m_pLights->m_pLights[0].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	m_pLights->m_pLights[0].m_fFalloff = 40.0f;
-	m_pLights->m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
-	m_pLights->m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
-
-	m_pLights->m_pLights[1].m_bEnable = true;
-	m_pLights->m_pLights[1].m_nType = SPOT_LIGHT;
-	m_pLights->m_pLights[1].m_fRange = 900.0f;
-	m_pLights->m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	m_pLights->m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	m_pLights->m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
-	m_pLights->m_pLights[1].m_xmf3Position = XMFLOAT3(200, 600.0f, 28.442f);
-	m_pLights->m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	m_pLights->m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	m_pLights->m_pLights[1].m_fFalloff = 40.0f;
-	m_pLights->m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
-	m_pLights->m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
-
-	m_pLights->m_pLights[2].m_bEnable = true;
-	m_pLights->m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
-	m_pLights->m_pLights[2].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	m_pLights->m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	m_pLights->m_pLights[2].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	m_pLights->m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
-
-	m_pLights->m_pLights[3].m_bEnable = false;
-	m_pLights->m_pLights[3].m_nType = SPOT_LIGHT;
-	m_pLights->m_pLights[3].m_fRange = 60.0f;
-	m_pLights->m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.1f, 1.0f, 1.0f, 1.0f);
-	m_pLights->m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f);
-	m_pLights->m_pLights[3].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	m_pLights->m_pLights[3].m_xmf3Position = XMFLOAT3(-150.0f, 30.0f, 30.0f);
-	m_pLights->m_pLights[3].m_xmf3Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
-	m_pLights->m_pLights[3].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	m_pLights->m_pLights[3].m_fFalloff = 8.0f;
-	m_pLights->m_pLights[3].m_fPhi = (float)cos(XMConvertToRadians(90.0f));
-	m_pLights->m_pLights[3].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
 
 	m_pMaterials = new MATERIALS();
 	::ZeroMemory(m_pMaterials, sizeof(MATERIALS));
 
-	m_pMaterials->m_pReflections[0] = { XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f), XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMaterials->m_pReflections[0] = { XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f), XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[1] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
 	m_pMaterials->m_pReflections[2] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[3] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
