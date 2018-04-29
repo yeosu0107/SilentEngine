@@ -329,7 +329,7 @@ void ObjectShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2, 0, 0); // GameObject
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, 0); // Texture
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArray, 0, 0); // Texture
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[3];
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
@@ -528,8 +528,8 @@ void NormalMapShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 2, 0, 0); // GameObject
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0, 0, 0); // Texture
-	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2, 0, 0); // Texture
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArray, 0, 0); // Texture
+	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArrayNorm, 0, 0); // Texture
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6];
 
@@ -609,12 +609,12 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[4 + NUM_DIRECTION_LIGHTS];
 
-	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1, 0, 0);
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 3, 0, 0);
-	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4, 0, 0);
-	pd3dDescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5, 0, 0);
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceData, 0, 0);
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexture2D, 0, 0);
+	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexture2DNorm, 0, 0);
+	pd3dDescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceEffectData, 0, 0);
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dDescriptorRanges[4 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0);
+		pd3dDescriptorRanges[4 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[7 + NUM_DIRECTION_LIGHTS];
 
@@ -777,10 +777,10 @@ void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2 + NUM_DIRECTION_LIGHTS];
 
-	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, 6, 0, 0); // Texture
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 8, 0, 0); 
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 2, SRVFullScreenTexture, 0, 0); // Texture
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenNormalTexture, 0, 0);
 	for(i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dDescriptorRanges[2 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0);
+		pd3dDescriptorRanges[2 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2 + NUM_DIRECTION_LIGHTS];
 
@@ -901,7 +901,7 @@ void ShadowDebugShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_DIRECTION_LIGHTS];
 	for(i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0); 
+		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_DIRECTION_LIGHTS];
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)

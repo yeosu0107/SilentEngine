@@ -2,6 +2,11 @@
     #define NUM_DIRECTION_LIGHTS 2
 #endif
 
+#ifndef NUM_MAX_TEXTURE
+    #define NUM_MAX_TEXTURE 2
+#endif
+
+
 struct VS_TEXTURED_INPUT
 {
 	float3 position : POSITION; // 
@@ -54,3 +59,6 @@ StructuredBuffer<InstanceAnimateInfo> gDynamicInstanceData : register(t7);
 Texture2D<float4> gNormalTexture : register(t8);
 
 Texture2D gShadowMap[NUM_DIRECTION_LIGHTS] : register(t9); // register 9 ~ 9 + NUM_DIRECTION_LIGHTS - 1 
+
+Texture2D gTextures[NUM_MAX_TEXTURE] : register(t20);
+Texture2D gNormalTextures[NUM_MAX_TEXTURE] : register(t24);

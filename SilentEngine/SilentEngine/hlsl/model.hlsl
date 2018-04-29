@@ -15,6 +15,7 @@ struct VS_MODEL_INPUT
 	float2 uv : TEXCOORD;
 	uint4 index : BORNINDEX;
 	float3 weight : WEIGHT;
+    uint texindex : TEXINDEX;
 };
 
 VS_TEXTURED_LIGHTING_OUTPUT VSStaticModel(VS_MODEL_INPUT input)

@@ -24,6 +24,19 @@
 #include "DDSTextureLoader12.h"
 #include "D3DMath.h"
 
+enum SRVRegisterNumber { 
+	SRVTexArray					= 0,
+	SRVInstanceData				= 1, 
+	SRVTexArrayNorm				= 2, 
+	SRVTexture2D				= 3,
+	SRVTexture2DNorm			= 4,
+	SRVInstanceEffectData		= 5,
+	SRVFullScreenTexture		= 6,
+	SRVInstanceAnimationInfo	= 7,
+	SRVFullScreenNormalTexture	= 8,
+	SRVShadowMap				= 9,
+	SRVMultiTexture				= 20
+};
 
 
 extern const int gNumFrameResources;
