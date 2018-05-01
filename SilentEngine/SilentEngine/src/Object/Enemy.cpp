@@ -139,6 +139,19 @@ void Enemy::Attack()
 void Enemy::Skill()
 {
 	ChangeAnimation(EnemyAni::Skill);
+	if (m_loopCheck == LOOP_MID) {
+
+		PxTransform tmpTr(m_Controller->getPosition().x,
+			m_Controller->getPosition().y,
+			m_Controller->getPosition().z);
+
+		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
+			Vector3::ScalarProduct(GetLook(), -30, false)
+		)));
+
+		m_attackTrigger->setGlobalPose(tmpTr, true);
+
+	}
 }
 
 void Enemy::Hitted()

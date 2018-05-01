@@ -230,13 +230,13 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	eShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader->BuildObjects(pDevice, pCommandList,2, m_physics);
+	eShader->BuildObjects(pDevice, pCommandList,2, (int*)4);
 
 	EnemyShader<Enemy>* eShader2 = new EnemyShader<Enemy>(3);
 	eShader2->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader2->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader2->BuildObjects(pDevice, pCommandList, 2, m_physics);
+	eShader2->BuildObjects(pDevice, pCommandList, 2, (int*)2);
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());

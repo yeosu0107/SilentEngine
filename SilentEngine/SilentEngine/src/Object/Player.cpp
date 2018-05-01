@@ -185,7 +185,7 @@ void Player::Hitted()
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
-	
+	hitBackstep = 0.5f;
 }
 
 void Player::SetPosition(float x, float y, float z)
@@ -228,6 +228,11 @@ void Player::Animate(float fTime)
 	if (m_Controller) {
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
+
+		//hitted 뒤로 밀림 적용
+		XMFLOAT3 hitback = Vector3::Add(XMFLOAT3(0, 0, 0), GetLookVector(), -hitBackstep);
+
+		m_Controller->move(XMtoPX(hitback), 0.1f, fTime, m_ControllerFilter);
 		m_xmf3Position = PXtoXM(m_Controller->getFootPosition()); //발 좌표로 이동 보정
 		RegenerateMatrix(); //이동 회전을 매트릭스에 적용
 		
@@ -245,6 +250,8 @@ void Player::Animate(float fTime)
 
 	if (!m_Jump.mJump)
 		m_Jump.startJump(PxF32(0)); //중력 작용
+
+	hitBackstep = 0.0f;
 }
 
 void Player::SetCamera(Camera * tCamera, BasePhysX* phys)

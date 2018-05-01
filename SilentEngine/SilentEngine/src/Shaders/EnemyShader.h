@@ -24,7 +24,7 @@ public:
 		m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 		m_PSByteCode[1] = nullptr;
 
-		m_nObjects = 1;
+		m_nObjects = (int)(pContext);
 		m_ppObjects = vector<GameObject*>(m_nObjects);
 
 		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, 1 + NUM_DIRECTION_LIGHTS);
@@ -53,7 +53,7 @@ public:
 		for (UINT i = 0; i < m_nObjects; ++i) {
 			T* t_enemy = new T(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 			t_enemy->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
-			t_enemy->SetPosition(XMFLOAT3(50 + (i * 50), -170, 50));
+			t_enemy->SetPosition(XMFLOAT3(50 + (i * 50), -170, 50 + (i * 30)));
 			t_enemy->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 			m_ppObjects[i] = t_enemy;
 		}

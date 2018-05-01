@@ -225,7 +225,7 @@ public:
 	virtual void Death() {}
 	virtual void ChangeAnimation(UINT nextIndex) {}
 
-	UINT getAnimRoof() const { return m_loopCheck; }
+	UINT getAnimLoop() const { return m_loopCheck; }
 	virtual void stopAnim(bool stop) {}
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);

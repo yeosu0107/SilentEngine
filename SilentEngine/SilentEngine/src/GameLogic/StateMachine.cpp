@@ -87,15 +87,17 @@ void BaseAI::attackState()
 
 	m_owner->Attack();
 
-	if(!recognize(playerPos, m_personalRange + 10.0f))
-		changeState(STATE::tracking);
+	if (m_owner->getAnimLoop() == LOOP_END) {
+		if (!recognize(playerPos, m_personalRange + 10.0f))
+			changeState(STATE::tracking);
+	}
 }
 
 void BaseAI::skillState()
 {
 	m_owner->Skill();
 
-	if (m_owner->getAnimRoof() == LOOP_END)
+	if (m_owner->getAnimLoop() == LOOP_END)
 		changeState(STATE::tracking);
 }
 
@@ -106,14 +108,14 @@ void BaseAI::avoidState()
 void BaseAI::hittedState()
 {
 	//m_owner->Hitted();
-	if (m_owner->getAnimRoof() == LOOP_END)
+	if (m_owner->getAnimLoop() == LOOP_END)
 		changeState(STATE::idle);
 }
 
 void BaseAI::deathState()
 {
 	m_owner->Death();
-	if (m_owner->getAnimRoof() == LOOP_END) {
+	if (m_owner->getAnimLoop() == LOOP_END) {
 		m_owner->SetLive(false);
 		reinterpret_cast<Enemy*>(m_owner)->releasePhys();
 	}

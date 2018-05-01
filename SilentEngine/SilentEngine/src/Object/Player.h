@@ -85,6 +85,8 @@ protected:
 
 	PlayerLogic*					m_playerLogic;
 	Status*							m_status;
+
+	float								hitBackstep = 0.0f;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();

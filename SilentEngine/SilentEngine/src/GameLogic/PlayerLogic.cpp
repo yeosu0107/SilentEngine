@@ -21,7 +21,7 @@ void PlayerLogic::trackingState()
 
 void PlayerLogic::attackState()
 {
-	if (m_owner->getAnimRoof() == LOOP_END) {
+	if (m_owner->getAnimLoop() == LOOP_END) {
 		if (m_isNextIndex) {
 			m_attackIndex += 1;
 			if (m_attackIndex >= m_maxAttackIndex)
@@ -47,14 +47,14 @@ void PlayerLogic::avoidState()
 
 void PlayerLogic::hittedState()
 {
-	if (m_owner->getAnimRoof() == LOOP_END)
+	if (m_owner->getAnimLoop() == LOOP_END)
 		changeState(STATE::idle);
 }
 
 void PlayerLogic::deathState()
 {
 	
-	if (m_owner->getAnimRoof() == LOOP_END) {
+	if (m_owner->getAnimLoop() == LOOP_END) {
 		//m_owner->SetLive(false);
 		m_owner->stopAnim(true);
 	}
@@ -68,7 +68,7 @@ void PlayerLogic::changeState(STATE newState)
 		m_isNextIndex = true;
 	}*/
 	if (m_state > STATE::tracking) {
-		if (m_owner->getAnimRoof() != LOOP_END)
+		if (m_owner->getAnimLoop() != LOOP_END)
 			return;
 	}
 	

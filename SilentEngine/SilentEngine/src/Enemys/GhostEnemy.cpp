@@ -26,7 +26,6 @@ void Ghost::Attack()
 {
 	//ChangeAnimation(EnemyAni::Attack);
 
-
 	m_shootDelay += 1;
 	if (m_shootDelay % 50 == 0) {
 		ProjectileShader* myProjectile = reinterpret_cast<ProjectileShader*>
