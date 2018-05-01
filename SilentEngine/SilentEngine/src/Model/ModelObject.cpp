@@ -97,6 +97,11 @@ void ModelObject::ChangeAnimation(UINT nextIndex)
 	m_AnimIndex = nextIndex;
 }
 
+void ModelObject::stopAnim(bool stop)
+{
+	m_ani[m_AnimIndex]->StopAnim(stop);
+}
+
 void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name)
 {
 	if (type == PhysMesh::Mesh_Tri) {

@@ -5,9 +5,13 @@ res\\ModelData\\M_ATTACK2.FBX,,
 res\\ModelData\\M_ATTACK.FBX,,
 res\\ModelData\\M_HITTED.FBX,,
 res\\ModelData\\M_DIE.FBX,,
-res\\ModelData\\TTT_idle.FBX,2,res\\Texture\\player.dds
-res\\ModelData\\TTT_idle.FBX,,
-res\\ModelData\\TTT_run.FBX,,
+res\\ModelData\\c_idle.FBX,6,res\\Texture\\c_texture.dds
+res\\ModelData\\c_idle.FBX,,
+res\\ModelData\\c_run.FBX,,
+res\\ModelData\\c_attack.FBX,,
+res\\ModelData\\c_attack2.FBX,,
+res\\ModelData\\c_damaged.FBX,,
+res\\ModelData\\c_die.FBX,,
 res\\ModelData\\ghost_move2.FBX,2,res\\Texture\\ghost.dds
 res\\ModelData\\ghost_idle.FBX,,
 res\\ModelData\\ghost_move2.FBX,,

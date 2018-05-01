@@ -63,7 +63,7 @@ void Player::RegenerateMatrix()
 	m_xmf4x4World._41 = m_xmf3Position.x; m_xmf4x4World._42 = m_xmf3Position.y; m_xmf4x4World._43 = m_xmf3Position.z;
 
 	//스케일 0.5배
-	XMStoreFloat4x4(&m_xmf4x4World, XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMLoadFloat4x4(&m_xmf4x4World));
+	//XMStoreFloat4x4(&m_xmf4x4World, XMMatrixScaling(0.5f, 0.5f, 0.5f) * XMLoadFloat4x4(&m_xmf4x4World));
 	GameObject::Rotate(0, 180, 0); //정면 쳐다보기
 	
 }
@@ -71,15 +71,18 @@ void Player::RegenerateMatrix()
 void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
+	m_ani[PlayerAni::Idle]->SetAnimSpeed(0.5f);
+	m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
+	m_ani[PlayerAni::Attack]->SetAnimSpeed(0.5f);
 	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
-	//m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
-	//m_ani[PlayerAni::Attack]->SetAnimSpeed(0.5f);
-	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
+	m_ani[PlayerAni::die]->DisableLoof(PlayerAni::die);
 	m_ani[PlayerAni::Idle]->EnableLoof();
 }
 
 bool Player::Move(DWORD input, float fTime)
 {
+	if (m_playerLogic->getState() > STATE::tracking)
+		return false;
 	if (input){
 		float fDist = m_moveSpeed * fTime;
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
@@ -120,7 +123,7 @@ bool Player::Move(DWORD input, float fTime)
 		xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDist);
 
 		//가속 처리
-		m_moveSpeed = 50.0f;
+		m_moveSpeed = 80.0f;
 		//if (m_moveSpeed < maxSpeed)
 		//	m_moveSpeed += accelSpeed;
 		
@@ -129,12 +132,12 @@ bool Player::Move(DWORD input, float fTime)
 			//실제 게임 오브젝트의 이동은 애니메에트에서 처리 (현재는 물리적 이동만 처리)
 		}
 		//m_AnimIndex = PlayerAni::Move;
-		ChangeAnimation(PlayerAni::Move);
+		//ChangeAnimation(PlayerAni::Move);
 		m_playerLogic->changeState(STATE::tracking);
 		return true;
 	}
 	m_moveSpeed = startSpeed;
-	ChangeAnimation(PlayerAni::Idle);
+	//ChangeAnimation(PlayerAni::Idle);
 	m_playerLogic->changeState(STATE::idle);
 	return false;
 }
@@ -142,6 +145,7 @@ bool Player::Move(DWORD input, float fTime)
 bool Player::Movement(DWORD input)
 {
 	if (input & ANI_ATTACK) {
+		//ChangeAnimation(PlayerAni::Attack);
 		m_playerLogic->changeState(STATE::attack);
 		//Attack();
 	}
@@ -157,8 +161,8 @@ bool Player::Movement(DWORD input)
 void Player::Attack()
 {
 	UINT tmp = m_playerLogic->getAttackIndex()+2;
-	cout << tmp << endl;
-	{
+	//cout << tmp << endl;
+	if (m_loopCheck == LOOP_MID) {
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);
@@ -173,11 +177,15 @@ void Player::Attack()
 
 void Player::Hitted()
 {
-	//ChangeAnimation(EnemyAni::Hitted);
+	if (m_status->m_health <= 0) {
+		m_playerLogic->changeState(STATE::death);
+		return;
+	}
 	m_status->m_health -= 10;
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
+	
 }
 
 void Player::SetPosition(float x, float y, float z)

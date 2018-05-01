@@ -2,7 +2,7 @@
 
 struct Status
 {
-	UINT m_health;
+	int m_health;
 	UINT m_attack;
 	UINT m_moveSpeed;
 

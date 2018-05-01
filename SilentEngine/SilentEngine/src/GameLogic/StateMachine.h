@@ -54,6 +54,7 @@ public:
 	virtual void deathState() = 0;
 
 	Status* getStatus() { return m_status; }
+	STATE getState() const { return m_state; }
 };
 
 class BaseAI : public StateMachine

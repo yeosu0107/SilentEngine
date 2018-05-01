@@ -21,7 +21,8 @@ class Shaders;
 
 const UINT LOOP_IN					= 0;
 const UINT LOOP_END				= 1;
-const UINT LOOP_MID				= 2;
+const UINT LOOP_MID					= 2;
+const UINT LOOP_STOP				= 3;
 
 #define RESOURCE_TEXTURE2D						0x01
 #define RESOURCE_TEXTURE2D_ARRAY			0x02	//[]
@@ -216,8 +217,10 @@ public:
 	virtual void Skill() {}
 	virtual void Hitted() {}
 	virtual void Death() {}
+	virtual void ChangeAnimation(UINT nextIndex) {}
 
 	UINT getAnimRoof() const { return m_loopCheck; }
+	virtual void stopAnim(bool stop) {}
 
 	virtual void Rotate(float fPitch = 10.0f, float fYaw = 10.0f, float fRoll = 10.0f);
 	void Rotate(XMFLOAT3 *pxmf3Axis, float fAngle);

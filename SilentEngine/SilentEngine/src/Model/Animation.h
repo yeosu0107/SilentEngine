@@ -22,6 +22,7 @@ private:
 	float										now_time;  //현재 프레임
 	
 	BOOL									animation_loof;  //애니메이션 루프 여부 (기본은 true)
+	BOOL									stop_anim = false;
 	UINT										next_index;
 
 	float										m_animSpeed;
@@ -41,6 +42,7 @@ public:
 	void EnableLoof() {
 		animation_loof = true;
 	}
+	void StopAnim(bool stop) { stop_anim = stop; }
 
 	void SetAnimSpeed(float speed) { m_animSpeed *= speed; }
 

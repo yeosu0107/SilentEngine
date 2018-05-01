@@ -38,6 +38,8 @@ LoadAnimation::LoadAnimation(const LoadAnimation & T)
 
 UINT LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& transforms)
 {
+	if (stop_anim)
+		return LOOP_STOP;
 	XMMATRIX Identity = XMMatrixIdentity();
 
 	if (!m_pScene) {

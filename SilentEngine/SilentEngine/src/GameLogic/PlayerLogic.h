@@ -4,6 +4,11 @@
 class PlayerLogic : public  StateMachine
 {
 private:
+	enum PlayerAni
+	{
+		Idle = 0, Move = 1, Attack = 2, Skill = 3, Hitted = 4, die = 5
+	};
+
 	GameObject*		m_owner;
 	UINT					m_attackIndex;
 	bool					m_isNextIndex = false;

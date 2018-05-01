@@ -53,13 +53,47 @@ void PlayerLogic::hittedState()
 
 void PlayerLogic::deathState()
 {
+	
+	if (m_owner->getAnimRoof() == LOOP_END) {
+		//m_owner->SetLive(false);
+		m_owner->stopAnim(true);
+	}
+
 }
 
 void PlayerLogic::changeState(STATE newState)
 {
-	if (m_state == STATE::attack &&
+	/*if (m_state == STATE::attack &&
 		newState == STATE::attack) {
 		m_isNextIndex = true;
+	}*/
+	if (m_state > STATE::tracking) {
+		if (m_owner->getAnimRoof() != LOOP_END)
+			return;
 	}
+	
 	m_state = newState;
+	switch (m_state) {
+	case STATE::idle:
+		m_owner->ChangeAnimation(PlayerAni::Idle);
+		break;
+	case STATE::hitted:
+		m_owner->ChangeAnimation(PlayerAni::Hitted);
+		break;
+	case STATE::death:
+		m_owner->ChangeAnimation(PlayerAni::die);
+		break;
+	case STATE::attack:
+		m_owner->ChangeAnimation(PlayerAni::Attack);
+		break;
+	case STATE::tracking:
+		m_owner->ChangeAnimation(PlayerAni::Move);
+		break;
+	case STATE::skill:
+		m_owner->ChangeAnimation(PlayerAni::Skill);
+		break;
+	default:
+		m_owner->ChangeAnimation(PlayerAni::Idle);
+		break;
+	}
 }
