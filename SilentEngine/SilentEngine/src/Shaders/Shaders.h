@@ -73,6 +73,11 @@ public:
 	virtual void Animate(float fTimeElapsed) {}
 	virtual void CreatePipelineParts();
 
+	virtual void SetFogUploadBuffer(UploadBuffer<CB_FOG_INFO>* pFogBuf) { m_FogCB = pFogBuf; }
+	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
+	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
+	virtual void SetMultiUploadBuffer(void** data);
+
 protected:
 	ComPtr<ID3D12RootSignature>*					m_RootSignature = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CBVHeap = nullptr;
@@ -94,6 +99,10 @@ protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dSrvGPUDescriptorStartHandle;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_InputLayout;
+
+	UploadBuffer<CB_FOG_INFO>*						m_FogCB = nullptr;
+	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
+	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
 };
 
 class ObjectShader : public Shaders
@@ -132,12 +141,6 @@ public:
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 
-	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
-	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
-
-protected:
-	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
-	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
 };
 
 class BillboardShader : public NormalMapShader

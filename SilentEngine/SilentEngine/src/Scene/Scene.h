@@ -74,6 +74,7 @@ public:
 	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo, int index, float offset);
 
 	void BuildLightsAndMaterials();
+	void BuildFog();
 
 	virtual bool OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer);
 	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
@@ -105,7 +106,10 @@ protected:
 	//unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
 
 	MATERIALS*											m_pMaterials;
-	unique_ptr<UploadBuffer<MATERIALS>>	m_pd3dcbMaterials = nullptr;
+	unique_ptr<UploadBuffer<MATERIALS>>					m_pd3dcbMaterials = nullptr;
+
+	CB_FOG_INFO*										m_pFog;
+	unique_ptr<UploadBuffer<CB_FOG_INFO>>				m_pd3dcbFog = nullptr;
 
 	GameObject*											m_testPlayer=nullptr;
 

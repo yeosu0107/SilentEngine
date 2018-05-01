@@ -363,5 +363,8 @@
     <FxCompile Include="hlsl\multiTexturemodel.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\FogShader.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

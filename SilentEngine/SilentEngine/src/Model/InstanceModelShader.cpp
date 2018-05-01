@@ -23,16 +23,17 @@ void InstanceModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		pd3dDescriptorRanges[3 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0); // ShadowMap
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6 + NUM_DIRECTION_LIGHTS];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[7 + NUM_DIRECTION_LIGHTS];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[2].InitAsConstantBufferView(4);
 	pd3dRootParameters[3].InitAsConstantBufferView(5);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[4].InitAsConstantBufferView(8);
+	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[6].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[6 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3 + i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[7 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3 + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -188,7 +189,7 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 		for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 			pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
 
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 1, true);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 6, 1, true);
 
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -206,6 +207,8 @@ void InstanceModelShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Ca
 {
 	Shaders::OnPrepareRender(pd3dCommandList);
 	Shaders::Render(pd3dCommandList, pCamera);
+
+	pd3dCommandList->SetGraphicsRootConstantBufferView(4, m_FogCB->Resource()->GetGPUVirtualAddress());
 
 	if (m_pMaterial) 
 		m_pMaterial->UpdateShaderVariables(pd3dCommandList);
@@ -287,7 +290,7 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 		for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 			pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
 
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5 - index, 1, true);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 6 - index, 1, true);
 	
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);

@@ -304,6 +304,13 @@ void Shaders::CreatePipelineParts()
 	m_VSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
 	m_PSByteCode = new ComPtr<ID3DBlob>[m_nPSO];
 }
+
+void Shaders::SetMultiUploadBuffer(void** data)
+{
+	m_LightsCB	= reinterpret_cast<UploadBuffer<LIGHTS>*>(data[0]);
+	m_MatCB		= reinterpret_cast<UploadBuffer<MATERIALS>*>(data[1]);
+	m_FogCB		= reinterpret_cast<UploadBuffer<CB_FOG_INFO>*>(data[2]);
+}
 //
 //// /////////////////////////////////////////////////
 

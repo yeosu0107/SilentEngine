@@ -157,15 +157,16 @@ void DynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		pd3dDescriptorRanges[2 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[5 + NUM_DIRECTION_LIGHTS];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6 + NUM_DIRECTION_LIGHTS];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[2].InitAsConstantBufferView(4);
 	pd3dRootParameters[3].InitAsConstantBufferView(5);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[4].InitAsConstantBufferView(8);
+	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[5 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2 + i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[6 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2 + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];

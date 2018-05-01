@@ -42,7 +42,7 @@ public:
 			for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 				pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
 
-			CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
+			CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, true);
 
 			m_pMaterial = new CMaterial();
 			m_pMaterial->SetTexture(pTexture);

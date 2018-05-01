@@ -5,7 +5,7 @@
 //***************************************************************************************
 
 #include "Light.hlsl"
-
+#include "FogShader.hlsl"
 
 struct VS_MODEL_INPUT
 {
@@ -181,8 +181,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
     for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
         shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
-
-	output.color = cColor * cIllumination;
+    //output.color = cColor * cIllumination;
+    output.color = Fog(cColor * cIllumination, input.positionW);
 	output.normal = float4(input.normalW, 1.0f);
 
 	return (output);
@@ -202,7 +202,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT inp
         shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
 
-	output.color = cColor * cIllumination;
+    output.color = Fog(cColor * cIllumination, input.positionW);
 	output.normal = float4(input.normalW, 1.0f);
 
 	return (output);

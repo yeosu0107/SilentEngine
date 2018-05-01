@@ -60,7 +60,7 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[5];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[6];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -86,6 +86,11 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	pd3dRootParameters[4].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[4].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //Texture2DArray
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	pd3dRootParameters[5].Descriptor.ShaderRegister = 8; //Fog
+	pd3dRootParameters[5].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -122,11 +127,13 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 void TestScene::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	m_pd3dcbMaterials = std::make_unique<UploadBuffer<MATERIALS>>(pDevice, 1, true);
+	m_pd3dcbFog = std::make_unique<UploadBuffer<CB_FOG_INFO>>(pDevice, 1, true);
 }
 
 void TestScene::UpdateShaderVarialbes() {
 	m_pLights->UpdateShaderVariables();
 	m_pd3dcbMaterials->CopyData(0, *m_pMaterials);
+	m_pd3dcbFog->CopyData(0, *m_pFog);
 }
 
 void TestScene::Update(const Timer & gt)
@@ -173,8 +180,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
 
 	BuildRootSignature(pDevice, pCommandList);
-
 	BuildLightsAndMaterials();
+	BuildFog();
 	CreateShaderVariables(pDevice, pCommandList);
 
 	m_Camera = make_unique<CThirdPersonCamera>();
@@ -185,12 +192,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	PlayerShader* player = new PlayerShader(1, m_Camera.get());
 	player->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+
 	player->BuildObjects(pDevice, pCommandList, 2, m_physics);
 	m_playerShader = player;
 	
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
 	Explosion->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	Explosion->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	Explosion->SetFogUploadBuffer(m_pd3dcbFog.get());
 	Explosion->SetCamera(m_Camera.get());
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
@@ -200,6 +209,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		map[i] = new MapShader(i);
 		map[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 		map[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+		map[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
 		map[i]->BuildObjects(pDevice, pCommandList, 2);
 	}
 	for (UINT i = 0; i < m_nRoom; ++i) {
@@ -211,6 +221,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	InstanceModelShader* gateShader = new InstanceModelShader(10);
 	gateShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	gateShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	gateShader->SetFogUploadBuffer(m_pd3dcbFog.get());
 	gateShader->BuildObjects(pDevice, pCommandList, 2);
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
@@ -218,16 +229,19 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	EnemyShader<Ghost>* eShader = new EnemyShader<Ghost>(2);
 	eShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	eShader->SetFogUploadBuffer(m_pd3dcbFog.get());
 	eShader->BuildObjects(pDevice, pCommandList,2, m_physics);
 
 	EnemyShader<Enemy>* eShader2 = new EnemyShader<Enemy>(3);
 	eShader2->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	eShader2->SetFogUploadBuffer(m_pd3dcbFog.get());
 	eShader2->BuildObjects(pDevice, pCommandList, 2, m_physics);
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	bullet->SetFogUploadBuffer(m_pd3dcbFog.get());
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
 	bullet->setPhys(m_physics);
@@ -258,6 +272,9 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = m_pd3dcbMaterials->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
+
+	D3D12_GPU_VIRTUAL_ADDRESS d3dcbFogGpuVirtualAddress = m_pd3dcbFog->Resource()->GetGPUVirtualAddress();
+	pCommandList->SetGraphicsRootConstantBufferView(5, d3dcbFogGpuVirtualAddress); //Materials
 
 	//플레이어 랜더링
 	m_playerShader->Render(pCommandList, m_Camera.get());
@@ -505,6 +522,20 @@ void TestScene::BuildLightsAndMaterials()
 	m_pMaterials->m_pReflections[5] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 30.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[6] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMaterials->m_pReflections[7] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+}
+
+void TestScene::BuildFog()
+{
+	m_pFog = new CB_FOG_INFO();
+	::ZeroMemory(m_pFog, sizeof(CB_FOG_INFO));
+
+	m_pFog->m_xmf4FogColor = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+
+	float fFogMode = 1.0f;
+	float fStart = 50.0f;
+	float fEnd = 500.0f;
+	float fDensity = 1.0f; 
+	m_pFog->m_xmf4Foginfo = XMFLOAT4(fFogMode, fStart, fEnd, fDensity);	
 }
 
 /*

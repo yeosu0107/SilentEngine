@@ -1,8 +1,6 @@
-//***************************************************************************************
-// color.hlsl by Frank Luna (C) 2015 All Rights Reserved.
-//
-// Transforms and colors geometry.
-//***************************************************************************************
+#ifndef _CBUFFER_SHADER
+#define _CBUFFER_SHADER
+
 
 #ifndef NUM_DIRECTION_LIGHTS
     #define NUM_DIRECTION_LIGHTS 2
@@ -105,6 +103,12 @@ cbuffer cbFade : register(b7)
     float4              gFadeColor;
 }
 
+cbuffer cbFog : register(b8)
+{
+    float4 gFogColor;
+    float4 gFogParameter; // float4( FogMode, Start, End, Density); 
+}
+
 static matrix gmtxTexture =
 {
     0.5f, 0.0f, 0.0f, 0.0f,
@@ -123,3 +127,5 @@ struct VS_MODEL_NORMAL_OUTPUT
     float3 tangentW : TANGENT;
     uint mat : MATERIAL;
 };
+
+#endif
