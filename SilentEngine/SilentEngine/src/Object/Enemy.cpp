@@ -66,7 +66,7 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_Callback.SetCrash(&m_Crash);
 
 	m_State = new BaseAI(this);
-	m_State->setValue(200, 32, true);
+	m_State->setValue(200, 45, true); //32
 	m_State->setFunc();
 
 	m_status = m_State->getStatus();

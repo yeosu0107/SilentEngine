@@ -120,8 +120,9 @@ bool Player::Move(DWORD input, float fTime)
 		xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDist);
 
 		//가속 처리
-		if (m_moveSpeed < maxSpeed)
-			m_moveSpeed += accelSpeed;
+		m_moveSpeed = 50.0f;
+		//if (m_moveSpeed < maxSpeed)
+		//	m_moveSpeed += accelSpeed;
 		
 		if (m_Controller) {
 			m_Controller->move(XMtoPX(xmf3Shift), 0.001f, 1, m_ControllerFilter);

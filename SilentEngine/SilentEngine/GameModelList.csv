@@ -11,3 +11,10 @@ res\\ModelData\\TTT_run.FBX,,
 res\\ModelData\\ghost_move2.FBX,2,res\\Texture\\ghost.dds
 res\\ModelData\\ghost_idle.FBX,,
 res\\ModelData\\ghost_move2.FBX,,
+res\\ModelData\\d_idle.FBX,6,res\\Texture\\Rhino_Diffuse_COLOR.dds
+res\\ModelData\\d_idle.FBX,,
+res\\ModelData\\d_walk.FBX,,
+res\\ModelData\\d_attack01.FBX,,
+res\\ModelData\\d_attack02.FBX,,
+res\\ModelData\\d_hitted.FBX,,
+res\\ModelData\\d_death.FBX,,

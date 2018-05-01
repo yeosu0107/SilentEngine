@@ -8,10 +8,7 @@ LoadAnimation::LoadAnimation(string filename) :
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
 
 	if (m_pScene) {
-		if(m_pScene->mNumAnimations>1)
-			m_pAnim = m_pScene->mAnimations[1];
-		else
-			m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
+		m_pAnim = m_pScene->mAnimations[0]; //단일 애니메이션만 사용하는 경우 0번 인덱스
 		//m_GlobalInverse = aiMatrixToXMMatrix(m_pScene->mRootNode->mTransformation);
 		m_GlobalInverse = XMMatrixIdentity();
 
@@ -77,12 +74,12 @@ UINT LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& 
 
 void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, const XMMATRIX& ParentTransform)
 {
-	//string NodeName(pNode->mName.data);
+	string NodeName(pNode->mName.data);
 	const aiAnimation* pAnim = m_pAnim;
 
 	XMMATRIX NodeTransformation = aiMatrixToXMMatrix(pNode->mTransformation);
 
-	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, pNode->mName.data);
+	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, NodeName);
 	//현재 노드가 animation channel 에 속한지 확인
 	if (pNodeAnim) {
 		aiVector3D s;
@@ -106,12 +103,11 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	}
 	//부모노드에 변환값 중첩해서 곱하기
 	XMMATRIX GlobalTransformation = ParentTransform * NodeTransformation;
-	string name = pNode->mName.data;
 
 
 	//현재노드가 뼈 노드이면 변환정보를 뼈에 적용
 	for (auto& p : m_Bones) {
-		if (p.first == pNode->mName.data) {
+		if (p.first == NodeName) {
 			p.second.FinalTransformation =
 				m_GlobalInverse * GlobalTransformation * p.second.BoneOffset;
 			break;
