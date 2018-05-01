@@ -14,7 +14,6 @@ using namespace std;
 class CVertex
 {
 public:
-	UINT							m_iTextureindex = 0;
 	XMFLOAT3						m_xmf3Position;
 
 public:
