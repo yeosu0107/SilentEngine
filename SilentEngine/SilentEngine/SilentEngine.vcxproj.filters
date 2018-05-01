@@ -360,7 +360,7 @@
     <FxCompile Include="hlsl\color.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="hlsl\Shadow.hlsl">
+    <FxCompile Include="hlsl\multiTexturemodel.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>

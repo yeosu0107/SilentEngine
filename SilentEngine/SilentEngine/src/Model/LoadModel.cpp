@@ -168,7 +168,7 @@ void LoadModel::InitMesh(UINT index, const aiMesh * pMesh)
 		else
 			tex = XMFLOAT2(0.0f, 0.0f);
 		//tangent는 일단 0으로 초기화
-		const vertexDatas data(pos, normal, XMFLOAT3(0,0,0), tex);
+		const vertexDatas data(pos, normal, XMFLOAT3(0,0,0), tex, index);
 		m_meshes[index].m_vertices.push_back(data);
 	}
 

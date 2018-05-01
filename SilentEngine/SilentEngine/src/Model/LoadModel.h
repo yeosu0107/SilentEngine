@@ -26,10 +26,11 @@ struct vertexDatas
 	XMFLOAT2	m_tex;
 	XMUINT4	m_bornIndex;
 	XMFLOAT3	m_weights;
+	UINT		m_nTextureNum = 0;
 
 	vertexDatas() {}
-	vertexDatas(XMFLOAT3& pos, XMFLOAT3& normal, XMFLOAT3& tan, XMFLOAT2& tex) :
-		m_pos(pos), m_normal(normal), m_tan(tan), m_tex(tex)
+	vertexDatas(XMFLOAT3& pos, XMFLOAT3& normal, XMFLOAT3& tan, XMFLOAT2& tex, UINT texindex) :
+		m_pos(pos), m_normal(normal), m_tan(tan), m_tex(tex), m_nTextureNum(texindex)
 	{
 		m_weights = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		m_bornIndex = XMUINT4(0, 0, 0, 0);
@@ -62,6 +63,10 @@ struct mesh
 
 	mesh() {
 		m_materialIndex = 0;
+	}
+	void SetMeshesTextureIndex(UINT index) {
+		for (auto& d : m_vertices)
+			d.m_nTextureNum = index;
 	}
 };
 
@@ -103,10 +108,12 @@ public:
 	void InitMesh(UINT index, const aiMesh* pMesh);
 	void SetMeshes(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	void InitBones(UINT index, const aiMesh* pMesh);
+	void SetTextureIndex(UINT meshIndex, UINT textureIndex) { m_meshes[meshIndex].SetMeshesTextureIndex(textureIndex); };
 
 	ModelMesh**	getMeshes() { return m_ModelMeshes.data(); }
 	mesh*			getMesh(UINT index) { return &m_meshes[index]; }
 	UINT				getNumMesh() const { return (UINT)m_meshes.size(); }
 	vector<pair<string, Bone>>* GetBones() { return &m_Bones; }
 	UINT				getNumVertices() const { return m_numVertices; }
+	
 };

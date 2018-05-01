@@ -175,6 +175,8 @@ void GameObject::SetMesh(int nIndex, MeshGeometry *pMesh)
 	}
 }
 
+
+
 void GameObject::SetShader(Shaders *pShader)
 {
 	if (!m_pMaterial)

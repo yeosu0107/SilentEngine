@@ -43,6 +43,8 @@ ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12Graph
 
 	//매쉬 적용
 	for (UINT i = 0; i < m_nMeshes; ++i) {
+		if (i > 0)
+			m_model->SetTextureIndex(i, i);
 		SetMesh(i, m_model->getMeshes()[i]);
 	}
 
