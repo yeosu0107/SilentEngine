@@ -529,7 +529,7 @@ void TestScene::BuildFog()
 	m_pFog = new CB_FOG_INFO();
 	::ZeroMemory(m_pFog, sizeof(CB_FOG_INFO));
 
-	m_pFog->m_xmf4FogColor = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
+	m_pFog->m_xmf4FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 
 	float fFogMode = 1.0f;
 	float fStart = 50.0f;

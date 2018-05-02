@@ -183,7 +183,13 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
     //output.color = cColor * cIllumination;
     output.color = Fog(cColor * cIllumination, input.positionW);
-	output.normal = float4(input.normalW, 1.0f);
+    
+    float3 vPosToCamera = gvCameraPosition - input.positionW;
+    float fDistance = length(vPosToCamera);
+    float fRange = gFogParameter.z - gFogParameter.y;
+    float factor = saturate((gFogParameter.z - fDistance) / fRange);
+
+    output.normal = lerp(float4(input.normalW, 1.0f), float4(0.0f, 0.0f, 0.0f, 1.0f), factor);
 
 	return (output);
 };

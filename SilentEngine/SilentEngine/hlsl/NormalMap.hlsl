@@ -131,7 +131,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSModelNormalMap(VS_MODEL_NORMAL_OUTPUT input)
     litColor.rgb += shininess * fresnelFactor * litColor.rgb;
 
     output.color = Fog(litColor, input.positionW);
-    output.normal = float4(input.normalW, 1.0f);
-	//return cColor;
+    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);
+
     return output;
 }

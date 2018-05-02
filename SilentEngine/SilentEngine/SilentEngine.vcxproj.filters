@@ -89,6 +89,9 @@
     <Filter Include="Lights">
       <UniqueIdentifier>{10130420-a5d9-46b8-b78e-5c49ba7d550e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\UIObject">
+      <UniqueIdentifier>{4eeb397e-85b2-43af-9d01-d4ad986d7be7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -206,6 +209,7 @@
     <ClCompile Include="src\Object\LightObjects.cpp">
       <Filter>Object\Base</Filter>
     </ClCompile>
+    <ClCompile Include="UIObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Framework\D3DUtil.h">
@@ -334,6 +338,7 @@
     <ClInclude Include="src\Object\LightObjects.h">
       <Filter>Object\Base</Filter>
     </ClInclude>
+    <ClInclude Include="UIObject.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Sampler.hlsl">
