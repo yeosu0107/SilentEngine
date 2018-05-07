@@ -92,6 +92,9 @@
     <Filter Include="Object\UIObject">
       <UniqueIdentifier>{4eeb397e-85b2-43af-9d01-d4ad986d7be7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{047f113d-f8c5-481e-ad9f-5bb8636204df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -209,8 +212,12 @@
     <ClCompile Include="src\Object\LightObjects.cpp">
       <Filter>Object\Base</Filter>
     </ClCompile>
-    <ClCompile Include="UIObject.cpp" />
-    <ClCompile Include="UIShaders.cpp" />
+    <ClCompile Include="src\Shaders\UIShaders.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Object\UIObject.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Framework\D3DUtil.h">
@@ -339,8 +346,12 @@
     <ClInclude Include="src\Object\LightObjects.h">
       <Filter>Object\Base</Filter>
     </ClInclude>
-    <ClInclude Include="UIObject.h" />
-    <ClInclude Include="UIShaders.h" />
+    <ClInclude Include="src\Shaders\UIShaders.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Object\UIObject.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Sampler.hlsl">

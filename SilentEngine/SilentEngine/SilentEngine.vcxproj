@@ -188,6 +188,7 @@
     <ClCompile Include="src\Object\LightObjects.cpp" />
     <ClCompile Include="src\Object\Mesh\Mesh.cpp" />
     <ClCompile Include="src\Object\Player.cpp" />
+    <ClCompile Include="src\Object\UIObject.cpp" />
     <ClCompile Include="src\PhysX\BasePhysX.cpp" />
     <ClCompile Include="src\PhysX\PhysAddon.cpp" />
     <ClCompile Include="src\Room\Room.cpp" />
@@ -195,14 +196,13 @@
     <ClCompile Include="src\Shaders\PlayerShader.cpp" />
     <ClCompile Include="src\Shaders\ProjectileShader.cpp" />
     <ClCompile Include="src\Shaders\Shaders.cpp" />
+    <ClCompile Include="src\Shaders\UIShaders.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="UIObject.cpp" />
-    <ClCompile Include="UIShaders.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -235,6 +235,7 @@
     <ClInclude Include="src\Object\LightObjects.h" />
     <ClInclude Include="src\Object\Mesh\Mesh.h" />
     <ClInclude Include="src\Object\Player.h" />
+    <ClInclude Include="src\Object\UIObject.h" />
     <ClInclude Include="src\PhysX\BasePhysX.h" />
     <ClInclude Include="src\PhysX\PhysAddon.h" />
     <ClInclude Include="src\Room\Room.h" />
@@ -245,10 +246,9 @@
     <ClInclude Include="src\Shaders\PlayerShader.h" />
     <ClInclude Include="src\Shaders\ProjectileShader.h" />
     <ClInclude Include="src\Shaders\Shaders.h" />
+    <ClInclude Include="src\Shaders\UIShaders.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="UIObject.h" />
-    <ClInclude Include="UIShaders.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Cbuffer.hlsl">
