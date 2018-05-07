@@ -84,7 +84,6 @@ protected:
 	CameraCollisionCallback	m_CameraCallback;
 
 	PlayerLogic*					m_playerLogic;
-	Status*							m_status;
 
 	float								hitBackstep = 0.0f;
 public:
@@ -114,6 +113,6 @@ public:
 
 	void SetCamera(Camera* tCamera, BasePhysX* phys);
 	void CalibrateLook(XMFLOAT3& look);
-
+	Status* GetStatus() { return m_status; }
 	void* getTriggerActor() { return m_weaponTrigger; }
 };

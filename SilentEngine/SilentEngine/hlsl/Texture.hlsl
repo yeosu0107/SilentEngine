@@ -6,6 +6,10 @@
     #define NUM_MAX_TEXTURE 2
 #endif
 
+#ifndef NUM_MAX_UITEXTURE
+    #define NUM_MAX_UITEXTURE 4
+#endif
+
 
 struct VS_TEXTURED_INPUT
 {
@@ -43,8 +47,6 @@ struct InstanceAnimateInfo
     uint           gnInstTrashData3;
 };
 
-
-
 Texture2DArray gBoxTextured : register(t0);
 StructuredBuffer<InstanceData> gInstanceData : register(t1);
 Texture2DArray gBoxNormal : register(t2);
@@ -60,5 +62,8 @@ Texture2D<float4> gNormalTexture : register(t8);
 
 Texture2D gShadowMap[NUM_DIRECTION_LIGHTS] : register(t9); // register 9 ~ 9 + NUM_DIRECTION_LIGHTS - 1 
 
+Texture2D gUITextures[NUM_MAX_UITEXTURE] : register(t15);
+
 Texture2D gTextures[NUM_MAX_TEXTURE] : register(t20);
 Texture2D gNormalTextures[NUM_MAX_TEXTURE] : register(t24);
+

@@ -502,6 +502,7 @@ void Framework::Render()
 	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], TRUE, &DepthStencilView());
 
 	m_pTextureToFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
+	m_pTestScene->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 #endif
 #endif

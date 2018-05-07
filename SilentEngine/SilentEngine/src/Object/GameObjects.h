@@ -3,6 +3,7 @@
 #include "UploadBuffer.h"
 #include "Camera.h"
 #include "Mesh.h"
+#include "..\GameLogic\Status.h"
 
 class Shaders;
 
@@ -168,7 +169,7 @@ public:
 protected:
 	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>   m_pd3dcbGameObject;
 	CB_GAMEOBJECT_INFO*									m_pcbMappedGameObject = NULL;
-
+	Status*	m_status;
 	bool																m_bIsLotate = false;
 	bool																m_live = true;
 	float																m_moveSpeed = 0.0f;
@@ -239,4 +240,6 @@ public:
 
 	virtual void* getControllerActor() { return nullptr; }
 	virtual void* getTriggerActor() { return nullptr; }
+
+	virtual Status* GetStatus();
 };

@@ -210,6 +210,7 @@
       <Filter>Object\Base</Filter>
     </ClCompile>
     <ClCompile Include="UIObject.cpp" />
+    <ClCompile Include="UIShaders.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Framework\D3DUtil.h">
@@ -339,6 +340,7 @@
       <Filter>Object\Base</Filter>
     </ClInclude>
     <ClInclude Include="UIObject.h" />
+    <ClInclude Include="UIShaders.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Sampler.hlsl">
@@ -369,6 +371,9 @@
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\FogShader.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\UIShader.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>

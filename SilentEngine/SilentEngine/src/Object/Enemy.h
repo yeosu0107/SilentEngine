@@ -10,7 +10,7 @@ const UINT MAX_BULLET_TIME = 600;
 
 enum EnemyAni
 {
-	Idle = 0, Move = 1, Attack = 2, Skill = 3, Hitted = 4, Death = 5
+	AniIdle = 0, AniMove = 1, AniAttack = 2, AniSkill = 3, AniHitted = 4, AniDeath = 5
 };
 
 class EnemyCollisionCallback : public PxUserControllerHitReport

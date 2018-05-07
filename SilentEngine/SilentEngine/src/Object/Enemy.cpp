@@ -86,17 +86,17 @@ void Enemy::SetPhysController(BasePhysX * control, PxUserControllerHitReport * c
 void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
-	/*m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);
-	m_ani[EnemyAni::Move]->SetAnimSpeed(1.0f);
-	m_ani[EnemyAni::Attack]->SetAnimSpeed(0.5f);
-	m_ani[EnemyAni::Idle]->SetAnimSpeed(1.0f);*/
-	m_ani[EnemyAni::Idle]->EnableLoof();
-	m_ani[EnemyAni::Hitted]->SetAnimSpeed(2.0f);
+	/*m_ani[EnemyAni::AniIdle]->SetAnimSpeed(1.0f);
+	m_ani[EnemyAni::AniMove]->SetAnimSpeed(1.0f);
+	m_ani[EnemyAni::AniAttack]->SetAnimSpeed(0.5f);
+	m_ani[EnemyAni::AniIdle]->SetAnimSpeed(1.0f);*/
+	m_ani[EnemyAni::AniIdle]->EnableLoof();
+	m_ani[EnemyAni::AniHitted]->SetAnimSpeed(2.0f);
 }
 
 void Enemy::Idle()
 {
-	ChangeAnimation(EnemyAni::Idle);
+	ChangeAnimation(EnemyAni::AniIdle);
 }
 
 bool Enemy::Move(float fTime)
@@ -112,7 +112,7 @@ bool Enemy::Move(float fTime)
 		}
 
 		m_Controller->move(XMtoPX(xmf3Shift), 0.001f, fTime, m_ControllerFilter);
-		ChangeAnimation(EnemyAni::Move);
+		ChangeAnimation(EnemyAni::AniMove);
 		return true;
 	}
 	return false;
@@ -120,7 +120,7 @@ bool Enemy::Move(float fTime)
 
 void Enemy::Attack()
 {
-	ChangeAnimation(EnemyAni::Attack);
+	ChangeAnimation(EnemyAni::AniAttack);
 	if (m_loopCheck == LOOP_MID) {
 
 		PxTransform tmpTr(m_Controller->getPosition().x,
@@ -138,7 +138,7 @@ void Enemy::Attack()
 
 void Enemy::Skill()
 {
-	ChangeAnimation(EnemyAni::Skill);
+	ChangeAnimation(EnemyAni::AniSkill);
 	if (m_loopCheck == LOOP_MID) {
 
 		PxTransform tmpTr(m_Controller->getPosition().x,
@@ -156,7 +156,7 @@ void Enemy::Skill()
 
 void Enemy::Hitted()
 {
-	ChangeAnimation(EnemyAni::Hitted);
+	ChangeAnimation(EnemyAni::AniHitted);
 	m_status->m_health -= 10;
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
@@ -165,7 +165,7 @@ void Enemy::Hitted()
 
 void Enemy::Death()
 {
-	ChangeAnimation(EnemyAni::Death);
+	ChangeAnimation(EnemyAni::AniDeath);
 }
 
 void Enemy::Animate(float fTime)

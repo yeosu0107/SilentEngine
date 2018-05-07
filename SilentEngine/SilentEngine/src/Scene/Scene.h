@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Timer.h"
 #include "Camera.h"
+#include "UIShaders.h"
 
 #include "..\Model\ModelObject.h"
 #include "..\Room\Room.h"
@@ -48,11 +49,13 @@ protected:
 	vector<D3D12_INPUT_ELEMENT_DESC>							m_InputLayout;
 
 	unique_ptr<UploadBuffer<CB_GAMEOBJECT_INFO>>					m_ObjectCB;
+	vector<UIShaders*>											m_ppUIShaders;
 
 protected:
 	unique_ptr<Camera>											m_Camera = nullptr;
 
 	BasePhysX*		m_physics;
+	UINT				m_nUIShaders;
 };
 
 
@@ -70,6 +73,7 @@ public:
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	virtual void RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index = 0);
 	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo, int index, float offset);
 
@@ -84,6 +88,8 @@ public:
 	void RoomChange();
 	void RoomSetting();
 	void RoomFade();
+
+	
 
 protected:
 	PlayerShader*											m_playerShader = nullptr;

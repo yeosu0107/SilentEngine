@@ -109,6 +109,23 @@ cbuffer cbFog : register(b8)
     float4 gFogParameter; // float4( FogMode, Start, End, Density); 
 }
 
+cbuffer cbUIInfo : register(b9)
+{
+    float2  gxmf2ScreenPos;
+    float2  gxmf2ScreenSize;
+
+    uint2   gnNumSprite;
+    uint2   gnNowSprite;
+
+    uint2   gnSize;
+    uint    gnTexType;
+    float   gfData;
+
+    float2 gfScale;
+    float  dump1;
+    float  dump2;
+};
+
 static matrix gmtxTexture =
 {
     0.5f, 0.0f, 0.0f, 0.0f,

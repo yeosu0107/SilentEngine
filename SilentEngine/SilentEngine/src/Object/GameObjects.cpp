@@ -403,3 +403,5 @@ void GameObject::SetScale(float value)
 	m_xmf4x4World._22 *= value;
 	m_xmf4x4World._33 *= value;
 }
+
+inline Status * GameObject::GetStatus() { return m_status; }

@@ -35,7 +35,21 @@ enum SRVRegisterNumber {
 	SRVInstanceAnimationInfo	= 7,
 	SRVFullScreenNormalTexture	= 8,
 	SRVShadowMap				= 9,
+	SRVUITextureMap				= 15,
 	SRVMultiTexture				= 20
+};
+
+enum CBVRegisterNumber {
+	CBVPerObject		= 0,
+	CBVCameraInfo		= 1,
+	CBVObjectInfo		= 2,
+	CBVAnimationInfo	= 3,
+	CBVMaterial			= 4,
+	CBVLights			= 5,
+	CBVEffect			= 6,
+	CBVFade				= 7,
+	CBVFog				= 8,
+	CBVUIInfo			= 9
 };
 
 

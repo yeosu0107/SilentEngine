@@ -166,6 +166,9 @@ void TestScene::Update(const Timer & gt)
 	//m_pLights->m_pLights[0].m_xmf3Direction = m_Camera->GetLookVector();
 
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
+
+	for (int i = 0; i < m_nUIShaders; ++i)
+		m_ppUIShaders[i]->Animate(gt.DeltaTime());
 	
 	RoomChange();	//방 전환 (true일 경우만 작동)
 	RoomFade();		//방 전환이 있을 경우 페이드IN/OUT 처리
@@ -258,6 +261,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[1]->SetEnemyShader(eShader2);
 
 	RoomChange();
+
+	m_nUIShaders = 1;
+	
+	UIHPBarShaders* pHPBar = new UIHPBarShaders();
+	pHPBar->BuildObjects(pDevice, pCommandList, 1, m_testPlayer);
+	m_ppUIShaders = vector<UIShaders*>(m_nUIShaders);
+	m_ppUIShaders[0] = pHPBar;
+
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -291,6 +302,12 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 }
 
 void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList){ }
+
+void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+	for (UINT i = 0; i < m_nUIShaders; ++i)
+		m_ppUIShaders[i]->Render(pCommandList);
+}
 
 void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index)
 {

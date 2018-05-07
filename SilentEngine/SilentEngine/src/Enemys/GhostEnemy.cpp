@@ -17,7 +17,7 @@ Ghost::~Ghost()
 void Ghost::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
-	m_ani[EnemyAni::Idle]->EnableLoof();
+	m_ani[EnemyAni::AniIdle]->EnableLoof();
 }
 
 
