@@ -356,6 +356,10 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 		cout << m_testPlayer->GetPosition();
 	
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {
+		input |= ANI_SKILL;
+	}
+
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
 		m_Room[m_nowRoom]->SetClear(true);
 	}

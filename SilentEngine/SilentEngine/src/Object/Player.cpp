@@ -74,7 +74,7 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[PlayerAni::Idle]->SetAnimSpeed(0.5f);
 	m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
 	m_ani[PlayerAni::Attack]->SetAnimSpeed(0.5f);
-	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
+	m_ani[PlayerAni::Skill]->SetAnimSpeed(0.5f);
 	m_ani[PlayerAni::die]->DisableLoof(PlayerAni::die);
 	m_ani[PlayerAni::Idle]->EnableLoof();
 }
@@ -149,9 +149,10 @@ bool Player::Movement(DWORD input)
 		m_playerLogic->changeState(STATE::attack);
 		//Attack();
 	}
-	if (input & ANI_SKILL)
-		m_AnimIndex = PlayerAni::Skill;
-
+	if (input & ANI_SKILL) {
+		//m_AnimIndex = PlayerAni::Skill;
+		m_playerLogic->changeState(STATE::skill);
+	}
 	if (input != 0)
 		return true;
 
@@ -177,6 +178,8 @@ void Player::Attack()
 
 void Player::Hitted()
 {
+	if (m_avoid)
+		return;
 	if (m_status->m_health <= 0) {
 		m_playerLogic->changeState(STATE::death);
 		return;
@@ -186,6 +189,12 @@ void Player::Hitted()
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
 	hitBackstep = 0.5f;
+}
+
+void Player::Skill()
+{
+	if(!m_avoid)
+		m_avoid = true;
 }
 
 void Player::SetPosition(float x, float y, float z)
@@ -220,6 +229,7 @@ void Player::SetPosition(float x, float y, float z)
 void Player::Animate(float fTime)
 {
 	m_weaponTrigger->setGlobalPose(PxTransform(100, 100, 100), false); //공격 트리거 박스 초기화
+	m_avoid = false;
 	m_playerLogic->update(fTime); //상태머신 수행
 	if (m_status->m_health <= 0)
 		m_playerLogic->changeState(STATE::death);
@@ -258,8 +268,8 @@ void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 {
 	m_pCamera = tCamera;
 	m_pCamera->SetPlayer(this);
-	string* tmp = new string("camera");
-	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, tmp, 30.0f, 10.0f);
+
+	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, XMFLOAT3(5.0f, 5.0f, 5.0f), 30.0f, 10.0f);
 
 	m_weaponTrigger = phys->getTrigger(PxVec3(100,100,100));
 }

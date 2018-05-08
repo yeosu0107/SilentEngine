@@ -50,7 +50,7 @@ void Bullet::Shoot(BasePhysX* phys, XMFLOAT3 pos, XMFLOAT3 target)
 	m_fNowYCount = 0.0f;
 	SetPosition(pos);
 	m_moveDir = Vector3::Subtract(target, pos, true);
-	m_Controller = phys->getBoxController(XMtoPXEx(pos), &m_Callback, name);
+	m_Controller = phys->getBoxController(XMtoPXEx(pos), &m_Callback, XMFLOAT3(5.5f, 5.5f, 5.5f));
 }
 
 void Bullet::releasePhys()
@@ -66,8 +66,9 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_Callback.SetCrash(&m_Crash);
 
 	m_State = new BaseAI(this);
-	m_State->setValue(200, 45, true); //32
+	m_State->setValue(50, 100, 30, 200, 45, true); //32
 	m_State->setFunc();
+	m_size = XMFLOAT2(1.0f, 30.0f);
 
 	m_status = m_State->getStatus();
 }
@@ -174,6 +175,9 @@ void Enemy::Animate(float fTime)
 	m_State->update(fTime);
 	if (m_status->m_health <= 0)
 		m_State->changeState(STATE::death);
+	//if (m_Crash)
+	//	Rotate(&GetUp(), 90.0f);
+
 	ModelObject::Animate(fTime); //애니메이션
 
 	if (m_Controller) {

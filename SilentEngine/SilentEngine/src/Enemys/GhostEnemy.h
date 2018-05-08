@@ -16,4 +16,20 @@ public:
 	virtual void Skill() {}
 	virtual void Hitted();
 	virtual void Death();
+
+	virtual void Animate(float fTime);
+};
+
+class GhostAI : public BaseAI
+{
+private:
+	int attack_timer = 0;
+	float prevAngle = 0.0f;
+public:
+	GhostAI(GameObject* tmp);
+	~GhostAI() {};
+
+	virtual void patrolState();
+	virtual void attackState();
+	virtual void hittedState();
 };

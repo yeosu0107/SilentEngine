@@ -40,6 +40,7 @@ protected:
 
 	float							m_MaxRot = 0.0f;
 
+	XMFLOAT2					m_size;
 	//동적인 모델
 	PxCapsuleController*	m_Controller;
 	PxControllerFilters		m_ControllerFilter;

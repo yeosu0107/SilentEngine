@@ -40,6 +40,7 @@ ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12Graph
 	m_NumofAnim = 0;
 	m_AnimIndex = 0;
 	m_Animtime = 0.0f;
+	m_size = XMFLOAT2(1.0f, 15.0f);
 
 	//매쉬 적용
 	for (UINT i = 0; i < m_nMeshes; ++i) {
@@ -128,7 +129,7 @@ void ModelObject::SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name)
 
 void ModelObject::SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos)
 {
-	m_Controller = control->getCapsuleController(*pos, callback);
+	m_Controller = control->getCapsuleController(*pos, m_size, callback);
 }
 
 void ModelObject::SetActorPos(float xPos, float yPos, float zPos, float rot)

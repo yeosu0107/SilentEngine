@@ -86,6 +86,8 @@ protected:
 	PlayerLogic*					m_playerLogic;
 
 	float								hitBackstep = 0.0f;
+
+	bool								m_avoid = false;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();
@@ -107,6 +109,7 @@ public:
 	virtual bool Movement(DWORD input);
 	virtual void Attack();
 	virtual void Hitted();
+	virtual void Skill();
 
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);

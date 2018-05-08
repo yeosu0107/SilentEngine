@@ -4,7 +4,7 @@
 PlayerLogic::PlayerLogic(GameObject * tmp) :
 	m_owner(tmp), m_attackIndex(0)
 {
-	m_status = new Status(100, 100, 100);
+	m_status = new Status(200, 100, 100);
 }
 
 void PlayerLogic::idleState()
@@ -39,6 +39,11 @@ void PlayerLogic::attackState()
 
 void PlayerLogic::skillState()
 {
+	if (m_owner->getAnimLoop() == LOOP_END) {
+		changeState(STATE::idle);
+		return;
+	}
+	m_owner->Skill();
 }
 
 void PlayerLogic::avoidState()
@@ -53,12 +58,10 @@ void PlayerLogic::hittedState()
 
 void PlayerLogic::deathState()
 {
-	
 	if (m_owner->getAnimLoop() == LOOP_END) {
 		//m_owner->SetLive(false);
 		m_owner->stopAnim(true);
 	}
-
 }
 
 void PlayerLogic::changeState(STATE newState)

@@ -5,8 +5,8 @@
 BaseAI::BaseAI(GameObject* tmp) : StateMachine(),
 	m_owner(tmp)
 {
-	m_status = new Status(100, 100, 50);
-	m_owner->SetSpeed(m_status->m_moveSpeed);
+	//m_status = new Status(100, 100, 50);
+	
 }
 
 void BaseAI::idleState()
@@ -121,11 +121,14 @@ void BaseAI::deathState()
 	}
 }
 
-void BaseAI::setValue(float range, float personal, bool agg)
+void BaseAI::setValue(UINT hp, UINT attack, UINT move,
+	float range, float personal, bool agg)
 {
 	m_range = range;
 	m_melee = agg;
 	m_personalRange = personal;
+	m_status = new Status(hp, attack, move);
+	m_owner->SetSpeed(m_status->m_moveSpeed);
 }
 
 bool BaseAI::recognize(XMFLOAT3& pos, float local_range)

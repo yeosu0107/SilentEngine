@@ -59,7 +59,7 @@ public:
 
 class BaseAI : public StateMachine
 {
-private:
+protected:
 	GameObject*			m_owner;
 
 	float						m_range;
@@ -80,7 +80,7 @@ public:
 	virtual void hittedState();
 	virtual void deathState();
 
-	void setValue(float range, float personal, bool agg);
+	void setValue(UINT hp, UINT attack, UINT move, float range, float personal, bool agg);
 
 	bool recognize(XMFLOAT3& pos, float range);
 	XMFLOAT3 trackDir(XMFLOAT3& pos);
