@@ -184,9 +184,14 @@ void Enemy::Animate(float fTime)
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
 		//실제 이동
-		SetPosition(PXtoXM(m_Controller->getFootPosition()));
+		GameObject::SetPosition(PXtoXM(m_Controller->getFootPosition()));
 		
 	}
 	if(!m_Jump.mJump)
 		m_Jump.startJump(PxF32(0)); //중력 작용
+}
+
+void Enemy::teleport(XMFLOAT3 pos)
+{
+	m_Controller->setPosition(PxExtendedVec3(pos.x, pos.y, pos.z));
 }

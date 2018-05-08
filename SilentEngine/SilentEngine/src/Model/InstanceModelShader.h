@@ -26,7 +26,7 @@ public:
 	virtual void setPhys(BasePhysX* phys);
 	virtual void releasePhys();
 
-	virtual void SetPositions(Point * pos);
+	virtual void SetPositions(XMFLOAT3 * pos);
 	virtual void Animate(float fTime, UINT* next);
 protected:
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;

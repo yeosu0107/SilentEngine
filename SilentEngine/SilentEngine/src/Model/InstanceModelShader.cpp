@@ -231,12 +231,12 @@ void InstanceModelShader::releasePhys()
 	}
 }
 
-void InstanceModelShader::SetPositions(Point * pos)
+void InstanceModelShader::SetPositions(XMFLOAT3 * pos)
 {
 	float rot[4] = { 90,90,0,0 };
 	for (UINT i = 0; i < 4; ++i) {
 		ModelObject* door = reinterpret_cast<ModelObject*>(m_ppObjects[i]);
-		door->SetActorPos(pos[i].xPos, pos[i].yPos - 20.0f, pos[i].zPos, rot[i]);
+		door->SetActorPos(pos[i].x, pos[i].y - 20.0f, pos[i].z, rot[i]);
 	}
 }
 

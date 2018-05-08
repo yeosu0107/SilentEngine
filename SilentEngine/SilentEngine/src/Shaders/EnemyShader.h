@@ -53,14 +53,14 @@ public:
 		for (UINT i = 0; i < m_nObjects; ++i) {
 			T* t_enemy = new T(globalModels->getModel(modelIndex), pd3dDevice, pd3dCommandList);
 			t_enemy->SetAnimations(globalModels->getAnimCount(modelIndex), globalModels->getAnim(modelIndex));
-			t_enemy->SetPosition(XMFLOAT3(50 + (i * 50), -170, 50 + (i * 30)));
+			//t_enemy->SetPosition(XMFLOAT3(50 + (i * 50), -170, 50 + (i * 30)));
 			t_enemy->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 			m_ppObjects[i] = t_enemy;
 		}
 	}
 
 	void setPhys(BasePhysX* phys) {
-		
+		int i = 0;
 		for (auto& p : m_ppObjects) {
 			T* tmp = reinterpret_cast<T*>(p);
 			tmp->SetPhysController(phys, tmp->getCollisionCallback(), &XMtoPXEx(tmp->GetPosition()));
@@ -71,6 +71,13 @@ public:
 		for (auto& p : m_ppObjects) {
 			if(p->isLive())
 				reinterpret_cast<T*>(p)->releasePhys();
+		}
+	}
+
+	void setPosition(XMFLOAT3* pos) {
+		for (int i = 0; i < m_nObjects; ++i) {
+			T* tmp = reinterpret_cast<T*>(m_ppObjects[i]);
+			tmp->teleport(pos[i]);
 		}
 	}
 };

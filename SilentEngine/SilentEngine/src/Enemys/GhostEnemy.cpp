@@ -105,7 +105,7 @@ void GhostAI::attackState()
 	}
 	attack_timer += 1;
 
-	if (attack_timer < 100)
+	if (attack_timer < 50)
 		return;
 	else {
 		m_owner->Attack();

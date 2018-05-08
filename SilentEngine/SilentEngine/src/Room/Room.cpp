@@ -13,38 +13,39 @@ Room::~Room()
 	//여기서 안함
 }
 
-void Room::SetStartPoint(Point * point)
+void Room::SetStartPoint(XMFLOAT3 * point)
 {
+	SetSpawnPoint(point);
 	for (UINT i = 0; i < 4; ++i) {
 		m_startPoint[i] = point[i];
 	}
 	
-	m_doorRect[0].left			= point[0].xPos-30.0f;
-	m_doorRect[0].top			= point[0].zPos + 30.0f;
-	m_doorRect[0].right		= point[0].xPos;
-	m_doorRect[0].bottom	= point[0].zPos - 30.0f;
-	m_startPoint[0].xPos -= 50.0f;
+	m_doorRect[0].left			= point[0].x-30.0f;
+	m_doorRect[0].top			= point[0].z + 30.0f;
+	m_doorRect[0].right		= point[0].x;
+	m_doorRect[0].bottom	= point[0].z - 30.0f;
+	m_startPoint[0].x -= 50.0f;
 	m_gatePoint[0] = point[1];
 
-	m_doorRect[1].left			= point[1].xPos;
-	m_doorRect[1].top			= point[1].zPos + 30.0f;
-	m_doorRect[1].right		= point[1].xPos+30.0f;
-	m_doorRect[1].bottom	= point[1].zPos - 30.0f;
-	m_startPoint[1].xPos += 50.0f;
+	m_doorRect[1].left			= point[1].x;
+	m_doorRect[1].top			= point[1].z + 30.0f;
+	m_doorRect[1].right		= point[1].x+30.0f;
+	m_doorRect[1].bottom	= point[1].z - 30.0f;
+	m_startPoint[1].x += 50.0f;
 	m_gatePoint[1] = point[0];
 
-	m_doorRect[2].left			= point[2].xPos - 30.0f;
-	m_doorRect[2].top			= point[2].zPos +30.0f;
-	m_doorRect[2].right		= point[2].xPos + 30.0f;
-	m_doorRect[2].bottom	= point[2].zPos;
-	m_startPoint[2].zPos += 50.0f;
+	m_doorRect[2].left			= point[2].x - 30.0f;
+	m_doorRect[2].top			= point[2].z +30.0f;
+	m_doorRect[2].right		= point[2].x + 30.0f;
+	m_doorRect[2].bottom	= point[2].z;
+	m_startPoint[2].z += 50.0f;
 	m_gatePoint[2] = point[3];
 
-	m_doorRect[3].left			= point[3].xPos - 30.0f;
-	m_doorRect[3].top			= point[3].zPos;
-	m_doorRect[3].right		= point[3].xPos + 30.0f;
-	m_doorRect[3].bottom	= point[3].zPos-30.0f;
-	m_startPoint[3].zPos -= 50.0f;
+	m_doorRect[3].left			= point[3].x - 30.0f;
+	m_doorRect[3].top			= point[3].z;
+	m_doorRect[3].right		= point[3].x + 30.0f;
+	m_doorRect[3].bottom	= point[3].z-30.0f;
+	m_startPoint[3].z -= 50.0f;
 	m_gatePoint[3] = point[2];
 }
 
@@ -53,11 +54,30 @@ void Room::SetNextRoom(UINT * room)
 	memcpy(m_nextRoom, room, sizeof(UINT) * 4);
 }
 
-Point* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
+void Room::SetSpawnPoint(XMFLOAT3 * point)
+{
+	float x	= point[0].x;
+	float y = -180.0f;
+	float z	= point[3].z;
+
+	m_spawnPoint[0].x = x / 2;		m_spawnPoint[0].z = - z / 2;
+	m_spawnPoint[1].x = x / 2;		m_spawnPoint[1].z = z / 2;
+	m_spawnPoint[2].x = - x / 2;   m_spawnPoint[2].z = -z / 2;
+	m_spawnPoint[3].x = -x / 2;    m_spawnPoint[3].z = z / 2;
+	m_spawnPoint[4].x = -x / 2;    m_spawnPoint[4].z = 0;
+	m_spawnPoint[5].x = x / 2;		m_spawnPoint[5].z = 0;
+	
+	for (int i = 0; i < 6; ++i)
+		m_spawnPoint[i].y = y;
+}
+
+XMFLOAT3* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 {
 	if (state) {
-		if(m_enemyShader && !isClear)
+		if (m_enemyShader && !isClear) {
 			m_enemyShader->setPhys(phys);
+			m_enemyShader->setPosition(m_spawnPoint);
+		}
 		if(m_mapShader)
 			m_mapShader->setPhys(phys);
 

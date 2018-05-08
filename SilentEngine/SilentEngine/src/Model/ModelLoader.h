@@ -44,9 +44,9 @@ class MapLoader : public ModelLoader
 {
 private:
 	struct StartList {
-		Point	point[4];
+		XMFLOAT3	point[4];
 
-		Point* returnPoint() { return point; }
+		XMFLOAT3* returnPoint() { return point; }
 	};
 	vector<StartList>	m_startPoint;
 	

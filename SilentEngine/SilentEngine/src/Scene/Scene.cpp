@@ -404,9 +404,9 @@ void TestScene::RoomChange()
 	}
 
 	//플레이어 위치 변화 (이동하는 방 문앞으로 이동)
-	Point* playerPos;
+	XMFLOAT3* playerPos;
 	playerPos = m_Room[m_isRoomChange.m_roomNum]->RegistShader(m_physics, true, m_isRoomChange.m_dir);
-	m_testPlayer->SetPosition(playerPos->xPos, playerPos->yPos, playerPos->zPos);
+	m_testPlayer->SetPosition(playerPos->x, playerPos->y, playerPos->z);
 
 	//이동한 방에 적이 있을 경우 적의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
 	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())

@@ -29,10 +29,11 @@ struct Door
 class Room
 {
 private:
-	Point									m_gatePoint[4];
-	Point									m_startPoint[4]; //플레이어 시작지점 4방향 문
+	XMFLOAT3							m_gatePoint[4];
+	XMFLOAT3							m_startPoint[4]; //플레이어 시작지점 4방향 문
 	RECT									m_doorRect[4];
 	UINT									m_nextRoom[4];
+	XMFLOAT3							m_spawnPoint[6];
 	
 	UINT									m_type;
 
@@ -65,8 +66,9 @@ public:
 		m_Projectile = projectile;
 	}
 
-	void SetStartPoint(Point* point);
+	void SetStartPoint(XMFLOAT3* point);
 	void SetNextRoom(UINT *room);
+	void SetSpawnPoint(XMFLOAT3* point);
 
 	bool IsEnemy() const { return isEnemy; }
 	bool IsProjectile() const { return isProjectile; }
@@ -74,8 +76,8 @@ public:
 
 	void SetClear(bool clear) { isClear = clear; }
 
-	Point* RegistShader(BasePhysX* phys, bool state, const char& loc);
-	Point* GetGatePos() { return m_gatePoint; }
+	XMFLOAT3* RegistShader(BasePhysX* phys, bool state, const char& loc);
+	XMFLOAT3* GetGatePos() { return m_gatePoint; }
 	UINT getType() const { return m_type; }
 	UINT* getNextRoom() { return m_nextRoom; }
 
