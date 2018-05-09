@@ -37,7 +37,7 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 		cColor.a -= 0.2f;
 	//if (cColor.a - 0.015f < 0.0f)
 	//	discard;
-	//clip(cColor.a - 0.1f);
+	clip(cColor.a - 0.1f);
 
 	float4 normalMapSample = g2DTextureNormal.Sample(gDefaultSamplerState, input.uv);
 	float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, input.normalW, input.tangentW);
@@ -46,10 +46,10 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 
 	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
 
-	float4 shadowFactor = 1.0f;
-    float4 directLight = Lighting(input.positionW, bumpedNormalW, 0.0f, shadowFactor);
+	//float4 shadowFactor = 1.0f;
+    //float4 directLight = Lighting(input.positionW, bumpedNormalW, 0.0f, shadowFactor);
 	
-	float4 litColor = directLight * cColor;
+	float4 litColor = cColor;
 	float3 r = reflect(-toEyeW, bumpedNormalW);
 	//float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
 	float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);

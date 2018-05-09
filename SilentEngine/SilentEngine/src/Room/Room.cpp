@@ -98,6 +98,8 @@ XMFLOAT3* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 void Room::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
 	m_mapShader->Render(pd3dCommandList, pCamera);
+	if(m_pFires)
+		m_pFires->Render(pd3dCommandList, pCamera);
 	if (!isClear) {
 		if (isEnemy) {
 			m_enemyShader->Render(pd3dCommandList, pCamera);
@@ -153,5 +155,8 @@ void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 			m_enemyShader->Animate(fTime);
 		if (isProjectile)
 			m_Projectile->Animate(fTime);
+		if (m_pFires)
+			m_pFires->Animate(fTime);
+
 	}
 }

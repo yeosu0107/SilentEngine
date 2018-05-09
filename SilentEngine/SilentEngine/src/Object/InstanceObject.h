@@ -39,3 +39,13 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetPosition(XMFLOAT3 xmf3Position);
 };
+
+class FireObject : public PaticleObject
+{
+private:
+public:
+	FireObject();
+	~FireObject() {}
+
+	virtual void Animate(float fTimeElapsed);
+};

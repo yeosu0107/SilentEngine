@@ -19,6 +19,7 @@ Framework::Framework(HINSTANCE hInstance)
 	GlobalVal::getInstance()->LoadModels(new ModelLoader("GameModelList.csv"));
 	GlobalVal::getInstance()->LoadMaps(new MapLoader("MapList.csv"));
 	GlobalVal::getInstance()->LoadEffects(new EffectLoader("EffectList.csv"));
+	GlobalVal::getInstance()->LoadFirePos(new FirePositionLoader("TochPosition.csv"));
 }
 
 Framework* Framework::GetFramework()

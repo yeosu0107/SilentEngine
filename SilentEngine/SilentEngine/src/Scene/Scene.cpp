@@ -162,7 +162,6 @@ void TestScene::Update(const Timer & gt)
 
 	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
-
 	//m_pLights->m_pLights[0].m_xmf3Position = m_Camera->GetPosition();
 	//m_pLights->m_pLights[0].m_xmf3Direction = m_Camera->GetLookVector();
 
@@ -182,7 +181,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	EffectLoader* globalEffects = GlobalVal::getInstance()->getEffectLoader();
 	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
-
+	FirePositionLoader* loader = GlobalVal::getInstance()->getFirePos();
+	
 	BuildRootSignature(pDevice, pCommandList);
 	BuildLightsAndMaterials();
 	BuildFog();
@@ -208,6 +208,21 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
 
+	FireObjectShader<FireObject>** fireObject = new FireObjectShader<FireObject>*[MAX_MAP]();
+	for (UINT i = 0; i < MAX_MAP; ++i) {
+		if (0 == loader->getNumFire(i)) {
+			fireObject[i] = nullptr;
+			continue;
+		}
+		fireObject[i] = new FireObjectShader<FireObject>();
+		fireObject[i]->SetRoomType(i);
+		fireObject[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+		fireObject[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+		fireObject[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
+		fireObject[i]->SetCamera(m_Camera.get());
+		fireObject[i]->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
+	}
+
 	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
 	for (UINT i = 0; i < MAX_MAP; ++i) {
 		map[i] = new MapShader(i);
@@ -218,6 +233,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	}
 	for (UINT i = 0; i < m_nRoom; ++i) {
 		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
+		m_Room[i]->SetFireShader(fireObject[m_Room[i]->getType()]);
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
 	}
 
@@ -474,7 +490,7 @@ void TestScene::RoomSetting()
 	for (int i = 0; i < sizeY; ++i) {
 		for (int j = 0; j < sizeX; ++j) {
 			if (flag[i][j] != 0) {
-				m_Room[count] = new Room(flag[i][j] - 1);
+				m_Room[count] = new Room(8);
 				m_Room[count]->m_mapPosX = j;
 				m_Room[count]->m_mapPosY = i;
 				m_virtualMap[i][j] = count;

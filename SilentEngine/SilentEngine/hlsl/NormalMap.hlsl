@@ -114,7 +114,6 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSModelNormalMap(VS_MODEL_NORMAL_OUTPUT input)
     const float shininess = (1.0f - roughness) * normalMapSample.a;
 
     cColor = gBoxTextured.Sample(gDefaultSamplerState, float3(input.uv, 0.0f));
-
     float3 toEyeW = normalize(gvCameraPosition - input.positionW);
 
     float4 shadowFactor = 1.0f;

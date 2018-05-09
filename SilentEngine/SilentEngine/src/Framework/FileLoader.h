@@ -10,6 +10,12 @@ struct TextureDataForm
 	float							m_MaxY;
 };
 
+struct FireData
+{
+	XMFLOAT3				m_Position;
+	UINT					m_Type;
+};
+
 class EffectLoader
 {
 private:
@@ -44,4 +50,53 @@ public:
 		return &m_textureList[index];
 	}
 	UINT getNumTexture() const { return (UINT)m_textureList.size(); }
+};
+
+class FirePositionLoader
+{
+private:
+	vector<vector<FireData>> m_PositionList;
+public:
+	FirePositionLoader(string fileName) {
+		ifstream in(fileName);
+		string tmpName;
+		vector<FireData> firedatas;
+		FireData		data;
+
+		string delim = ",";
+		StringTokenizer st = StringTokenizer("");
+		UINT numOffire;
+
+		getline(in, tmpName); // .csv파일 맨앞 쓰래기값 들어가는 것을 방지 
+
+		while (getline(in, tmpName)) {
+			st = StringTokenizer(tmpName, delim);
+			numOffire = atof(st.nextToken().c_str());
+			firedatas = vector<FireData>();
+
+			while (numOffire != 0) {
+				getline(in, tmpName);
+
+				st = StringTokenizer(tmpName, delim);
+				data.m_Position.x = atof(st.nextToken().c_str());
+				data.m_Position.y = atof(st.nextToken().c_str());
+				data.m_Position.z = atof(st.nextToken().c_str());
+				data.m_Type = atof(st.nextToken().c_str());
+
+				firedatas.emplace_back(data);
+				numOffire -= 1;
+			}
+
+			m_PositionList.emplace_back(firedatas);
+		}
+		in.close();
+	};
+	~FirePositionLoader() {
+		m_PositionList.clear();
+		vector<vector<FireData>>().swap(m_PositionList);
+	}
+	vector<FireData>* getPosition(UINT index) {
+		return &m_PositionList[index];
+	}
+	UINT getNumFire(UINT index) const { return (UINT)m_PositionList[index].size(); }
 };

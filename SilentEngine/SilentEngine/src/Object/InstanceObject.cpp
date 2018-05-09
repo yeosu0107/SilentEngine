@@ -47,3 +47,14 @@ void PaticleObject::SetPosition(XMFLOAT3 xmf3Position)
 	GameObject::SetPosition(xmf3Position);
 	m_live = true;
 }
+
+FireObject::FireObject()
+{
+	m_live = true;
+	m_fAnimationSpeed = 50.0f;
+}
+
+void FireObject::Animate(float fTimeElapsed)
+{
+	EffectInstanceObject::Animate(fTimeElapsed);
+}

@@ -27,6 +27,11 @@ void GlobalVal::LoadEffects(EffectLoader * effects)
 	m_globalEffects = effects;
 }
 
+void GlobalVal::LoadFirePos(FirePositionLoader * firepos)
+{
+	m_globalFirePos = firepos;
+}
+
 void GlobalVal::setPlayer(GameObject * object)
 {
 	m_player = object;
