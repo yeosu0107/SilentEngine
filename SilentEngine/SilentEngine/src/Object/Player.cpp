@@ -271,7 +271,7 @@ void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 
 	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, XMFLOAT3(5.0f, 5.0f, 5.0f), 30.0f, 10.0f);
 
-	m_weaponTrigger = phys->getTrigger(PxVec3(100,100,100));
+	m_weaponTrigger = phys->getTrigger(PxVec3(100,100,100), XMFLOAT3(10,10,10));
 }
 
 void Player::CalibrateLook(XMFLOAT3& look)

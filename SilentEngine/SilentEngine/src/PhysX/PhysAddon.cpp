@@ -19,13 +19,15 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 
 void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
-	GlobalVal::getInstance()->getPlayer()->Hitted();
+	GameObject* player = GlobalVal::getInstance()->getPlayer();
+	if(trigger->otherActor == player->getControllerActor())
+		player->Hitted();
 	return;
 }
 
 void PhysSimulation::onTrigger(PxTriggerPair * pairs, PxU32 count)
 {
-	for (PxU32 i = 0; i < count; i++) {
+	for (PxU32 i = 0; i < count; ++i) {
 		if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND) {
 			if(pairs[i].triggerActor ==	//현재 트리거가 플레이어의 트리거일 경우
 				GlobalVal::getInstance()->getPlayer()->getTriggerActor())

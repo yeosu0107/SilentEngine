@@ -46,7 +46,7 @@ public:
 	PxCapsuleController*	getCapsuleController(PxExtendedVec3 pos, XMFLOAT2 size, PxUserControllerHitReport* collisionCallback);
 	PxBoxController*			getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback, XMFLOAT3 size, float slopeDegree = 0.0f, float step = 0.0f);
 
-	PxRigidStatic*				getTrigger(PxVec3& t);
+	PxRigidStatic*				getTrigger(PxVec3& t, XMFLOAT3 size);
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }

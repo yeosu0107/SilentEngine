@@ -3,6 +3,7 @@
 #include "..\Room\Stage.h"
 #include "..\Shaders\PaticleShader.h"
 #include "..\Enemys\GhostEnemy.h"
+#include "..\Enemys\CreepArm.h"
 #include <ctime>
 
 ostream& operator<<(ostream& os, XMFLOAT3& p)
@@ -229,17 +230,23 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
 
-	EnemyShader<Ghost>* eShader = new EnemyShader<Ghost>(2);
+	EnemyShader<CreepArm>* eShader = new EnemyShader<CreepArm>(4);
 	eShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader->BuildObjects(pDevice, pCommandList,2, (int*)4);
+	eShader->BuildObjects(pDevice, pCommandList,2, (int*)6);
 
 	EnemyShader<Enemy>* eShader2 = new EnemyShader<Enemy>(3);
 	eShader2->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	eShader2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	eShader2->SetFogUploadBuffer(m_pd3dcbFog.get());
 	eShader2->BuildObjects(pDevice, pCommandList, 2, (int*)2);
+
+	EnemyShader<Ghost>* eShader3 = new EnemyShader<Ghost>(2);
+	eShader3->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+	eShader3->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	eShader3->SetFogUploadBuffer(m_pd3dcbFog.get());
+	eShader3->BuildObjects(pDevice, pCommandList, 2, (int*)4);
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
@@ -257,9 +264,9 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	GlobalVal::getInstance()->setPlayer(m_testPlayer);
 	
 	m_Room[0]->SetEnemyShader(eShader);
-	m_Room[0]->SetProjectileShader(bullet);
 	m_Room[1]->SetEnemyShader(eShader2);
-
+	m_Room[2]->SetEnemyShader(eShader3);
+	m_Room[2]->SetProjectileShader(bullet);
 	RoomChange();
 
 	m_nUIShaders = 1;

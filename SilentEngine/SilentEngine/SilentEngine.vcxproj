@@ -162,6 +162,7 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Enemys\CreepArm.cpp" />
     <ClCompile Include="src\Enemys\GhostEnemy.cpp" />
     <ClCompile Include="src\Framework\D3DMath.cpp" />
     <ClCompile Include="src\Framework\D3DUtil.cpp" />
@@ -206,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="src\Enemys\CreepArm.h" />
     <ClInclude Include="src\Enemys\GhostEnemy.h" />
     <ClInclude Include="src\Framework\D3DMath.h" />
     <ClInclude Include="src\Framework\D3DUtil.h" />

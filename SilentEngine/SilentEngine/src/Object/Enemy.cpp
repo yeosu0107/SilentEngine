@@ -70,6 +70,8 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_State->setFunc();
 	m_size = XMFLOAT2(1.0f, 30.0f);
 
+	m_triggerSize = XMFLOAT3(10, 10, 10);
+
 	m_status = m_State->getStatus();
 }
 
@@ -81,7 +83,7 @@ Enemy::~Enemy()
 void Enemy::SetPhysController(BasePhysX * control, PxUserControllerHitReport * callback, PxExtendedVec3 * pos)
 {
 	ModelObject::SetPhysController(control, &m_Callback, pos);
-	m_attackTrigger = control->getTrigger(PxVec3(100,100,100));
+	m_attackTrigger = control->getTrigger(PxVec3(100,100,100), m_triggerSize);
 }
 
 void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
@@ -123,7 +125,6 @@ void Enemy::Attack()
 {
 	ChangeAnimation(EnemyAni::AniAttack);
 	if (m_loopCheck == LOOP_MID) {
-
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);
@@ -133,7 +134,6 @@ void Enemy::Attack()
 		)));
 
 		m_attackTrigger->setGlobalPose(tmpTr, true);
-
 	}
 }
 

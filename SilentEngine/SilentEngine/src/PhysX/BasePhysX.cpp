@@ -190,9 +190,9 @@ PxBoxController* BasePhysX::getBoxController(PxExtendedVec3 pos, PxUserControlle
 	return controller;
 }
 
-PxRigidStatic * BasePhysX::getTrigger(PxVec3 & t)
+PxRigidStatic * BasePhysX::getTrigger(PxVec3 & t, XMFLOAT3 size)
 {
-	PxShape* shape = gPhysics->createShape(PxBoxGeometry(10,10,10), *gPhysics->createMaterial(0.2f, 0.2f, 0.2f));
+	PxShape* shape = gPhysics->createShape(PxBoxGeometry(size.x, size.y, size.z), *gPhysics->createMaterial(0.2f, 0.2f, 0.2f));
 	shape->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);	//시물레이션 off
 	shape->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);			//트리거링 on
 

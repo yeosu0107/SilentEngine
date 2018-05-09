@@ -27,7 +27,7 @@ private:
 	float prevAngle = 0.0f;
 public:
 	GhostAI(GameObject* tmp);
-	~GhostAI() {};
+	~GhostAI() {}
 
 	virtual void patrolState();
 	virtual void attackState();

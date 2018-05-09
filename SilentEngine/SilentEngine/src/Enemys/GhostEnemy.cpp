@@ -70,6 +70,7 @@ void Ghost::Animate(float fTime)
 GhostAI::GhostAI(GameObject * tmp) :
 	BaseAI(tmp) { }
 
+
 void GhostAI::patrolState()
 {
 	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();

@@ -108,6 +108,7 @@ class Enemy : public ModelObject
 {
 protected:
 	PxRigidActor *				m_attackTrigger;
+	XMFLOAT3						m_triggerSize;
 
 	EnemyCollisionCallback	m_Callback;
 	bool								m_Crash;

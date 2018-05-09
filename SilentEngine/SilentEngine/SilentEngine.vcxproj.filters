@@ -218,6 +218,9 @@
     <ClCompile Include="src\Object\UIObject.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="src\Enemys\CreepArm.cpp">
+      <Filter>Object\Enemy\expansion</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Framework\D3DUtil.h">
@@ -351,6 +354,9 @@
     </ClInclude>
     <ClInclude Include="src\Object\UIObject.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Enemys\CreepArm.h">
+      <Filter>Object\Enemy\expansion</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
