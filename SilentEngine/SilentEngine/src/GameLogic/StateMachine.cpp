@@ -35,11 +35,28 @@ void BaseAI::trackingState()
 {
 	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
 
-	if (recognize(playerPos, m_personalRange)) {
-		changeState(STATE::attack);
-		return;
+	if (!m_melee) {
+		if (recognize(playerPos, m_personalRange)) {
+			changeState(STATE::attack);
+			return;
+		}
+		if (recognize(playerPos, m_range)) {
+			if (rand() % 100 > 98) {
+				changeState(STATE::skill);
+				return;
+			}
+		}
+		
 	}
-
+	else {
+		if (recognize(playerPos, m_personalRange)) {
+			if (rand() % 10 < 6)
+				changeState(STATE::attack);
+			else
+				changeState(STATE::skill);
+			return;
+		}
+	}
 	XMFLOAT3 track = trackDir(playerPos);
 
 	float angle = Vector3::Angle(track, m_owner->GetLook());
@@ -71,8 +88,8 @@ void BaseAI::attackState()
 {
 	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
 
-	if (m_status->m_health < 50)
-		changeState(STATE::skill);
+	/*if (m_status->m_health < 50)
+		changeState(STATE::skill);*/
 
 	if (!m_melee) {
 		XMFLOAT3 track = trackDir(playerPos);
@@ -95,6 +112,17 @@ void BaseAI::attackState()
 
 void BaseAI::skillState()
 {
+	if (!m_melee) {
+		XMFLOAT3 track = trackDir(GlobalVal::getInstance()->getPlayer()->GetPosition());
+
+		float angle = Vector3::Angle(track, m_owner->GetLook());
+
+		if (rotDir(track) > 0)
+			angle *= -1;
+
+		m_owner->Rotate(&m_owner->GetUp(), angle);
+	}
+
 	m_owner->Skill();
 
 	if (m_owner->getAnimLoop() == LOOP_END)

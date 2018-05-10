@@ -164,6 +164,8 @@
   <ItemGroup>
     <ClCompile Include="src\Enemys\CreepArm.cpp" />
     <ClCompile Include="src\Enemys\GhostEnemy.cpp" />
+    <ClCompile Include="src\Enemys\Rich.cpp" />
+    <ClCompile Include="src\Enemys\skull.cpp" />
     <ClCompile Include="src\Framework\D3DMath.cpp" />
     <ClCompile Include="src\Framework\D3DUtil.cpp" />
     <ClCompile Include="src\Framework\DDSTextureLoader12.cpp" />
@@ -209,6 +211,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Enemys\CreepArm.h" />
     <ClInclude Include="src\Enemys\GhostEnemy.h" />
+    <ClInclude Include="src\Enemys\Rich.h" />
+    <ClInclude Include="src\Enemys\skull.h" />
     <ClInclude Include="src\Framework\D3DMath.h" />
     <ClInclude Include="src\Framework\D3DUtil.h" />
     <ClInclude Include="src\Framework\d3dx12.h" />

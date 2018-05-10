@@ -221,6 +221,12 @@
     <ClCompile Include="src\Enemys\CreepArm.cpp">
       <Filter>Object\Enemy\expansion</Filter>
     </ClCompile>
+    <ClCompile Include="src\Enemys\skull.cpp">
+      <Filter>Object\Enemy\expansion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Enemys\Rich.cpp">
+      <Filter>Object\Enemy\expansion</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Framework\D3DUtil.h">
@@ -356,6 +362,12 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="src\Enemys\CreepArm.h">
+      <Filter>Object\Enemy\expansion</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Enemys\skull.h">
+      <Filter>Object\Enemy\expansion</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Enemys\Rich.h">
       <Filter>Object\Enemy\expansion</Filter>
     </ClInclude>
   </ItemGroup>

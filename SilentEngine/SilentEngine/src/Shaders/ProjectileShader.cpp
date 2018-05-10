@@ -42,7 +42,7 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 
 void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_nObjects = 10;
+	m_nObjects = 60;
 
 	m_nPSO = 1;
 	CreatePipelineParts();
@@ -121,6 +121,7 @@ void ProjectileShader::Shoot(XMFLOAT3 myPos, XMFLOAT3 targetPos)
 			return;
 		if (m_now >= m_nObjects) {
 			m_now = 0;
+			return;
 		}
 	}
 	reinterpret_cast<Bullet*>(m_ppObjects[m_now])->Shoot(myPhys, myPos, targetPos);

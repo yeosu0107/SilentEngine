@@ -4,6 +4,8 @@
 #include "..\Shaders\PaticleShader.h"
 #include "..\Enemys\GhostEnemy.h"
 #include "..\Enemys\CreepArm.h"
+#include "..\Enemys\skull.h"
+#include "..\Enemys\Rich.h"
 #include <ctime>
 
 ostream& operator<<(ostream& os, XMFLOAT3& p)
@@ -264,6 +266,18 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	eShader3->SetFogUploadBuffer(m_pd3dcbFog.get());
 	eShader3->BuildObjects(pDevice, pCommandList, 2, (int*)4);
 
+	EnemyShader<Skull>* eShader4 = new EnemyShader<Skull>(5);
+	eShader4->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+	eShader4->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	eShader4->SetFogUploadBuffer(m_pd3dcbFog.get());
+	eShader4->BuildObjects(pDevice, pCommandList, 2, (int*)3);
+
+	EnemyShader<Rich>* eShader5 = new EnemyShader<Rich>(6);
+	eShader5->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+	eShader5->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	eShader5->SetFogUploadBuffer(m_pd3dcbFog.get());
+	eShader5->BuildObjects(pDevice, pCommandList, 2, (int*)1);
+
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
@@ -280,9 +294,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	GlobalVal::getInstance()->setPlayer(m_testPlayer);
 	
 	m_Room[0]->SetEnemyShader(eShader);
+	m_Room[0]->SetProjectileShader(bullet);
 	m_Room[1]->SetEnemyShader(eShader2);
 	m_Room[2]->SetEnemyShader(eShader3);
 	m_Room[2]->SetProjectileShader(bullet);
+	m_Room[3]->SetEnemyShader(eShader4);
+	m_Room[3]->SetProjectileShader(bullet);
+	m_Room[4]->SetEnemyShader(eShader5);
+	m_Room[4]->SetProjectileShader(bullet);
 	RoomChange();
 
 	m_nUIShaders = 1;

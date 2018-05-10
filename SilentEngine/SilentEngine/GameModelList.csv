@@ -27,10 +27,11 @@ res\\MonsterData\\CreepyArms@Idle.FBX,,
 res\\MonsterData\\CreepyArms@Attack.FBX,,
 res\\MonsterData\\CreepyArms@TakeDamage.FBX,,
 res\\MonsterData\\CreepyArms@Die.FBX,,
-res\\MonsterData\\skull@Idle.FBX,5,res\\Texture\\skull.dds
+res\\MonsterData\\skull@Idle.FBX,6,res\\Texture\\skull.dds
 res\\MonsterData\\skull@Idle.FBX,,
 res\\MonsterData\\skull@FlyForward.FBX,,
 res\\MonsterData\\skull@MeleeAttack.FBX,,
+res\\MonsterData\\skull@CastSpell.FBX,,
 res\\MonsterData\\skull@TakeDamage.FBX,,
 res\\MonsterData\\skull@Die.FBX,,
 res\\MonsterData\\Lich@Idle.FBX,6,res\\Texture\\lich.dds
