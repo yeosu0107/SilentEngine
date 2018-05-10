@@ -509,7 +509,7 @@ void TestScene::RoomSetting()
 	for (int i = 0; i < sizeY; ++i) {
 		for (int j = 0; j < sizeX; ++j) {
 			if (flag[i][j] != 0) {
-				m_Room[count] = new Room(8);
+				m_Room[count] = new Room(flag[i][j] - 1);
 				m_Room[count]->m_mapPosX = j;
 				m_Room[count]->m_mapPosY = i;
 				m_virtualMap[i][j] = count;
