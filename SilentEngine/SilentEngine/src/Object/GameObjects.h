@@ -172,6 +172,7 @@ protected:
 	Status*	m_status;
 	bool																m_bIsLotate = false;
 	bool																m_live = true;
+	bool																m_bLockRotateXZ = false;
 	float																m_moveSpeed = 0.0f;
 	UINT																m_loopCheck = 0;	//애니메이션 한 루프 종료 여부 (종료시 1)
 	int																	m_nRootIndex = 1;
@@ -180,6 +181,7 @@ public:
 	void SetShader(Shaders *pShader);
 	void SetMaterial(CMaterial *pMaterial);
 	void SetLive(bool live) { m_live = live; }
+	void SetRotateXZLock(bool lock) { m_bLockRotateXZ = lock; }
 	void SetMatrix(XMFLOAT4X4& mat) { m_xmf4x4World = mat; }
 
 	void SetCbvGPUDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE d3dCbvGPUDescriptorHandle) { m_d3dCbvGPUDescriptorHandle = d3dCbvGPUDescriptorHandle; }

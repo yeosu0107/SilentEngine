@@ -210,21 +210,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
 
-	FireObjectShader<FireObject>** fireObject = new FireObjectShader<FireObject>*[MAX_MAP]();
-	for (UINT i = 0; i < MAX_MAP; ++i) {
-		if (0 == loader->getNumFire(i)) {
-			fireObject[i] = nullptr;
-			continue;
-		}
-		fireObject[i] = new FireObjectShader<FireObject>();
-		fireObject[i]->SetRoomType(i);
-		fireObject[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
-		fireObject[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-		fireObject[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
-		fireObject[i]->SetCamera(m_Camera.get());
-		fireObject[i]->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
-	}
-
+	m_fireObjectShaders = new PaticleShader<FireObject>();
+	m_fireObjectShaders->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+	m_fireObjectShaders->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	m_fireObjectShaders->SetFogUploadBuffer(m_pd3dcbFog.get());
+	m_fireObjectShaders->SetCamera(m_Camera.get());
+	m_fireObjectShaders->SetRotateLockXZ(true);
+	m_fireObjectShaders->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
+	
 	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
 	for (UINT i = 0; i < MAX_MAP; ++i) {
 		map[i] = new MapShader(i);
@@ -235,7 +228,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	}
 	for (UINT i = 0; i < m_nRoom; ++i) {
 		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
-		m_Room[i]->SetFireShader(fireObject[m_Room[i]->getType()]);
+		m_Room[i]->SetFireShader(m_fireObjectShaders);
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
 	}
 
@@ -459,6 +452,13 @@ void TestScene::RoomChange()
 	else
 		GlobalVal::getInstance()->setEnemy(nullptr);
 
+	int roomType = m_Room[m_isRoomChange.m_roomNum]->getType();
+
+	if (m_fireObjectShaders) {
+		FirePositionLoader* loader = GlobalVal::getInstance()->getFirePos();
+		m_fireObjectShaders->SetLive(false, loader->getMaxFire(roomType));
+		m_fireObjectShaders->SetPos(loader->getPosition(roomType), loader->getMaxFire(roomType));
+	}
 
 	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
 	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile() && !m_Room[m_isRoomChange.m_roomNum]->IsClear()) {

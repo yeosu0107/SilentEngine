@@ -122,80 +122,16 @@ public:
 				break;
 		}
 	}
-};
+	virtual void SetLive(const bool live, UINT num) {
+		UINT now = 0;
 
-template<class T>
-class FireObjectShader : public PaticleShader<T>
-{
-public:
-	FireObjectShader() : PaticleShader<T>() { }
-	~FireObjectShader() { }
-public:
+		for (auto& p : m_ppObjects) {
+			if (now < num)
+				p->SetLive(live);
+			else
+				p->SetLive(!live);
 
-	void SetRoomType(const UINT type) { m_nRoomType = type; }
-	UINT GetRoomType() const { return m_nRoomType; }
-
-	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext) {
-
-		FirePositionLoader* loader = GlobalVal::getInstance()->getFirePos();
-		vector<FireData> data = *(loader->getPosition(m_nRoomType));
-		m_nObjects = loader->getNumFire(m_nRoomType);
-
-		m_nPSO = 1;
-
-		CreatePipelineParts();
-
-		m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
-		m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
-
-		TextureDataForm* mtexture = (TextureDataForm*)pContext;
-
-		CTexture* pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_normal.c_str(), 1);
-
-		UINT i = 0;
-
-		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 4);
-		CreateShaderVariables(pd3dDevice, pd3dCommandList);
-		CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, i++, sizeof(CB_GAMEOBJECT_INFO), false);
-		CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_EffectCB->Resource(), 4, i++, sizeof(CB_EFFECT_INFO), false);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 2, true);
-
-		CreateGraphicsRootSignature(pd3dDevice);
-		BuildPSO(pd3dDevice, nRenderTargets);
-
-		m_pMaterial = new CMaterial();
-		m_pMaterial->SetTexture(pTexture);
-		m_pMaterial->SetReflection(1);
-
-		i = 0;
-		CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f);
-
-		m_ppObjects = vector<GameObject*>(m_nObjects);
-
-		T* pInstnaceObject = new T();
-		pInstnaceObject->SetMesh(0, pBoard);
-
-		pInstnaceObject->m_fMaxXCount = mtexture->m_MaxX;
-		pInstnaceObject->m_fMaxYCount = mtexture->m_MaxY;
-		pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-		pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
-
-		m_ppObjects[i++] = pInstnaceObject;
-
-		for (UINT i = 1; i < m_nObjects; ++i) {
-			T* pGameObjects = new T();
-
-			pGameObjects->m_fMaxXCount = mtexture->m_MaxX;
-			pGameObjects->m_fMaxYCount = mtexture->m_MaxY;
-			pGameObjects->SetPosition(data[i].m_Position);
-			pGameObjects->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize));
-			pGameObjects->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 1));
-
-			m_ppObjects[i] = pGameObjects;
+			now += 1;
 		}
-	}
-protected:
-	UINT m_nRoomType;
+	};
 };

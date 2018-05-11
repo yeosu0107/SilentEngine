@@ -63,6 +63,8 @@ using namespace std;
 #define FRAME_BUFFER_WIDTH 1280
 #define FRAME_BUFFER_HEIGHT 720
 
+const UINT MAX_MAP = 10;
+
 extern UINT	gnCbvSrvDescriptorIncrementSize;
 
 #define DIR_FORWARD				0x01

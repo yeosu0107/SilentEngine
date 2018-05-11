@@ -155,8 +155,7 @@ void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 			m_enemyShader->Animate(fTime);
 		if (isProjectile)
 			m_Projectile->Animate(fTime);
-		if (m_pFires)
-			m_pFires->Animate(fTime);
-
 	}
+	if (m_pFires)
+		m_pFires->Animate(fTime);
 }

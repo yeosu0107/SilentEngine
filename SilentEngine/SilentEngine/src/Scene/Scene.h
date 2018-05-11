@@ -14,8 +14,6 @@
 #include "..\Shaders\ProjectileShader.h"
 #include "..\Model\InstanceModelShader.h"
 
-
-const UINT MAX_MAP		= 10;
 const UINT FADE_OFF		= 0;
 const UINT FADE_IN		= 1;
 const UINT FADE_OUT		= 2;
@@ -95,6 +93,7 @@ protected:
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
 	BillboardShader*										m_EffectShaders = nullptr;
+	BillboardShader*							m_fireObjectShaders = nullptr;
 	ProjectileShader*									m_Projectile = nullptr;
 	FadeEffectShader*									m_pFadeEffectShader = nullptr;
 

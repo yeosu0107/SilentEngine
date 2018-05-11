@@ -12,8 +12,8 @@ struct TextureDataForm
 
 struct FireData
 {
-	XMFLOAT3				m_Position;
-	UINT					m_Type;
+	vector<XMFLOAT3>				m_Position;
+	vector<UINT>							m_FireType;
 };
 
 class EffectLoader
@@ -55,48 +55,69 @@ public:
 class FirePositionLoader
 {
 private:
-	vector<vector<FireData>> m_PositionList;
+	vector<FireData> m_PositionList;
 public:
 	FirePositionLoader(string fileName) {
 		ifstream in(fileName);
 		string tmpName;
-		vector<FireData> firedatas;
-		FireData		data;
+		vector<XMFLOAT3> firedatas;
+		vector<UINT>		fireType;
+
+		XMFLOAT3 posData;
+		UINT typeData;
 
 		string delim = ",";
 		StringTokenizer st = StringTokenizer("");
 		UINT numOffire;
+		int nRoomNo = 0;
+
+		m_PositionList.resize(MAX_MAP);
 
 		getline(in, tmpName); // .csv파일 맨앞 쓰래기값 들어가는 것을 방지 
+		firedatas.resize(10);
+		fireType.resize(10);
 
 		while (getline(in, tmpName)) {
 			st = StringTokenizer(tmpName, delim);
 			numOffire = atof(st.nextToken().c_str());
-			firedatas = vector<FireData>();
 
+			for (int i = 10; i > numOffire; --i) {
+				posData.x = 10000.0f;
+				posData.y = 10000.0f;
+				posData.z = 10000.0f;
+
+				fireType[i - 1] = 0;
+				firedatas[i - 1] = posData;
+			}
 			while (numOffire != 0) {
 				getline(in, tmpName);
 
 				st = StringTokenizer(tmpName, delim);
-				data.m_Position.x = atof(st.nextToken().c_str());
-				data.m_Position.y = atof(st.nextToken().c_str());
-				data.m_Position.z = atof(st.nextToken().c_str());
-				data.m_Type = atof(st.nextToken().c_str());
+				posData.x = atof(st.nextToken().c_str());
+				posData.y = atof(st.nextToken().c_str());
+				posData.z = atof(st.nextToken().c_str());
+				typeData = atof(st.nextToken().c_str());
 
-				firedatas.emplace_back(data);
 				numOffire -= 1;
+				firedatas[numOffire] = posData;
+				fireType[numOffire] = typeData;
 			}
 
-			m_PositionList.emplace_back(firedatas);
+			m_PositionList[nRoomNo].m_Position = firedatas;
+			m_PositionList[nRoomNo].m_FireType = fireType;
+			
+			nRoomNo++;
 		}
 		in.close();
 	};
 	~FirePositionLoader() {
 		m_PositionList.clear();
-		vector<vector<FireData>>().swap(m_PositionList);
+		vector<FireData>().swap(m_PositionList);
 	}
-	vector<FireData>* getPosition(UINT index) {
-		return &m_PositionList[index];
+	XMFLOAT3* getPosition(UINT index) {
+		return m_PositionList[index].m_Position.data();
 	}
-	UINT getNumFire(UINT index) const { return (UINT)m_PositionList[index].size(); }
+	UINT getMaxFire(UINT index) const {
+		return m_PositionList[index].m_Position.size();
+	}
 };

@@ -496,7 +496,6 @@ void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		m_ppObjects[i] = new GameObject();
-		m_ppObjects[i]->SetPosition(i * 50.0f + 50.0f, i * 50.0f - 150.0f, i * 50.0f);
 		m_ppObjects[i]->SetMesh(0, pCubeMesh);
 		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
@@ -742,6 +741,13 @@ void BillboardShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera
 	
 	if (m_ppObjects[0])
 		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
+}
+
+void BillboardShader::SetRotateLockXZ(bool lock)
+{
+	for (auto& p : m_ppObjects) {
+		p->SetRotateXZLock(lock);
+	}
 }
 
 void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
