@@ -209,7 +209,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
 
-	PaticleShader<PaticleObject>* hitShader = new PaticleShader<PaticleObject>();
+	PaticleShader<HitPaticle>* hitShader = new PaticleShader<HitPaticle>();
 	hitShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	hitShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	hitShader->SetFogUploadBuffer(m_pd3dcbFog.get());
@@ -311,10 +311,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	RoomChange();
 
 	m_nUIShaders = 2;
-	
+	m_ppUIShaders.resize(m_nUIShaders);
+
 	UIHPBarShaders* pHPBar = new UIHPBarShaders();
 	pHPBar->BuildObjects(pDevice, pCommandList, 1, m_testPlayer);
-	m_ppUIShaders = vector<UIShaders*>(m_nUIShaders);
 	m_ppUIShaders[0] = pHPBar;
 
 	UIMiniMapShaders* pMinimap = new UIMiniMapShaders();

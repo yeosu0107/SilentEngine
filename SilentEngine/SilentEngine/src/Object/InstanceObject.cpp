@@ -48,7 +48,6 @@ void PaticleObject::Animate(float fTimeElapsed)
 void PaticleObject::SetPosition(XMFLOAT3 xmf3Position)
 {
 	GameObject::SetPosition(xmf3Position);
-	Rotate(&GetLook(), rand() % 350);
 	m_live = true;
 }
 
@@ -57,5 +56,5 @@ HitPaticle::HitPaticle() : PaticleObject() { }
 void HitPaticle::SetPosition(XMFLOAT3 xmf3Position)
 {
 	PaticleObject::SetPosition(xmf3Position);
-	
+	Rotate(&GetLook(), rand() % 350);
 }
