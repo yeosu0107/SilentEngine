@@ -54,6 +54,6 @@ public:
 	virtual void SetNowRoom(UINT* nowRoom) { m_pNowRoom = nowRoom; };
 
 private:
-	UINT m_pPreRoom = 0;
+	UINT m_pPreRoom = 1;
 	UINT* m_pNowRoom;
 };

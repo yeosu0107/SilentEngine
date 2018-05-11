@@ -299,8 +299,8 @@ void UIMiniMapShaders::Animate(float fTimeElapsed)
 {
 	if (m_pPreRoom != *m_pNowRoom) {
 		m_pUIObjects[m_pPreRoom]->m_fData = 2.0f;
-		m_pUIObjects[*m_pNowRoom]->m_fData = 1.0f;
-		m_pPreRoom = *m_pNowRoom;
+		m_pUIObjects[*m_pNowRoom + 1]->m_fData = 1.0f;
+		m_pPreRoom = *m_pNowRoom + 1;
 	}
 }
 
