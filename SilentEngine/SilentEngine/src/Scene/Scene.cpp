@@ -183,6 +183,11 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	EffectLoader* globalEffects = GlobalVal::getInstance()->getEffectLoader();
 	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
 	FirePositionLoader* loader = GlobalVal::getInstance()->getFirePos();
+
+	const UINT KindOfEnemy = 5;
+
+	ModelShader** enemyShader = new ModelShader*[KindOfEnemy];
+	int enemyNum[KindOfEnemy] = { 6,2,4,3,1 };
 	
 	BuildRootSignature(pDevice, pCommandList);
 	BuildLightsAndMaterials();
@@ -225,7 +230,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	fireObjectShaders->SetCamera(m_Camera.get());
 	fireObjectShaders->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
 	fireObjectShaders->setLoop(true);
-	fireObjectShaders->setAnimSpeed(10.0f);
+	fireObjectShaders->setAnimSpeed(50.0f);
 	fireObjectShaders->SetRotateLockXZ(true);
 	
 	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
@@ -252,35 +257,18 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
 
-	EnemyShader<CreepArm>* eShader = new EnemyShader<CreepArm>(4);
-	eShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
-	eShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	eShader->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader->BuildObjects(pDevice, pCommandList,2, (int*)6);
+	enemyShader[0] = new EnemyShader<CreepArm>(4);
+	enemyShader[1] = new EnemyShader<Enemy>(3);
+	enemyShader[2] = new EnemyShader<Ghost>(2);
+	enemyShader[3] = new EnemyShader<Skull>(5);
+	enemyShader[4] = new EnemyShader<Rich>(6);
 
-	EnemyShader<Enemy>* eShader2 = new EnemyShader<Enemy>(3);
-	eShader2->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
-	eShader2->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	eShader2->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader2->BuildObjects(pDevice, pCommandList, 2, (int*)2);
-
-	EnemyShader<Ghost>* eShader3 = new EnemyShader<Ghost>(2);
-	eShader3->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
-	eShader3->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	eShader3->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader3->BuildObjects(pDevice, pCommandList, 2, (int*)4);
-
-	EnemyShader<Skull>* eShader4 = new EnemyShader<Skull>(5);
-	eShader4->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
-	eShader4->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	eShader4->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader4->BuildObjects(pDevice, pCommandList, 2, (int*)3);
-
-	EnemyShader<Rich>* eShader5 = new EnemyShader<Rich>(6);
-	eShader5->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
-	eShader5->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	eShader5->SetFogUploadBuffer(m_pd3dcbFog.get());
-	eShader5->BuildObjects(pDevice, pCommandList, 2, (int*)1);
+	for (int i = 0; i < 5; ++i) {
+		enemyShader[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+		enemyShader[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+		enemyShader[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
+		enemyShader[i]->BuildObjects(pDevice, pCommandList, 2, (int*)enemyNum[i]);
+	}
 
 	ProjectileShader* bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
@@ -299,15 +287,13 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
 
-	m_Room[0]->SetEnemyShader(eShader);
-	m_Room[0]->SetProjectileShader(bullet);
-	m_Room[1]->SetEnemyShader(eShader2);
-	m_Room[2]->SetEnemyShader(eShader3);
-	m_Room[2]->SetProjectileShader(bullet);
-	m_Room[3]->SetEnemyShader(eShader4);
-	m_Room[3]->SetProjectileShader(bullet);
-	m_Room[4]->SetEnemyShader(eShader5);
-	m_Room[4]->SetProjectileShader(bullet);
+	for (int i = 0; i < m_nRoom; ++i) {
+		UINT index = rand() % KindOfEnemy;
+		m_Room[i]->SetEnemyShader(enemyShader[index]);
+		if (index >= 2)
+			m_Room[i]->SetProjectileShader(bullet);
+	}
+
 	RoomChange();
 
 	m_nUIShaders = 2;

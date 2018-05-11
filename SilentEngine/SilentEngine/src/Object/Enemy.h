@@ -134,4 +134,5 @@ public:
 
 	virtual void Animate(float fTime);
 	void teleport(XMFLOAT3 pos);
+	void reset();
 };

@@ -195,3 +195,10 @@ void Enemy::teleport(XMFLOAT3 pos)
 {
 	m_Controller->setPosition(PxExtendedVec3(pos.x, pos.y, pos.z));
 }
+
+void Enemy::reset()
+{
+	SetLive(true);
+	m_status->m_health = m_status->prev_health;
+	m_State->changeState(STATE::idle);
+}

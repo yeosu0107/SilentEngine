@@ -76,12 +76,11 @@ UINT LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& 
 
 void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode, const XMMATRIX& ParentTransform)
 {
-	string NodeName(pNode->mName.data);
 	const aiAnimation* pAnim = m_pAnim;
 
 	XMMATRIX NodeTransformation = aiMatrixToXMMatrix(pNode->mTransformation);
 
-	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, NodeName);
+	const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnim, pNode->mName.data);
 	//현재 노드가 animation channel 에 속한지 확인
 	if (pNodeAnim) {
 		aiVector3D s;
@@ -109,7 +108,7 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 
 	//현재노드가 뼈 노드이면 변환정보를 뼈에 적용
 	for (auto& p : m_Bones) {
-		if (p.first == NodeName) {
+		if (p.first == pNode->mName.data) {
 			p.second.FinalTransformation =
 				m_GlobalInverse * GlobalTransformation * p.second.BoneOffset;
 			break;
@@ -122,12 +121,12 @@ void LoadAnimation::ReadNodeHeirarchy(float AnimationTime, const aiNode * pNode,
 	}
 }
 
-const aiNodeAnim * LoadAnimation::FindNodeAnim(const aiAnimation * pAnimation, const string NodeName)
+const aiNodeAnim * LoadAnimation::FindNodeAnim(const aiAnimation * pAnimation, const string& NodeName)
 {
 	for (UINT i = 0; i < pAnimation->mNumChannels; ++i) {
 		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
 
-		if (string(pNodeAnim->mNodeName.data) == NodeName)
+		if (pNodeAnim->mNodeName.data == NodeName)
 			return pNodeAnim;
 	}
 	return nullptr;

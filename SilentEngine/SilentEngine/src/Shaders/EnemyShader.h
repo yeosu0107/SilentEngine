@@ -77,6 +77,7 @@ public:
 	void setPosition(XMFLOAT3* pos) {
 		for (int i = 0; i < m_nObjects; ++i) {
 			T* tmp = reinterpret_cast<T*>(m_ppObjects[i]);
+			tmp->reset();
 			tmp->teleport(pos[i]);
 		}
 	}

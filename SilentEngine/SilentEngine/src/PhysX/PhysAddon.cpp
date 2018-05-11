@@ -6,11 +6,12 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 {
 	auto CollisionObject = trigger->otherActor;
 	GameObject* enemy = nullptr;
-	XMFLOAT3 hitPoint(trigger->triggerActor->getGlobalPose().p.x, trigger->triggerActor->getGlobalPose().p.y, trigger->triggerActor->getGlobalPose().p.z);
-	//hitPoint = Vector3::Add(hitPoint, XMFLOAT3(-rand() % 10 + 3, -rand() % 10 + 3, -rand() % 10 + 3));
+	XMFLOAT3 pos = Vector3::Add(PXtoXM(trigger->triggerActor->getGlobalPose().p), GlobalVal::getInstance()->getPlayer()->GetLook(), 10);
+	
+	XMFLOAT3 hitPoint[2] = { pos, pos };
 	reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
-		->SetPos(&hitPoint, 1);
-	//
+		->SetPos(hitPoint, 2);
+
 
 	for (UINT i = 0; i < *GlobalVal::getInstance()->getNumEnemy(); ++i) {
 		enemy = GlobalVal::getInstance()->getEnemy()[i];
