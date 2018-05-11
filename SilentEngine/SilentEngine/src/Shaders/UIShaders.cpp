@@ -32,19 +32,19 @@ D3D12_DEPTH_STENCIL_DESC UIShaders::CreateDepthStencilState(int index)
 	D3D12_DEPTH_STENCIL_DESC desc;
 	::ZeroMemory(&desc, sizeof(D3D12_DEPTH_STENCIL_DESC));
 
-	desc.DepthEnable					= false;
-	desc.DepthWriteMask					= D3D12_DEPTH_WRITE_MASK_ZERO;
-	desc.DepthFunc						= D3D12_COMPARISON_FUNC_LESS;
-	desc.StencilEnable					= false;
-	desc.StencilReadMask				= 0x00;
-	desc.FrontFace.StencilFailOp		= D3D12_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilDepthFailOp	= D3D12_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilPassOp		= D3D12_STENCIL_OP_KEEP;
-	desc.FrontFace.StencilFunc			= D3D12_COMPARISON_FUNC_LESS;
-	desc.BackFace.StencilFailOp			= D3D12_STENCIL_OP_KEEP;
-	desc.BackFace.StencilDepthFailOp	= D3D12_STENCIL_OP_KEEP;
-	desc.BackFace.StencilPassOp			= D3D12_STENCIL_OP_KEEP;
-	desc.BackFace.StencilFunc			= D3D12_COMPARISON_FUNC_LESS;
+	desc.DepthEnable = false;
+	desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	desc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	desc.StencilEnable = false;
+	desc.StencilReadMask = 0x00;
+	desc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+	desc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	desc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
 
 	return desc;
 }
@@ -56,12 +56,12 @@ void UIShaders::Animate(float fTimeElapsed)
 }
 
 void UIShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
-{ 
+{
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1 + NUM_MAX_UITEXTURE];
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, CBVUIInfo, 0, 0); // GameObject
-	for(int i = 0; i < NUM_MAX_UITEXTURE; ++i)
+	for (int i = 0; i < NUM_MAX_UITEXTURE; ++i)
 		pd3dDescriptorRanges[1 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVUITextureMap + i, 0, 0); // Texture
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[1 + NUM_MAX_UITEXTURE];
@@ -136,14 +136,14 @@ void UIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandLis
 	CB_UI_INFO cBuffer;
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		cBuffer.m_fData				= m_pUIObjects[i]->m_fData;
-		cBuffer.m_nNowSprite		= m_pUIObjects[i]->m_nNowSprite;
-		cBuffer.m_nNumSprite		= m_pUIObjects[i]->m_nNumSprite;
-		cBuffer.m_nSize				= m_pUIObjects[i]->m_nSize;
-		cBuffer.m_xmf2Scale			= m_pUIObjects[i]->m_xmf2Scale;
-		cBuffer.m_nTexType			= m_pUIObjects[i]->m_nTexType;
-		cBuffer.m_xmf2ScreenPos		= m_pUIObjects[i]->m_xmf2ScreenPos;
-		cBuffer.m_xmf2ScreenSize	= m_pUIObjects[i]->m_xmf2ScreenSize;
+		cBuffer.m_fData = m_pUIObjects[i]->m_fData;
+		cBuffer.m_nNowSprite = m_pUIObjects[i]->m_nNowSprite;
+		cBuffer.m_nNumSprite = m_pUIObjects[i]->m_nNumSprite;
+		cBuffer.m_nSize = m_pUIObjects[i]->m_nSize;
+		cBuffer.m_xmf2Scale = m_pUIObjects[i]->m_xmf2Scale;
+		cBuffer.m_nTexType = m_pUIObjects[i]->m_nTexType;
+		cBuffer.m_xmf2ScreenPos = m_pUIObjects[i]->m_xmf2ScreenPos;
+		cBuffer.m_xmf2ScreenSize = m_pUIObjects[i]->m_xmf2ScreenSize;
 
 		m_ObjectCB->CopyData(i, cBuffer);
 	}
@@ -187,7 +187,7 @@ XMUINT2 UIShaders::GetSpriteSize(const int texIndex, CTexture* pTexture, XMUINT2
 
 void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_nObjects = 1;
+	m_nObjects = 4;
 	m_nPSO = 1;
 
 	CreatePipelineParts();
@@ -195,8 +195,11 @@ void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSUIHPBar", "ps_5_0");
 
-	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\HPSprite.dds", 0);
+	CTexture *pTexture = new CTexture(4, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\HPBarTedori.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\HPBar.dds", 1);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\FaceTedori.dds", 2);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\c_face.dds", 3);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
 
@@ -214,20 +217,44 @@ void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
 
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		HPBarObject* hpBar = new HPBarObject();
+	XMFLOAT2 pos = XMFLOAT2(
+		static_cast<float>(FRAME_BUFFER_WIDTH) / 5.0,
+		static_cast<float>(FRAME_BUFFER_HEIGHT) * 8.0f / 9.0
+	);
+	XMFLOAT2 scale = XMFLOAT2(0.5f, 0.5f);
 
-		hpBar = new HPBarObject();
-		hpBar->SetPosition(XMFLOAT2(100.0f, 100.0f));
-		hpBar->SetPlayerStatus(reinterpret_cast<GameObject*>(pContext)->GetStatus());
-		hpBar->SetType(0);
-		hpBar->SetScale(XMFLOAT2(0.5f, 0.5f));
-		hpBar->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
-		hpBar->SetSize(GetSpriteSize(0, pTexture, XMUINT2(3,1)));
-		hpBar->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+	UIObject* HPTedori;
+	HPTedori = new UIObject();
+	HPTedori->SetPosition(pos);
+	HPTedori->SetScale(scale);
+	m_pUIObjects[0] = HPTedori;
 
-		m_pUIObjects[i] = hpBar;
+	HPBarObject* hpBar;
+	hpBar = new HPBarObject();
+	hpBar->SetPosition(XMFLOAT2(pos));
+	hpBar->SetPlayerStatus(reinterpret_cast<GameObject*>(pContext)->GetStatus());
+	hpBar->SetScale(scale);
+	m_pUIObjects[1] = hpBar;
+
+	UIObject* FaceTedori;
+	FaceTedori = new UIObject();
+	FaceTedori->SetPosition(XMFLOAT2(pos.x - 300.0f * scale.x, pos.y + 40.0f * scale.y));
+	FaceTedori->SetScale(XMFLOAT2(0.5f, 0.5f));
+	m_pUIObjects[2] = FaceTedori;
+
+	UIObject* Face;
+	Face = new UIObject();
+	Face->SetPosition(XMFLOAT2(pos.x - 299.0f * scale.x, pos.y + 40.0f * scale.y));
+	Face->SetScale(XMFLOAT2(0.5f, 0.5f));
+	m_pUIObjects[3] = Face;
+
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2(1, 1)));
+		m_pUIObjects[i]->SetType(i);
+		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
+
 }
 
 //
@@ -297,7 +324,7 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 void UIMiniMapShaders::Animate(float fTimeElapsed)
 {
-	if (m_pPreRoom != *m_pNowRoom) {
+	if (m_pPreRoom != *m_pNowRoom + 1) {
 		m_pUIObjects[m_pPreRoom]->m_fData = 2.0f;
 		m_pUIObjects[*m_pNowRoom + 1]->m_fData = 1.0f;
 		m_pPreRoom = *m_pNowRoom + 1;

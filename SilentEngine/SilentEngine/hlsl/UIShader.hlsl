@@ -73,24 +73,23 @@ float4 PSMiniMap(VS_TEXTURED_OUTPUT input) : SV_Target
 
 float4 PSUIHPBar(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-    float2 fBackgroundUVpos = input.uv;
-    fBackgroundUVpos.x = input.uv.x / 3.0f;
-    
-    float2 fHPBarUVpos = float2(fBackgroundUVpos.x + 1.0f / 3.0f, fBackgroundUVpos.y);
+
     float4 finalColor = (float4) 0.0f;
-
-    for (float f = 0.0f; f < 3.0f; f += 1.0f)
+    float2 uv = input.uv;
+ 
+    if (gnTexType == 0) 
+        finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+    else if (gnTexType == 1)
     {
-        float2 uv = float2(fBackgroundUVpos.x + f / 3.0f, fBackgroundUVpos.y);
-        float4 pixelColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
-        
-        if (f == 1.0f && uv.y <= 1.0f - gfData)
-            continue;
-
-        if (pixelColor.a > 0.9f)
-            finalColor = pixelColor;
+        if(uv.x < gfData)
+            finalColor = gUITextures[1].Sample(gDefaultSamplerState, uv);
     }
-        
+    else if (gnTexType == 2)
+        finalColor = gUITextures[2].Sample(gDefaultSamplerState, uv);
+    else if (gnTexType == 3)
+        finalColor = gUITextures[3].Sample(gDefaultSamplerState, uv);
+
     return finalColor;
+
 }
 #endif
