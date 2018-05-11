@@ -33,11 +33,14 @@ PaticleObject::PaticleObject()
 {
 	m_live = false;
 	m_fAnimationSpeed = 150.0f;
+	isLoop = false;
 }
 
 void PaticleObject::Animate(float fTimeElapsed)
 {
 	EffectInstanceObject::Animate(fTimeElapsed);
+	if (isLoop)
+		return;
 	if (m_fNowXCount == 0 && m_fNowYCount == 0)
 		m_live = false;
 }
@@ -45,16 +48,14 @@ void PaticleObject::Animate(float fTimeElapsed)
 void PaticleObject::SetPosition(XMFLOAT3 xmf3Position)
 {
 	GameObject::SetPosition(xmf3Position);
+	Rotate(&GetLook(), rand() % 350);
 	m_live = true;
 }
 
-FireObject::FireObject()
-{
-	m_live = true;
-	m_fAnimationSpeed = 50.0f;
-}
+HitPaticle::HitPaticle() : PaticleObject() { }
 
-void FireObject::Animate(float fTimeElapsed)
+void HitPaticle::SetPosition(XMFLOAT3 xmf3Position)
 {
-	EffectInstanceObject::Animate(fTimeElapsed);
+	PaticleObject::SetPosition(xmf3Position);
+	
 }

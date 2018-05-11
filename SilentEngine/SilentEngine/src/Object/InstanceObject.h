@@ -32,20 +32,22 @@ protected:
 class PaticleObject : public EffectInstanceObject
 {
 private:
+	bool isLoop;
 public:
 	PaticleObject();
 	~PaticleObject() {}
 
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetPosition(XMFLOAT3 xmf3Position);
+	void setLoop(bool loop) { isLoop = loop; }
 };
 
-class FireObject : public PaticleObject
+class HitPaticle : public PaticleObject
 {
 private:
 public:
-	FireObject();
-	~FireObject() {}
+	HitPaticle();
+	~HitPaticle() {}
 
-	virtual void Animate(float fTimeElapsed);
+	virtual void SetPosition(XMFLOAT3 xmf3Position);
 };

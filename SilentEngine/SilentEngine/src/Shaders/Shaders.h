@@ -146,14 +146,15 @@ public:
 class BillboardShader : public NormalMapShader
 {
 protected:
-	enum { 
-		ROOTPARAMETER_CAMERA, 
-		ROOTPARAMETER_OBJECT, 
-		ROOTPARAMETER_MATERIAL, 
-		ROOTPARAMETER_LIGHTS, 
-		ROOTPARAMETER_EFFECT, 
-		ROOTPARAMETER_TEXTURE, 
-		ROOTPARAMETER_NORMALMAP 
+	enum {
+		ROOTPARAMETER_CAMERA,
+		ROOTPARAMETER_OBJECT,
+		ROOTPARAMETER_MATERIAL,
+		ROOTPARAMETER_LIGHTS,
+		ROOTPARAMETER_EFFECT,
+		ROOTPARAMETER_TEXTURE,
+		ROOTPARAMETER_NORMALMAP,
+		ROOTPARAMETER_FOG = 7
 	};
 public:
 	BillboardShader() {};
@@ -173,6 +174,8 @@ public:
 	virtual void SetPos(XMFLOAT3* getPos, UINT num) {}
 	virtual void SetLive(const bool live, UINT num) {};
 	virtual void SetRotateLockXZ(bool lock);
+
+	void setAnimSpeed(float speed);
 protected:
 	Camera * m_pCamera = nullptr;
 	float m_fElapsedTime = 0.0f;

@@ -76,7 +76,7 @@ public:
 		i = 0;
 		CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f);
 
-		m_ppObjects = vector<GameObject*>(m_nObjects);
+		m_ppObjects.resize(m_nObjects);
 
 		T* pInstnaceObject = new T();
 		pInstnaceObject->SetMesh(0, pBoard);
@@ -117,6 +117,7 @@ public:
 			if (p->isLive())
 				continue;
 			reinterpret_cast<T*>(p)->SetPosition(getPos[now]);
+			
 			now += 1;
 			if (now == num)
 				break;
@@ -134,4 +135,9 @@ public:
 			now += 1;
 		}
 	};
+
+	void setLoop(bool loop) {
+		for (auto& p : m_ppObjects)
+			reinterpret_cast<T*>(p)->setLoop(loop);
+	}
 };

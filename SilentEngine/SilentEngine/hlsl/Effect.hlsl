@@ -46,7 +46,7 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 
 	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
 
-	//float4 shadowFactor = 1.0f;
+	float4 shadowFactor = 1.0f;
     //float4 directLight = Lighting(input.positionW, bumpedNormalW, 0.0f, shadowFactor);
 	
 	float4 litColor = cColor;
@@ -57,5 +57,5 @@ float4 PSEffect(VS_NORMAL_OUTPUT input) : SV_Target
 	litColor.rgb += shininess * fresnelFactor * litColor.rgb;
 
 	//return cColor;
-	return litColor;
+    return Fog(litColor, input.positionW);
 }

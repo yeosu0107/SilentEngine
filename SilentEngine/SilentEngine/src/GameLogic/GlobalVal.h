@@ -16,6 +16,7 @@ private:
 	GameObject*		m_player = nullptr;
 	GameObject**	m_Enemys = nullptr;
 	void*					m_projecttile = nullptr;
+	void*					m_hitPaticle = nullptr;
 
 	UINT					m_nEnemy;
 public:
@@ -41,9 +42,11 @@ public:
 	void LoadMaps(MapLoader* maps);
 	void LoadEffects(EffectLoader* effects);
 	void LoadFirePos(FirePositionLoader* firepos);
+
 	void setPlayer(GameObject* object);
 	void setEnemy(GameObject** objects);
 	void setPorjectile(void* pContext);
+	void setHitPaticle(void* pContext);
 
 	ModelLoader* getModelLoader() { return m_globalModels; }
 	MapLoader* getMapLoader() { return m_globalMaps; }
@@ -53,6 +56,7 @@ public:
 	GameObject* getPlayer();
 	GameObject** getEnemy();
 	void* getProjectile() { return m_projecttile; }
+	void* getHitPaticle() { return m_hitPaticle; }
 
 	UINT* getNumEnemy() { return &m_nEnemy; }
 };

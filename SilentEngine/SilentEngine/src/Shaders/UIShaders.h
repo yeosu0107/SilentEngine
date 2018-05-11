@@ -39,3 +39,20 @@ public:
 public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 };
+
+class UIMiniMapShaders : public UIShaders
+{
+public:
+	UIMiniMapShaders() { };
+	~UIMiniMapShaders() { };
+
+public:
+	virtual void SetNumObject(int nObject) { m_nObjects = nObject; }
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void Animate(float fTimeElapsed);
+	virtual void SetNowRoom(UINT* nowRoom) { m_pNowRoom = nowRoom; };
+
+private:
+	UINT m_pPreRoom = 0;
+	UINT* m_pNowRoom;
+};

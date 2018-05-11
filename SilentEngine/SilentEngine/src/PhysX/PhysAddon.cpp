@@ -1,16 +1,24 @@
 #include "stdafx.h"
 #include "PhysAddon.h"
+#include "..\Shaders\PaticleShader.h"
 
 void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 {
 	auto CollisionObject = trigger->otherActor;
 	GameObject* enemy = nullptr;
+	XMFLOAT3 hitPoint(trigger->triggerActor->getGlobalPose().p.x, trigger->triggerActor->getGlobalPose().p.y, trigger->triggerActor->getGlobalPose().p.z);
+	//hitPoint = Vector3::Add(hitPoint, XMFLOAT3(-rand() % 10 + 3, -rand() % 10 + 3, -rand() % 10 + 3));
+	reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
+		->SetPos(&hitPoint, 1);
+	//
 
 	for (UINT i = 0; i < *GlobalVal::getInstance()->getNumEnemy(); ++i) {
 		enemy = GlobalVal::getInstance()->getEnemy()[i];
 		if (!enemy->isLive())
 			continue;
 		if (CollisionObject == enemy->getControllerActor()) {
+			/*reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
+				->SetPos(&Vector3::Add(enemy->GetPosition(), XMFLOAT3(0,20.0f, 0)), 1);*/
 			enemy->Hitted();
 			return;
 		}
@@ -20,8 +28,9 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
 	GameObject* player = GlobalVal::getInstance()->getPlayer();
-	if(trigger->otherActor == player->getControllerActor())
+	if (trigger->otherActor == player->getControllerActor()) {
 		player->Hitted();
+	}
 	return;
 }
 

@@ -622,7 +622,7 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		pd3dDescriptorRanges[4 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[7 + NUM_DIRECTION_LIGHTS];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[8 + NUM_DIRECTION_LIGHTS];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
@@ -631,8 +631,9 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
 	pd3dRootParameters[6].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[7].InitAsConstantBufferView(8);
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[7 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[4 + i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[8 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[4 + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
@@ -750,6 +751,13 @@ void BillboardShader::SetRotateLockXZ(bool lock)
 	}
 }
 
+void BillboardShader::setAnimSpeed(float speed)
+{
+	for (auto& p : m_ppObjects) {
+		reinterpret_cast<PaticleObject*>(p)->m_fAnimationSpeed = speed;
+	}
+}
+
 void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_GAMEOBJECT_INFO cBuffer;
@@ -769,6 +777,7 @@ void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 		m_EffectCB->CopyData(i, cEffectBuffer);
 	}
 
+	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_FOG, m_FogCB->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_MATERIAL, m_MatCB->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_LIGHTS, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }													  

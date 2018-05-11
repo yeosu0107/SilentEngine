@@ -29,7 +29,7 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetCbvGPUDescriptorHandle() { return(m_d3dCbvGPUDescriptorHandle); }
 
-	virtual void Update(float fTimeElapsed) = 0;
+	virtual void Update(float fTimeElapsed) {};
 
 	virtual void SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -58,7 +58,7 @@ public:
 
 	XMUINT2		m_nSize;
 	UINT		m_nTexType;
-	float		m_fData;
+	float		m_fData = 0.0f;
 
 	XMFLOAT2	m_xmf2Scale = XMFLOAT2(1.0f, 1.0f);
 };
