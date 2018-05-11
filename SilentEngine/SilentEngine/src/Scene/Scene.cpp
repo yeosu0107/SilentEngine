@@ -164,8 +164,7 @@ void TestScene::Update(const Timer & gt)
 
 	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
-	//m_pLights->m_pLights[0].m_xmf3Position = m_Camera->GetPosition();
-	//m_pLights->m_pLights[0].m_xmf3Direction = m_Camera->GetLookVector();
+	m_hitEffectShaders->Animate(gt.DeltaTime());
 
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 
@@ -210,13 +209,23 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
 
+	PaticleShader<PaticleObject>* hitShader = new PaticleShader<PaticleObject>();
+	hitShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+	hitShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	hitShader->SetFogUploadBuffer(m_pd3dcbFog.get());
+	hitShader->SetCamera(m_Camera.get());
+	hitShader->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(3));
+	hitShader->setAnimSpeed(50.0f);
+	m_hitEffectShaders = hitShader;
 
-	PaticleShader<FireObject>* fireObjectShaders = new PaticleShader<FireObject>();
+	PaticleShader<PaticleObject>* fireObjectShaders = new PaticleShader<PaticleObject>();
 	fireObjectShaders->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	fireObjectShaders->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	fireObjectShaders->SetFogUploadBuffer(m_pd3dcbFog.get());
 	fireObjectShaders->SetCamera(m_Camera.get());
 	fireObjectShaders->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
+	fireObjectShaders->setLoop(true);
+	fireObjectShaders->setAnimSpeed(10.0f);
 	fireObjectShaders->SetRotateLockXZ(true);
 	
 	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
@@ -288,6 +297,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_testPlayer->GetPosition();
 	GlobalVal::getInstance()->setPlayer(m_testPlayer);
 	
+	GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
+
 	m_Room[0]->SetEnemyShader(eShader);
 	m_Room[0]->SetProjectileShader(bullet);
 	m_Room[1]->SetEnemyShader(eShader2);
@@ -337,6 +348,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	m_Room[m_nowRoom]->Render(pCommandList, m_Camera.get());
 	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
+	m_hitEffectShaders->Render(pCommandList, m_Camera.get());
 	//페이트 INOUT 랜더링
 	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
 
