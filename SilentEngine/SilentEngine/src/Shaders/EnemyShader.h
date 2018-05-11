@@ -7,7 +7,7 @@ template<class T>
 class EnemyShader : public DynamicModelShader
 {
 private:
-
+	UINT m_remainEnemy;
 public:
 	EnemyShader(int index) : DynamicModelShader(index) { }
 	~EnemyShader() { }
@@ -57,6 +57,7 @@ public:
 			t_enemy->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 			m_ppObjects[i] = t_enemy;
 		}
+		m_remainEnemy = m_nObjects;
 	}
 
 	void setPhys(BasePhysX* phys) {
@@ -80,6 +81,11 @@ public:
 			tmp->reset();
 			tmp->teleport(pos[i]);
 		}
+		m_remainEnemy = m_nObjects;
+	}
+
+	UINT getRemainObjects() const { 
+		return m_remainEnemy; 
 	}
 };
 

@@ -157,6 +157,8 @@ void Enemy::Skill()
 
 void Enemy::Hitted()
 {
+	if (m_State->getState() == STATE::death)
+		return;
 	ChangeAnimation(EnemyAni::AniHitted);
 	m_status->m_health -= 10;
 	cout << "Enemy Hit!" << "\t";

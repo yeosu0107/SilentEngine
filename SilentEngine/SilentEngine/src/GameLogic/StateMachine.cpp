@@ -146,6 +146,8 @@ void BaseAI::deathState()
 	if (m_owner->getAnimLoop() == LOOP_END) {
 		m_owner->SetLive(false);
 		reinterpret_cast<Enemy*>(m_owner)->releasePhys();
+		*GlobalVal::getInstance()->getRemainEnemy() -= 1;
+		cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
 	}
 }
 

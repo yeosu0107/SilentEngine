@@ -168,8 +168,8 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_KEYUP:
-		if (wParam == VK_ESCAPE) 
-			PostQuitMessage(0);
+		//if (wParam == VK_ESCAPE) 
+		//	PostQuitMessage(0);
 		//else if ((int)wParam == VK_F2)
 		//	Set4xMassState(!m_b4xMassState);
 
@@ -869,86 +869,22 @@ void Framework::OnKeyboardInput(const Timer& gt)
 	bool bProcessedByScene = false;
 
 	if (GetKeyboardState(pKeysBuffer) && m_pTestScene) 
-		bProcessedByScene = m_pTestScene->OnKeyboardInput(gt, pKeysBuffer);
+		bProcessedByScene = m_pTestScene->OnKeyboardInput(gt, m_hMainWnd);
 
 	if (!bProcessedByScene)
 	{
-		DWORD dwDirection = 0;
-		/*if (pKeysBuffer[VK_UP] & 0xF0) dwDirection |= DIR_FORWARD;
-		if (pKeysBuffer[VK_DOWN] & 0xF0) dwDirection |= DIR_BACKWARD;
-		if (pKeysBuffer[VK_LEFT] & 0xF0) dwDirection |= DIR_LEFT;
-		if (pKeysBuffer[VK_RIGHT] & 0xF0) dwDirection |= DIR_RIGHT;
-		if (pKeysBuffer[VK_PRIOR] & 0xF0) dwDirection |= DIR_UP;
-		if (pKeysBuffer[VK_NEXT] & 0xF0) dwDirection |= DIR_DOWN;*/
 
-		if (GetAsyncKeyState('W') & 0x8000)
-			dwDirection |= DIR_FORWARD;
-
-		if (GetAsyncKeyState('S') & 0x8000)
-			dwDirection |= DIR_BACKWARD;
-
-		if (GetAsyncKeyState('A') & 0x8000)
-			dwDirection |= DIR_LEFT;
-
-		if (GetAsyncKeyState('D') & 0x8000)
-			dwDirection |= DIR_RIGHT;
-
-		if (GetAsyncKeyState('P') & 0x8000) {
-			m_pTestScene->GetPlayer()->GetStatus()->m_health = 0.0f;
-		}
-		float cxDelta = 0.0f, cyDelta = 0.0f;
-		POINT ptCursorPos;
-
-		if (m_bMouseCapture)
-		{
-			::GetCursorPos(&ptCursorPos);
-			cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / m_fMouseSensitive;
-			cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / m_fMouseSensitive;
-			::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
-
-			if ((cxDelta != 0.0f) || (cyDelta != 0.0f))
-			{
-				if (cxDelta || cyDelta) {
-					m_pTestScene->OnMouseMove(m_hMainWnd, WPARAM(), cxDelta, cyDelta);
-				}
-			}
-		}
 	}
 }
 
 void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	m_pTestScene->OnMouseDown(m_hMainWnd, btnState, x, y);
-	switch (nMessageID)
-	{
-	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-		::SetCapture(m_hMainWnd);
-		::GetCursorPos(&m_ptOldCursorPos);
-		m_bMouseCapture = true;
-		break;
-	case WM_MOUSEMOVE:
-		break;
-	default:
-		break;
-	}
+	m_pTestScene->OnMouseDown(m_hMainWnd, btnState, nMessageID, x, y);
 }
 
 void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 {
-	m_pTestScene->OnMouseUp(m_hMainWnd, btnState, x, y);
-	switch (nMessageID)
-	{
-	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
-		::ReleaseCapture();
-		m_bMouseCapture = false;
-		break;
-	case WM_MOUSEMOVE:
-		break;
-	default:
-		break;
-	}
+	m_pTestScene->OnMouseUp(m_hMainWnd, btnState, nMessageID, x, y);
 }
 
 void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)

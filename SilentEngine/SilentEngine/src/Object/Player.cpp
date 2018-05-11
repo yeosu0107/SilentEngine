@@ -34,20 +34,20 @@ void Player::Rotate(float x, float y, float z)
 	if (x != 0.0f)
 	{
 		m_fPitch += x;
-		if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
-		if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }
+		/*if (m_fPitch > +89.0f) { x -= (m_fPitch - 89.0f); m_fPitch = +89.0f; }
+		if (m_fPitch < -89.0f) { x -= (m_fPitch + 89.0f); m_fPitch = -89.0f; }*/
 	}
 	if (y != 0.0f)
 	{
 		m_fYaw += y;
-		if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
-		if (m_fYaw < 0.0f) m_fYaw += 360.0f;
+	/*	if (m_fYaw > 360.0f) m_fYaw -= 360.0f;
+		if (m_fYaw < 0.0f) m_fYaw += 360.0f;*/
 	}
 	if (z != 0.0f)
 	{
 		m_fRoll += z;
-		if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
-		if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }
+		/*if (m_fRoll > +20.0f) { z -= (m_fRoll - 20.0f); m_fRoll = +20.0f; }
+		if (m_fRoll < -20.0f) { z -= (m_fRoll + 20.0f); m_fRoll = -20.0f; }*/
 	}
 	if (m_pCamera) {
 		m_pCamera->Rotate(x, y, z);
@@ -161,8 +161,8 @@ bool Player::Movement(DWORD input)
 
 void Player::Attack()
 {
-	UINT tmp = m_playerLogic->getAttackIndex()+2;
-	//cout << tmp << endl;
+	if (m_AnimIndex != PlayerAni::Attack)
+		return;
 	if (m_loopCheck == LOOP_MID) {
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,

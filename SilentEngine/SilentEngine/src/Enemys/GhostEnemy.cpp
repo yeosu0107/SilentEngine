@@ -50,6 +50,8 @@ void Ghost::Attack()
 
 void Ghost::Hitted()
 {
+	if (m_State->getState() == STATE::death)
+		return;
 	m_status->m_health -= 10;
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;

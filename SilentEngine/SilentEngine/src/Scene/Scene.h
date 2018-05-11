@@ -78,10 +78,10 @@ public:
 	void BuildLightsAndMaterials();
 	void BuildFog();
 
-	virtual bool OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer);
-	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y);
-	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
-	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
+	virtual bool OnKeyboardInput(const Timer& gt, HWND& hWin);
+	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y);
+	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y);
+	virtual bool OnMouseMove(float x, float y);
 	
 	GameObject* GetPlayer() { return m_testPlayer; }
 
@@ -114,7 +114,7 @@ protected:
 	//unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
 
 	MATERIALS*											m_pMaterials;
-	unique_ptr<UploadBuffer<MATERIALS>>					m_pd3dcbMaterials = nullptr;
+	unique_ptr<UploadBuffer<MATERIALS>>	m_pd3dcbMaterials = nullptr;
 
 	CB_FOG_INFO*										m_pFog;
 	unique_ptr<UploadBuffer<CB_FOG_INFO>>				m_pd3dcbFog = nullptr;
@@ -124,6 +124,11 @@ protected:
 	UINT														m_testTimer = 0;
 
 	UINT														m_changeFade = 0;
+
+	//조작관련
+	bool														m_bMouseCapture = false;
+	POINT													m_ptOldCursorPos;
+	float														m_fMouseSensitive = 4.5f;	// 마우스 민감도
 };
 
 class GameScene : public Scene

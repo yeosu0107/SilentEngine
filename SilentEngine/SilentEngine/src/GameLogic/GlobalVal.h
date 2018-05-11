@@ -19,6 +19,7 @@ private:
 	void*					m_hitPaticle = nullptr;
 
 	UINT					m_nEnemy;
+	int						m_remainEnemy;
 public:
 	static GlobalVal* getInstance();
 
@@ -59,4 +60,5 @@ public:
 	void* getHitPaticle() { return m_hitPaticle; }
 
 	UINT* getNumEnemy() { return &m_nEnemy; }
+	int* getRemainEnemy() { return &m_remainEnemy; }
 };

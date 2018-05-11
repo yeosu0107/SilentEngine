@@ -134,7 +134,6 @@ void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 {
 	//맵은 애니메이션이 없기에 애니메이트 X
 	//m_mapShader->Animate(fTime);
-
 	//방 이동함수
 	if (isClear) { //현재 방이 클리어상태인 경우에만 다음 방으로 이동할 수 있음
 		for (UINT i = 0; i < 4; ++i) {
@@ -162,6 +161,10 @@ void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 		}
 	}
 	else {
+		if (*GlobalVal::getInstance()->getRemainEnemy() <= 0) {
+			isClear = true;
+			return;
+		}
 		if (isEnemy)
 			m_enemyShader->Animate(fTime);
 		if (isProjectile)

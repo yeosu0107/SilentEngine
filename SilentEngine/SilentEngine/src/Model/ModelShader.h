@@ -26,6 +26,7 @@ public:
 	virtual void setPhys(BasePhysX* phys) {}
 	virtual void releasePhys() {}
 	virtual void setPosition(XMFLOAT3* pos) {}
+	virtual UINT getRemainObjects() const { return 0; }
 	virtual GameObject** getObjects(UINT& num) { return nullptr; }
 };
 

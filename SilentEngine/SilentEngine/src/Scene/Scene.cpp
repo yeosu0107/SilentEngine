@@ -369,7 +369,7 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo, int index, 
 	
 }
 
-bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
+bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 {
 	if (m_changeFade > FADE_OFF) {
 		m_testPlayer->Movement(NULL);
@@ -390,37 +390,100 @@ bool TestScene::OnKeyboardInput(const Timer& gt, UCHAR *pKeysBuffer)
 	if (GetAsyncKeyState('D') & 0x8000)
 		moveInpout |= DIR_RIGHT;
 
+	if (GetAsyncKeyState('P') & 0x8000) {
+		m_testPlayer->GetStatus()->m_health = 0.0f;
+	}
+	if (GetAsyncKeyState('T') & 0x8000) {
+		m_Room[m_nowRoom]->SetClear(true);
+	}
+	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) { //한번만 체크
+		if (!m_bMouseCapture) {
+			::GetCursorPos(&m_ptOldCursorPos);
+			m_bMouseCapture = true;
+		}
+		else {
+			::ReleaseCapture();
+			m_bMouseCapture = false;
+		}
+	}
+
+	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
+		input |= ANI_SKILL;
+	}
+
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		input |= ANI_ATTACK;
 
 	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 		cout << m_testPlayer->GetPosition();
-	
-	if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {
-		input |= ANI_SKILL;
-	}
 
-	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
-		m_Room[m_nowRoom]->SetClear(true);
+	if (m_bMouseCapture)
+	{
+		float cxDelta = 0.0f, cyDelta = 0.0f;
+		POINT ptCursorPos;
+
+		::SetCapture(hWin);
+		::GetCursorPos(&ptCursorPos);
+		
+		cxDelta = (float)(ptCursorPos.x - m_ptOldCursorPos.x) / m_fMouseSensitive;
+		cyDelta = (float)(ptCursorPos.y - m_ptOldCursorPos.y) / m_fMouseSensitive;
+		::SetCursorPos(m_ptOldCursorPos.x, m_ptOldCursorPos.y);
+
+		if ((cxDelta != 0.0f) || (cyDelta != 0.0f))
+		{
+			if (cxDelta || cyDelta) {
+				OnMouseMove(cxDelta, cyDelta);
+			}
+		}
 	}
 
 	if(!m_testPlayer->Movement(input))
 		m_testPlayer->Move(moveInpout, gt.DeltaTime());
 
-	return false;
+	return true;
 }
 
-bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, int x, int y)
+bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	return false;
+	switch (nMessageID)
+	{
+	case WM_LBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		/*::SetCapture(hWin);
+		::GetCursorPos(&m_ptOldCursorPos);
+		m_bMouseCapture = true;*/
+		if (m_bMouseCapture) {
+			DWORD input = 0;
+			input |= ANI_ATTACK;
+			m_testPlayer->Movement(input);
+		}
+		break;
+	case WM_MOUSEMOVE:
+		break;
+	default:
+		break;
+	}
+	return true;
 }
 
-bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y)
+bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	return false;
+	switch (nMessageID)
+	{
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+		/*::ReleaseCapture();
+		m_bMouseCapture = false;*/
+		break;
+	case WM_MOUSEMOVE:
+		break;
+	default:
+		break;
+	}
+	return true;
 }
 
-bool TestScene::OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y)
+bool TestScene::OnMouseMove(float x, float y)
 {
 	if (m_changeFade > FADE_OFF)
 		return false;
@@ -449,11 +512,14 @@ void TestScene::RoomChange()
 	m_testPlayer->SetPosition(playerPos->x, playerPos->y, playerPos->z);
 
 	//이동한 방에 적이 있을 경우 적의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
-	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear())
+	if (m_Room[m_isRoomChange.m_roomNum]->IsEnemy() && !m_Room[m_isRoomChange.m_roomNum]->IsClear()) {
 		GlobalVal::getInstance()->setEnemy(m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getObjects(
 			*GlobalVal::getInstance()->getNumEnemy()
 		));
 
+		*GlobalVal::getInstance()->getRemainEnemy()
+			= m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getRemainObjects();
+	}
 	else
 		GlobalVal::getInstance()->setEnemy(nullptr);
 
