@@ -210,13 +210,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
 
-	m_fireObjectShaders = new PaticleShader<FireObject>();
-	m_fireObjectShaders->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
-	m_fireObjectShaders->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
-	m_fireObjectShaders->SetFogUploadBuffer(m_pd3dcbFog.get());
-	m_fireObjectShaders->SetCamera(m_Camera.get());
-	m_fireObjectShaders->SetRotateLockXZ(true);
-	m_fireObjectShaders->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
+
+	PaticleShader<FireObject>* fireObjectShaders = new PaticleShader<FireObject>();
+	fireObjectShaders->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
+	fireObjectShaders->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
+	fireObjectShaders->SetFogUploadBuffer(m_pd3dcbFog.get());
+	fireObjectShaders->SetCamera(m_Camera.get());
+	fireObjectShaders->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
+	fireObjectShaders->SetRotateLockXZ(true);
 	
 	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
 	for (UINT i = 0; i < MAX_MAP; ++i) {
@@ -228,7 +229,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	}
 	for (UINT i = 0; i < m_nRoom; ++i) {
 		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
-		m_Room[i]->SetFireShader(m_fireObjectShaders);
+		m_Room[i]->SetFireShader(fireObjectShaders);
+		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
 	}
 
@@ -297,13 +299,18 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[4]->SetProjectileShader(bullet);
 	RoomChange();
 
-	m_nUIShaders = 1;
+	m_nUIShaders = 2;
 	
 	UIHPBarShaders* pHPBar = new UIHPBarShaders();
 	pHPBar->BuildObjects(pDevice, pCommandList, 1, m_testPlayer);
 	m_ppUIShaders = vector<UIShaders*>(m_nUIShaders);
 	m_ppUIShaders[0] = pHPBar;
 
+	UIMiniMapShaders* pMinimap = new UIMiniMapShaders();
+	pMinimap->SetNumObject(m_nRoom);
+	pMinimap->BuildObjects(pDevice, pCommandList, 1, m_Room);
+	pMinimap->SetNowRoom(&m_nowRoom);
+	m_ppUIShaders[1] = pMinimap;
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -452,14 +459,9 @@ void TestScene::RoomChange()
 	else
 		GlobalVal::getInstance()->setEnemy(nullptr);
 
-	int roomType = m_Room[m_isRoomChange.m_roomNum]->getType();
+	m_Room[m_isRoomChange.m_roomNum]->ResetFire();
 
-	if (m_fireObjectShaders) {
-		FirePositionLoader* loader = GlobalVal::getInstance()->getFirePos();
-		m_fireObjectShaders->SetLive(false, loader->getMaxFire(roomType));
-		m_fireObjectShaders->SetPos(loader->getPosition(roomType), loader->getMaxFire(roomType));
-	}
-
+	
 	//이동한 방에 적이 발사체를 생성할 경우 발사체의 포인터를 씬으로 가져옴, 클리어 된 방인 경우 무시
 	if (m_Room[m_isRoomChange.m_roomNum]->IsProjectile() && !m_Room[m_isRoomChange.m_roomNum]->IsClear()) {
 		m_Projectile = m_Room[m_isRoomChange.m_roomNum]->GetProjectileShader();

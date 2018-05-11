@@ -86,14 +86,13 @@ public:
 	void RoomChange();
 	void RoomSetting();
 	void RoomFade();
-
+	
 	
 
 protected:
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
 	BillboardShader*										m_EffectShaders = nullptr;
-	BillboardShader*							m_fireObjectShaders = nullptr;
 	ProjectileShader*									m_Projectile = nullptr;
 	FadeEffectShader*									m_pFadeEffectShader = nullptr;
 
