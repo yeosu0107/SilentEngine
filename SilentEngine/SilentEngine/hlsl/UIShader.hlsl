@@ -59,11 +59,16 @@ VS_TEXTURED_OUTPUT VSUITextured(uint nVertexID : SV_VertexID)
 float4 PSMiniMap(VS_TEXTURED_OUTPUT input) : SV_Target
 {
     float4 finalColor = (float4) 0.0f;
+    float2 uv = input.uv;
+ 
+    uv = float2(input.uv.x / gnNumSprite.x + gfData / gnNumSprite.x, input.uv.y);
 
-    float2 uv = float2(input.uv.x / gnNumSprite.x + gfData / gnNumSprite.x, input.uv.y);
-    float4 pixelColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
-       
-    return pixelColor;
+    if (gnTexType == 0) 
+        finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+    else if (gnTexType == 1)
+        finalColor = gUITextures[1].Sample(gDefaultSamplerState, uv);
+
+    return finalColor;
 }
 
 float4 PSUIHPBar(VS_TEXTURED_OUTPUT input) : SV_Target

@@ -59,13 +59,15 @@ void UIShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 { 
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1 + NUM_MAX_UITEXTURE];
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, CBVUIInfo, 0, 0); // GameObject
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, NUM_MAX_UITEXTURE, SRVUITextureMap, 0, 0); // Texture
+	for(int i = 0; i < NUM_MAX_UITEXTURE; ++i)
+		pd3dDescriptorRanges[1 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVUITextureMap + i, 0, 0); // Texture
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[1 + NUM_MAX_UITEXTURE];
 	pd3dRootParameters[0].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
+	for (int i = 0; i < NUM_MAX_UITEXTURE; ++i)
+		pd3dRootParameters[1 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1 + i], D3D12_SHADER_VISIBILITY_ALL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -240,8 +242,9 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSMiniMap", "ps_5_0");
 
-	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\Box_COLOR.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\minimapTedori.dds", 1);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
 
@@ -259,7 +262,22 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
 
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
+	UIObject* minimapBG = new UIObject();
+
+	minimapBG->SetType(1);
+	minimapBG->SetScale(XMFLOAT2(1.0f, 1.0f));
+	minimapBG->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+	minimapBG->SetNumSprite(XMUINT2(1, 1), XMUINT2(0, 0));
+	minimapBG->SetScale(XMFLOAT2(1.0f, 0.5f));
+	minimapBG->SetSize(GetSpriteSize(1, pTexture, minimapBG->m_nNumSprite));
+	minimapBG->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr);
+	minimapBG->SetPosition(XMFLOAT2(
+		static_cast<float>(FRAME_BUFFER_WIDTH) * 7.05 / 8.0,
+		static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0)
+	));
+	m_pUIObjects[0] = minimapBG;
+
+	for (unsigned int i = 1; i < m_nObjects; ++i) {
 		UIObject* minimapObj = new UIObject();
 
 		minimapObj->SetType(0);
@@ -269,12 +287,12 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 		minimapObj->SetSize(GetSpriteSize(0, pTexture, minimapObj->m_nNumSprite));
 		minimapObj->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		minimapObj->SetPosition(XMFLOAT2(
-			static_cast<float>(FRAME_BUFFER_WIDTH) * 6.0 / 8.0 + static_cast<float>(data[i]->m_mapPosX * minimapObj->m_nSize.x),
-			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0 - data[i]->m_mapPosY * minimapObj->m_nSize.y)
+			static_cast<float>(FRAME_BUFFER_WIDTH) * 6.6 / 8.0 + static_cast<float>(data[i - 1]->m_mapPosX * minimapObj->m_nSize.x),
+			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.3 / 8.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y)
 		));
 		m_pUIObjects[i] = minimapObj;
 	}
-	m_pUIObjects[0]->m_fData = 1.0f;
+	m_pUIObjects[1]->m_fData = 1.0f;
 }
 
 void UIMiniMapShaders::Animate(float fTimeElapsed)
@@ -285,3 +303,4 @@ void UIMiniMapShaders::Animate(float fTimeElapsed)
 		m_pPreRoom = *m_pNowRoom;
 	}
 }
+

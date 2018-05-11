@@ -15,6 +15,7 @@ public:
 	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
 
 	virtual void Animate(float fTimeElapsed);
+	virtual void SetPos(XMFLOAT2* pos, UINT index = 0) { m_pUIObjects[index]->m_xmf2ScreenPos = *pos; }
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList);
@@ -47,7 +48,7 @@ public:
 	~UIMiniMapShaders() { };
 
 public:
-	virtual void SetNumObject(int nObject) { m_nObjects = nObject; }
+	virtual void SetNumObject(int nObject) { m_nObjects = nObject + 1; }
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetNowRoom(UINT* nowRoom) { m_pNowRoom = nowRoom; };
