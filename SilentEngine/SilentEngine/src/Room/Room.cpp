@@ -71,6 +71,17 @@ void Room::SetSpawnPoint(XMFLOAT3 * point)
 		m_spawnPoint[i].y = y;
 }
 
+void Room::SetFirePosition(XMFLOAT3 * pos)
+{
+	m_pFirePos = pos;
+}
+
+void Room::ResetFire()
+{
+	m_pFires->SetLive(false, 10);
+	m_pFires->SetPos(m_pFirePos, 10);
+}
+
 XMFLOAT3* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 {
 	if (state) {

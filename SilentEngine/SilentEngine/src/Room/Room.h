@@ -34,6 +34,7 @@ private:
 	RECT									m_doorRect[4];
 	UINT									m_nextRoom[4];
 	XMFLOAT3							m_spawnPoint[6];
+	XMFLOAT3*						m_pFirePos;
 	
 	UINT									m_type;
 
@@ -73,6 +74,8 @@ public:
 	void SetStartPoint(XMFLOAT3* point);
 	void SetNextRoom(UINT *room);
 	void SetSpawnPoint(XMFLOAT3* point);
+	void SetFirePosition(XMFLOAT3* pos);
+	void ResetFire();
 
 	bool IsEnemy() const { return isEnemy; }
 	bool IsProjectile() const { return isProjectile; }

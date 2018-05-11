@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "UIShaders.h"
 #include "GameObjects.h"
+#include "..\Room\Room.h"
 
 UIShaders::UIShaders() { }
 UIShaders::~UIShaders() { }
@@ -224,5 +225,63 @@ void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 		hpBar->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 
 		m_pUIObjects[i] = hpBar;
+	}
+}
+
+//
+
+void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	m_nPSO = 1;
+	Room** data = reinterpret_cast<Room**>(pContext);
+
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSMiniMap", "ps_5_0");
+
+	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\Box_COLOR.dds", 0);
+
+	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 1, true);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	m_pUIObjects = vector<UIObject*>(m_nObjects);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
+		UIObject* minimapObj = new UIObject();
+
+		minimapObj->SetType(0);
+		minimapObj->SetScale(XMFLOAT2(1.0f, 1.0f));
+		minimapObj->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		minimapObj->SetNumSprite(XMUINT2(3, 1), XMUINT2(0, 0));
+		minimapObj->SetSize(GetSpriteSize(0, pTexture, minimapObj->m_nNumSprite));
+		minimapObj->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+		minimapObj->SetPosition(XMFLOAT2(
+			static_cast<float>(FRAME_BUFFER_WIDTH) * 6.0 / 8.0 + static_cast<float>(data[i]->m_mapPosX * minimapObj->m_nSize.x),
+			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0 - data[i]->m_mapPosY * minimapObj->m_nSize.y)
+		));
+		m_pUIObjects[i] = minimapObj;
+	}
+	m_pUIObjects[0]->m_fData = 1.0f;
+}
+
+void UIMiniMapShaders::Animate(float fTimeElapsed)
+{
+	if (m_pPreRoom != *m_pNowRoom) {
+		m_pUIObjects[m_pPreRoom]->m_fData = 2.0f;
+		m_pUIObjects[*m_pNowRoom]->m_fData = 1.0f;
+		m_pPreRoom = *m_pNowRoom;
 	}
 }
