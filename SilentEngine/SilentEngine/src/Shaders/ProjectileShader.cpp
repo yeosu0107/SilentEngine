@@ -36,6 +36,7 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 		}
 	}
 
+	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_FOG, m_FogCB->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_MATERIAL, m_MatCB->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_LIGHTS, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }
