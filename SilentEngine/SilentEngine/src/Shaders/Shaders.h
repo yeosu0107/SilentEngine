@@ -10,6 +10,12 @@ using namespace std;
 #define COMPILEDSHADERS CompiledShaders::Instance()
 #define ShadowShader ShadowDebugShader::Instance()
 
+struct CB_SCENEBLUR_INFO
+{
+	XMUINT2 m_BlurScale;
+	float	m_Time;
+	float	m_Enable;
+};
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
 class CompiledShaders
@@ -194,9 +200,22 @@ public:
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+	virtual void SetPlayer(GameObject* obj) { m_pPlayer = obj; }
+	virtual void Animate(float fTimeElapsed);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+protected:
+	unique_ptr<UploadBuffer<CB_SCENEBLUR_INFO>>	m_BulrCB = nullptr;
+	unique_ptr<CTexture>	m_pTexture;
+	GameObject*				m_pPlayer;
+
+	float					m_IsDeath;
+	float					m_Time;
+	XMUINT2					m_Scale;
 
 protected:
-	unique_ptr<CTexture> m_pTexture;
+	const unsigned int		MAX_SCALE = 9;
+	const unsigned int		BLUR_SPEED = 10;
 };
 
 class FadeEffectShader : public TextureToFullScreen

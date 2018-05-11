@@ -83,6 +83,8 @@ public:
 	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, int x, int y);
 	virtual bool OnMouseMove(HWND& hWin, WPARAM btnState, float x, float y);
 	
+	GameObject* GetPlayer() { return m_testPlayer; }
+
 	void RoomChange();
 	void RoomSetting();
 	void RoomFade();

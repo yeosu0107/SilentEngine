@@ -380,12 +380,11 @@ void Framework::Update()
 	OnKeyboardInput(m_Timer);
 
 	m_pTestScene->Update(m_Timer);
+	m_pTextureToFullScreenShader->Animate(m_Timer.DeltaTime());
 }
 
 void Framework::RenderShadow()
 {
-	
-
 	auto pHandle = m_pDsvHeap->GetCPUDescriptorHandleForHeapStart();
 
 	for (int i = 1; i < m_nDepthStencilBuffers; ++i) {
@@ -665,7 +664,7 @@ void Framework::BuildObjects()
 	
 	m_pTestScene = make_unique<TestScene>();
 	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
-
+	m_pTextureToFullScreenShader->SetPlayer(m_pTestScene->GetPlayer());
 	m_pCamera = m_pTestScene->GetCamera();
 
 	ID3D12CommandList* cmdsLists[] = { m_pCommandList.Get() };
@@ -894,7 +893,9 @@ void Framework::OnKeyboardInput(const Timer& gt)
 		if (GetAsyncKeyState('D') & 0x8000)
 			dwDirection |= DIR_RIGHT;
 
-
+		if (GetAsyncKeyState('P') & 0x8000) {
+			m_pTestScene->GetPlayer()->GetStatus()->m_health = 0.0f;
+		}
 		float cxDelta = 0.0f, cyDelta = 0.0f;
 		POINT ptCursorPos;
 

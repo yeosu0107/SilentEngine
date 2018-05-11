@@ -126,6 +126,13 @@ cbuffer cbUIInfo : register(b9)
     float  dump2;
 };
 
+cbuffer cbSceneBlurInfo : register(b10)
+{
+    uint2 gBlurScale;
+    float gTime;
+    float gEnable;
+}
+
 static matrix gmtxTexture =
 {
     0.5f, 0.0f, 0.0f, 0.0f,

@@ -47,48 +47,69 @@ VS_TEXTURED_OUTPUT InstanceVS(VS_TEXTURED_INPUT input, uint instanceID : SV_Inst
 //////////////////////////////////////////////////////
 
 
-float4 VSTextureToFullScreen(uint nVertexID : SV_VertexID) : SV_POSITION
+float4 VSTextureToFullScreen(uint nVertexID : SV_VertexID) : SV_Position
 {
-	if (nVertexID == 0) return(float4(-1.0f, +1.0f, 0.0f, 1.0f));	// 스크린 왼쪽 위 
-	if (nVertexID == 1) return(float4(+1.0f, +1.0f, 0.0f, 1.0f));	// 스크린 오른쪽 위
-	if (nVertexID == 2) return(float4(+1.0f, -1.0f, 0.0f, 1.0f));	// 스크린 오른쪽 아래
-	if (nVertexID == 3) return(float4(-1.0f, +1.0f, 0.0f, 1.0f));	// 스크린 왼쪽 위
-	if (nVertexID == 4) return(float4(+1.0f, -1.0f, 0.0f, 1.0f));	// 스크린 왼쪽 아래
-	if (nVertexID == 5) return(float4(-1.0f, -1.0f, 0.0f, 1.0f));	// 스크린 오른쪽 아래
+   
+    if (nVertexID == 0) { return float4(-1.0f, +1.0f, 0.0f, 1.0f); }
+    if (nVertexID == 1) { return float4(+1.0f, +1.0f, 0.0f, 1.0f); }
+    if (nVertexID == 2) { return float4(+1.0f, -1.0f, 0.0f, 1.0f); }
+    if (nVertexID == 3) { return float4(-1.0f, +1.0f, 0.0f, 1.0f); }
+    if (nVertexID == 4) { return float4(+1.0f, -1.0f, 0.0f, 1.0f); }
+    if (nVertexID == 5) { return float4(-1.0f, -1.0f, 0.0f, 1.0f); }
 
-	return(float4(0, 0, 0, 0));
+    return (float4(0, 0, 0, 0));
 };
 
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };				// 가중치의 값
 static int2 gnOffsets[9] = { { -1,-1 },{ 0,-1 },{ 1,-1 },{ -1,0 },{ 0,0 },{ 1,0 },{ -1,1 },{ 0,1 },{ 1,1 } };	// ( 중점을 기준으로 첫번째 픽셀 )
 
-float4 PSTextureToFullScreen(float4 position : SV_POSITION) : SV_Target
+float4 PSTextureToFullScreen(float4 position : SV_Position) : SV_Target
 {
     //return float4(gShadowMap[1][int2(position.xy)].rrr, 1.0f);
 	//return(gNormalTexture[int2(position.xy)]);
+
 	float fEdgeness = 0.0f;
 	float3 cEdgeness = float3(0.0f, 0.0f, 0.0f);
-	if ((position.x >= 1) || (position.y >= 1) || (position.x <= gNormalTexture.Length.x - 2) || (position.y <= gNormalTexture.Length.y - 2))
-	{
-		float3 vNormal = float3(1.0f, 1.0f, 1.0f);
-		for (int i = 0; i < 9; i++)
-		{
-			vNormal = gNormalTexture[int2(position.xy) + gnOffsets[i]].xyz;
-			vNormal = vNormal * 2.0f - 1.0f;
-			cEdgeness += gfLaplacians[i] * vNormal;
-		}
 	
-		// 엣지 정도에 따라 색상을 조금 변화 시킨다. 
-		fEdgeness = cEdgeness.r * 0.3f + cEdgeness.g * 0.3f + cEdgeness.b * 0.4f;
-		cEdgeness = float3(fEdgeness, fEdgeness, fEdgeness);
-	}
+    float3 cColor = (float3) 0.0f;
+    const int2 scale = int2(gBlurScale.x / 2, gBlurScale.y / 2);
+    //gBlurScale / 2;
+
+    if (gEnable >= 1.0f)
+    {
+        for (int j = -scale.x; j < scale.x; j++)
+        {
+            for (int i = -scale.y; i < scale.y; i++)
+            {
+                cColor += gScreenTexture[(int2) position.xy + int2(j, i)].xyz;
+            }
+        }
+
+        cColor = cColor / (float) ((gBlurScale.x + 1) * (gBlurScale.y + 1));
+        
+        if (scale.x < 2 && scale.y < 2)
+            cColor = gScreenTexture[(int2) position.xy].xyz;
+    }
+
+    //  안죽으면 외곽선도 처리
+    else
+    {
+        if ((position.x >= 1) || (position.y >= 1) || (position.x <= gNormalTexture.Length.x - 2) || (position.y <= gNormalTexture.Length.y - 2))
+        {
+            float3 vNormal = float3(1.0f, 1.0f, 1.0f);
+            for (int i = 0; i < 9; i++)
+            {
+                vNormal = gNormalTexture[int2(position.xy) + gnOffsets[i]].xyz;
+                vNormal = vNormal * 2.0f - 1.0f;
+                cEdgeness += gfLaplacians[i] * vNormal;
+            }
+            fEdgeness = cEdgeness.r * 0.3f + cEdgeness.g * 0.3f + cEdgeness.b * 0.4f;
+            cEdgeness = float3(fEdgeness, fEdgeness, fEdgeness);
+        }
 	
-	float3 cColor = gScreenTexture[int2(position.xy)].rgb;
-	
-	// fEdgeness가 크면 : 엣지일 가능성이 높음 fEdgeeness가 작으면 같은 평면일 가능성이 높음 
-	cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55) ? (cColor - cEdgeness) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
-	
-	// 최종 결과 : 엣지 강도에 따라 테두리 색상이 다르다.
+        cColor = gScreenTexture[(int2) position.xy].xyz;
+        cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55) ? (cColor - cEdgeness) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
+    }
 
 	return(float4(cColor, 1.0f));
 

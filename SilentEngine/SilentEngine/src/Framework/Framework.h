@@ -137,7 +137,6 @@ protected:
 	UINT								m_nNowScene = 0;
 
 protected:
-
 	unique_ptr<TestScene>				m_pTestScene;
 	POINT								m_ptOldCursorPos;
 
