@@ -338,6 +338,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	RoomChange();
 	BuildUI(pDevice, pCommandList);
+
+	m_changeFade = FADE_OUT;
 }
 
 void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -366,7 +368,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_pButtons = new UIButtonShaders();
 	m_pButtons->BuildObjects(pDevice, pCommandList, 2, &texutredata);
 	m_pButtons->SetPoint(m_pCursorPos);
-	m_pButtons->SetPos(new XMFLOAT2(683.9f, 720.0f - 407.3f), 0);
+	m_pButtons->SetPos(new XMFLOAT2(640.0f, 720.0f - 407.3f), 0);
 	m_pButtons->SetPos(new XMFLOAT2(870.0f, 720.0f - 455.0f), 1);
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 0);
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 1);

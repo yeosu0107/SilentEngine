@@ -38,12 +38,12 @@ bool UIObject::CollisionUI(POINT * pPoint, float trueSetData, float falseSetData
 void UIObject::CreateCollisionBox()
 {
 	m_xmf2StartPos = XMFLOAT2(
-		m_xmf2ScreenPos.x - static_cast<float>(m_nSize.x) * m_xmf2Scale.x,
-		static_cast<float>(FRAME_BUFFER_HEIGHT)-(m_xmf2ScreenPos.y - static_cast<float>(m_nSize.y) * m_xmf2Scale.y)
+		m_xmf2ScreenPos.x - static_cast<float>(m_nSize.x / 2) * m_xmf2Scale.x,
+		static_cast<float>(FRAME_BUFFER_HEIGHT)-(m_xmf2ScreenPos.y - static_cast<float>(m_nSize.y / 2) * m_xmf2Scale.y)
 	);
 	m_xmf2EndPos = XMFLOAT2(
-		m_xmf2ScreenPos.x + static_cast<float>(m_nSize.x) * m_xmf2Scale.x,
-		static_cast<float>(FRAME_BUFFER_HEIGHT)-(m_xmf2ScreenPos.y + static_cast<float>(m_nSize.y) * m_xmf2Scale.y)
+		m_xmf2ScreenPos.x + static_cast<float>(m_nSize.x / 2) * m_xmf2Scale.x,
+		static_cast<float>(FRAME_BUFFER_HEIGHT)-(m_xmf2ScreenPos.y + static_cast<float>(m_nSize.y / 2) * m_xmf2Scale.y)
 	);
 }
 
