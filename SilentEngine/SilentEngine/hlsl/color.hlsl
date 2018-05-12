@@ -47,7 +47,7 @@ VS_TEXTURED_OUTPUT InstanceVS(VS_TEXTURED_INPUT input, uint instanceID : SV_Inst
 //////////////////////////////////////////////////////
 
 
-float4 VSTextureToFullScreen(uint nVertexID : SV_VertexID) : SV_Position
+float4 VSDeferredFullScreen(uint nVertexID : SV_VertexID) : SV_Position
 {
    
     if (nVertexID == 0) { return float4(-1.0f, +1.0f, 0.0f, 1.0f); }
@@ -63,7 +63,7 @@ float4 VSTextureToFullScreen(uint nVertexID : SV_VertexID) : SV_Position
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f };				// 가중치의 값
 static int2 gnOffsets[9] = { { -1,-1 },{ 0,-1 },{ 1,-1 },{ -1,0 },{ 0,0 },{ 1,0 },{ -1,1 },{ 0,1 },{ 1,1 } };	// ( 중점을 기준으로 첫번째 픽셀 )
 
-float4 PSTextureToFullScreen(float4 position : SV_Position) : SV_Target
+float4 PSDeferredFullScreen(float4 position : SV_Position) : SV_Target
 {
     //return float4(gShadowMap[1][int2(position.xy)].rrr, 1.0f);
 	//return(gNormalTexture[int2(position.xy)]);
@@ -120,9 +120,17 @@ float4 PSFadeEffect(float4 position : SV_POSITION) : SV_Target
     return gFadeColor;
 }
 
+float4 PSFullScreen(float4 position : SV_POSITION) : SV_Target
+{
+    float3 cColor = gScreenTexture[int2(position.xy)].rgb;
+
+    return float4(cColor, 1.0f);
+}
+
+
 float4 PS(float4 position : SV_POSITION) : SV_Target
 {
-    float3 cColor = gShadowMap[0][int2(position.xy)].rrr;
+    float3 cColor = gShadowMap[0][int2(position.xy)].rgb;
 
     return float4(cColor, 1.0f);
 }

@@ -23,6 +23,30 @@ void UIObject::Render(ID3D12GraphicsCommandList * pd3dCommandList)
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
+bool UIObject::CollisionUI(POINT * pPoint, float trueSetData, float falseSetData)
+{
+	if (m_xmf2StartPos.x < pPoint->x && m_xmf2StartPos.y > pPoint->y) {
+		if (m_xmf2EndPos.x > pPoint->x && m_xmf2EndPos.y < pPoint->y) {
+			m_fData = trueSetData;
+			return true;
+		}
+	}
+	m_fData = falseSetData;
+	return false;
+}
+
+void UIObject::CreateCollisionBox()
+{
+	m_xmf2StartPos = XMFLOAT2(
+		m_xmf2ScreenPos.x - static_cast<float>(m_nSize.x) * m_xmf2Scale.x,
+		static_cast<float>(FRAME_BUFFER_HEIGHT)-(m_xmf2ScreenPos.y - static_cast<float>(m_nSize.y) * m_xmf2Scale.y)
+	);
+	m_xmf2EndPos = XMFLOAT2(
+		m_xmf2ScreenPos.x + static_cast<float>(m_nSize.x) * m_xmf2Scale.x,
+		static_cast<float>(FRAME_BUFFER_HEIGHT)-(m_xmf2ScreenPos.y + static_cast<float>(m_nSize.y) * m_xmf2Scale.y)
+	);
+}
+
 void UIObject::SetScreenSize(XMFLOAT2 & size)
 {
 	m_xmf2ScreenSize = size;

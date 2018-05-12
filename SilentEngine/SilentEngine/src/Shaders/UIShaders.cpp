@@ -167,7 +167,7 @@ void UIShaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList, int
 void UIShaders::Render(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	OnPrepareRender(pd3dCommandList, 0);
-
+	
 	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
 
 	for (unsigned int j = 0; j < m_nObjects; j++)
@@ -252,6 +252,7 @@ void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
 		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2(1, 1)));
 		m_pUIObjects[i]->SetType(i);
+		m_pUIObjects[i]->CreateCollisionBox();
 		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
 
@@ -303,6 +304,7 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 		static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0)
 	));
 	m_pUIObjects[0] = minimapBG;
+	m_pUIObjects[0]->CreateCollisionBox();
 
 	for (unsigned int i = 1; i < m_nObjects; ++i) {
 		UIObject* minimapObj = new UIObject();
@@ -318,6 +320,7 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.3 / 8.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y)
 		));
 		m_pUIObjects[i] = minimapObj;
+		m_pUIObjects[i]->CreateCollisionBox();
 	}
 	m_pUIObjects[1]->m_fData = 1.0f;
 }
@@ -331,3 +334,69 @@ void UIMiniMapShaders::Animate(float fTimeElapsed)
 	}
 }
 
+void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	vector<TextureDataForm>* textures = reinterpret_cast<vector<TextureDataForm>*>(pContext);
+	UINT nTextures = textures->size();
+
+	m_nObjects = nTextures;
+	m_nPSO = 1;
+
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSMiniMap", "ps_5_0");
+
+	CTexture *pTexture = new CTexture(nTextures, RESOURCE_TEXTURE2D, 0);
+	for (int i = 0; i < nTextures; ++i) {
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, (*textures)[i].m_texture.c_str(), i);
+	}
+	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 1, true);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	m_pUIObjects = vector<UIObject*>(m_nObjects);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	XMFLOAT2 scale = XMFLOAT2(0.5f, 0.5f);
+
+	UIObject* button1;
+	button1 = new UIObject();
+	button1->SetPosition(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH) / 2, static_cast<float>(FRAME_BUFFER_HEIGHT) * 3.0f / 9.0));
+	button1->SetScale(scale);
+	m_pUIObjects[0] = button1;
+
+	UIObject* button2;
+	button2 = new UIObject();
+	button2->SetPosition(XMFLOAT2(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH) / 2, static_cast<float>(FRAME_BUFFER_HEIGHT) * 1.5f / 9.0)));
+	button2->SetScale(scale);
+	m_pUIObjects[1] = button2;
+
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		m_pUIObjects[i]->SetNumSprite(XMUINT2(2, 1), XMUINT2(0, 0));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2(2, 1)));
+		m_pUIObjects[i]->SetType(i);
+		m_pUIObjects[i]->CreateCollisionBox();
+		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+	}
+}
+
+UINT UIButtonShaders::CollisionButton()
+{
+	UINT collision = 0;
+	for (UINT i = 0; i < m_nObjects; ++i) {
+		if(m_pUIObjects[i]->CollisionUI(m_pMousePosition, 1.0f, 0.0f))
+			collision = i + 1;
+	}
+	return collision;
+}

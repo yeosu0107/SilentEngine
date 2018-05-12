@@ -32,6 +32,25 @@ void Scene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandL
 	
 }
 
+void Scene::RoomFade()
+{
+	if (m_changeFade > FADE_OFF) {
+		if (!m_pFadeEffectShader->IsUsdedFadeEffect()) {
+			if (m_changeFade == FADE_IN) {
+				m_pFadeEffectShader->SetFadeIn(true, m_fFadeInTime, false);
+				m_changeFade = FADE_OUT;
+			}
+			else if (m_changeFade == FADE_OUT) {
+				m_pFadeEffectShader->SetFadeIn(false, m_fFadeOutTime, false);
+				m_changeFade = FADE_END;
+			}
+			else
+				m_changeFade = FADE_OFF;
+		}
+	}
+}
+
+
 TestScene::TestScene()
 {
 	m_physics = new BasePhysX(60.0f);
@@ -139,22 +158,22 @@ void TestScene::UpdateShaderVarialbes() {
 	m_pd3dcbFog->CopyData(0, *m_pFog);
 }
 
-void TestScene::Update(const Timer & gt)
+bool TestScene::Update(const Timer & gt)
 {
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 
 	for (int i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Animate(gt.DeltaTime());
 
-	RoomChange();	//방 전환 (true일 경우만 작동)
-	RoomFade();		//방 전환이 있을 경우 페이드IN/OUT 처리
+	RoomChange();	
+	RoomFade();		
 
 	if (m_Room[m_nRoom - 1]->IsClear())
 		cout << "Clear!" << endl;
 
-	//객체 관련 작업은 마우스를 캡쳐했을 때만 (게임이 PAUSE가 아니면) 수행
 	if (!m_bMouseCapture)
-		return;
+		return false;
+
 	//물리 시물레이트
 	m_physics->stepPhysics(false);
 	//플레이어 애니메이트
@@ -179,11 +198,14 @@ void TestScene::Update(const Timer & gt)
 	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
 	m_hitEffectShaders->Animate(gt.DeltaTime());
+
+	return false;
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	::GetCursorPos(&m_ptOldCursorPos);
+
 	m_pLights = new LightManagement();
 	m_pLights->BuildObject(pDevice, pCommandList, 45.0f, XMFLOAT3(1.0f, 0.0f, .0f));
 	
@@ -294,17 +316,17 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
 
-	m_Room[0]->SetEnemyShader(enemyShader[0]); //시작방은 무조건 CreepArm
-	for (int i = 1; i < m_nRoom-1; ++i) {
-		//UINT index = rand() % (KindOfEnemy-1); //리치는 빼고
+	m_Room[0]->SetEnemyShader(enemyShader[0]);  // CreepArm
+	for (int i = 1; i < m_nRoom - 1; ++i) {
+		//UINT index = rand() % (KindOfEnemy-1); 
 		UINT index = i % (KindOfEnemy - 1);
 		m_Room[i]->SetEnemyShader(enemyShader[index]);
 		if (index >= 2)
 			m_Room[i]->SetProjectileShader(bullet);
 	}
-	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[4]); //마지막 방은 무조건 rich
+	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[4]);
 	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
-	
+
 	RoomChange();
 
 	m_nUIShaders = 2;
@@ -382,7 +404,7 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo, int index, 
 
 bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 {
-	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) { //한번만 체크
+	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) {
 		if (!m_bMouseCapture) {
 			::GetCursorPos(&m_ptOldCursorPos);
 			m_bMouseCapture = true;
@@ -395,6 +417,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 
 	if (!m_bMouseCapture)
 		return false;
+
 	if (m_changeFade > FADE_OFF) {
 		m_testPlayer->Movement(NULL);
 		return false;
@@ -421,13 +444,16 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 		m_Room[m_nowRoom]->SetClear(true);
 	}
 
+	if (GetAsyncKeyState('Q') & 0x0001) {
+		return true;
+	}
+
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
 		input |= ANI_SKILL;
 	}
 
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		input |= SUPER_SPEED;
-
 
 	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 		cout << m_testPlayer->GetPosition();
@@ -455,7 +481,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if(!m_testPlayer->Movement(input))
 		m_testPlayer->Move(moveInpout, gt.DeltaTime());
 
-	return true;
+	return false;
 }
 
 bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y)
@@ -634,24 +660,6 @@ void TestScene::RoomSetting()
 	}
 }
 
-void TestScene::RoomFade()
-{
-	if (m_changeFade > FADE_OFF) {
-		if (!m_pFadeEffectShader->IsUsdedFadeEffect()) {
-			if (m_changeFade == FADE_IN) {
-				m_pFadeEffectShader->SetFadeIn(true, 0.1f, false);
-				m_changeFade = FADE_OUT;
-			}
-			else if (m_changeFade == FADE_OUT) {
-				m_pFadeEffectShader->SetFadeIn(false, 1.0f, false);
-				m_changeFade = FADE_END;
-			}
-			else
-				m_changeFade = FADE_OFF;
-		}
-	}
-}
-
 void TestScene::CaptureCursor()
 {
 	::GetCursorPos(&m_ptOldCursorPos);
@@ -687,9 +695,81 @@ void TestScene::BuildFog()
 	m_pFog->m_xmf4Foginfo = XMFLOAT4(fFogMode, fStart, fEnd, fDensity);	
 }
 
-/*
-XMFLOAT4				m_xmf4Ambient;	// 앰비언트 반사 색상
-XMFLOAT4				m_xmf4Diffuse;
-XMFLOAT4				m_xmf4Specular; //(r,g,b,a=power)
-XMFLOAT4				m_xmf4Emissive;
-*/
+bool MainScene::Update(const Timer & gt)
+{
+	m_pButtons->CollisionButton();
+	m_pFadeEffectShader->Animate(gt.DeltaTime());
+	RoomFade();
+
+	if (m_changeFade == FADE_END) {
+		if(m_isGameEnd)  
+			PostQuitMessage(0);
+
+		m_changeFade = FADE_OFF;
+		return true;
+	}
+	return false;
+}
+
+void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+	m_Camera = make_unique<CThirdPersonCamera>();
+	m_Camera->InitCamera(pDevice, pCommandList);
+	m_Camera->SetOffset(XMFLOAT3(0.0f, 100.0f, -60.0f));
+	m_Camera->SetTimeLag(0.30f);
+
+	vector<TextureDataForm> texutredata(2);
+	texutredata[1].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
+	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameStart.dds";
+	m_pButtons = new UIButtonShaders();
+	m_pButtons->BuildObjects(pDevice, pCommandList, 2, &texutredata);
+	m_pButtons->SetPoint(m_pCursorPos);
+
+	texutredata[0].m_texture = L"res\\MainSceneTexture\\MainBackgound_COLOR.dds";
+	m_pBackground = new TextureToFullScreen();
+	m_pBackground->BuildObjects(pDevice, pCommandList, 2, &texutredata[0]);
+
+	m_pFadeEffectShader = new FadeEffectShader();
+	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1);
+
+	m_fFadeInTime = 1.0f;
+	m_fFadeOutTime = 1.0f;
+}
+
+void MainScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+	m_pBackground->Render(pCommandList, m_Camera.get());
+	m_pButtons->Render(pCommandList);
+	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
+}
+
+void MainScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+
+}
+
+bool MainScene::OnMouseDown(HWND & hWin, WPARAM btnState, UINT nMessageID, int x, int y)
+{
+	UINT collButon = m_pButtons->CollisionButton();
+	if (collButon == GAME_START) {
+		m_changeFade = FADE_IN;
+	}
+	else if (collButon == GAME_END) {
+		m_changeFade = FADE_IN;
+		m_isGameEnd = true;
+	}
+	return false;
+}
+
+bool MainScene::OnKeyboardInput(const Timer & gt, HWND & hWin)
+{
+	return false;
+}
+
+bool MainScene::OnMouseMove(float x, float y)
+{
+	m_pCursorPos->x = x;
+	m_pCursorPos->y = y;
+	return false;
+}
+

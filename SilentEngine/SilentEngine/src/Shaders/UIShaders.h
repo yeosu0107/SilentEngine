@@ -41,6 +41,20 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 };
 
+class UIButtonShaders : public UIShaders
+{
+public:
+	UIButtonShaders() { };
+	~UIButtonShaders() { };
+
+public:
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void SetPoint(POINT* pos) { m_pMousePosition = pos; }
+	virtual UINT CollisionButton();
+protected:
+	POINT * m_pMousePosition;
+};
+
 class UIMiniMapShaders : public UIShaders
 {
 public:

@@ -137,13 +137,14 @@ protected:
 	UINT								m_nNowScene = 0;
 
 protected:
-	unique_ptr<TestScene>				m_pTestScene;
+	Scene**								m_pScene;
 	POINT								m_ptOldCursorPos;
 
 	bool								m_bMouseCapture = false;
+	bool								m_bChangeScene = false;
 	float								m_fMouseSensitive = 4.5f;	// 마우스 민감도
 
 	Camera*								m_pCamera = nullptr;
-	unique_ptr<TextureToFullScreen>		m_pTextureToFullScreenShader;
+	unique_ptr<DeferredFullScreen>		m_pDeferredFullScreenShader;
 };
 
