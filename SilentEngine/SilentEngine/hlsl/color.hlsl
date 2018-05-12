@@ -122,9 +122,7 @@ float4 PSFadeEffect(float4 position : SV_POSITION) : SV_Target
 
 float4 PSFullScreen(float4 position : SV_POSITION) : SV_Target
 {
-    float3 cColor = gScreenTexture[int2(position.xy)].rgb;
-
-    return float4(cColor, 1.0f);
+    return gScreenTexture[int2(position.xy)];
 }
 
 

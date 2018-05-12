@@ -903,7 +903,8 @@ void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 
 void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	if(m_nNowScene == 0)
+	// 해당 씬의 마우스 캡쳐가 비활성화된 경우에만 마우스 좌표를 넘겨줌
+	if(!m_pScene[m_nNowScene]->IsCaptureMouse())
 		m_pScene[m_nNowScene]->OnMouseMove(static_cast<float>(x), static_cast<float>(y));
 	if (GetCapture() == m_hMainWnd)
 	{

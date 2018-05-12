@@ -162,6 +162,12 @@ bool TestScene::Update(const Timer & gt)
 {
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 
+	if (m_isGameEnd && m_changeFade == FADE_END) {
+		m_isGameEnd = false;
+		m_bMouseCapture = true;
+		return true;
+	}
+
 	for (int i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Animate(gt.DeltaTime());
 
@@ -171,8 +177,10 @@ bool TestScene::Update(const Timer & gt)
 	if (m_Room[m_nRoom - 1]->IsClear())
 		cout << "Clear" << endl;
 
-	if (!m_bMouseCapture)
+	if (!m_bMouseCapture) {
+		m_pButtons->CollisionButton();
 		return false;
+	}
 
 	//물리 시물레이트
 	m_physics->stepPhysics(false);
@@ -199,6 +207,7 @@ bool TestScene::Update(const Timer & gt)
 	m_EffectShaders->Animate(gt.DeltaTime());
 	m_hitEffectShaders->Animate(gt.DeltaTime());
 
+	
 	return false;
 }
 
@@ -328,7 +337,11 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
 
 	RoomChange();
+	BuildUI(pDevice, pCommandList);
+}
 
+void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
 	m_nUIShaders = 2;
 	m_ppUIShaders.resize(m_nUIShaders);
 
@@ -341,6 +354,23 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	pMinimap->BuildObjects(pDevice, pCommandList, 1, m_Room);
 	pMinimap->SetNowRoom(&m_nowRoom);
 	m_ppUIShaders[1] = pMinimap;
+
+	vector<TextureDataForm> texutredata(2);
+	texutredata[0].m_texture = L"res\\Texture\\PauseGame.DDS";
+	m_pPauseScreen = new TextureToFullScreen();
+	m_pPauseScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+
+	texutredata[1].m_texture = L"res\\Texture\\Back.DDS";
+	texutredata[0].m_texture = L"res\\Texture\\BackToMainMenu.DDS";
+	
+	m_pButtons = new UIButtonShaders();
+	m_pButtons->BuildObjects(pDevice, pCommandList, 2, &texutredata);
+	m_pButtons->SetPoint(m_pCursorPos);
+	m_pButtons->SetPos(new XMFLOAT2(683.9f, 720.0f - 407.3f), 0);
+	m_pButtons->SetPos(new XMFLOAT2(870.0f, 720.0f - 455.0f), 1);
+	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 0);
+	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 1);
+	m_pButtons->CreateCollisionBox();
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -368,8 +398,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
 	m_hitEffectShaders->Render(pCommandList, m_Camera.get());
-	//페이트 INOUT 랜더링
-	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
+	
 
 	m_pLights->Render(pCommandList, m_Camera.get());
 }
@@ -380,6 +409,13 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 {
 	for (UINT i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
+
+	if (!m_bMouseCapture) {
+		m_pPauseScreen->Render(pCommandList, m_Camera.get());
+		m_pButtons->Render(pCommandList);
+	}
+	//페이트 INOUT 랜더링
+	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
 }
 
 void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index)
@@ -487,6 +523,8 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 
 bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y)
 {
+	UINT collButon = 0;
+
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
@@ -498,6 +536,20 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 			DWORD input = 0;
 			input |= ANI_ATTACK;
 			m_testPlayer->Movement(input);
+		}
+
+		else {
+			collButon = m_pButtons->CollisionButton();
+
+			if (collButon == 1) {
+				m_changeFade = FADE_IN;
+				m_isGameEnd = true;
+			}
+			else if (collButon == 2) {
+				::GetCursorPos(&m_ptOldCursorPos);
+				m_bMouseCapture = true;
+			}
+			return false;
 		}
 		break;
 	case WM_MOUSEMOVE:
@@ -529,7 +581,14 @@ bool TestScene::OnMouseMove(float x, float y)
 {
 	if (m_changeFade > FADE_OFF)
 		return false;
-	m_testPlayer->Rotate(y, x, 0.0f);
+
+	// 프레임워크에서 넘어온 값을 제대로 처리하기 위해 한번 더 판별
+	if (!m_bMouseCapture) {
+		m_pCursorPos->x = x;
+		m_pCursorPos->y = y;
+	}
+	else
+		m_testPlayer->Rotate(y, x, 0.0f);
 	return true;
 }
 
@@ -705,7 +764,7 @@ bool MainScene::Update(const Timer & gt)
 	if (m_changeFade == FADE_END) {
 		if(m_isGameEnd)  
 			PostQuitMessage(0);
-
+		
 		m_changeFade = FADE_OFF;
 		return true;
 	}
@@ -735,6 +794,7 @@ void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	m_fFadeInTime = 1.0f;
 	m_fFadeOutTime = 1.0f;
+	m_bMouseCapture = false;
 }
 
 void MainScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)

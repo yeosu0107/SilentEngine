@@ -126,6 +126,12 @@ void UIShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	);
 }
 
+void UIShaders::CreateCollisionBox()
+{
+	for (int i = 0; i < m_nObjects; ++i)
+		m_pUIObjects[i]->CreateCollisionBox();
+}
+
 void UIShaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	m_ObjectCB = make_unique<UploadBuffer<CB_UI_INFO>>(pd3dDevice, m_nObjects, true);

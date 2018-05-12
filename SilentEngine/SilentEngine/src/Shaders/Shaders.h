@@ -193,9 +193,11 @@ class TextureToFullScreen : public Shaders
 {
 public:
 	TextureToFullScreen() {};
-	
 	virtual ~TextureToFullScreen() {};
+
+public:
 	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
+	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
@@ -238,7 +240,7 @@ public:
 	virtual ~FadeEffectShader();
 
 	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
-
+	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Animate(float fTimeElapsed);

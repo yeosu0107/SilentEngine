@@ -41,6 +41,7 @@ public:
 
 	virtual Camera* GetCamera() { return m_Camera.get(); }
 
+	virtual bool IsCaptureMouse() { return m_bMouseCapture; }
 	virtual void RoomFade();
 	virtual void CaptureCursor() {};
 protected:
@@ -67,6 +68,11 @@ protected:
 
 	float	m_fFadeInTime = 0.1f;
 	float	m_fFadeOutTime = 1.0f;
+
+	bool														m_bMouseCapture = true;
+	bool														m_isGameEnd = false;
+
+	POINT*					m_pCursorPos = new POINT();
 };
 
 
@@ -82,6 +88,7 @@ public:
 	virtual void UpdateShaderVarialbes();
 	virtual bool Update(const Timer& gt);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	virtual void BuildUI(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
@@ -102,10 +109,12 @@ public:
 	void RoomSetting();
 	virtual void CaptureCursor();
 protected:
+	TextureToFullScreen*									m_pPauseScreen = nullptr;
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
 	BillboardShader*										m_EffectShaders = nullptr;
 	BillboardShader*										m_hitEffectShaders = nullptr;
+	UIButtonShaders*									m_pButtons;
 
 	ProjectileShader*									m_Projectile = nullptr;
 	
@@ -133,7 +142,7 @@ protected:
 	UINT														m_testTimer = 0;
 
 	//조작관련
-	bool														m_bMouseCapture = true;
+	
 	POINT													m_ptOldCursorPos;
 	float														m_fMouseSensitive = 4.5f;	// 마우스 민감도
 };
@@ -162,8 +171,4 @@ public:
 protected:
 	TextureToFullScreen *	m_pBackground;
 	UIButtonShaders*		m_pButtons;
-	
-	POINT*					m_pCursorPos = new POINT();
-
-	bool					m_isGameEnd = false;
 };
