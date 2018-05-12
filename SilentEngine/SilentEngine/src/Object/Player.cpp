@@ -166,6 +166,11 @@ bool Player::Movement(DWORD input)
 	return false;
 }
 
+void Player::Idle()
+{
+	hitBackstep = 0.0f;
+}
+
 void Player::Attack()
 {
 	if (m_AnimIndex != PlayerAni::Attack)
@@ -183,7 +188,7 @@ void Player::Attack()
 	}
 }
 
-void Player::Hitted()
+void Player::Hitted(float& hitback)
 {
 	if (m_avoid)
 		return;
@@ -195,7 +200,7 @@ void Player::Hitted()
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
-	hitBackstep = 0.5f;
+	hitBackstep = hitback;
 }
 
 void Player::Skill()
@@ -238,6 +243,8 @@ void Player::Animate(float fTime)
 	m_weaponTrigger->setGlobalPose(PxTransform(100, 100, 100), false); //공격 트리거 박스 초기화
 	m_avoid = false;
 	m_playerLogic->update(fTime); //상태머신 수행
+	if (m_playerLogic->getState() != STATE::hitted)
+		hitBackstep = 0.0f;
 	if (m_status->m_health <= 0)
 		m_playerLogic->changeState(STATE::death);
 	ModelObject::Animate(fTime); //애니메이션
@@ -268,7 +275,7 @@ void Player::Animate(float fTime)
 	if (!m_Jump.mJump)
 		m_Jump.startJump(PxF32(0)); //중력 작용
 
-	hitBackstep = 0.0f;
+	
 }
 
 void Player::SetCamera(Camera * tCamera, BasePhysX* phys)

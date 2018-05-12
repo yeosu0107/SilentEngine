@@ -28,12 +28,21 @@ public:
 
 public:
 	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) {};
-	virtual void Update(const Timer& gt) {};
+	virtual bool Update(const Timer& gt) { return false; };
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) ;
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) ;
+	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) {};
+	virtual void RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) {};
+	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index = 0) {};
+	virtual bool OnKeyboardInput(const Timer& gt, HWND& hWin) { return false; };
+	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y) { return false; };
+	virtual bool OnMouseUp(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y) { return false; };
+	virtual bool OnMouseMove(float x, float y) { return false; };
 
 	virtual Camera* GetCamera() { return m_Camera.get(); }
 
+	virtual void RoomFade();
+	virtual void CaptureCursor() {};
 protected:
 	int									m_CurrFrameResourceIndex = 0;
 	UINT								m_nCbvSrvDescriptorSize = 0;
@@ -51,9 +60,13 @@ protected:
 
 protected:
 	unique_ptr<Camera>											m_Camera = nullptr;
-
+	FadeEffectShader*       m_pFadeEffectShader;
 	BasePhysX*		m_physics;
 	UINT				m_nUIShaders;
+	UINT														m_changeFade = 0;
+
+	float	m_fFadeInTime = 0.1f;
+	float	m_fFadeOutTime = 1.0f;
 };
 
 
@@ -67,7 +80,7 @@ public:
 	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void CreateShaderVariables(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void UpdateShaderVarialbes();
-	virtual void Update(const Timer& gt);
+	virtual bool Update(const Timer& gt);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
@@ -87,10 +100,7 @@ public:
 
 	void RoomChange();
 	void RoomSetting();
-	void RoomFade();
-	
-	void CaptureCursor();
-
+	virtual void CaptureCursor();
 protected:
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
@@ -98,8 +108,7 @@ protected:
 	BillboardShader*										m_hitEffectShaders = nullptr;
 
 	ProjectileShader*									m_Projectile = nullptr;
-	FadeEffectShader*									m_pFadeEffectShader = nullptr;
-
+	
 	Room**													m_Room = nullptr;
 	
 	UINT														m_nProjectile = 0;
@@ -123,8 +132,6 @@ protected:
 
 	UINT														m_testTimer = 0;
 
-	UINT														m_changeFade = 0;
-
 	//조작관련
 	bool														m_bMouseCapture = true;
 	POINT													m_ptOldCursorPos;
@@ -138,12 +145,25 @@ class GameScene : public Scene
 
 class MainScene : public Scene
 {
+	enum {GAME_START = 1, GAME_END = 2};
 public:
-	MainScene();
-	~MainScene();
+	MainScene() {};
+	~MainScene() {};
 public:
 	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) {};
-	virtual void Update(const Timer& gt) {};
-	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) {};
-	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) {};
+	virtual bool Update(const Timer& gt);
+	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	virtual void RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	virtual bool OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y);
+	virtual bool OnKeyboardInput(const Timer& gt, HWND& hWin);
+	virtual bool OnMouseMove(float x, float y);
+
+protected:
+	TextureToFullScreen *	m_pBackground;
+	UIButtonShaders*		m_pButtons;
+	
+	POINT*					m_pCursorPos = new POINT();
+
+	bool					m_isGameEnd = false;
 };

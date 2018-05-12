@@ -107,8 +107,9 @@ public:
 
 	virtual bool Move(DWORD dir, float fTime);
 	virtual bool Movement(DWORD input);
+	virtual void Idle();
 	virtual void Attack();
-	virtual void Hitted();
+	virtual void Hitted(float& hitback);
 	virtual void Skill();
 
 	virtual void SetPosition(float x, float y, float z);

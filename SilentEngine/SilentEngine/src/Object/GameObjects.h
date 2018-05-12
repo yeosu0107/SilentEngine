@@ -226,6 +226,7 @@ public:
 	virtual void Attack() {}
 	virtual void Skill() {}
 	virtual void Hitted() {}
+	virtual void Hitted(float& tmp) {}
 	virtual void Death() {}
 	virtual void ChangeAnimation(UINT nextIndex) {}
 

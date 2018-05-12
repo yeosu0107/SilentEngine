@@ -150,7 +150,7 @@ void TestScene::Update(const Timer & gt)
 	RoomFade();		//방 전환이 있을 경우 페이드IN/OUT 처리
 
 	if (m_Room[m_nRoom - 1]->IsClear())
-		cout << "Clear!" << endl;
+		cout << "Clear" << endl;
 
 	//객체 관련 작업은 마우스를 캡쳐했을 때만 (게임이 PAUSE가 아니면) 수행
 	if (!m_bMouseCapture)
@@ -414,10 +414,10 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState('D') & 0x8000)
 		moveInpout |= DIR_RIGHT;
 
-	if (GetAsyncKeyState('P') & 0x8000) {
+	if (GetAsyncKeyState('P') & 0x0001) {
 		m_testPlayer->GetStatus()->m_health = 0.0f;
 	}
-	if (GetAsyncKeyState('T') & 0x8000) {
+	if (GetAsyncKeyState('T') & 0x0001) {
 		m_Room[m_nowRoom]->SetClear(true);
 	}
 
@@ -425,11 +425,11 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 		input |= ANI_SKILL;
 	}
 
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+	if (GetAsyncKeyState(VK_SPACE) & 0x0001)
 		input |= SUPER_SPEED;
 
 
-	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
+	if (GetAsyncKeyState(VK_RETURN) & 0x0001)
 		cout << m_testPlayer->GetPosition();
 
 	if (m_bMouseCapture)

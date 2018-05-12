@@ -190,7 +190,7 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				m_pSwapChain->ResizeTarget(&dxgiTarget);
 			}
 			m_pSwapChain->SetFullscreenState(!fullScreenState, NULL);
-			m_pTestScene.get()->CaptureCursor();
+			m_pScene[m_nNowScene]->CaptureCursor();
 			OnResize();
 		}
 		return 0;
@@ -226,7 +226,9 @@ void Framework::CreateRtvAndDsvDescriptorHeaps()
 
 void Framework::OnWakeUp()
 {
-	m_pTextureToFullScreenShader = make_unique<TextureToFullScreen>();
+	m_pScene = new Scene*[2];
+	m_pDeferredFullScreenShader = make_unique<DeferredFullScreen>();
+	m_pDeferredFullScreenShader->SetNowScene(&m_nNowScene);
 }
 
 void Framework::OnResize()
@@ -357,7 +359,7 @@ void Framework::OnResize()
 		d3dRtvCPUDescriptorHandle.ptr += m_nRtvDescriptorIncrementSize;
 	}
 
-	m_pTextureToFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
+	m_pDeferredFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
 
 	ThrowIfFailed(m_pCommandList->Close());
 	ID3D12CommandList* cmdList[] = { m_pCommandList.Get() };
@@ -380,8 +382,10 @@ void Framework::Update()
 
 	OnKeyboardInput(m_Timer);
 
-	m_pTestScene->Update(m_Timer);
-	m_pTextureToFullScreenShader->Animate(m_Timer.DeltaTime());
+	if (m_pScene[m_nNowScene]->Update(m_Timer))
+		m_bChangeScene = true;
+
+	m_pDeferredFullScreenShader->Animate(m_Timer.DeltaTime());
 }
 
 void Framework::RenderShadow()
@@ -404,7 +408,7 @@ void Framework::RenderShadow()
 			D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
 		m_pCommandList->OMSetRenderTargets(0, nullptr, false, &pHandle);
-		m_pTestScene->CreateShadowMap(m_pD3dDevice.Get(), m_pCommandList.Get(), i - 1);
+		m_pScene[m_nNowScene]->CreateShadowMap(m_pD3dDevice.Get(), m_pCommandList.Get(), i - 1);
 
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
 			D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
@@ -477,7 +481,7 @@ void Framework::Render()
 	m_pCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
 	m_pCommandList->OMSetRenderTargets(2, m_pd3dRtvRenderTargetBufferCPUHandles, TRUE, &DepthStencilView());
 	
-	m_pTestScene->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
+	m_pScene[m_nNowScene]->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 	ThrowIfFailed(m_pCommandList->Close());
 
@@ -502,8 +506,8 @@ void Framework::Render()
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], pfClearColor/*Colors::Azure*/, 0, NULL);
 	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], TRUE, &DepthStencilView());
 
-	m_pTextureToFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
-	m_pTestScene->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
+	m_pDeferredFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
+	m_pScene[m_nNowScene]->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
 
 #endif
 #endif
@@ -519,6 +523,10 @@ void Framework::Render()
 	FlushCommandQueue();
 	m_nCurrBuffer = (m_nCurrBuffer + 1) % m_nSwapChainBuffers;
 
+	if (m_bChangeScene) {
+		m_nNowScene = (m_nNowScene + 1) % 2;
+		m_bChangeScene = false;
+	}
 }
 
 bool Framework::InitMainWindow()
@@ -663,10 +671,15 @@ void Framework::BuildObjects()
 	GlobalVal::getInstance()->getModelLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get()); 
 	GlobalVal::getInstance()->getMapLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
 	
-	m_pTestScene = make_unique<TestScene>();
-	m_pTestScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
-	m_pTextureToFullScreenShader->SetPlayer(m_pTestScene->GetPlayer());
-	m_pCamera = m_pTestScene->GetCamera();
+	MainScene* mainScene = new MainScene();
+	mainScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
+	m_pScene[0] = mainScene;
+
+	TestScene* gameScene = new TestScene();
+	gameScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
+	m_pDeferredFullScreenShader->SetPlayer(gameScene->GetPlayer());
+	m_pScene[1] = gameScene;
+	m_pCamera = m_pScene[1]->GetCamera();
 
 	ID3D12CommandList* cmdsLists[] = { m_pCommandList.Get() };
 	m_pCommandList->Close();
@@ -869,27 +882,29 @@ void Framework::OnKeyboardInput(const Timer& gt)
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
 
-	if (GetKeyboardState(pKeysBuffer) && m_pTestScene) 
-		bProcessedByScene = m_pTestScene->OnKeyboardInput(gt, m_hMainWnd);
-
-	if (!bProcessedByScene)
+	if (GetKeyboardState(pKeysBuffer) && m_pScene[m_nNowScene]) {
+		bProcessedByScene = m_pScene[m_nNowScene]->OnKeyboardInput(gt, m_hMainWnd);
+	}
+	if (bProcessedByScene)
 	{
-
+		m_bChangeScene = bProcessedByScene;
 	}
 }
 
 void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	m_pTestScene->OnMouseDown(m_hMainWnd, btnState, nMessageID, x, y);
+	m_pScene[m_nNowScene]->OnMouseDown(m_hMainWnd, btnState, nMessageID, x, y);
 }
 
 void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 {
-	m_pTestScene->OnMouseUp(m_hMainWnd, btnState, nMessageID, x, y);
+	m_pScene[m_nNowScene]->OnMouseUp(m_hMainWnd, btnState, nMessageID, x, y);
 }
 
 void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 {
+	if(m_nNowScene == 0)
+		m_pScene[m_nNowScene]->OnMouseMove(static_cast<float>(x), static_cast<float>(y));
 	if (GetCapture() == m_hMainWnd)
 	{
 		SetCursor(NULL);

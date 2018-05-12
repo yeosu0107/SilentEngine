@@ -189,13 +189,25 @@ protected:
 	unique_ptr<UploadBuffer<CB_EFFECT_INFO>>	m_EffectCB = nullptr;
 };
 
-
-
 class TextureToFullScreen : public Shaders
 {
 public:
-	TextureToFullScreen();
-	virtual ~TextureToFullScreen();
+	TextureToFullScreen() {};
+	
+	virtual ~TextureToFullScreen() {};
+	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
+
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+};
+class DeferredFullScreen : public Shaders
+{
+public:
+	DeferredFullScreen();
+	virtual ~DeferredFullScreen();
+
+	void SetNowScene(UINT* nowScene) { m_pNowScene = nowScene; }
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
@@ -212,13 +224,14 @@ protected:
 	float					m_IsDeath;
 	float					m_Time;
 	XMUINT2					m_Scale;
+	UINT*					m_pNowScene;
 
 protected:
 	const unsigned int		MAX_SCALE = 9;
 	const unsigned int		BLUR_SPEED = 10;
 };
 
-class FadeEffectShader : public TextureToFullScreen
+class FadeEffectShader : public DeferredFullScreen
 {
 public:
 	FadeEffectShader();
@@ -248,7 +261,7 @@ protected:
 	float m_fExistTime;
 };
 
-class ShadowDebugShader : public TextureToFullScreen
+class ShadowDebugShader : public DeferredFullScreen
 {
 public:
 	ShadowDebugShader();

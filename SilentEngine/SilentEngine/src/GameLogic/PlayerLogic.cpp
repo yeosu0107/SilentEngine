@@ -9,6 +9,7 @@ PlayerLogic::PlayerLogic(GameObject * tmp) :
 
 void PlayerLogic::idleState()
 {
+	//m_owner->Idle();
 	if (m_status->m_health <= 0)
 		changeState(STATE::death);
 }
@@ -58,6 +59,7 @@ void PlayerLogic::hittedState()
 
 void PlayerLogic::deathState()
 {
+	//m_owner->Idle();
 	if (m_owner->getAnimLoop() == LOOP_END) {
 		//m_owner->SetLive(false);
 		m_owner->stopAnim(true);

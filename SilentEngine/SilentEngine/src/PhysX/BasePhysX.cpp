@@ -198,7 +198,10 @@ PxRigidStatic * BasePhysX::getTrigger(PxVec3 & t, XMFLOAT3 size)
 
 	PxRigidStatic * staticActor = gPhysics->createRigidStatic(PxTransform(t));
 	staticActor->attachShape(*shape);
-
+	float* num = new float(0.0f);
+	staticActor->userData = (void*)num;
+	/*int* tmp = (int*)staticActor->userData;
+	*tmp = 1;*/
 	gScene->addActor(*staticActor);
 	return staticActor;
 }

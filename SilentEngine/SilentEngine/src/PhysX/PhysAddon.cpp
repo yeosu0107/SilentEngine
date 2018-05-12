@@ -30,7 +30,7 @@ void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
 	GameObject* player = GlobalVal::getInstance()->getPlayer();
 	if (trigger->otherActor == player->getControllerActor()) {
-		player->Hitted();
+		player->Hitted(*(float*)(trigger->triggerActor->userData));
 	}
 	return;
 }

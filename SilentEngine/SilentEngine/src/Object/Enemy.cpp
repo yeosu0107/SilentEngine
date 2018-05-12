@@ -73,6 +73,7 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_triggerSize = XMFLOAT3(10, 10, 10);
 
 	m_status = m_State->getStatus();
+	m_hitback = 1.3f;
 }
 
 Enemy::~Enemy()
@@ -132,7 +133,7 @@ void Enemy::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
-
+		*(float*)m_attackTrigger->userData = m_hitback;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}
 }
@@ -149,7 +150,7 @@ void Enemy::Skill()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
-
+		*(float*)m_attackTrigger->userData = 0.0f;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 
 	}

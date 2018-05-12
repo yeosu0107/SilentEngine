@@ -22,7 +22,6 @@ CompiledShaders * CompiledShaders::Instance()
 	return &instance;
 }
 
-
 void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets, int index)
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
@@ -795,15 +794,133 @@ void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 
 //////////////////////////////////////////////////////////////////
 
-TextureToFullScreen::TextureToFullScreen()
-{
-}
 
-TextureToFullScreen::~TextureToFullScreen()
+D3D12_DEPTH_STENCIL_DESC TextureToFullScreen::CreateDepthStencilState(int index)
 {
+	D3D12_DEPTH_STENCIL_DESC desc;
+	::ZeroMemory(&desc, sizeof(D3D12_DEPTH_STENCIL_DESC));
+
+	desc.DepthEnable = false;
+	desc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	desc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	desc.StencilEnable = false;
+	desc.StencilReadMask = 0x00;
+	desc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	desc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+	desc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	desc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	desc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+
+	return desc;
 }
 
 void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+{
+	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
+
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
+
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenTexture, 0, 0); // Texture
+
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[1];
+	pd3dRootParameters[0].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_PIXEL);
+	
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
+	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
+
+	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		0.0f,
+		1,
+		D3D12_COMPARISON_FUNC_ALWAYS,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+		0.0f,
+		D3D12_FLOAT32_MAX,
+		D3D12_SHADER_VISIBILITY_PIXEL
+	);
+
+	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
+	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = 1;
+	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
+	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
+
+	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
+	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
+	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
+
+	if (pd3dErrorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
+	}
+	ThrowIfFailed(hr);
+
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
+		pd3dSignatureBlob->GetBufferPointer(),
+		pd3dSignatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
+	);
+}
+
+void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	m_nObjects = 1;
+	m_nPSO = 1;
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFullScreen", "ps_5_0");
+
+	TextureDataForm* mtexture = (TextureDataForm*)pContext;
+	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, pTexture->GetTextureCount());
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 0, true);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+}
+
+void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+
+	OnPrepareRender(pd3dCommandList);
+
+	m_pMaterial->UpdateShaderVariables(pd3dCommandList);
+
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+}
+
+/////////////////////////
+
+DeferredFullScreen::DeferredFullScreen()
+{
+}
+
+DeferredFullScreen::~DeferredFullScreen()
+{
+}
+
+void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	int i = 0;
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
@@ -881,7 +998,7 @@ void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	);
 }
 
-void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
@@ -893,8 +1010,8 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextureToFullScreen", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSDeferredFullScreen", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -904,7 +1021,7 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	BuildPSO(pd3dDevice, nRenderTargets);
 }
 
-void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+void DeferredFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 
@@ -920,9 +1037,10 @@ void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Ca
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
-void TextureToFullScreen::Animate(float fTimeElapsed)
+void DeferredFullScreen::Animate(float fTimeElapsed)
 {
-	if (m_pPlayer->GetStatus()->m_health > 0.0f) return;
+	if (*m_pNowScene == 0) return;
+	if (m_pPlayer != nullptr && m_pPlayer->GetStatus()->m_health > 0.0f) return;
 
 	m_IsDeath = 1.0f;
 	m_Time += (fTimeElapsed * BLUR_SPEED);
@@ -930,8 +1048,9 @@ void TextureToFullScreen::Animate(float fTimeElapsed)
 	m_Scale.y = min(static_cast<UINT>(m_Time), MAX_SCALE);
 }
 
-void TextureToFullScreen::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+void DeferredFullScreen::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
+	if (*m_pNowScene == 0) return;
 	CB_SCENEBLUR_INFO bluerInfo;
 
 	bluerInfo.m_BlurScale = m_Scale;
@@ -941,7 +1060,7 @@ void TextureToFullScreen::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 	m_BulrCB->CopyData(0, bluerInfo);
 }
 
-void TextureToFullScreen::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+void DeferredFullScreen::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	m_BulrCB = make_unique<UploadBuffer<CB_SCENEBLUR_INFO>>(pd3dDevice, m_nObjects, true);
 }
@@ -1035,7 +1154,7 @@ void ShadowDebugShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 	m_nObjects = 1;
 	CreatePipelineParts();
 	
-	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
+	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
 	m_PSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PS", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
@@ -1135,7 +1254,7 @@ void FadeEffectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSTextureToFullScreen", "vs_5_0");
+	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
 	m_PSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFadeEffect", "ps_5_0");
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -1179,7 +1298,6 @@ void FadeEffectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camer
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
-
 
 void FadeEffectShader::SetFadeIn(const bool bfadeType, const float fExistTime, const bool autoChange, const XMFLOAT3 & xmf3Color)
 {

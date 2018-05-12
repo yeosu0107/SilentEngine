@@ -116,6 +116,8 @@ protected:
 	Jump								m_Jump;
 	BaseAI*							m_State = nullptr;
 	Status*							m_status = nullptr;
+
+	float								m_hitback = 0.0f;
 public:
 	Enemy(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Enemy();
