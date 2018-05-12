@@ -54,9 +54,8 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 	TextureDataForm* mtexture = (TextureDataForm*)pContext;
 
-	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
+	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_normal.c_str(), 1);
 
 	unsigned int i = 0;
 

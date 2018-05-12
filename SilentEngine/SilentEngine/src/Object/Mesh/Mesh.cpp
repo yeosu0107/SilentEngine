@@ -381,7 +381,7 @@ CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3d
 	float zSize = 0.0f;
 
 	m_nVertices = 4;
-	m_nStride = sizeof(CNormalMapVertex);
+	m_nStride = sizeof(CTexturedVertex);
 	m_nOffset = 0;
 	m_nSlot = 0;
 	m_d3dPrimitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
@@ -404,15 +404,6 @@ CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3d
 		XMFLOAT2(1.0f, 1.0f)
 	};
 
-	array<XMFLOAT3, 4> pxmf3Normal;
-	pxmf3Normal =
-	{
-		XMFLOAT3(0.0f, 0.0f, -1.0f),
-		XMFLOAT3(0.0f, 0.0f, -1.0f),
-		XMFLOAT3(0.0f, 0.0f, -1.0f),
-		XMFLOAT3(0.0f, 0.0f, -1.0f)
-	};
-
 	m_nIndices = 6;
 
 	array<UINT, 6> pIndices;
@@ -422,13 +413,10 @@ CBoardMeshIlluminatedTextured::CBoardMeshIlluminatedTextured(ID3D12Device * pd3d
 		0, 3, 2
 	};
 
-	array<XMFLOAT3, 4> pxmf3Tangent;
-	D3DUtil::CalculateTangentArray(m_nVertices, pxmf3Positions.data(), pxmf3Normal.data(), pxmf2TexCoord.data(), m_nVertices / 2, pIndices.data(), pxmf3Tangent.data());
-
-	array<CNormalMapVertex, 4> pVertices;
+	array<CTexturedVertex, 4> pVertices;
 
 	for (UINT i = 0; i < m_nVertices; ++i)
-		pVertices[i] = CNormalMapVertex(pxmf3Positions[i], pxmf3Normal[i], pxmf2TexCoord[i], pxmf3Tangent[i]);
+		pVertices[i] = CTexturedVertex(pxmf3Positions[i], pxmf2TexCoord[i]);
 
 	m_pd3dVertexBuffer = D3DUtil::CreateDefaultBuffer(pd3dDevice, pd3dCommandList, pVertices.data(), m_nStride * m_nVertices, m_pd3dVertexUploadBuffer);
 

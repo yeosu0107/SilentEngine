@@ -159,14 +159,14 @@ protected:
 		ROOTPARAMETER_LIGHTS,
 		ROOTPARAMETER_EFFECT,
 		ROOTPARAMETER_TEXTURE,
-		ROOTPARAMETER_NORMALMAP,
-		ROOTPARAMETER_FOG = 7
+		ROOTPARAMETER_FOG = 6
 	};
 public:
 	BillboardShader() {};
 	~BillboardShader() {};
 
 	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
+	virtual D3D12_INPUT_LAYOUT_DESC CreateInputLayout(int index = 0);
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);

@@ -54,10 +54,9 @@ public:
 
 		TextureDataForm* mtexture = (TextureDataForm*)pContext;
 
-		CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
+		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
-		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_normal.c_str(), 1);
-
+		
 		UINT i = 0;
 
 		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 4);

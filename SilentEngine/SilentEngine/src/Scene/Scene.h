@@ -27,10 +27,10 @@ public:
 	~Scene();
 
 public:
-	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) = 0;
-	virtual void Update(const Timer& gt) = 0;;
-	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
-	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) {};
+	virtual void Update(const Timer& gt) {};
+	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) ;
+	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) ;
 
 	virtual Camera* GetCamera() { return m_Camera.get(); }
 
@@ -138,5 +138,12 @@ class GameScene : public Scene
 
 class MainScene : public Scene
 {
-
+public:
+	MainScene();
+	~MainScene();
+public:
+	virtual void BuildRootSignature(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) {};
+	virtual void Update(const Timer& gt) {};
+	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) {};
+	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) {};
 };
