@@ -1060,7 +1060,13 @@ void DeferredFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Cam
 
 void DeferredFullScreen::Animate(float fTimeElapsed)
 {
-	if (*m_pNowScene == 0) return;
+	if (*m_pNowScene == 0) {
+		m_IsDeath = 0.0f;
+		m_Time = 0;
+		m_Scale.x = 0;
+		m_Scale.y = 0;
+		return;
+	}
 	if (m_pPlayer != nullptr && m_pPlayer->GetStatus()->m_health > 0.0f) return;
 
 	m_IsDeath = 1.0f;
@@ -1071,7 +1077,6 @@ void DeferredFullScreen::Animate(float fTimeElapsed)
 
 void DeferredFullScreen::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	if (*m_pNowScene == 0) return;
 	CB_SCENEBLUR_INFO bluerInfo;
 
 	bluerInfo.m_BlurScale = m_Scale;
