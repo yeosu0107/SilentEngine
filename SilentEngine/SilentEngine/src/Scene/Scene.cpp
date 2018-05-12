@@ -141,6 +141,20 @@ void TestScene::UpdateShaderVarialbes() {
 
 void TestScene::Update(const Timer & gt)
 {
+	m_pFadeEffectShader->Animate(gt.DeltaTime());
+
+	for (int i = 0; i < m_nUIShaders; ++i)
+		m_ppUIShaders[i]->Animate(gt.DeltaTime());
+
+	RoomChange();	//방 전환 (true일 경우만 작동)
+	RoomFade();		//방 전환이 있을 경우 페이드IN/OUT 처리
+
+	if (m_Room[m_nRoom - 1]->IsClear())
+		cout << "Clear!" << endl;
+
+	//객체 관련 작업은 마우스를 캡쳐했을 때만 (게임이 PAUSE가 아니면) 수행
+	if (!m_bMouseCapture)
+		return;
 	//물리 시물레이트
 	m_physics->stepPhysics(false);
 	//플레이어 애니메이트
@@ -165,18 +179,11 @@ void TestScene::Update(const Timer & gt)
 	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
 	m_hitEffectShaders->Animate(gt.DeltaTime());
-
-	m_pFadeEffectShader->Animate(gt.DeltaTime());
-
-	for (int i = 0; i < m_nUIShaders; ++i)
-		m_ppUIShaders[i]->Animate(gt.DeltaTime());
-	
-	RoomChange();	//방 전환 (true일 경우만 작동)
-	RoomFade();		//방 전환이 있을 경우 페이드IN/OUT 처리
 }
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	::GetCursorPos(&m_ptOldCursorPos);
 	m_pLights = new LightManagement();
 	m_pLights->BuildObject(pDevice, pCommandList, 45.0f, XMFLOAT3(1.0f, 0.0f, .0f));
 	
@@ -287,13 +294,17 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
 
-	for (int i = 0; i < m_nRoom; ++i) {
-		UINT index = rand() % KindOfEnemy;
+	m_Room[0]->SetEnemyShader(enemyShader[0]); //시작방은 무조건 CreepArm
+	for (int i = 1; i < m_nRoom-1; ++i) {
+		//UINT index = rand() % (KindOfEnemy-1); //리치는 빼고
+		UINT index = i % (KindOfEnemy - 1);
 		m_Room[i]->SetEnemyShader(enemyShader[index]);
 		if (index >= 2)
 			m_Room[i]->SetProjectileShader(bullet);
 	}
-
+	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[4]); //마지막 방은 무조건 rich
+	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
+	
 	RoomChange();
 
 	m_nUIShaders = 2;
@@ -371,6 +382,19 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo, int index, 
 
 bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 {
+	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) { //한번만 체크
+		if (!m_bMouseCapture) {
+			::GetCursorPos(&m_ptOldCursorPos);
+			m_bMouseCapture = true;
+		}
+		else {
+			::ReleaseCapture();
+			m_bMouseCapture = false;
+		}
+	}
+
+	if (!m_bMouseCapture)
+		return false;
 	if (m_changeFade > FADE_OFF) {
 		m_testPlayer->Movement(NULL);
 		return false;
@@ -396,23 +420,14 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState('T') & 0x8000) {
 		m_Room[m_nowRoom]->SetClear(true);
 	}
-	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) { //한번만 체크
-		if (!m_bMouseCapture) {
-			::GetCursorPos(&m_ptOldCursorPos);
-			m_bMouseCapture = true;
-		}
-		else {
-			::ReleaseCapture();
-			m_bMouseCapture = false;
-		}
-	}
 
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
 		input |= ANI_SKILL;
 	}
 
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
-		input |= ANI_ATTACK;
+		input |= SUPER_SPEED;
+
 
 	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 		cout << m_testPlayer->GetPosition();
@@ -635,6 +650,11 @@ void TestScene::RoomFade()
 				m_changeFade = FADE_OFF;
 		}
 	}
+}
+
+void TestScene::CaptureCursor()
+{
+	::GetCursorPos(&m_ptOldCursorPos);
 }
 
 void TestScene::BuildLightsAndMaterials()

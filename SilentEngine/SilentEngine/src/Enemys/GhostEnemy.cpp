@@ -24,6 +24,7 @@ void Ghost::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
 	m_ani[EnemyAni::AniIdle]->EnableLoof();
+	//m_ani[EnemyAni::AniAttack]->SetAnimSpeed(2.0f);
 }
 
 
@@ -60,6 +61,7 @@ void Ghost::Hitted()
 
 void Ghost::Death()
 {
+	//ChangeAnimation(EnemyAni::AniMove);
 }
 
 void Ghost::Animate(float fTime)

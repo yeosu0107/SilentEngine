@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "D3DUtil.h"
 #include "Framework.h"
+#include "resource.h"
 #include <windowsX.h>
 
 LRESULT CALLBACK
@@ -189,7 +190,7 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				m_pSwapChain->ResizeTarget(&dxgiTarget);
 			}
 			m_pSwapChain->SetFullscreenState(!fullScreenState, NULL);
-
+			m_pTestScene.get()->CaptureCursor();
 			OnResize();
 		}
 		return 0;
@@ -530,7 +531,7 @@ bool Framework::InitMainWindow()
 	wc.cbWndExtra		= 0;
 	wc.hInstance		= m_hFrameworkInst;
 	wc.hIcon			= LoadIcon(0, IDI_APPLICATION);
-	wc.hCursor			= LoadCursor(0, IDC_ARROW);
+	wc.hCursor			= LoadCursor(m_hFrameworkInst, MAKEINTRESOURCE(IDC_CURSOR1));
 	wc.hbrBackground	= (HBRUSH)GetStockObject(NULL_BRUSH);
 	wc.lpszMenuName		= 0;
 	wc.lpszClassName	= L"MainWnd";

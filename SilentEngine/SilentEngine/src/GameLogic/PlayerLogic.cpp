@@ -4,7 +4,7 @@
 PlayerLogic::PlayerLogic(GameObject * tmp) :
 	m_owner(tmp), m_attackIndex(0)
 {
-	m_status = new Status(200, 100, 100);
+	m_status = new Status(200, 100, 80);
 }
 
 void PlayerLogic::idleState()

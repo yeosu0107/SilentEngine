@@ -124,6 +124,8 @@ void ModelShader::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandLis
 
 void ModelShader::Animate(float fTimeElapsed)
 {
+	if (IsZero(fTimeElapsed))
+		return;
 	for (UINT i = 0; i < m_nObjects; ++i) {
 		if(m_ppObjects[i]->isLive())
 			m_ppObjects[i]->Animate(fTimeElapsed);

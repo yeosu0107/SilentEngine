@@ -12,9 +12,10 @@ res\\ModelData\\c_attack.FBX,,
 res\\ModelData\\c_attack2.FBX,,
 res\\ModelData\\c_damaged.FBX,,
 res\\ModelData\\c_die.FBX,,
-res\\MonsterData\\ghost_move2.FBX,2,res\\Texture\\ghost.dds
+res\\MonsterData\\ghost_move2.FBX,3,res\\Texture\\ghost.dds
 res\\MonsterData\\ghost_idle.FBX,,
 res\\MonsterData\\ghost_move2.FBX,,
+res\\MonsterData\\ghost_die.FBX,,
 res\\MonsterData\\d_idle.FBX,6,res\\Texture\\Rhino_Diffuse_COLOR.dds
 res\\MonsterData\\d_idle.FBX,,
 res\\MonsterData\\d_walk.FBX,,

@@ -19,6 +19,7 @@ class Shaders;
 #define ANI_SKILL					0x80
 #define ANI_HITTED				0x100
 #define ANI_IDLE					0x120
+#define SUPER_SPEED			0x130
 
 const UINT LOOP_IN					= 0;
 const UINT LOOP_END				= 1;

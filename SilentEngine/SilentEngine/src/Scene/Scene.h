@@ -89,7 +89,7 @@ public:
 	void RoomSetting();
 	void RoomFade();
 	
-	
+	void CaptureCursor();
 
 protected:
 	PlayerShader*											m_playerShader = nullptr;
@@ -126,7 +126,7 @@ protected:
 	UINT														m_changeFade = 0;
 
 	//조작관련
-	bool														m_bMouseCapture = false;
+	bool														m_bMouseCapture = true;
 	POINT													m_ptOldCursorPos;
 	float														m_fMouseSensitive = 4.5f;	// 마우스 민감도
 };

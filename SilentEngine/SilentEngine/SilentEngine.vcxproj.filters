@@ -406,4 +406,9 @@
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="NormalSkyrim.cur">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
 </Project>

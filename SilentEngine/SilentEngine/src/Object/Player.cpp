@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Player.h"
 
-const float startSpeed = 30.0f;
+const float startSpeed = 80.0f;
 const float accelSpeed = 0.5f;
 const float maxSpeed = 100.0f;
 
@@ -123,7 +123,7 @@ bool Player::Move(DWORD input, float fTime)
 		xmf3Shift = Vector3::Add(xmf3Shift, m_xmf3Look, fDist);
 
 		//가속 처리
-		m_moveSpeed = 80.0f;
+		//m_moveSpeed = 80.0f;
 		//if (m_moveSpeed < maxSpeed)
 		//	m_moveSpeed += accelSpeed;
 		
@@ -136,7 +136,7 @@ bool Player::Move(DWORD input, float fTime)
 		m_playerLogic->changeState(STATE::tracking);
 		return true;
 	}
-	m_moveSpeed = startSpeed;
+	//m_moveSpeed = startSpeed;
 	//ChangeAnimation(PlayerAni::Idle);
 	m_playerLogic->changeState(STATE::idle);
 	return false;
@@ -152,6 +152,13 @@ bool Player::Movement(DWORD input)
 	if (input & ANI_SKILL) {
 		//m_AnimIndex = PlayerAni::Skill;
 		m_playerLogic->changeState(STATE::skill);
+	}
+
+	if (input & SUPER_SPEED) {
+		if(m_moveSpeed<100.0f)
+			m_moveSpeed = 320.0f;
+		else
+			m_moveSpeed = 80.0f;
 	}
 	if (input != 0)
 		return true;
@@ -202,7 +209,7 @@ void Player::SetPosition(float x, float y, float z)
 	//플레이어 강제 이동 함수 (텔레포트)
 	//방에서 방 이동시 호출
 	m_Controller->setPosition(PxExtendedVec3(x, y, z));
-	m_moveSpeed = 0;
+	//m_moveSpeed = 0;
 	if (m_pCamera) {
 		//카메라 회전값 리셋
 		m_pCamera->ResetRotation();
