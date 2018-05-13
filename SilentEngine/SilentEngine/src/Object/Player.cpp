@@ -188,6 +188,21 @@ void Player::Attack()
 	}
 }
 
+void Player::Hitted()
+{
+	if (m_avoid)
+		return;
+	if (m_status->m_health <= 0) {
+		m_playerLogic->changeState(STATE::death);
+		return;
+	}
+	m_status->m_health -= 10;
+	cout << "Player Hit!" << "\t";
+	cout << "remain HP : " << m_status->m_health << endl;;
+	m_playerLogic->changeState(STATE::hitted);
+	hitBackstep = 0.0f;
+}
+
 void Player::Hitted(float& hitback)
 {
 	if (m_avoid)
@@ -296,4 +311,12 @@ void Player::CalibrateLook(XMFLOAT3& look)
 	m_xmf3Look = Vector3::Normalize(m_xmf3Look);
 	m_xmf3Right = Vector3::CrossProduct(m_xmf3Up, m_xmf3Look, true);
 	m_xmf3Up = Vector3::CrossProduct(m_xmf3Look, m_xmf3Right, true);
+}
+
+void Player::reset()
+{
+	m_status->m_health = m_status->prev_health;
+	m_playerLogic->reset();
+	ChangeAnimation(PlayerAni::Idle);
+	stopAnim(false);
 }

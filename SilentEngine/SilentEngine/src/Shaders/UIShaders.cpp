@@ -276,7 +276,7 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSMiniMap", "ps_5_0");
 
-	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
+	pTexture = new CTexture(2, RESOURCE_TEXTURE2D, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\Box_COLOR.dds", 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\minimapTedori.dds", 1);
 
@@ -290,12 +290,63 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
 
-	m_pUIObjects = vector<UIObject*>(m_nObjects);
+	//m_pUIObjects = vector<UIObject*>(m_nObjects);
 
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
+	/*m_pUIObjects = vector<UIObject*>(m_nObjects);
+	UIObject* minimapBG = new UIObject();
 
+	minimapBG->SetType(1);
+	minimapBG->SetScale(XMFLOAT2(1.0f, 1.0f));
+	minimapBG->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+	minimapBG->SetNumSprite(XMUINT2(1, 1), XMUINT2(0, 0));
+	minimapBG->SetScale(XMFLOAT2(1.0f, 0.5f));
+	minimapBG->SetSize(GetSpriteSize(1, pTexture, minimapBG->m_nNumSprite));
+	minimapBG->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr);
+	minimapBG->SetPosition(XMFLOAT2(
+		static_cast<float>(FRAME_BUFFER_WIDTH) * 7.05 / 8.0,
+		static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0)
+	));
+	m_pUIObjects[0] = minimapBG;
+	m_pUIObjects[0]->CreateCollisionBox();
+
+	for (unsigned int i = 1; i < m_nObjects; ++i) {
+		UIObject* minimapObj = new UIObject();
+
+		minimapObj->SetType(0);
+		minimapObj->SetScale(XMFLOAT2(1.0f, 1.0f));
+		minimapObj->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		minimapObj->SetNumSprite(XMUINT2(3, 1), XMUINT2(0, 0));
+		minimapObj->SetSize(GetSpriteSize(0, pTexture, minimapObj->m_nNumSprite));
+		minimapObj->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+		minimapObj->SetPosition(XMFLOAT2(
+			static_cast<float>(FRAME_BUFFER_WIDTH) * 6.6 / 8.0 + static_cast<float>(data[i - 1]->m_mapPosX * minimapObj->m_nSize.x),
+			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.3 / 8.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y)
+		));
+		m_pUIObjects[i] = minimapObj;
+		m_pUIObjects[i]->CreateCollisionBox();
+	}
+	m_pUIObjects[1]->m_fData = 1.0f;*/
+}
+
+void UIMiniMapShaders::Animate(float fTimeElapsed)
+{
+	if (m_pPreRoom != *m_pNowRoom + 1) {
+		m_pUIObjects[m_pPreRoom]->m_fData = 2.0f;
+		m_pUIObjects[*m_pNowRoom + 1]->m_fData = 1.0f;
+		m_pPreRoom = *m_pNowRoom + 1;
+	}
+}
+
+void UIMiniMapShaders::setRoomPos(void* pContext)
+{
+	Room** data = reinterpret_cast<Room**>(pContext);
+
+	m_pUIObjects.clear();
+	m_pUIObjects.resize(m_nObjects);
+	//m_pUIObjects = vector<UIObject*>(m_nObjects);
 	UIObject* minimapBG = new UIObject();
 
 	minimapBG->SetType(1);
@@ -329,15 +380,7 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 		m_pUIObjects[i]->CreateCollisionBox();
 	}
 	m_pUIObjects[1]->m_fData = 1.0f;
-}
-
-void UIMiniMapShaders::Animate(float fTimeElapsed)
-{
-	if (m_pPreRoom != *m_pNowRoom + 1) {
-		m_pUIObjects[m_pPreRoom]->m_fData = 2.0f;
-		m_pUIObjects[*m_pNowRoom + 1]->m_fData = 1.0f;
-		m_pPreRoom = *m_pNowRoom + 1;
-	}
+	m_pPreRoom = 1;
 }
 
 void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)

@@ -180,6 +180,7 @@ public:
 	virtual void SetPos(XMFLOAT3* getPos, UINT num) {}
 	virtual void SetLive(const bool live, UINT num) {};
 	virtual void SetRotateLockXZ(bool lock);
+	virtual void setLoop(bool tmp) {}
 
 	void setAnimSpeed(float speed);
 protected:

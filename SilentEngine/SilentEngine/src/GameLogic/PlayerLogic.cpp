@@ -102,3 +102,8 @@ void PlayerLogic::changeState(STATE newState)
 		break;
 	}
 }
+
+void PlayerLogic::reset()
+{
+	m_state = STATE::idle;
+}

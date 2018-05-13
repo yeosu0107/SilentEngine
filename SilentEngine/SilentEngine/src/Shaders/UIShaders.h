@@ -68,8 +68,10 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetNowRoom(UINT* nowRoom) { m_pNowRoom = nowRoom; };
-
+	void setRoomPos(void* data);
 private:
 	UINT m_pPreRoom = 1;
 	UINT* m_pNowRoom;
+
+	CTexture *pTexture = nullptr;
 };

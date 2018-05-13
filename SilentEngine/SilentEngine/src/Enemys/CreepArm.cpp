@@ -15,7 +15,7 @@ CreepArm::CreepArm(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_State->setValue(20, 50, 0, 0, 50, true);
 	m_State->setFunc();
 	m_status = m_State->getStatus();
-	m_size = XMFLOAT2(2.0f, 8.0f);
+	m_size = XMFLOAT2(10.0f, 8.0f);
 	m_triggerSize = XMFLOAT3(30, 10, 30);
 	SetScale(0.3f);
 }

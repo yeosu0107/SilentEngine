@@ -676,9 +676,9 @@ void Framework::BuildObjects()
 	m_pScene[0] = mainScene;
 
 	TestScene* gameScene = new TestScene();
+	m_pScene[1] = gameScene;
 	gameScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
 	m_pDeferredFullScreenShader->SetPlayer(gameScene->GetPlayer());
-	m_pScene[1] = gameScene;
 	m_pCamera = m_pScene[1]->GetCamera();
 
 	ID3D12CommandList* cmdsLists[] = { m_pCommandList.Get() };
@@ -893,7 +893,13 @@ void Framework::OnKeyboardInput(const Timer& gt)
 
 void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	m_pScene[m_nNowScene]->OnMouseDown(m_hMainWnd, btnState, nMessageID, x, y);
+	bool state = m_pScene[m_nNowScene]->OnMouseDown(m_hMainWnd, btnState, nMessageID, x, y);
+	if (m_nNowScene == 0 && state == true) {
+		reinterpret_cast<TestScene*>(m_pScene[1])->ResetScene(m_pD3dDevice.Get(), m_pCommandList.Get());
+		/*m_pScene[1]->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
+		m_pDeferredFullScreenShader->SetPlayer(reinterpret_cast<TestScene*>(m_pScene[1])->GetPlayer());
+		m_pCamera = m_pScene[1]->GetCamera();*/
+	}
 }
 
 void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)

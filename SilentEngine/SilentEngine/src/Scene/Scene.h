@@ -108,8 +108,9 @@ public:
 	void RoomChange();
 	void RoomSetting();
 	virtual void CaptureCursor();
+	void ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 protected:
-	TextureToFullScreen*									m_pPauseScreen = nullptr;
+	TextureToFullScreen*								m_pPauseScreen = nullptr;
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
 	BillboardShader*										m_EffectShaders = nullptr;
@@ -142,9 +143,18 @@ protected:
 	UINT														m_testTimer = 0;
 
 	//조작관련
-	
 	POINT													m_ptOldCursorPos;
 	float														m_fMouseSensitive = 4.5f;	// 마우스 민감도
+	//게임 콘텐츠 관련
+	const UINT												KindOfEnemy = 5;
+
+	InstanceModelShader**							map = nullptr;
+	ModelShader**										enemyShader = nullptr;
+	ProjectileShader*									bullet = nullptr;
+	FirePositionLoader*									loader = nullptr;
+	MapLoader*											globalMaps = nullptr;
+	EffectLoader*											globalEffects = nullptr;
+	BillboardShader*					fireObjectShaders = nullptr;
 };
 
 class GameScene : public Scene

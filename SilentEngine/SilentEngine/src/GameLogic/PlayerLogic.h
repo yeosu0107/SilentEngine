@@ -28,4 +28,5 @@ public:
 
 	virtual void changeState(STATE newState);
 	UINT getAttackIndex() const { return m_attackIndex; }
+	void reset();
 };

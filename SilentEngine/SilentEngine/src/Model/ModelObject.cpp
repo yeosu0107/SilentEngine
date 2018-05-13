@@ -30,6 +30,7 @@ PxF32 Jump::getHeight(PxF32 elapsedTime)
 	mJumpTime += elapsedTime;
 	const PxF32 h = gJumpGravity * mJumpTime*mJumpTime + mV0 * mJumpTime;
 	return h * elapsedTime;
+	//return -1.0f;
 }
 
 ModelObject::ModelObject(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) : GameObject(model->getNumMesh())

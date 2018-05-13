@@ -109,6 +109,7 @@ public:
 	virtual bool Movement(DWORD input);
 	virtual void Idle();
 	virtual void Attack();
+	virtual void Hitted();
 	virtual void Hitted(float& hitback);
 	virtual void Skill();
 
@@ -119,4 +120,5 @@ public:
 	void CalibrateLook(XMFLOAT3& look);
 	Status* GetStatus() { return m_status; }
 	void* getTriggerActor() { return m_weaponTrigger; }
+	void reset();
 };

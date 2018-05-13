@@ -56,9 +56,9 @@ TestScene::TestScene()
 	m_physics = new BasePhysX(60.0f);
 	m_testPlayer = nullptr;
 	m_nowRoom = START_ROOM;
-	m_isRoomChange = Door(0, START_SOUTH, true);
+	/*m_isRoomChange = Door(0, START_SOUTH, true);
 
-	RoomSetting();
+	RoomSetting();*/
 }
 
 TestScene::~TestScene()
@@ -213,20 +213,17 @@ bool TestScene::Update(const Timer & gt)
 
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	//RoomSetting();
+
 	::GetCursorPos(&m_ptOldCursorPos);
 
 	m_pLights = new LightManagement();
 	m_pLights->BuildObject(pDevice, pCommandList, 45.0f, XMFLOAT3(1.0f, 0.0f, .0f));
 	
-	EffectLoader* globalEffects = GlobalVal::getInstance()->getEffectLoader();
-	MapLoader* globalMaps = GlobalVal::getInstance()->getMapLoader();
-	FirePositionLoader* loader = GlobalVal::getInstance()->getFirePos();
+	globalEffects = GlobalVal::getInstance()->getEffectLoader();
+	globalMaps = GlobalVal::getInstance()->getMapLoader();
+	loader = GlobalVal::getInstance()->getFirePos();
 
-	const UINT KindOfEnemy = 5;
-
-	ModelShader** enemyShader = new ModelShader*[KindOfEnemy];
-	int enemyNum[KindOfEnemy] = { 6,2,4,3,1 };
-	
 	BuildRootSignature(pDevice, pCommandList);
 	BuildLightsAndMaterials();
 	BuildFog();
@@ -261,7 +258,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	hitShader->setAnimSpeed(50.0f);
 	m_hitEffectShaders = hitShader;
 
-	PaticleShader<PaticleObject>* fireObjectShaders = new PaticleShader<PaticleObject>();
+	fireObjectShaders = new PaticleShader<PaticleObject>();
 	fireObjectShaders->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	fireObjectShaders->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	fireObjectShaders->SetFogUploadBuffer(m_pd3dcbFog.get());
@@ -271,7 +268,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	fireObjectShaders->setAnimSpeed(50.0f);
 	fireObjectShaders->SetRotateLockXZ(true);
 	
-	InstanceModelShader** map = new InstanceModelShader*[MAX_MAP];
+	map = new InstanceModelShader*[MAX_MAP];
 	for (UINT i = 0; i < MAX_MAP; ++i) {
 		map[i] = new MapShader(i);
 		map[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
@@ -279,12 +276,12 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		map[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
 		map[i]->BuildObjects(pDevice, pCommandList, 2);
 	}
-	for (UINT i = 0; i < m_nRoom; ++i) {
+	/*for (UINT i = 0; i < m_nRoom; ++i) {
 		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
 		m_Room[i]->SetFireShader(fireObjectShaders);
 		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
-	}
+	}*/
 
 
 	InstanceModelShader* gateShader = new InstanceModelShader(10);
@@ -294,6 +291,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->BuildObjects(pDevice, pCommandList, 2);
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
+
+	
+	enemyShader = new ModelShader*[KindOfEnemy];
+	int enemyNum[5] = { 6,3,4,2,1 };
 
 	enemyShader[0] = new EnemyShader<CreepArm>(4);
 	enemyShader[1] = new EnemyShader<Enemy>(3);
@@ -308,7 +309,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		enemyShader[i]->BuildObjects(pDevice, pCommandList, 2, (int*)enemyNum[i]);
 	}
 
-	ProjectileShader* bullet = new ProjectileShader();
+	bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetFogUploadBuffer(m_pd3dcbFog.get());
@@ -325,36 +326,21 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	
 	GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
 
-	m_Room[0]->SetEnemyShader(enemyShader[0]);  // CreepArm
-	for (int i = 1; i < m_nRoom - 1; ++i) {
-		//UINT index = rand() % (KindOfEnemy-1); 
-		UINT index = i % (KindOfEnemy - 1);
-		m_Room[i]->SetEnemyShader(enemyShader[index]);
-		if (index >= 2)
-			m_Room[i]->SetProjectileShader(bullet);
-	}
-	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[4]);
-	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
-
-	RoomChange();
 	BuildUI(pDevice, pCommandList);
-
-	m_changeFade = FADE_OUT;
 }
 
 void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	m_ppUIShaders.clear();
 	m_nUIShaders = 2;
 	m_ppUIShaders.resize(m_nUIShaders);
 
 	UIHPBarShaders* pHPBar = new UIHPBarShaders();
 	pHPBar->BuildObjects(pDevice, pCommandList, 1, m_testPlayer);
 	m_ppUIShaders[0] = pHPBar;
-
 	UIMiniMapShaders* pMinimap = new UIMiniMapShaders();
-	pMinimap->SetNumObject(m_nRoom);
-	pMinimap->BuildObjects(pDevice, pCommandList, 1, m_Room);
-	pMinimap->SetNowRoom(&m_nowRoom);
+	pMinimap->SetNumObject(21);
+	pMinimap->BuildObjects(pDevice, pCommandList, 1);
 	m_ppUIShaders[1] = pMinimap;
 
 	vector<TextureDataForm> texutredata(2);
@@ -546,6 +532,7 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 			if (collButon == 1) {
 				m_changeFade = FADE_IN;
 				m_isGameEnd = true;
+				m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
 			}
 			else if (collButon == 2) {
 				::GetCursorPos(&m_ptOldCursorPos);
@@ -652,6 +639,13 @@ void TestScene::RoomChange()
 
 void TestScene::RoomSetting()
 {
+	if (m_Room) {
+		for (int i = 0; i < m_nRoom; ++i)
+			delete m_Room[i];
+
+		delete[] m_Room;
+	}
+
 	srand((UINT)time(0));
 	UINT sizeX = 7;
 	UINT sizeY = 3;
@@ -671,6 +665,7 @@ void TestScene::RoomSetting()
 		}
 	}
 	m_nRoom = count;
+	
 	m_Room = new Room*[m_nRoom];
 
 	count = 0;
@@ -720,11 +715,39 @@ void TestScene::RoomSetting()
 			nextRoom[k] = BLANK_ROOM;
 		}
 	}
+
+	for (UINT i = 0; i < m_nRoom; ++i) {
+		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
+		m_Room[i]->SetFireShader(fireObjectShaders);
+		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
+		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
+		UINT index = i % (KindOfEnemy - 1);
+		m_Room[i]->SetEnemyShader(enemyShader[index]);
+		if (index >= 2)
+			m_Room[i]->SetProjectileShader(bullet);
+	}
+	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[4]);
+	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
 }
 
 void TestScene::CaptureCursor()
 {
 	::GetCursorPos(&m_ptOldCursorPos);
+}
+
+void TestScene::ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+	m_isRoomChange = Door(0, START_SOUTH, true);
+	m_nowRoom = START_ROOM;
+	RoomSetting();
+	RoomChange();
+	//BuildUI(pDevice, pCommandList);
+	auto minimap = reinterpret_cast<UIMiniMapShaders*>(m_ppUIShaders[1]);
+	minimap->SetNumObject(m_nRoom);
+	minimap->setRoomPos(m_Room);
+	minimap->SetNowRoom(&m_nowRoom);
+	m_changeFade = FADE_OUT;
+	reinterpret_cast<Player*>(m_testPlayer)->reset();
 }
 
 void TestScene::BuildLightsAndMaterials()
@@ -816,6 +839,7 @@ bool MainScene::OnMouseDown(HWND & hWin, WPARAM btnState, UINT nMessageID, int x
 	UINT collButon = m_pButtons->CollisionButton();
 	if (collButon == GAME_START) {
 		m_changeFade = FADE_IN;
+		return true;
 	}
 	else if (collButon == GAME_END) {
 		m_changeFade = FADE_IN;
