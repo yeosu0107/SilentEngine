@@ -197,6 +197,7 @@ void Enemy::Animate(float fTime)
 void Enemy::teleport(XMFLOAT3 pos)
 {
 	m_Controller->setPosition(PxExtendedVec3(pos.x, pos.y, pos.z));
+	m_Controller->move(PxVec3(0, 1.0f, 0), 0.1f, 1/60, m_ControllerFilter);
 }
 
 void Enemy::reset()
