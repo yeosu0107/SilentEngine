@@ -66,7 +66,7 @@ float CalcShadowFactor(float4 shadowPosH, int index)
             shadowPosH.xy + offsets[i], depth).r;
     }
     
-    return percentLit / 6.0f;
+    return percentLit / 9.0f;
 }
 
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMatindex, float fShadowFactor)
@@ -89,9 +89,9 @@ float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMati
 		}
 	}
 
-	return((gLights[nIndex].m_cAmbient * gMaterials[nMatindex].m_cAmbient) + 
-		(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse) * fShadowFactor +
-		(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular) * fShadowFactor);
+    return ((gLights[nIndex].m_cAmbient * gMaterials[nMatindex].m_cAmbient)  +
+		(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse)  +
+		(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular));
 }
 
 float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera, uint nMatindex, float fShadowFactor)
@@ -192,7 +192,7 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowF
 		{
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
-                cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex, shadowFactor[j]);
+                cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex, shadowFactor[j]) * shadowFactor[j];
                 j++;
             }
 			else if (gLights[i].m_nType == POINT_LIGHT)

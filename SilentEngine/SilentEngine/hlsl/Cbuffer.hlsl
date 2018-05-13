@@ -3,7 +3,7 @@
 
 
 #ifndef NUM_DIRECTION_LIGHTS
-    #define NUM_DIRECTION_LIGHTS 2
+    #define NUM_DIRECTION_LIGHTS 1
 #endif
 
 #define MAX_LIGHTS			4 

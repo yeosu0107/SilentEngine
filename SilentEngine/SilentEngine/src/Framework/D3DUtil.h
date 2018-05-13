@@ -74,7 +74,7 @@ extern UINT	gnCbvSrvDescriptorIncrementSize;
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
 
-#define NUM_DIRECTION_LIGHTS		2
+#define NUM_DIRECTION_LIGHTS		1
 
 inline void d3dSetDebugName(IDXGIObject* obj, const char* name)
 {
