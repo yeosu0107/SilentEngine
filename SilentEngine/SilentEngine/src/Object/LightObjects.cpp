@@ -106,7 +106,7 @@ void LightManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandL
 	lights.m_pLights[0].m_bEnable = true;
 	lights.m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
 	lights.m_pLights[0].m_fRange = 300.0f;
-	lights.m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+	lights.m_pLights[0].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	lights.m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	lights.m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
 	lights.m_pLights[0].m_xmf3Position = XMFLOAT3(-0.0f, 100.f, 430.0f);
