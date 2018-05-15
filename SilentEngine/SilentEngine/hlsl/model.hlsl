@@ -163,7 +163,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticModel(VS_TEXTURED_LIGHTING_OUTPUT inpu
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, factor);
 
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);
 
 	return (output);
 };
@@ -189,7 +189,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
     float fRange = gFogParameter.z - gFogParameter.y;
     float factor = saturate((gFogParameter.z - fDistance) / fRange);
 
-    output.normal = lerp(float4(input.normalW, 1.0f), float4(0.0f, 0.0f, 0.0f, 1.0f), factor);
+    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);;
 
 	return (output);
 };
@@ -209,7 +209,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT inp
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
 
     output.color = Fog(cColor * cIllumination, input.positionW);
-	output.normal = float4(input.normalW, 1.0f);
+    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);;
 
 	return (output);
 };
@@ -228,7 +228,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OU
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);
 
 	return (output);
 }

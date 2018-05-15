@@ -4,7 +4,7 @@
 // Transforms and colors geometry.
 //***************************************************************************************
 
-#include "Light.hlsl"
+#include "NormalMap.hlsl"
 
 struct VS_MODEL_INPUT
 {
@@ -24,6 +24,17 @@ struct VS_MULTI_TEXTURED_LIGHTING_OUTPUT
     float4 ShadowPosH[NUM_DIRECTION_LIGHTS] : POSITION1;
     float3 normalW : NORMAL;
     float2 uv : TEXCOORD;
+    uint texindex : TEXINDEX;
+};
+
+struct VS_MULTI_TEXTURED_LIGHTING_NOR_OUTPUT
+{
+    float4 position : SV_POSITION;
+    float3 positionW : POSITION;
+    float4 ShadowPosH[NUM_DIRECTION_LIGHTS] : POSITION1;
+    float3 normalW : NORMAL;
+    float2 uv : TEXCOORD;
+    float3 tangentW : TANGENT;
     uint texindex : TEXINDEX;
 };
 
@@ -138,6 +149,41 @@ VS_MULTI_TEXTURED_LIGHTING_OUTPUT VSMultiTexDynamicModel(VS_MODEL_INPUT input)
     output.texindex = input.texindex;
 
 	return(output);
+};
+
+VS_MULTI_TEXTURED_LIGHTING_NOR_OUTPUT VSMultiTexDynamicNORModel(VS_MODEL_INPUT input)
+{
+    VS_MULTI_TEXTURED_LIGHTING_NOR_OUTPUT output;
+
+    float3 posL = float3(0.0f, 0.0f, 0.0f);
+    float3 normalL = float3(0.0f, 0.0f, 0.0f);
+    float3 tanL = float3(0.0f, 0.0f, 0.0f);
+    float weights[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    weights[0] = input.weight.x;
+    weights[1] = input.weight.y;
+    weights[2] = input.weight.z;
+    weights[3] = 1.0f - weights[0] - weights[1] - weights[2];
+
+    for (int i = 0; i < 4; ++i)
+    {
+        posL += weights[i] * mul(float4(input.position, 1.0f),
+			gBoneTransforms[input.index[i]]).xyz;
+        normalL += weights[i] * mul(input.normal,
+			(float3x3) gBoneTransforms[input.index[i]]).xyz;
+        tanL += weights[i] * mul(input.tan,
+			(float3x3) gBoneTransforms[input.index[i]]).xyz;
+    }
+
+    output.normalW = mul(normalL, (float3x3) gmtxObject);
+    output.positionW = (float3) mul(float4(posL, 1.0f), gmtxObject);
+    output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
+    for (int j = 0; j < NUM_DIRECTION_LIGHTS; j++)
+        output.ShadowPosH[j] = mul(float4(output.positionW, 1.0f), gmtxShadowProjection[j]);
+    output.uv = input.uv;
+    output.texindex = input.texindex;
+    output.tangentW = mul(input.tan, (float3x3) gmtxObject);
+
+    return (output);
 };
 
 VS_MULTI_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSMultiTexDynamicInstanceModel(VS_MODEL_INPUT input, uint instanceID : SV_InstanceID)
@@ -266,3 +312,48 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexDynamicInstanceModel(VS_MULTI_TEXTUR
 	return (output);
 }
 
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_MODEL_MULTI_NORMAL_OUTPUT input) : SV_Target
+{
+    MATERIAL matData = gMaterials[gnMaterial];
+    PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
+	
+    int index = input.texindex;
+    float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
+    float roughness = 0.1f;
+    float4 normalMapSample = (float4) 0.0f;
+
+    input.normalW = normalize(input.normalW);
+	
+    if (index == 0)
+    {
+        cColor = gTextures[0].Sample(gDefaultSamplerState, input.uv);
+        normalMapSample = gTextures[2].Sample(gDefaultSamplerState, input.uv);
+    }
+    else if (index == 1)
+    {
+        cColor = gTextures[1].Sample(gDefaultSamplerState, input.uv);
+        normalMapSample = gTextures[3].Sample(gDefaultSamplerState, input.uv);
+    }
+  
+    float3 bumpedNormalW = NormalSampleToWorldSpace(normalMapSample.rgb, input.normalW, input.tangentW);
+	
+    const float shininess = (1.0f - roughness) * normalMapSample.a;
+
+    float3 toEyeW = normalize(gvCameraPosition - input.positionW);
+
+    float4 shadowFactor = 1.0f;
+    float4 directLight = Lighting(input.positionW, bumpedNormalW, gnMaterial, shadowFactor);
+	
+    float4 litColor = directLight * cColor;
+    float3 r = reflect(-toEyeW, bumpedNormalW);
+	
+    float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
+
+    litColor.rgb += shininess * fresnelFactor * litColor.rgb;
+
+    output.color = litColor;
+    output.normal = float4(input.normalW, 1.0f);
+
+    return output;
+}

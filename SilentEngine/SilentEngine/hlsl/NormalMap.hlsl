@@ -1,6 +1,8 @@
 #include "Light.hlsl"
 #include "FogShader.hlsl"
 
+#ifndef _NORMALMAP_HLSL
+#define _NORMALMAP_HLSL
 struct VS_NORMAL_INPUT 
 {
 	float3 position : POSITION;
@@ -134,3 +136,5 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSModelNormalMap(VS_MODEL_NORMAL_OUTPUT input)
 
     return output;
 }
+
+#endif
