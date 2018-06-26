@@ -238,7 +238,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	player->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	player->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 
-	player->BuildObjects(pDevice, pCommandList, 2, m_physics);
+	player->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, m_physics);
 	m_playerShader = player;
 	
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
@@ -246,7 +246,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	Explosion->SetFogUploadBuffer(m_pd3dcbFog.get());
 	Explosion->SetCamera(m_Camera.get());
-	Explosion->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(1));
+	Explosion->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
 
 	PaticleShader<HitPaticle>* hitShader = new PaticleShader<HitPaticle>();
@@ -254,7 +254,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	hitShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	hitShader->SetFogUploadBuffer(m_pd3dcbFog.get());
 	hitShader->SetCamera(m_Camera.get());
-	hitShader->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(3));
+	hitShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(3));
 	hitShader->setAnimSpeed(50.0f);
 	m_hitEffectShaders = hitShader;
 
@@ -263,7 +263,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	fireObjectShaders->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	fireObjectShaders->SetFogUploadBuffer(m_pd3dcbFog.get());
 	fireObjectShaders->SetCamera(m_Camera.get());
-	fireObjectShaders->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(2));
+	fireObjectShaders->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(2));
 	fireObjectShaders->setLoop(true);
 	fireObjectShaders->setAnimSpeed(50.0f);
 	fireObjectShaders->SetRotateLockXZ(true);
@@ -274,7 +274,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		map[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 		map[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 		map[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
-		map[i]->BuildObjects(pDevice, pCommandList, 2);
+		map[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	}
 	/*for (UINT i = 0; i < m_nRoom; ++i) {
 		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
@@ -288,7 +288,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	gateShader->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 	gateShader->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	gateShader->SetFogUploadBuffer(m_pd3dcbFog.get());
-	gateShader->BuildObjects(pDevice, pCommandList, 2);
+	gateShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
 
@@ -306,7 +306,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		enemyShader[i]->SetLightsUploadBuffer(m_pLights->LightUploadBuffer());
 		enemyShader[i]->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 		enemyShader[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
-		enemyShader[i]->BuildObjects(pDevice, pCommandList, 2, (int*)enemyNum[i]);
+		enemyShader[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, (int*)enemyNum[i]);
 	}
 
 	bullet = new ProjectileShader();
@@ -314,7 +314,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	bullet->SetMaterialUploadBuffer(m_pd3dcbMaterials.get());
 	bullet->SetFogUploadBuffer(m_pd3dcbFog.get());
 	bullet->SetCamera(m_Camera.get());
-	bullet->BuildObjects(pDevice, pCommandList ,2, globalEffects->getTextureFile(0));
+	bullet->BuildObjects(pDevice, pCommandList , NUM_RENDERTARGET, globalEffects->getTextureFile(0));
 	bullet->setPhys(m_physics);
 
 	m_pFadeEffectShader = new FadeEffectShader();
@@ -352,7 +352,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	texutredata[0].m_texture = L"res\\Texture\\BackToMainMenu.DDS";
 	
 	m_pButtons = new UIButtonShaders();
-	m_pButtons->BuildObjects(pDevice, pCommandList, 2, &texutredata);
+	m_pButtons->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &texutredata);
 	m_pButtons->SetPoint(m_pCursorPos);
 	m_pButtons->SetPos(new XMFLOAT2(640.0f, 720.0f - 407.3f), 0);
 	m_pButtons->SetPos(new XMFLOAT2(870.0f, 720.0f - 455.0f), 1);
@@ -807,12 +807,12 @@ void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	texutredata[1].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
 	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameStart.dds";
 	m_pButtons = new UIButtonShaders();
-	m_pButtons->BuildObjects(pDevice, pCommandList, 2, &texutredata);
+	m_pButtons->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &texutredata);
 	m_pButtons->SetPoint(m_pCursorPos);
 
 	texutredata[0].m_texture = L"res\\MainSceneTexture\\MainBackgound_COLOR.dds";
 	m_pBackground = new TextureToFullScreen();
-	m_pBackground->BuildObjects(pDevice, pCommandList, 2, &texutredata[0]);
+	m_pBackground->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &texutredata[0]);
 
 	m_pFadeEffectShader = new FadeEffectShader();
 	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1);

@@ -22,7 +22,7 @@ VS_TEXTURED_LIGHTING_OUTPUT VSStaticModel(VS_MODEL_INPUT input)
 {
 	VS_TEXTURED_LIGHTING_OUTPUT output;
 
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	 output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
     for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
@@ -41,7 +41,7 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSStaticInstanceModel(VS_MODEL_INPUT input,
 	float4x4 world = instData.mtxGameObject;
 
 	output.mat = instData.nMaterial;
-	output.normalW = mul(input.normal, (float3x3)world);
+	 output.normalW = mul(input.normal, (float3x3)world);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
     for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
@@ -60,7 +60,7 @@ VS_MODEL_NORMAL_OUTPUT VSStaticInstanceNORMModel(VS_MODEL_INPUT input, uint inst
     float4x4 world = instData.mtxGameObject;
 
     output.mat = instData.nMaterial;
-    output.normalW = mul(input.normal, (float3x3) world);
+     output.normalW = mul(input.normal, (float3x3) world);
     output.positionW = (float3) mul(float4(input.position, 1.0f), world);
     output.tangentW = mul(input.tan, (float3x3) world);
     output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
@@ -94,7 +94,7 @@ VS_TEXTURED_LIGHTING_OUTPUT VSDynamicModel(VS_MODEL_INPUT input)
 			(float3x3)gBoneTransforms[input.index[i]]).xyz;
 	}
 
-	output.normalW = mul(normalL, (float3x3)gmtxObject);
+	 output.normalW = mul(normalL, (float3x3)gmtxObject);
 	output.positionW = (float3)mul(float4(posL, 1.0f), gmtxObject);
 	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
     for (int j = 0; j < NUM_DIRECTION_LIGHTS; j++)
@@ -132,7 +132,7 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSDynamicInstanceModel(VS_MODEL_INPUT input
     }
 
     output.mat = instData.gInstnMat;
-    output.normalW = mul(normalL, (float3x3) world);
+     output.normalW = mul(normalL, (float3x3) world);
     output.positionW = (float3) mul(float4(posL, 1.0f), world);
     output.position = mul(mul(mul(float4(posL, 1.0f), world), gmtxView), gmtxProjection);
     for (int j= 0; j < NUM_DIRECTION_LIGHTS; j++)
@@ -163,8 +163,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticModel(VS_TEXTURED_LIGHTING_OUTPUT inpu
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, factor);
 
 	output.color = cColor * cIllumination;
-    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);
-
+     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);
+    output.nrm = output.nrmoutline;
 	return (output);
 };
 
@@ -189,8 +189,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
     float fRange = gFogParameter.z - gFogParameter.y;
     float factor = saturate((gFogParameter.z - fDistance) / fRange);
 
-    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);;
-
+     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);;
+    output.nrm = output.nrmoutline;
 	return (output);
 };
 
@@ -209,8 +209,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT inp
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
 
     output.color = Fog(cColor * cIllumination, input.positionW);
-    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);;
-
+     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);;
+    output.nrm = output.nrmoutline;
 	return (output);
 };
 
@@ -228,8 +228,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OU
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
-    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);
-
+     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);
+    output.nrm = output.nrmoutline;
 	return (output);
 }
 

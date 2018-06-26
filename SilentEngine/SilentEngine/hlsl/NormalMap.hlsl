@@ -55,7 +55,7 @@ VS_NORMAL_OUTPUT VSNormalMap(VS_NORMAL_INPUT input) {
 
 	float4 positionW = mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.positionW = positionW.xyz;
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+    output.normalW = mul(input.normal, (float3x3) gmtxGameObject);
 	output.tangentW = mul(input.tangentU, (float3x3)gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
 	output.uv = input.uv;
@@ -94,7 +94,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Targe
 	litColor.rgb += shininess * fresnelFactor * litColor.rgb;
 
 	output.color = litColor;
-	output.normal = float4(input.normalW, 1.0f);
+	output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = float4(bumpedNormalW.x, bumpedNormalW.y, bumpedNormalW.z, 1.0f);
 	//return cColor;
 	return output;
 }
@@ -132,7 +133,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSModelNormalMap(VS_MODEL_NORMAL_OUTPUT input)
     litColor.rgb += shininess * fresnelFactor * litColor.rgb;
 
     output.color = Fog(litColor, input.positionW);
-    output.normal = NormalVectorBehindFog(input.normalW, input.positionW);
+    output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);
+    output.nrm = float4(bumpedNormalW.x, bumpedNormalW.y, bumpedNormalW.z, 1.0f);
 
     return output;
 }

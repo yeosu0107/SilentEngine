@@ -154,7 +154,7 @@ void DynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2 + NUM_DIRECTION_LIGHTS];
 
-	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 3, 0, 0); // GameObject
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, SRVTexture2D, 0, 0); // GameObject
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArray, 0, 0); // Texture
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		pd3dDescriptorRanges[2 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);

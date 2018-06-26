@@ -31,12 +31,12 @@ enum SRVRegisterNumber {
 	SRVTexture2D				= 3,
 	SRVTexture2DNorm			= 4,
 	SRVInstanceEffectData		= 5,
-	SRVFullScreenTexture		= 6,
-	SRVInstanceAnimationInfo	= 7,
-	SRVFullScreenNormalTexture	= 8,
-	SRVShadowMap				= 9,
-	SRVUITextureMap				= 15,
-	SRVMultiTexture				= 20
+	SRVInstanceAnimationInfo	= 6,
+	SRVShadowMap				= 7,
+	SRVUITextureMap				= 9,
+	SRVMultiTexture				= 13,
+	SRVFullScreenTexture		= 17,
+	SRVFullScreenNormalTexture	= 18
 };
 
 enum CBVRegisterNumber {
@@ -52,6 +52,11 @@ enum CBVRegisterNumber {
 	CBVUIInfo			= 9
 };
 
+enum RTVType {
+	RTV_COLOR /* 색상 추출 */,
+	RTV_OUTLINENRM /* 외곽선을 위한 노말 벡터 추출 */,
+	RTV_NRM /* 노말 매핑 후의 노말 벡터 추출 */
+};
 
 extern const int gNumFrameResources;
 
@@ -62,6 +67,8 @@ using namespace std;
 
 #define FRAME_BUFFER_WIDTH 1280
 #define FRAME_BUFFER_HEIGHT 720
+
+#define NUM_RENDERTARGET 3 
 
 const UINT MAX_MAP = 10;
 
@@ -74,7 +81,7 @@ extern UINT	gnCbvSrvDescriptorIncrementSize;
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
 
-#define NUM_DIRECTION_LIGHTS		1
+#define NUM_DIRECTION_LIGHTS		2
 
 inline void d3dSetDebugName(IDXGIObject* obj, const char* name)
 {

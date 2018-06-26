@@ -16,6 +16,7 @@
 
 class Framework
 {
+	
 public:
 
 	Framework(HINSTANCE hInstance);
@@ -122,9 +123,9 @@ protected:
 	wstring m_sMainWndCaption = L"SiN ";
 	D3D_DRIVER_TYPE m_d3dDriverType = D3D_DRIVER_TYPE_HARDWARE;
 
-	static const UINT					m_nRenderTargetBuffers = 2;
-	ComPtr<ID3D12Resource>				m_ppd3dRenderTargetBuffers[m_nRenderTargetBuffers];
-	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[m_nRenderTargetBuffers];
+	//static const UINT					m_nRenderTargetBuffers = 2;
+	ComPtr<ID3D12Resource>				m_ppd3dRenderTargetBuffers[NUM_RENDERTARGET];
+	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[NUM_RENDERTARGET];
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
 	UINT								m_nRtvDescriptorIncrementSize;
 
@@ -145,6 +146,10 @@ protected:
 	float								m_fMouseSensitive = 4.5f;	// 마우스 민감도
 
 	Camera*								m_pCamera = nullptr;
+
 	unique_ptr<DeferredFullScreen>		m_pDeferredFullScreenShader;
+
+
+	unique_ptr<DrawGBuffers>			m_GbufferDebug;
 };
 

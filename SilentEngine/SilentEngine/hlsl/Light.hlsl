@@ -235,7 +235,7 @@ VS_TEXTURED_LIGHTING_OUTPUT VSTexturedLighting(VS_TEXTURED_LIGHTING_INPUT input)
 {
 	VS_TEXTURED_LIGHTING_OUTPUT output;
 
-	output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
+	 output.normalW = mul(input.normal, (float3x3)gmtxGameObject);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), gmtxGameObject);
 	output.position = mul(mul(float4(output.positionW, 1.0f), gmtxView), gmtxProjection);
     for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
@@ -260,7 +260,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, shadowFactor);
 	
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+	 output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = output.nrmoutline;
 	return(output);
 };
 
@@ -285,7 +286,7 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSInstanceTexturedLighting(VS_TEXTURED_LIGH
 	float4x4 world = instData.mtxGameObject;
 
 	output.mat = instData.nMaterial;
-	output.normalW = mul(input.normal, (float3x3)world);
+	 output.normalW = mul(input.normal, (float3x3)world);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
     for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
@@ -309,6 +310,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTIN
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+	output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = output.nrmoutline;
 	return(output);
 };

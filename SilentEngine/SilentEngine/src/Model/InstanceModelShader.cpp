@@ -21,7 +21,7 @@ void InstanceModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArrayNorm, 0, 0); // NormTexture
 	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceData, 0, 0); // Texture
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dDescriptorRanges[3 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 9 + i, 0, 0); // ShadowMap
+		pd3dDescriptorRanges[3 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0); // ShadowMap
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[7 + NUM_DIRECTION_LIGHTS];
 

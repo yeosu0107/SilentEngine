@@ -202,7 +202,7 @@ void Framework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
 	::ZeroMemory(&rtvHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
-	rtvHeapDesc.NumDescriptors	= m_nSwapChainBuffers + m_nRenderTargetBuffers;
+	rtvHeapDesc.NumDescriptors	= m_nSwapChainBuffers + NUM_RENDERTARGET;
 	rtvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	rtvHeapDesc.NodeMask		= 0;
@@ -228,6 +228,7 @@ void Framework::OnWakeUp()
 {
 	m_pScene = new Scene*[2];
 	m_pDeferredFullScreenShader = make_unique<DeferredFullScreen>();
+	m_GbufferDebug = make_unique<DrawGBuffers>();
 	m_pDeferredFullScreenShader->SetNowScene(&m_nNowScene);
 }
 
@@ -340,10 +341,10 @@ void Framework::OnResize()
 		dsvCPUHandle.ptr += m_nDsvIncresementSize;
 	}
 
-	CTexture *pTexture = new CTexture(m_nRenderTargetBuffers, RESOURCE_TEXTURE2D, 0);
+	CTexture *pTexture = new CTexture(NUM_RENDERTARGET, RESOURCE_TEXTURE2D, 0);
 
 	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM,{ 1.0f, 1.0f, 1.0f, 1.0f } };
-	for (UINT i = 0; i < m_nRenderTargetBuffers; i++)
+	for (UINT i = 0; i < NUM_RENDERTARGET; i++)
 	{
 		m_ppd3dRenderTargetBuffers[i] = pTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(), m_nClientWidth, m_nClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dClearValue, i);
 	}
@@ -352,7 +353,7 @@ void Framework::OnResize()
 	d3dRtvCPUDescriptorHandle.ptr += (m_nSwapChainBuffers * m_nRtvDescriptorIncrementSize);
 
 
-	for (UINT i = 0; i < m_nRenderTargetBuffers; i++)
+	for (UINT i = 0; i < NUM_RENDERTARGET; i++)
 	{ 
 		m_pd3dRtvRenderTargetBufferCPUHandles[i] = d3dRtvCPUDescriptorHandle;
 		m_pD3dDevice->CreateRenderTargetView(pTexture->GetTexture(i).Get(), &d3dRenderTargetViewDesc, m_pd3dRtvRenderTargetBufferCPUHandles[i]);
@@ -360,6 +361,7 @@ void Framework::OnResize()
 	}
 
 	m_pDeferredFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
+	m_GbufferDebug->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pTexture);
 
 	ThrowIfFailed(m_pCommandList->Close());
 	ID3D12CommandList* cmdList[] = { m_pCommandList.Get() };
@@ -470,16 +472,17 @@ void Framework::Render()
 
 	/* 1차 렌더링 */
 	
-	for (i = 0; i < m_nSwapChainBuffers; ++i) {
+	for (i = 0; i < NUM_RENDERTARGET; ++i) {
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[i].Get(),
 			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));	
 	}
 
-	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[0], pfClearColor, 0, NULL);
-	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[1], pfClearColor, 0, NULL);
+	for (int i = 0; i < NUM_RENDERTARGET; ++i) {
+		m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[i], pfClearColor, 0, NULL);
+	}
 
 	m_pCommandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, NULL);
-	m_pCommandList->OMSetRenderTargets(2, m_pd3dRtvRenderTargetBufferCPUHandles, TRUE, &DepthStencilView());
+	m_pCommandList->OMSetRenderTargets(NUM_RENDERTARGET, m_pd3dRtvRenderTargetBufferCPUHandles, TRUE, &DepthStencilView());
 	
 	m_pScene[m_nNowScene]->Render(m_pD3dDevice.Get(), m_pCommandList.Get());
 
@@ -494,7 +497,7 @@ void Framework::Render()
 	ThrowIfFailed(m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr));
 
 	/* 2차 렌더링 */
-	for (i = 0; i < m_nSwapChainBuffers; ++i) {
+	for (i = 0; i < NUM_RENDERTARGET; ++i) {
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[i].Get(),
 			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 	}
@@ -508,7 +511,7 @@ void Framework::Render()
 
 	m_pDeferredFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
 	m_pScene[m_nNowScene]->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
-
+	m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
 #endif
 #endif
 
@@ -527,6 +530,8 @@ void Framework::Render()
 		m_nNowScene = (m_nNowScene + 1) % 2;
 		m_bChangeScene = false;
 	}
+
+
 }
 
 bool Framework::InitMainWindow()
@@ -910,7 +915,7 @@ void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 {
 	// 해당 씬의 마우스 캡쳐가 비활성화된 경우에만 마우스 좌표를 넘겨줌
-	if(!m_pScene[m_nNowScene]->IsCaptureMouse())
+	if(m_pScene[m_nNowScene] != nullptr && !m_pScene[m_nNowScene]->IsCaptureMouse())
 		m_pScene[m_nNowScene]->OnMouseMove(static_cast<float>(x), static_cast<float>(y));
 	if (GetCapture() == m_hMainWnd)
 	{

@@ -86,7 +86,7 @@ VS_MULTI_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSMultiTexStaticInstanceModel(VS_MODE
 	float4x4 world = instData.mtxGameObject;
 
 	output.mat = instData.nMaterial;
-	output.normalW = mul(input.normal, (float3x3)world);
+    output.normalW = mul(input.normal, (float3x3) world);
 	output.positionW = (float3)mul(float4(input.position, 1.0f), world);
 	output.position = mul(mul(mul(float4(input.position, 1.0f), world), gmtxView), gmtxProjection);
     for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
@@ -140,7 +140,7 @@ VS_MULTI_TEXTURED_LIGHTING_OUTPUT VSMultiTexDynamicModel(VS_MODEL_INPUT input)
 			(float3x3)gBoneTransforms[input.index[i]]).xyz;
 	}
 
-	output.normalW = mul(normalL, (float3x3)gmtxObject);
+    output.normalW = mul(normalL, (float3x3) gmtxObject);
 	output.positionW = (float3)mul(float4(posL, 1.0f), gmtxObject);
 	output.position = mul(mul(mul(float4(posL, 1.0f), gmtxObject), gmtxView), gmtxProjection);
     for (int j = 0; j < NUM_DIRECTION_LIGHTS; j++)
@@ -245,7 +245,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexStaticModel(VS_MULTI_TEXTURED_LIGHTI
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, factor);
 
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+    output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = output.nrmoutline;
 
 	return (output);
 };
@@ -264,7 +265,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexStaticInstanceModel(VS_MULTI_TEXTURE
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+    output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = output.nrmoutline;
 
 	return (output);
 };
@@ -289,7 +291,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexDynamicModel(VS_MULTI_TEXTURED_LIGHT
     float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
 
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+	output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = output.nrmoutline;
 
 	return (output);
 };
@@ -307,7 +310,8 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexDynamicInstanceModel(VS_MULTI_TEXTUR
     float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
 	output.color = cColor * cIllumination;
-	output.normal = float4(input.normalW, 1.0f);
+	output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = output.nrmoutline;
 
 	return (output);
 }
@@ -353,7 +357,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_MODEL_MULTI_NORMAL_OUTPUT input
     litColor.rgb += shininess * fresnelFactor * litColor.rgb;
 
     output.color = litColor;
-    output.normal = float4(input.normalW, 1.0f);
-
+    output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = float4(bumpedNormalW.x, bumpedNormalW.y, bumpedNormalW.z, 1.0f);
     return output;
 }

@@ -66,7 +66,7 @@ static int2 gnOffsets[9] = { { -1,-1 },{ 0,-1 },{ 1,-1 },{ -1,0 },{ 0,0 },{ 1,0 
 float4 PSDeferredFullScreen(float4 position : SV_Position) : SV_Target
 {
     //return float4(gShadowMap[1][int2(position.xy)].rrr, 1.0f);
-	//return(gNormalTexture[int2(position.xy)]);
+	//return(gBuffer[GBUFFER_OUTLINENRM][int2(position.xy)]);
 
 	float fEdgeness = 0.0f;
 	float3 cEdgeness = float3(0.0f, 0.0f, 0.0f);
@@ -81,25 +81,25 @@ float4 PSDeferredFullScreen(float4 position : SV_Position) : SV_Target
         {
             for (int i = -scale.y; i < scale.y; i++)
             {
-                cColor += gScreenTexture[(int2) position.xy + int2(j, i)].xyz;
+                cColor += gBuffer[GBUFFER_COLOR][(int2) position.xy + int2(j, i)].xyz;
             }
         }
 
         cColor = cColor / (float) ((gBlurScale.x + 1) * (gBlurScale.y + 1));
         
         if (scale.x < 2 && scale.y < 2)
-            cColor = gScreenTexture[(int2) position.xy].xyz;
+            cColor = gBuffer[GBUFFER_COLOR][(int2) position.xy].xyz;
     }
 
     //  ¾ÈÁ×À¸¸é ¿Ü°û¼±µµ Ã³¸®
     else
     {
-        if ((position.x >= 1) || (position.y >= 1) || (position.x <= gNormalTexture.Length.x - 2) || (position.y <= gNormalTexture.Length.y - 2))
+        if ((position.x >= 1) || (position.y >= 1) || (position.x <= gBuffer[GBUFFER_OUTLINENRM].Length.x - 2) || (position.y <= gBuffer[GBUFFER_OUTLINENRM].Length.y - 2))
         {
             float3 vNormal = float3(1.0f, 1.0f, 1.0f);
             for (int i = 0; i < 9; i++)
             {
-                vNormal = gNormalTexture[int2(position.xy) + gnOffsets[i]].xyz;
+                vNormal = gBuffer[GBUFFER_OUTLINENRM][int2(position.xy) + gnOffsets[i]].xyz;
                 vNormal = vNormal * 2.0f - 1.0f;
                 cEdgeness += gfLaplacians[i] * vNormal;
             }
@@ -107,7 +107,7 @@ float4 PSDeferredFullScreen(float4 position : SV_Position) : SV_Target
             cEdgeness = float3(fEdgeness, fEdgeness, fEdgeness);
         }
 	
-        cColor = gScreenTexture[(int2) position.xy].xyz;
+        cColor = gBuffer[GBUFFER_COLOR][(int2) position.xy].xyz;
         cColor = (fEdgeness < 0.25f) ? cColor : ((fEdgeness < 0.55) ? (cColor - cEdgeness) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
     }
 
@@ -122,7 +122,7 @@ float4 PSFadeEffect(float4 position : SV_POSITION) : SV_Target
 
 float4 PSFullScreen(float4 position : SV_POSITION) : SV_Target
 {
-    return gScreenTexture[int2(position.xy)];
+    return gBuffer[GBUFFER_COLOR][int2(position.xy)];
 }
 
 
@@ -132,3 +132,4 @@ float4 PS(float4 position : SV_POSITION) : SV_Target
 
     return float4(cColor, 1.0f);
 }
+

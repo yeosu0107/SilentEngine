@@ -75,3 +75,4 @@ private:
 
 	CTexture *pTexture = nullptr;
 };
+

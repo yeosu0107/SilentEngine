@@ -405,6 +405,9 @@
     <FxCompile Include="hlsl\UIShader.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\RTDraw.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="NormalSkyrim.cur">

@@ -10,6 +10,15 @@
     #define NUM_MAX_UITEXTURE 4
 #endif
 
+#ifndef NUM_RENDERTARGET
+    #define NUM_RENDERTARGET 3
+
+    #define GBUFFER_COLOR       0
+    #define GBUFFER_OUTLINENRM  1
+    #define GBUFFER_NRM         2
+#endif
+
+
 
 struct VS_TEXTURED_INPUT
 {
@@ -55,15 +64,12 @@ Texture2D g2DTexture : register(t3);
 Texture2D g2DTextureNormal : register(t4);
 
 StructuredBuffer<InstanceEffectData> gEffectInstanceData : register(t5);
-Texture2D<float4> gScreenTexture : register(t6);
+StructuredBuffer<InstanceAnimateInfo> gDynamicInstanceData : register(t6);
 
-StructuredBuffer<InstanceAnimateInfo> gDynamicInstanceData : register(t7);
-Texture2D<float4> gNormalTexture : register(t8);
+Texture2D gShadowMap[NUM_DIRECTION_LIGHTS] : register(t7); // register 9 ~ 9 + NUM_DIRECTION_LIGHTS - 1 
+Texture2D gUITextures[NUM_MAX_UITEXTURE] : register(t9);
 
-Texture2D gShadowMap[NUM_DIRECTION_LIGHTS] : register(t9); // register 9 ~ 9 + NUM_DIRECTION_LIGHTS - 1 
+Texture2D gTextures[NUM_MAX_TEXTURE] : register(t13);
+Texture2D gNormalTextures[NUM_MAX_TEXTURE] : register(t15);
 
-Texture2D gUITextures[NUM_MAX_UITEXTURE] : register(t15);
-
-Texture2D gTextures[NUM_MAX_TEXTURE] : register(t20);
-Texture2D gNormalTextures[NUM_MAX_TEXTURE] : register(t24);
-
+Texture2D<float4> gBuffer[NUM_RENDERTARGET] : register(t17);
