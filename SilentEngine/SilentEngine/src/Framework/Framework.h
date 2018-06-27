@@ -43,8 +43,10 @@ public:
 protected:
 
 	virtual void CreateRtvAndDsvDescriptorHeaps();
+	virtual void CreateSwapChainRenderTargetViews();
 	virtual void OnWakeUp();
 	virtual void OnResize();
+	
 	virtual void Update();
 	virtual void RenderShadow();
 	virtual void Render();
@@ -73,7 +75,6 @@ protected:
 	void LogAdapters();
 	void LogAdapterOutputs(IDXGIAdapter* padapter);
 	void LogOutputDisplayModes(IDXGIOutput* poutput, DXGI_FORMAT format);
-	void CreateSwapChainRenderTargetViews();
 protected:
 
 	static Framework* m_pFramework;

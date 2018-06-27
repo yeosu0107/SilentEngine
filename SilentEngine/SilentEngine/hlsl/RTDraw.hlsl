@@ -54,8 +54,8 @@ float4 PSRTTextured(VS_TEXTURED_OUTPUT input) : SV_Target
 {
     float4 finalColor = (float4) 0.0f;
     float2 uv = input.uv;
-    uint index = floor(uv.x * (NUM_RENDERTARGET + 1));
-    uv.x = frac(uv.x * (NUM_RENDERTARGET + 1));
+    uint index = floor(uv.x * NUM_RENDERTARGET);
+    uv.x = frac(uv.x * NUM_RENDERTARGET);
 
     if(index == 0)
         finalColor = gBuffer[0].Sample(gDefaultSamplerState, uv);
@@ -63,10 +63,11 @@ float4 PSRTTextured(VS_TEXTURED_OUTPUT input) : SV_Target
         finalColor = gBuffer[1].Sample(gDefaultSamplerState, uv);
     else if (index == 2)
         finalColor = gBuffer[2].Sample(gDefaultSamplerState, uv);
-
-    else if (index == NUM_RENDERTARGET)
-        finalColor = gShadowMap[0].Sample(gDefaultSamplerState, uv).rrra;
-  
+    else if (index == GBUFFER_DEPTH)
+    {
+        //finalColor = gShadowMap[0].Sample(gDefaultSamplerState, uv).rrra;
+        finalColor = gBuffer[GBUFFER_DEPTH].Sample(gDefaultSamplerState, uv).rrra;
+    }
     return finalColor;
 }
 

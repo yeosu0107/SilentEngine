@@ -29,7 +29,7 @@ Camera::Camera()
 	m_nMode = 0x00;
 	m_pPlayer = NULL;
 
-	GenerateProjectionMatrix(1.0f, 5000.0f, ASPECT_RATIO, 60.0f);
+	GenerateProjectionMatrix(1.0f, 1500.0f, ASPECT_RATIO, 60.0f);
 	GenerateViewMatrix(m_xmf3Position, XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f));
 }
 

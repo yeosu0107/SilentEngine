@@ -60,7 +60,6 @@ enum RTVType {
 
 extern const int gNumFrameResources;
 
-
 using namespace Microsoft::WRL;
 using namespace DirectX;
 using namespace std;
@@ -68,7 +67,10 @@ using namespace std;
 #define FRAME_BUFFER_WIDTH 1280
 #define FRAME_BUFFER_HEIGHT 720
 
+#define NUM_DEPTHGBUFFERS 1
 #define NUM_RENDERTARGET 3 
+#define NUM_GBUFFERS NUM_RENDERTARGET + NUM_DEPTHGBUFFERS
+
 
 const UINT MAX_MAP = 10;
 

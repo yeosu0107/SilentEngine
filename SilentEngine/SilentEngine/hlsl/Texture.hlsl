@@ -11,11 +11,12 @@
 #endif
 
 #ifndef NUM_RENDERTARGET
-    #define NUM_RENDERTARGET 3
+    #define NUM_RENDERTARGET 4
 
     #define GBUFFER_COLOR       0
     #define GBUFFER_OUTLINENRM  1
     #define GBUFFER_NRM         2
+    #define GBUFFER_DEPTH       3
 #endif
 
 

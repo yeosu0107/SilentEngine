@@ -85,7 +85,7 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	D3D12_ROOT_PARAMETER pd3dRootParameters[6];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
+	pd3dRootParameters[0].Descriptor.ShaderRegister = CBVCameraInfo; //Camera
 	pd3dRootParameters[0].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
@@ -95,12 +95,12 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[2].Descriptor.ShaderRegister = 4; //Materials
+	pd3dRootParameters[2].Descriptor.ShaderRegister = CBVMaterial; //Materials
 	pd3dRootParameters[2].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	pd3dRootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[3].Descriptor.ShaderRegister = 5; //Lights
+	pd3dRootParameters[3].Descriptor.ShaderRegister = CBVLights; //Lights
 	pd3dRootParameters[3].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
@@ -110,7 +110,7 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[5].Descriptor.ShaderRegister = 8; //Fog
+	pd3dRootParameters[5].Descriptor.ShaderRegister = CBVFog; //Fog
 	pd3dRootParameters[5].Descriptor.RegisterSpace = 0;
 	pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 

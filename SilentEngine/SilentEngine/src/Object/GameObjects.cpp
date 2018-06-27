@@ -6,6 +6,9 @@
 CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 {
 	m_nTextures = nTextures;
+	m_nTexType = nTextureType;
+	m_nSamplers = nSamplers;
+
 	if (m_nTextures > 0)
 	{
 		m_pRootArgumentInfos = vector<SRVROOTARGUMENTINFO>();
@@ -14,11 +17,10 @@ CTexture::CTexture(int nTextures, UINT nTextureType, int nSamplers)
 		m_pTextureType = vector<UINT>(m_nTextures);
 		for (int i = 0; i < m_nTextures; i++) {
 			m_ppd3dTextureUploadBuffers[i] = m_ppd3dTextures[i] = nullptr;
-			m_pTextureType[i] = nTextureType;
+			m_pTextureType[i] = m_nTexType;
 		}
 	}
 
-	m_nSamplers = nSamplers;
 	if (m_nSamplers > 0) 
 		m_pd3dSamplerGpuDescriptorHandles = new D3D12_GPU_DESCRIPTOR_HANDLE[m_nSamplers];
 }
@@ -95,6 +97,8 @@ void CTexture::LoadTextureFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsComma
 ComPtr<ID3D12Resource> CTexture::CreateTexture(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags, D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE *pd3dClearValue, UINT nIndex)
 {
 	m_ppd3dTextures[nIndex] = D3DUtil::CreateTexture2DResource(pd3dDevice, pd3dCommandList, nWidth, nHeight, dxgiFormat, d3dResourceFlags, d3dResourceStates, pd3dClearValue);
+	if (dxgiFormat == DXGI_FORMAT_R24G8_TYPELESS) m_pTextureType[nIndex] = RESOURCE_TEXTURE2D_SHADOWMAP;
+
 	return(m_ppd3dTextures[nIndex]);
 }
 

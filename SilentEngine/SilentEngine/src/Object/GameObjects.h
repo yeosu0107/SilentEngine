@@ -83,13 +83,14 @@ public:
 
 private:
 	int								m_nReferences = 0;
-
+	int								m_nSamplers = 0;
 	int								m_nTextures = 0;
+	UINT							m_nTexType = 0;
+	
 	vector<ComPtr<ID3D12Resource>>	m_ppd3dTextures;
 	vector<ComPtr<ID3D12Resource>>	m_ppd3dTextureUploadBuffers;
 	vector<SRVROOTARGUMENTINFO>		m_pRootArgumentInfos;
 	vector<UINT>					m_pTextureType;
-	int								m_nSamplers = 0;
 	D3D12_GPU_DESCRIPTOR_HANDLE		*m_pd3dSamplerGpuDescriptorHandles = NULL;
 
 public:
@@ -112,7 +113,8 @@ public:
 	int GetTextureCount() { return(m_nTextures); }
 	
 	ComPtr<ID3D12Resource> GetTexture(int nIndex) { return(m_ppd3dTextures[nIndex]); }
-	ComPtr<ID3D12Resource> GetUploadBuffer(int nIndex) { return(m_ppd3dTextureUploadBuffers[nIndex]); }
+	ComPtr<ID3D12Resource> GetUploadBuffer(int nIndex) { return(m_ppd3dTextureUploadBuffers[nIndex]); };
+	
 
 	UINT GetTextureType(int index) { return(m_pTextureType[index]); }
 

@@ -210,6 +210,10 @@ public:
 	DeferredFullScreen();
 	virtual ~DeferredFullScreen();
 
+	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
+	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
+
+
 	void SetNowScene(UINT* nowScene) { m_pNowScene = nowScene; }
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
@@ -221,7 +225,7 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 protected:
 	unique_ptr<UploadBuffer<CB_SCENEBLUR_INFO>>	m_BulrCB = nullptr;
-	CTexture*				m_pTexture;
+	unique_ptr<CTexture>				m_pTexture;
 	GameObject*				m_pPlayer;
 
 	float					m_IsDeath;
@@ -291,9 +295,7 @@ public:
 	~DrawGBuffers() { };
 
 public:
-	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
-	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
-
+	
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 };
