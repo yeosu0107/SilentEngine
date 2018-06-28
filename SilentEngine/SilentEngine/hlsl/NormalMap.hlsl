@@ -20,6 +20,10 @@ struct VS_NORMAL_OUTPUT
 	float2 uv : TEXCOORD;
 };
 
+float4 PackingNorm(float4 nor)
+{
+    return nor * 0.5f + float4(0.5f, 0.5f, 0.5f, 0.5f);
+}
 
 float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, float3 tangentW)
 {
@@ -95,7 +99,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Targe
 
 	output.color = litColor;
 	output.nrmoutline = float4(input.normalW, 1.0f);
-    output.nrm = float4(bumpedNormalW.x, bumpedNormalW.y, bumpedNormalW.z, 1.0f);
+    output.nrm = PackingNorm(float4(bumpedNormalW, 1.0f));
 	//return cColor;
 	return output;
 }
@@ -134,7 +138,7 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSModelNormalMap(VS_MODEL_NORMAL_OUTPUT input)
 
     output.color = Fog(litColor, input.positionW);
     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);
-    output.nrm = float4(bumpedNormalW.x, bumpedNormalW.y, bumpedNormalW.z, 1.0f);
+    output.nrm = PackingNorm(float4(bumpedNormalW, 1.0f));
 
     return output;
 }

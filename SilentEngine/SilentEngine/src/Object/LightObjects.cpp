@@ -2,7 +2,6 @@
 #include "LightObjects.h"
 #include "D3DUtil.h"
 
-
 LightObject::LightObject()
 {
 }
@@ -19,6 +18,7 @@ void LightObject::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandList 
 	if (bShadowMap)
 		CalculateLightMatrix();
 }
+
 
 VS_CB_CAMERA_INFO* LightObject::LightMatrix()
 {
@@ -187,6 +187,47 @@ void LightManagement::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera
 	if (m_pShaderForTest)
 		m_pShaderForTest->Render(pd3dCommandList, pCamera);
 #endif
+}
+
+LightManagement * LightManagement::Instance()
+{
+	static LightManagement instance;
+	return &instance;
+}
+
+MaterialManagement::MaterialManagement()
+{
+}
+
+MaterialManagement::~MaterialManagement()
+{
+}
+
+void MaterialManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pd3dCommandLis)
+{
+	m_pd3dcbMat = std::make_unique<UploadBuffer<MATERIALS>>(pDevice, 1, true);
+
+	m_pMat.m_pReflections[0] = { XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f), XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMat.m_pReflections[1] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
+	m_pMat.m_pReflections[2] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMat.m_pReflections[3] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMat.m_pReflections[4] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 25.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMat.m_pReflections[5] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 30.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMat.m_pReflections[6] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMat.m_pReflections[7] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 40.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+
+	m_pd3dcbMat->CopyData(0, m_pMat);
+}
+
+void MaterialManagement::UpdateShaderVariables()
+{
+	m_pd3dcbMat->CopyData(0, m_pMat);
+}
+
+MaterialManagement * MaterialManagement::Instance()
+{
+	static MaterialManagement instance;
+	return &instance;
 }
 
 

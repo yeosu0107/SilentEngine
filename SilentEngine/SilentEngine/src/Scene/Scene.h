@@ -95,7 +95,6 @@ public:
 	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index = 0);
 	virtual void CalculateLightMatrix(VS_CB_CAMERA_INFO& cameraInfo, int index, float offset);
 
-	void BuildLightsAndMaterials();
 	void BuildFog();
 
 	virtual bool OnKeyboardInput(const Timer& gt, HWND& hWin);
@@ -128,12 +127,7 @@ protected:
 	UINT														m_nowRoom;
 
 	Door														m_isRoomChange;
-	
-	LightManagement*												m_pLights;
 	//unique_ptr<UploadBuffer<LIGHTS>>			m_pd3dcbLights = nullptr;
-
-	MATERIALS*											m_pMaterials;
-	unique_ptr<UploadBuffer<MATERIALS>>	m_pd3dcbMaterials = nullptr;
 
 	CB_FOG_INFO*										m_pFog;
 	unique_ptr<UploadBuffer<CB_FOG_INFO>>				m_pd3dcbFog = nullptr;

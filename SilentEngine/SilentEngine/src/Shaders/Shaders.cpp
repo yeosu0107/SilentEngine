@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Camera.h"
 #include "Shaders.h"
+#include "LightObjects.h"
 #include "InstanceObject.h"
 
 CompiledShaders::CompiledShaders()
@@ -954,14 +955,17 @@ void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	for(i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		pd3dDescriptorRanges[NUM_GBUFFERS + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_GBUFFERS + NUM_DIRECTION_LIGHTS + 1];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_GBUFFERS + NUM_DIRECTION_LIGHTS + 3];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(10);
+	pd3dRootParameters[1].InitAsConstantBufferView(CBVMaterial);
+	pd3dRootParameters[2].InitAsConstantBufferView(CBVLights);
 	for (int i = 0; i < NUM_GBUFFERS; ++i) {
-		pd3dRootParameters[i + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[i + 3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
 	}
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[NUM_GBUFFERS + i + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_GBUFFERS + i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[NUM_GBUFFERS + i + 3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_GBUFFERS + i], D3D12_SHADER_VISIBILITY_PIXEL);
+
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1033,12 +1037,12 @@ void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSDeferredFullScreen", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "VS_DEFFERED_SHADER", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "PS_DEFFERED_SHADER", "ps_5_0");
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 3, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get() , 1, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get() , 3, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
@@ -1101,6 +1105,8 @@ void DeferredFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Cam
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 	
 	pd3dCommandList->SetGraphicsRootConstantBufferView(0, m_BulrCB->Resource()->GetGPUVirtualAddress());
+	pd3dCommandList->SetGraphicsRootConstantBufferView(1, MATERIAL_MANAGER->MaterialUploadBuffer()->Resource()->GetGPUVirtualAddress());
+	pd3dCommandList->SetGraphicsRootConstantBufferView(2, LIGHT_MANAGER->LightUploadBuffer()->Resource()->GetGPUVirtualAddress());
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
@@ -1437,7 +1443,7 @@ void DrawGBuffers::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 1, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 3, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);

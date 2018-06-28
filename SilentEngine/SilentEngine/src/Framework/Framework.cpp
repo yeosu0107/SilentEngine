@@ -685,6 +685,9 @@ void Framework::BuildObjects()
 	GlobalVal::getInstance()->getModelLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get()); 
 	GlobalVal::getInstance()->getMapLoader()->LodingModels(m_pD3dDevice.Get(), m_pCommandList.Get());
 	
+	LIGHT_MANAGER->BuildObject(m_pD3dDevice.Get(), m_pCommandList.Get(), 45.0f, XMFLOAT3(1.0f, 0.0f, 0.0f));
+	MATERIAL_MANAGER->BuildObject(m_pD3dDevice.Get(), m_pCommandList.Get());
+
 	MainScene* mainScene = new MainScene();
 	mainScene->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
 	m_pScene[0] = mainScene;

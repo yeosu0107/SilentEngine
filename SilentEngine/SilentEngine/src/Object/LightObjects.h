@@ -1,10 +1,10 @@
 #pragma once
 #include "Shaders.h"
 
-
-
-
+#define LIGHT_MANAGER LightManagement::Instance()
+#define MATERIAL_MANAGER  MaterialManagement::Instance()
 //#define _DEBUG_LIGHTOBJECT
+
 
 class ObjectShader;
 class LightBoxShader;
@@ -44,9 +44,12 @@ public:
 	~LightManagement();
 
 public:
+
 	void BuildObject(ID3D12Device* pDevice, ID3D12GraphicsCommandList * pd3dCommandLis, float fAngle, XMFLOAT3& xmf3Axis);
 	void UpdateShaderVariables();
 	void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
+	
+	static LightManagement* Instance();
 	VS_CB_CAMERA_INFO* LightMatrix(int index) { return  m_pLights[index].LightMatrix(); }
 	LIGHT Light(int index) { return m_pLights[index].LightInfo(); }
 	UploadBuffer<LIGHTS>* LightUploadBuffer() { return m_pd3dcbLights.get(); }
@@ -59,6 +62,25 @@ private:
 	LightBoxShader* m_pShaderForTest;
 #endif
 };
+
+class MaterialManagement
+{
+public:
+	MaterialManagement();
+	~MaterialManagement();
+
+private:
+	MATERIALS									m_pMat;
+	unique_ptr<UploadBuffer<MATERIALS>>			m_pd3dcbMat;
+
+public:
+	void BuildObject(ID3D12Device* pDevice, ID3D12GraphicsCommandList * pd3dCommandLis);
+	void UpdateShaderVariables();
+	static MaterialManagement* Instance();
+	//static MaterialManagement* Instance();
+	UploadBuffer<MATERIALS>* MaterialUploadBuffer() { return m_pd3dcbMat.get(); }
+};
+
 
 
 #ifdef _DEBUG_LIGHTOBJECT

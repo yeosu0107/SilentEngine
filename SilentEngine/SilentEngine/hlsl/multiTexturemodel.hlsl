@@ -358,6 +358,6 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_MODEL_MULTI_NORMAL_OUTPUT input
 
     output.color = litColor;
     output.nrmoutline = float4(input.normalW, 1.0f);
-    output.nrm = float4(bumpedNormalW.x, bumpedNormalW.y, bumpedNormalW.z, 1.0f);
+    output.nrm = PackingNorm(float4(bumpedNormalW, 1.0f));
     return output;
 }

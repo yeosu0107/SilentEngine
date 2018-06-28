@@ -211,7 +211,7 @@ public:
 	virtual ~DeferredFullScreen();
 
 	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
-	virtual D3D12_BLEND_DESC CreateBlendState(int index = 0);
+	virtual D3D12_BLEND_DESC			CreateBlendState(int index = 0);
 
 
 	void SetNowScene(UINT* nowScene) { m_pNowScene = nowScene; }
