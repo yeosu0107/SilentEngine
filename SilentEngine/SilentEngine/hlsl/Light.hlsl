@@ -188,22 +188,22 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowF
 	float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
-		if (gLights[i].m_bEnable)
+		if (gLights[i].m_bEnable == 1)
 		{
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
                 cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex, shadowFactor[j]) * shadowFactor[j];
                 j++;
             }
-			else if (gLights[i].m_nType == POINT_LIGHT)
-			{
-                cColor += PointLight(i, vPosition, vNormal, vToCamera, nMatindex, shadowFactor[j]);
-                j++;
-            }
-			else if (gLights[i].m_nType == SPOT_LIGHT)
-			{
-                cColor += SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
-            }
+			//else if (gLights[i].m_nType == POINT_LIGHT)
+			//{
+            //    cColor += PointLight(i, vPosition, vNormal, vToCamera, nMatindex, shadowFactor[j]);
+            //    j++;
+            //}
+			//else if (gLights[i].m_nType == SPOT_LIGHT)
+			//{
+            //    cColor += SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
+            //}
 		}
 	}
 
@@ -254,14 +254,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT
 	input.normalW = normalize(input.normalW);
     float4 shadowFactor = 1.0f;
 
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-
-    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, shadowFactor);
-	
-	output.color = cColor * cIllumination;
+ 
+	output.color = cColor;
 	 output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
+    output.pos = float4(input.positionW, 1.f);
 	return(output);
 };
 
@@ -305,12 +302,9 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTIN
 	input.normalW = normalize(input.normalW);
     float4 shadowFactor = 1.0f;
   
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
-
-	output.color = cColor * cIllumination;
+	output.color = cColor;
 	output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
+    output.pos = float4(input.positionW, 1.f);
 	return(output);
 };

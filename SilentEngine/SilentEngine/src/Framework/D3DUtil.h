@@ -55,7 +55,8 @@ enum CBVRegisterNumber {
 enum RTVType {
 	RTV_COLOR /* 색상 추출 */,
 	RTV_OUTLINENRM /* 외곽선을 위한 노말 벡터 추출 */,
-	RTV_NRM /* 노말 매핑 후의 노말 벡터 추출 */
+	RTV_NRM, /* 노말 매핑 후의 노말 벡터 추출 */
+	RTV_POS
 };
 
 extern const int gNumFrameResources;
@@ -68,7 +69,7 @@ using namespace std;
 #define FRAME_BUFFER_HEIGHT 720
 
 #define NUM_DEPTHGBUFFERS 1
-#define NUM_RENDERTARGET 3 
+#define NUM_RENDERTARGET 4 
 #define NUM_GBUFFERS NUM_RENDERTARGET + NUM_DEPTHGBUFFERS
 
 
@@ -83,7 +84,7 @@ extern UINT	gnCbvSrvDescriptorIncrementSize;
 #define DIR_UP					0x10
 #define DIR_DOWN				0x20
 
-#define NUM_DIRECTION_LIGHTS		2
+#define NUM_DIRECTION_LIGHTS		1
 
 inline void d3dSetDebugName(IDXGIObject* obj, const char* name)
 {
@@ -297,7 +298,7 @@ struct LIGHT
 	float 					m_fTheta; //cos(m_fTheta)
 	XMFLOAT3				m_xmf3Attenuation;
 	float					m_fPhi; //cos(m_fPhi)
-	bool					m_bEnable;		// 조명 온오프
+	int					m_bEnable;		// 조명 온오프
 	int						m_nType;		// 조명 종류
 	float					m_fRange;		// 조명 길이
 	float					padding;

@@ -433,7 +433,7 @@ void Framework::Render()
 	m_pCommandList->RSSetViewports(1, &m_ScreenViewport);
 	m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
 
-	float pfClearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 #ifdef _SHADOWMAP_DEBUG
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),

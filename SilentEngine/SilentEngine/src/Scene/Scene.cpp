@@ -82,7 +82,7 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	pd3dDescriptorRanges[1].RegisterSpace = 0;
 	pd3dDescriptorRanges[1].OffsetInDescriptorsFromTableStart = 0;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[6];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[5];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = CBVCameraInfo; //Camera
@@ -108,11 +108,6 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 	pd3dRootParameters[4].DescriptorTable.NumDescriptorRanges = 1;
 	pd3dRootParameters[4].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; //Texture2DArray
 	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[5].Descriptor.ShaderRegister = CBVFog; //Fog
-	pd3dRootParameters[5].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -147,14 +142,11 @@ void TestScene::BuildRootSignature(ID3D12Device * pDevice, ID3D12GraphicsCommand
 }
 
 void TestScene::CreateShaderVariables(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
-{
-	m_pd3dcbFog = std::make_unique<UploadBuffer<CB_FOG_INFO>>(pDevice, 1, true);
-}
+{ }
 
 void TestScene::UpdateShaderVarialbes() {
 	LIGHT_MANAGER->UpdateShaderVariables();
 	MATERIAL_MANAGER->UpdateShaderVariables();
-	m_pd3dcbFog->CopyData(0, *m_pFog);
 }
 
 bool TestScene::Update(const Timer & gt)
@@ -221,7 +213,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	loader = GlobalVal::getInstance()->getFirePos();
 
 	BuildRootSignature(pDevice, pCommandList);
-	BuildFog();
 	CreateShaderVariables(pDevice, pCommandList);
 
 	m_Camera = make_unique<CThirdPersonCamera>();
@@ -239,7 +230,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
 	Explosion->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
 	Explosion->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-	Explosion->SetFogUploadBuffer(m_pd3dcbFog.get());
 	Explosion->SetCamera(m_Camera.get());
 	Explosion->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
@@ -247,7 +237,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	PaticleShader<HitPaticle>* hitShader = new PaticleShader<HitPaticle>();
 	hitShader->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
 	hitShader->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-	hitShader->SetFogUploadBuffer(m_pd3dcbFog.get());
 	hitShader->SetCamera(m_Camera.get());
 	hitShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(3));
 	hitShader->setAnimSpeed(50.0f);
@@ -256,7 +245,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	fireObjectShaders = new PaticleShader<PaticleObject>();
 	fireObjectShaders->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
 	fireObjectShaders->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-	fireObjectShaders->SetFogUploadBuffer(m_pd3dcbFog.get());
 	fireObjectShaders->SetCamera(m_Camera.get());
 	fireObjectShaders->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(2));
 	fireObjectShaders->setLoop(true);
@@ -268,7 +256,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		map[i] = new MapShader(i);
 		map[i]->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
 		map[i]->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-		map[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
 		map[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	}
 	/*for (UINT i = 0; i < m_nRoom; ++i) {
@@ -282,7 +269,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	InstanceModelShader* gateShader = new InstanceModelShader(10);
 	gateShader->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
 	gateShader->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-	gateShader->SetFogUploadBuffer(m_pd3dcbFog.get());
 	gateShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
@@ -300,14 +286,12 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	for (int i = 0; i < 5; ++i) {
 		enemyShader[i]->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
 		enemyShader[i]->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-		enemyShader[i]->SetFogUploadBuffer(m_pd3dcbFog.get());
 		enemyShader[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, (int*)enemyNum[i]);
 	}
 
 	bullet = new ProjectileShader();
 	bullet->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
 	bullet->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-	bullet->SetFogUploadBuffer(m_pd3dcbFog.get());
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList , NUM_RENDERTARGET, globalEffects->getTextureFile(0));
 	bullet->setPhys(m_physics);
@@ -368,9 +352,6 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = MATERIAL_MANAGER->MaterialUploadBuffer()->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
-
-	D3D12_GPU_VIRTUAL_ADDRESS d3dcbFogGpuVirtualAddress = m_pd3dcbFog->Resource()->GetGPUVirtualAddress();
-	pCommandList->SetGraphicsRootConstantBufferView(5, d3dcbFogGpuVirtualAddress); //Materials
 
 	//플레이어 랜더링
 	m_playerShader->Render(pCommandList, m_Camera.get());
@@ -744,19 +725,7 @@ void TestScene::ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	reinterpret_cast<Player*>(m_testPlayer)->reset();
 }
 
-void TestScene::BuildFog()
-{
-	m_pFog = new CB_FOG_INFO();
-	::ZeroMemory(m_pFog, sizeof(CB_FOG_INFO));
 
-	m_pFog->m_xmf4FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-
-	float fFogMode = 1.0f;
-	float fStart = 50.0f;
-	float fEnd = 500.0f;
-	float fDensity = 1.0f; 
-	m_pFog->m_xmf4Foginfo = XMFLOAT4(fFogMode, fStart, fEnd, fDensity);	
-}
 
 bool MainScene::Update(const Timer & gt)
 {
@@ -802,14 +771,14 @@ void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 void MainScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_pBackground->Render(pCommandList, m_Camera.get());
-	m_pButtons->Render(pCommandList);
-	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
+	
 }
 
 void MainScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-
+	m_pBackground->Render(pCommandList, m_Camera.get());
+	m_pButtons->Render(pCommandList);
+	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
 }
 
 bool MainScene::OnMouseDown(HWND & hWin, WPARAM btnState, UINT nMessageID, int x, int y)

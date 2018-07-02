@@ -37,5 +37,5 @@ float4 PSEffect(VS_EFFECT_OUTPUT input) : SV_Target
 
 	clip(cColor.a - 0.1f);
 
-    return Fog(cColor, input.positionW);
+    return cColor;
 }

@@ -9,8 +9,7 @@
 
 float4 Fog(float4 cColor, float3 vPosition)
 {
-    float3 vCameraPos   = gvCameraPosition;
-    float3 vPosToCamera = vCameraPos - vPosition;
+    float3 vPosToCamera = gvCameraPosition - vPosition;
     float fDistance     = length(vPosToCamera);
     float fFogFactor    = 0.0f;
 
@@ -19,7 +18,7 @@ float4 Fog(float4 cColor, float3 vPosition)
         float fFogRange = gFogParameter.z - gFogParameter.y;
         fFogFactor = saturate((gFogParameter.z - fDistance) * 2 / fFogRange);
     }
-    float4 cColorByFog = lerp(gFogColor, cColor, fFogFactor);
+    float4 cColorByFog = lerp(cColor, gFogColor, fFogFactor);
     return cColorByFog;
 }
 

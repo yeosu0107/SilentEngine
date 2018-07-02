@@ -123,8 +123,10 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList)
 	RegenerateViewMatrix();
 
 	VS_CB_CAMERA_INFO cameraConstant; 
-	XMStoreFloat4x4(&cameraConstant.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
-	XMStoreFloat4x4(&cameraConstant.m_xmf4x4Projection, XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
+	XMStoreFloat4x4(&cameraConstant.m_xmf4x4View, DirectX::XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
+	XMStoreFloat4x4(&cameraConstant.m_xmf4x4Projection, DirectX::XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
+	XMStoreFloat4x4(&cameraConstant.m_xmf4x4InvProjection, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4Projection))));
+	
 	for(int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		XMStoreFloat4x4(&cameraConstant.m_xmf4x4ShadowProjection[i], XMLoadFloat4x4(&m_xmf4x4ShadowProjection[i]));
 	::memcpy(&cameraConstant.m_xmf3Position, &m_xmf3Position, sizeof(XMFLOAT3));

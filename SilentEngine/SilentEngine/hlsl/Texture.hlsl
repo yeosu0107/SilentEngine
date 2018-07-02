@@ -1,3 +1,6 @@
+#ifndef TEXTURE_HLSL
+#define TEXTURE_HLSL
+
 #ifndef NUM_DIRECTION_LIGHTS
     #define NUM_DIRECTION_LIGHTS 2
 #endif
@@ -11,12 +14,13 @@
 #endif
 
 #ifndef NUM_RENDERTARGET
-    #define NUM_RENDERTARGET 4
+    #define NUM_RENDERTARGET 5
 
     #define GBUFFER_COLOR       0
     #define GBUFFER_OUTLINENRM  1
     #define GBUFFER_NRM         2
-    #define GBUFFER_DEPTH       3
+    #define GBUFFER_POS         3
+    #define GBUFFER_DEPTH       4
 #endif
 
 
@@ -74,3 +78,5 @@ Texture2D gTextures[NUM_MAX_TEXTURE] : register(t13);
 Texture2D gNormalTextures[NUM_MAX_TEXTURE] : register(t15);
 
 Texture2D<float4> gBuffer[NUM_RENDERTARGET] : register(t17);
+
+#endif

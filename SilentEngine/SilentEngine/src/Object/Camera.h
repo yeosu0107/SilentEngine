@@ -14,6 +14,7 @@ struct VS_CB_CAMERA_INFO
 {
 	XMFLOAT4X4						m_xmf4x4View;
 	XMFLOAT4X4						m_xmf4x4Projection;
+	XMFLOAT4X4						m_xmf4x4InvProjection;
 	XMFLOAT4X4						m_xmf4x4ShadowProjection[NUM_DIRECTION_LIGHTS];
 	XMFLOAT3						m_xmf3Position;
 };
@@ -110,6 +111,7 @@ public:
 	void SetPosition(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
 	XMFLOAT3& GetPosition() { return(m_xmf3Position); }
 
+	UploadBuffer<VS_CB_CAMERA_INFO>* GetUploadBuffer() const { return m_ObjectCB.get(); }
 	void SetLookAtPosition(XMFLOAT3 xmf3LookAtWorld) {
 		m_xmf3LookAtWorld =
 			xmf3LookAtWorld;

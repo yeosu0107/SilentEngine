@@ -310,7 +310,6 @@ void Shaders::SetMultiUploadBuffer(void** data)
 {
 	m_LightsCB	= reinterpret_cast<UploadBuffer<LIGHTS>*>(data[0]);
 	m_MatCB		= reinterpret_cast<UploadBuffer<MATERIALS>*>(data[1]);
-	m_FogCB		= reinterpret_cast<UploadBuffer<CB_FOG_INFO>*>(data[2]);
 }
 //
 //// /////////////////////////////////////////////////
@@ -530,77 +529,6 @@ void NormalMapShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandLis
 
 void NormalMapShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
-	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
-
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
-
-	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArray, 0, 0); // Texture
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArrayNorm, 0, 0); // Texture
-
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[5];
-
-	pd3dRootParameters[0].InitAsConstantBufferView(1);
-	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[2].InitAsConstantBufferView(4);
-	pd3dRootParameters[3].InitAsConstantBufferView(5);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	
-	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
-	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
-
-	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
-		0,
-		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		0.0f,
-		1,
-		D3D12_COMPARISON_FUNC_ALWAYS,
-		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
-		0.0f,
-		D3D12_FLOAT32_MAX,
-		D3D12_SHADER_VISIBILITY_PIXEL
-	);
-
-	d3dSamplerDesc[1] = CD3DX12_STATIC_SAMPLER_DESC(
-		1, // shaderRegister
-		D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, // filter
-		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
-		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
-		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
-		0.0f,                               // mipLODBias
-		16,                                 // maxAnisotropy
-		D3D12_COMPARISON_FUNC_LESS_EQUAL,
-		D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK
-	);
-
-
-
-	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
-	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
-	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
-	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
-	d3dRootSignatureDesc.NumStaticSamplers = 2;
-	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
-	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
-
-	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
-	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
-	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
-
-	if (pd3dErrorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
-	}
-	ThrowIfFailed(hr);
-
-	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
-		pd3dSignatureBlob->GetBufferPointer(),
-		pd3dSignatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
-	);
 }
 
 /////////////////////////////////////
@@ -620,7 +548,7 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		pd3dDescriptorRanges[3 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[7 + NUM_DIRECTION_LIGHTS];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6 + NUM_DIRECTION_LIGHTS];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
@@ -628,9 +556,8 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dRootParameters[3].InitAsConstantBufferView(5);
 	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[6].InitAsConstantBufferView(8);
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[7 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3 + i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[6 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3 + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -787,7 +714,7 @@ void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 		m_EffectCB->CopyData(i, cEffectBuffer);
 	}
 
-	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_FOG, m_FogCB->Resource()->GetGPUVirtualAddress());
+
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_MATERIAL, m_MatCB->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_LIGHTS, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }													  
@@ -944,6 +871,8 @@ DeferredFullScreen::~DeferredFullScreen()
 void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	int i = 0;
+	const int numofCB = 5;
+
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_GBUFFERS + NUM_DIRECTION_LIGHTS];
@@ -955,16 +884,19 @@ void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	for(i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		pd3dDescriptorRanges[NUM_GBUFFERS + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_GBUFFERS + NUM_DIRECTION_LIGHTS + 3];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_GBUFFERS + NUM_DIRECTION_LIGHTS + numofCB];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(10);
 	pd3dRootParameters[1].InitAsConstantBufferView(CBVMaterial);
 	pd3dRootParameters[2].InitAsConstantBufferView(CBVLights);
+	pd3dRootParameters[3].InitAsConstantBufferView(CBVCameraInfo);
+	pd3dRootParameters[4].InitAsConstantBufferView(CBVFog);
+
 	for (int i = 0; i < NUM_GBUFFERS; ++i) {
-		pd3dRootParameters[i + 3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[i + numofCB].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
 	}
 	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[NUM_GBUFFERS + i + 3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_GBUFFERS + i], D3D12_SHADER_VISIBILITY_PIXEL);
+		pd3dRootParameters[NUM_GBUFFERS + i + numofCB].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_GBUFFERS + i], D3D12_SHADER_VISIBILITY_PIXEL);
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
@@ -1027,6 +959,8 @@ void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	BuildFog();
+
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
 
@@ -1040,14 +974,27 @@ void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "VS_DEFFERED_SHADER", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "PS_DEFFERED_SHADER", "ps_5_0");
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 3, m_pTexture->GetTextureCount());
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get() , 3, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get() , 5, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
 }
 
+void DeferredFullScreen::BuildFog()
+{
+	m_pFog = new CB_FOG_INFO();
+	::ZeroMemory(m_pFog, sizeof(CB_FOG_INFO));
+
+	m_pFog->m_xmf4FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+
+	float fFogMode = 1.0f;
+	float fStart = 100.0f;
+	float fEnd = 400.0f;
+	float fDensity = 1.0f;
+	m_pFog->m_xmf4Foginfo = XMFLOAT4(fFogMode, fStart, fEnd, fDensity);
+}
 
 D3D12_DEPTH_STENCIL_DESC DeferredFullScreen::CreateDepthStencilState(int index)
 {
@@ -1099,14 +1046,18 @@ void DeferredFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Cam
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 
 	OnPrepareRender(pd3dCommandList);
-
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	pCamera->UpdateShaderVariables(pd3dCommandList);
 	
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
 	
 	pd3dCommandList->SetGraphicsRootConstantBufferView(0, m_BulrCB->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(1, MATERIAL_MANAGER->MaterialUploadBuffer()->Resource()->GetGPUVirtualAddress());
 	pd3dCommandList->SetGraphicsRootConstantBufferView(2, LIGHT_MANAGER->LightUploadBuffer()->Resource()->GetGPUVirtualAddress());
+
+	if( pCamera != nullptr)
+		pd3dCommandList->SetGraphicsRootConstantBufferView(3, pCamera->GetUploadBuffer()->Resource()->GetGPUVirtualAddress());
+	pd3dCommandList->SetGraphicsRootConstantBufferView(4, m_FogCB->Resource()->GetGPUVirtualAddress()); //Materials
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
@@ -1137,11 +1088,15 @@ void DeferredFullScreen::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dC
 	bluerInfo.m_Time = m_Time;
 	bluerInfo.m_Enable = m_IsDeath;
 
+	LIGHT_MANAGER->UpdateShaderVariables();
+	MATERIAL_MANAGER->UpdateShaderVariables();
 	m_BulrCB->CopyData(0, bluerInfo);
+	m_FogCB->CopyData(0, *m_pFog);
 }
 
 void DeferredFullScreen::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
+	m_FogCB = std::make_unique<UploadBuffer<CB_FOG_INFO>>(pd3dDevice, 1, true);
 	m_BulrCB = make_unique<UploadBuffer<CB_SCENEBLUR_INFO>>(pd3dDevice, m_nObjects, true);
 }
 
@@ -1426,13 +1381,17 @@ void FadeEffectShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandLi
 ///////////////////////////////////////////
 
 
+void DrawGBuffers::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+}
+
 void DrawGBuffers::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
 
-	//for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-	//	m_pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
+	for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
+		m_pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
 
 	m_nObjects = 1;
 	m_nPSO = 1;
@@ -1443,7 +1402,7 @@ void DrawGBuffers::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 3, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 5, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);

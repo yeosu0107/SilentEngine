@@ -85,21 +85,12 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_NORMAL_OUTPUT input) : SV_Targe
 
 	cColor = gBoxTextured.Sample(gDefaultSamplerState, float3(input.uv,0.0f));
 
-	float3 toEyeW = normalize(gvCameraPosition - input.positionW);
-
-	float4 shadowFactor = 1.0f;
-    float4 directLight = Lighting(input.positionW, bumpedNormalW, gnMaterial, shadowFactor);
-	
-	float4 litColor = directLight * cColor;
-	float3 r = reflect(-toEyeW, bumpedNormalW);
-	//float4 reflectionColor = gCubeMap.Sample(gsamLinearWrap, r);
-	float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-	//float3 fresnelFactor = float3(1.0f, 1.0f, 1.0f);
-	litColor.rgb += shininess * fresnelFactor * litColor.rgb;
+	float4 litColor = cColor;
 
 	output.color = litColor;
 	output.nrmoutline = float4(input.normalW, 1.0f);
-    output.nrm = PackingNorm(float4(bumpedNormalW, 1.0f));
+    output.nrm = PackingNorm(float4(bumpedNormalW, shininess));
+    output.pos = float4(input.positionW, 1.0f);
 	//return cColor;
 	return output;
 }
@@ -123,23 +114,12 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSModelNormalMap(VS_MODEL_NORMAL_OUTPUT input)
     cColor = gBoxTextured.Sample(gDefaultSamplerState, float3(input.uv, 0.0f));
     float3 toEyeW = normalize(gvCameraPosition - input.positionW);
 
-    float4 shadowFactor = 1.0f;
-    
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 directLight = Lighting(input.positionW, bumpedNormalW, input.mat, shadowFactor);
-	
-    float4 litColor = directLight * cColor;
-    float3 r = reflect(-toEyeW, bumpedNormalW);
-	
-    float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-	//float3 fresnelFactor = float3(1.0f, 1.0f, 1.0f);
-    litColor.rgb += shininess * fresnelFactor * litColor.rgb;
+    float4 litColor = cColor;
 
-    output.color = Fog(litColor, input.positionW);
-    output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);
-    output.nrm = PackingNorm(float4(bumpedNormalW, 1.0f));
-
+    output.color = litColor;
+    output.nrmoutline = float4(input.normalW, 1.0f);
+    output.nrm = PackingNorm(float4(bumpedNormalW, shininess));
+    output.pos = float4(input.positionW, 1.0f);
     return output;
 }
 

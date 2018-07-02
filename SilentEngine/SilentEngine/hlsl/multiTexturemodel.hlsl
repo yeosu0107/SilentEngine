@@ -232,22 +232,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexStaticModel(VS_MULTI_TEXTURED_LIGHTI
     
     float4 cColor = gTextures[input.texindex].Sample(gDefaultSamplerState, input.uv);
 	input.normalW = normalize(input.normalW);
-    float shadowFactors[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float4 factor;
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-    {
-        shadowFactors[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-        if (shadowFactors[i] <= 0.5f)
-            break;
-    }
-    factor = float4(shadowFactors[0], shadowFactors[1], shadowFactors[2], shadowFactors[3]);
 
-    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, factor);
-
-	output.color = cColor * cIllumination;
+	output.color = cColor;
     output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
-
+    output.pos = float4(input.positionW, 1.0f);
 	return (output);
 };
 
@@ -258,16 +247,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexStaticInstanceModel(VS_MULTI_TEXTURE
     float4 cColor = gTextures[input.texindex].Sample(gDefaultSamplerState, input.uv);
 	input.normalW = normalize(input.normalW);
 
-    float4 shadowFactor = 1.0f;
-    
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
-
-	output.color = cColor * cIllumination;
+	output.color = cColor;
     output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
-
+    output.pos = float4(input.positionW, 1.0f);
 	return (output);
 };
 
@@ -284,16 +267,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexDynamicModel(VS_MULTI_TEXTURED_LIGHT
         cColor = gTextures[1].Sample(gDefaultSamplerState, input.uv);
        
     input.normalW = normalize(input.normalW);
-    float4 shadowFactor = 1.0f;
-    
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
 
-	output.color = cColor * cIllumination;
+	output.color = cColor;
 	output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
-
+    output.pos = float4(input.positionW, 1.0f);
 	return (output);
 };
 
@@ -303,16 +281,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSMultiTexDynamicInstanceModel(VS_MULTI_TEXTUR
 
     float4 cColor = gTextures[input.texindex].Sample(gDefaultSamplerState, input.uv);
 	input.normalW = normalize(input.normalW);
-    float4 shadowFactor = 1.0f;
-    
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
 
-	output.color = cColor * cIllumination;
+	output.color = cColor;
 	output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
-
+    output.pos = float4(input.positionW, 1.0f);
 	return (output);
 }
 
@@ -344,20 +317,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSNormalMap(VS_MODEL_MULTI_NORMAL_OUTPUT input
 	
     const float shininess = (1.0f - roughness) * normalMapSample.a;
 
-    float3 toEyeW = normalize(gvCameraPosition - input.positionW);
-
-    float4 shadowFactor = 1.0f;
-    float4 directLight = Lighting(input.positionW, bumpedNormalW, gnMaterial, shadowFactor);
-	
-    float4 litColor = directLight * cColor;
-    float3 r = reflect(-toEyeW, bumpedNormalW);
-	
-    float3 fresnelFactor = SchlickFresnel(fresnelR0, bumpedNormalW, r);
-
-    litColor.rgb += shininess * fresnelFactor * litColor.rgb;
+    float4 litColor = cColor;
 
     output.color = litColor;
     output.nrmoutline = float4(input.normalW, 1.0f);
-    output.nrm = PackingNorm(float4(bumpedNormalW, 1.0f));
+    output.nrm = PackingNorm(float4(bumpedNormalW, shininess));
+    output.pos = float4(input.positionW, 1.0f);
     return output;
 }

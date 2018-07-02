@@ -81,6 +81,7 @@ void LightObject::CalculateLightMatrix()
 	XMStoreFloat4x4(&m_cbCameraInfo.m_xmf4x4View, XMMatrixTranspose(XMLoadFloat4x4(&lightView)));
 	XMStoreFloat4x4(&m_cbCameraInfo.m_xmf4x4Projection, XMMatrixTranspose(lightProj));
 	XMStoreFloat4x4(&m_cbCameraInfo.m_xmf4x4ShadowProjection[0], XMMatrixTranspose(S));
+	XMStoreFloat4x4(&m_cbCameraInfo.m_xmf4x4InvProjection, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, S)));
 	::memcpy(&m_cbCameraInfo.m_xmf3Position, &lightPos, sizeof(XMFLOAT3));
 }
 
@@ -103,20 +104,20 @@ void LightManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandL
 
 	lights.m_xmf4GlobalAmbient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	lights.m_pLights[0].m_bEnable = true;
+	lights.m_pLights[0].m_bEnable = 1;
 	lights.m_pLights[0].m_nType = DIRECTIONAL_LIGHT;
 	lights.m_pLights[0].m_fRange = 300.0f;
-	lights.m_pLights[0].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	lights.m_pLights[0].m_xmf4Ambient = XMFLOAT4(0.7f, 0.7f, 0.7f, 1.0f);
 	lights.m_pLights[0].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	lights.m_pLights[0].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
 	lights.m_pLights[0].m_xmf3Position = XMFLOAT3(-0.0f, 100.f, 430.0f);
-	lights.m_pLights[0].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	lights.m_pLights[0].m_xmf3Direction = XMFLOAT3(-1.0f, -1.0f, 0.0f);
 	//lights.m_pLights[0].m_xmf3Attenuation = XMFLOAT3(0.1f, 0.01f, 0.0001f);
 	//lights.m_pLights[0].m_fFalloff = 40.0f;
 	//lights.m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
 	//lights.m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-	lights.m_pLights[1].m_bEnable = false;
+	lights.m_pLights[1].m_bEnable = 0;
 	lights.m_pLights[1].m_nType = DIRECTIONAL_LIGHT;
 	lights.m_pLights[1].m_fRange = 300.0f;
 	lights.m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -129,14 +130,14 @@ void LightManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandL
 	//lights.m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
 	//lights.m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-	lights.m_pLights[2].m_bEnable = true;
+	lights.m_pLights[2].m_bEnable = 0;
 	lights.m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
 	lights.m_pLights[2].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	lights.m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
 	lights.m_pLights[2].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 	lights.m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
-	lights.m_pLights[3].m_bEnable = false;
+	lights.m_pLights[3].m_bEnable = 0;
 	lights.m_pLights[3].m_nType = SPOT_LIGHT;
 	lights.m_pLights[3].m_fRange = 60.0f;
 	lights.m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.1f, 1.0f, 1.0f, 1.0f);
@@ -172,7 +173,7 @@ void LightManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandL
 void LightManagement::UpdateShaderVariables()
 {
 	LIGHTS lights;
-	lights.m_xmf4GlobalAmbient = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	lights.m_xmf4GlobalAmbient = XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f);
 
 	for (int i = 0; i < MAX_LIGHTS; ++i) {
 		lights.m_pLights[i] = m_pLights[i].LightInfo();
@@ -207,7 +208,7 @@ void MaterialManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsComma
 {
 	m_pd3dcbMat = std::make_unique<UploadBuffer<MATERIALS>>(pDevice, 1, true);
 
-	m_pMat.m_pReflections[0] = { XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f), XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 35.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
+	m_pMat.m_pReflections[0] = { XMFLOAT4(0.4f, 0.4f, 0.4f, 1.0f), XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), XMFLOAT4(0.3f, 0.3f, 0.3f, 2.5f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMat.m_pReflections[1] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 10.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) };
 	m_pMat.m_pReflections[2] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 15.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };
 	m_pMat.m_pReflections[3] = { XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 20.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) };

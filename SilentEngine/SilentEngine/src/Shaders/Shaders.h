@@ -79,7 +79,6 @@ public:
 	virtual void Animate(float fTimeElapsed) {}
 	virtual void CreatePipelineParts();
 
-	virtual void SetFogUploadBuffer(UploadBuffer<CB_FOG_INFO>* pFogBuf) { m_FogCB = pFogBuf; }
 	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
 	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 	virtual void SetMultiUploadBuffer(void** data);
@@ -106,7 +105,6 @@ protected:
 
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_InputLayout;
 
-	UploadBuffer<CB_FOG_INFO>*						m_FogCB = nullptr;
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
 };
@@ -158,8 +156,7 @@ protected:
 		ROOTPARAMETER_MATERIAL,
 		ROOTPARAMETER_LIGHTS,
 		ROOTPARAMETER_EFFECT,
-		ROOTPARAMETER_TEXTURE,
-		ROOTPARAMETER_FOG = 6
+		ROOTPARAMETER_TEXTURE
 	};
 public:
 	BillboardShader() {};
@@ -213,7 +210,7 @@ public:
 	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
 	virtual D3D12_BLEND_DESC			CreateBlendState(int index = 0);
 
-
+	void BuildFog();
 	void SetNowScene(UINT* nowScene) { m_pNowScene = nowScene; }
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
@@ -225,7 +222,11 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 protected:
 	unique_ptr<UploadBuffer<CB_SCENEBLUR_INFO>>	m_BulrCB = nullptr;
+	unique_ptr<UploadBuffer<CB_FOG_INFO>>				m_FogCB = nullptr;
 	unique_ptr<CTexture>				m_pTexture;
+
+	CB_FOG_INFO*										m_pFog;
+
 	GameObject*				m_pPlayer;
 
 	float					m_IsDeath;
@@ -295,7 +296,7 @@ public:
 	~DrawGBuffers() { };
 
 public:
-	
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 };

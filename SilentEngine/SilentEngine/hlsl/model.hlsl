@@ -150,21 +150,11 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticModel(VS_TEXTURED_LIGHTING_OUTPUT inpu
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-    float shadowFactors[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    float4 factor;
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-    {
-        shadowFactors[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-        if (shadowFactors[i] <= 0.5f)
-            break;
-    }
-    factor = float4(shadowFactors[0], shadowFactors[1], shadowFactors[2], shadowFactors[3]);
 
-    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMaterial, factor);
-
-	output.color = cColor * cIllumination;
-     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);
+	output.color = cColor;
+    output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
+    output.pos = float4(input.positionW, 1.f);
 	return (output);
 };
 
@@ -178,19 +168,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSStaticInstanceModel(VS_TEXTURED_LIGHTING_OUT
 
     float4 shadowFactor = 1.0f;
     
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
-    //output.color = cColor * cIllumination;
-    output.color = Fog(cColor * cIllumination, input.positionW);
-    
-    float3 vPosToCamera = gvCameraPosition - input.positionW;
-    float fDistance = length(vPosToCamera);
-    float fRange = gFogParameter.z - gFogParameter.y;
-    float factor = saturate((gFogParameter.z - fDistance) / fRange);
-
-     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);;
+    output.color = cColor;
+    output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
+    output.pos = float4(input.positionW, 1.f);
 	return (output);
 };
 
@@ -202,15 +183,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicModel(VS_TEXTURED_LIGHTING_OUTPUT inp
 	float3 uvw = float3(input.uv, nPrimitiveID / 2);
 	float4 cColor = gBoxTextured.Sample(gDefaultSamplerState, uvw);
 	input.normalW = normalize(input.normalW);
-    float4 shadowFactor = 1.0f;
-    
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, gnMat, shadowFactor);
-
-    output.color = Fog(cColor * cIllumination, input.positionW);
-     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);;
+    output.color = cColor;
+    output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
+    output.pos = float4(input.positionW, 1.0f);
 	return (output);
 };
 
@@ -223,13 +199,10 @@ PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSDynamicInstanceModel(VS_TEXTURED_LIGHTING_OU
 	input.normalW = normalize(input.normalW);
     float4 shadowFactor = 1.0f;
     
-    for (int i = 0; i < NUM_DIRECTION_LIGHTS; i++)
-        shadowFactor[i] = CalcShadowFactor(input.ShadowPosH[i], i);
-    float4 cIllumination = Lighting(input.positionW, input.normalW, input.mat, shadowFactor);
-
-	output.color = cColor * cIllumination;
-     output.nrmoutline = NormalVectorBehindFog(input.normalW, input.positionW);
+	output.color = cColor;
+    output.nrmoutline = float4(input.normalW, 1.0f);
     output.nrm = output.nrmoutline;
+    output.pos = float4(input.positionW, 1.0f);
 	return (output);
 }
 
