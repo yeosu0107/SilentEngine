@@ -125,7 +125,7 @@ bool Enemy::Move(float fTime)
 void Enemy::Attack()
 {
 	ChangeAnimation(EnemyAni::AniAttack);
-	if (m_loopCheck == LOOP_MID) {
+	if (m_loopCheck == LOOP_TRIGGER) {
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);
@@ -141,7 +141,7 @@ void Enemy::Attack()
 void Enemy::Skill()
 {
 	ChangeAnimation(EnemyAni::AniSkill);
-	if (m_loopCheck == LOOP_MID) {
+	if (m_loopCheck == LOOP_TRIGGER) {
 
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,

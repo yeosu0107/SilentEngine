@@ -25,7 +25,7 @@ void Skull::SetAnimations(UINT num, LoadAnimation ** tmp)
 void Skull::Skill()
 {
 	ChangeAnimation(EnemyAni::AniSkill);
-	if (m_loopCheck == LOOP_MID) {
+	if (m_loopCheck == LOOP_TRIGGER) {
 
 		ProjectileShader* myProjectile = reinterpret_cast<ProjectileShader*>
 			(GlobalVal::getInstance()->getProjectile());

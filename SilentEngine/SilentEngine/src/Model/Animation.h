@@ -18,8 +18,9 @@ private:
 
 	float										start_time; //프레임 시작 시간
 	float										end_time;  //프레임 종료 시간
-	float										mid_time;	//프레임 중간 시간
+	float										trigger_time;	//프레임 중간 시간
 	float										now_time;  //현재 프레임
+	float										posible_skip; //애니메이션을 강제 종료하고 다음 애니메이션 실행 가능한 프레임
 	
 	BOOL									animation_loof;  //애니메이션 루프 여부 (기본은 true)
 	BOOL									stop_anim = false;
@@ -27,7 +28,7 @@ private:
 
 	float										m_animSpeed;
 public:
-	LoadAnimation(string filename);
+	LoadAnimation(string filename, float trigger, float skip);
 	LoadAnimation(const LoadAnimation& T);
 	~LoadAnimation() {}
 

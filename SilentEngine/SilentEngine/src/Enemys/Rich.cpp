@@ -27,7 +27,7 @@ void Rich::SetAnimations(UINT num, LoadAnimation ** tmp)
 void Rich::Skill()
 {
 	ChangeAnimation(EnemyAni::AniSkill);
-	if (m_loopCheck == LOOP_MID ||
+	if (m_loopCheck == LOOP_TRIGGER ||
 		m_loopCheck==LOOP_STOP) {
 		avoid = true;
 		if(bulletTime<100)

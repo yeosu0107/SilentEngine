@@ -10,7 +10,9 @@ enum STATE {
 	skill,			//스킬상태
 	avoid,		//회피/도망 상태
 	hitted,		//공격받은상태
-	death			//죽음상태
+	death,			//죽음상태
+	//플레이서 추가 상태
+	attack2
 };
 
 class StateMachine

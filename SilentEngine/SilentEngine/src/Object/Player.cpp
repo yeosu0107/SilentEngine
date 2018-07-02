@@ -71,10 +71,12 @@ void Player::RegenerateMatrix()
 void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
-	m_ani[PlayerAni::Idle]->SetAnimSpeed(0.5f);
-	m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
-	m_ani[PlayerAni::Attack]->SetAnimSpeed(0.5f);
-	m_ani[PlayerAni::Skill]->SetAnimSpeed(0.5f);
+	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
+	//m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
+	m_ani[PlayerAni::Attack]->SetAnimSpeed(2.0f);
+	m_ani[PlayerAni::Attack2]->SetAnimSpeed(2.0f);
+	m_ani[PlayerAni::Skill]->SetAnimSpeed(2.0f);
+	m_ani[PlayerAni::Hitted]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::die]->DisableLoof(PlayerAni::die);
 	m_ani[PlayerAni::Idle]->EnableLoof();
 }
@@ -146,7 +148,10 @@ bool Player::Movement(DWORD input)
 {
 	if (input & ANI_ATTACK) {
 		//ChangeAnimation(PlayerAni::Attack);
-		m_playerLogic->changeState(STATE::attack);
+		if(m_AnimIndex == PlayerAni::Attack)
+			m_playerLogic->changeState(STATE::attack2);
+		else
+			m_playerLogic->changeState(STATE::attack);
 		//Attack();
 	}
 	if (input & ANI_SKILL) {
@@ -175,7 +180,7 @@ void Player::Attack()
 {
 	if (m_AnimIndex != PlayerAni::Attack)
 		return;
-	if (m_loopCheck == LOOP_MID) {
+	if (m_loopCheck == LOOP_TRIGGER) {
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);

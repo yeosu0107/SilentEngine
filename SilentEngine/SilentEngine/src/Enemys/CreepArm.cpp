@@ -32,7 +32,7 @@ void CreepArm::SetAnimations(UINT num, LoadAnimation ** tmp)
 void CreepArm::Attack()
 {
 	ChangeAnimation(ArmAni::armattack);
-	if (m_loopCheck == LOOP_MID) {
+	if (m_loopCheck == LOOP_TRIGGER) {
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);

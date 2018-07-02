@@ -93,8 +93,9 @@ void ModelObject::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * p
 
 void ModelObject::ChangeAnimation(UINT nextIndex)
 {
-	if (nextIndex == m_AnimIndex)
+	if (nextIndex == m_AnimIndex) 
 		return;
+
 	m_ani[m_AnimIndex]->ResetAnimation();
 	m_AnimIndex = nextIndex;
 }

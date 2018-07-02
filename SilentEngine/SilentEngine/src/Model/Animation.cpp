@@ -2,7 +2,7 @@
 #include "LoadModel.h"
 #include "Animation.h"
 
-LoadAnimation::LoadAnimation(string filename) :
+LoadAnimation::LoadAnimation(string filename, float trigger, float skip) :
 	animation_loof(false), next_index(0), m_animSpeed(1.0f)
 {
 	m_pScene = aiImportFile(filename.c_str(), (aiProcessPreset_TargetRealtime_Quality | aiProcess_ConvertToLeftHanded) & ~aiProcess_FindInvalidData);
@@ -16,7 +16,17 @@ LoadAnimation::LoadAnimation(string filename) :
 		//프레임 시작 시점은 좌표 이동 프레임을 기준으로 맞춤
 		end_time = (float)m_pAnim->mChannels[0]->mPositionKeys[m_pAnim->mChannels[0]->mNumPositionKeys - 1].mTime - 1.0f; 
 		//프레임 종료 시점에서 1.0 만큼 빼줘야 프레임이 안겹침
-		mid_time = (end_time - start_time) / 2 + start_time;
+
+		if (IsZero(trigger))
+			trigger_time = (end_time - start_time) / 2 + start_time;
+		else
+			trigger_time = trigger + start_time;
+
+		if (IsZero(skip))
+			posible_skip = end_time;
+		else
+			posible_skip = skip + start_time;
+
 		now_time = start_time;
 
 		//m_animSpeed = (end_time - start_time) / m_pAnim->mChannels[0]->mNumPositionKeys;
@@ -32,7 +42,8 @@ LoadAnimation::LoadAnimation(const LoadAnimation & T)
 	start_time = T.start_time;
 	end_time = T.end_time;
 	now_time = T.now_time;
-	mid_time = T.mid_time;
+	trigger_time = T.trigger_time;
+	posible_skip = T.posible_skip;
 	m_animSpeed = T.m_animSpeed;
 }
 
@@ -67,9 +78,12 @@ UINT LoadAnimation::BoneTransform(UINT& index, float fTime, vector<XMFLOAT4X4>& 
 		}
 		return LOOP_END; //애니메이션이 한 루프 끝남
 	}
-	if (now_time > mid_time - 1 && now_time < mid_time + 1) {
-		return LOOP_MID;
+	if (now_time > trigger_time - 1 && now_time < trigger_time + 1) {
+		return LOOP_TRIGGER;
 	}
+
+	if (now_time > posible_skip)
+		return LOOP_SKIP; //애니메이션 아직 실행중이고 트리거 실행 후후반부
 
 	return LOOP_IN; //애니메이션이 아직 실행중
 }

@@ -33,7 +33,10 @@ ModelLoader::ModelLoader(string fileName)
 		for (UINT i = 0; i < animCount; ++i) {
 			getline(in, tmpName);
 			st = StringTokenizer(tmpName, delim);
-			LoadAnimation* tmpAnim = new LoadAnimation(st.nextToken()); //애니메이션을 로딩
+			string fileName = st.nextToken();
+			float trigger = atof(st.nextToken().c_str());
+			float skip = atof(st.nextToken().c_str());
+			LoadAnimation* tmpAnim = new LoadAnimation(fileName, trigger, skip); //애니메이션을 로딩
 
 			if (st.countTokens() != 0) {
 				//만약 애니메이션이 루프가 아니라면 다음 인덱스 파일이 큐에 저장되어있음

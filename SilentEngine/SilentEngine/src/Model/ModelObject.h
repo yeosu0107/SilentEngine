@@ -67,6 +67,8 @@ public:
 
 	void stopAnim(bool stop);
 
+	virtual int getAnimIndex() { return m_AnimIndex; }
+
 	//physX 관련 함수
 	void SetPhysMesh(BasePhysX* phys, PhysMesh type, string* name = nullptr);
 	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos);

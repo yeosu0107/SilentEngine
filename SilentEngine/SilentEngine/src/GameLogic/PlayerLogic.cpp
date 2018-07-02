@@ -73,7 +73,12 @@ void PlayerLogic::changeState(STATE newState)
 		m_isNextIndex = true;
 	}*/
 	if (m_state > STATE::tracking) {
-		if (m_owner->getAnimLoop() != LOOP_END)
+		if (m_state == STATE::attack) {
+			if (m_owner->getAnimLoop() == LOOP_TRIGGER || m_owner->getAnimLoop() == LOOP_IN)
+				return;
+		}
+
+		else if(m_owner->getAnimLoop() != LOOP_END)
 			return;
 	}
 	
@@ -90,6 +95,10 @@ void PlayerLogic::changeState(STATE newState)
 		break;
 	case STATE::attack:
 		m_owner->ChangeAnimation(PlayerAni::Attack);
+		break;
+	case STATE::attack2:
+		m_owner->ChangeAnimation(PlayerAni::Attack2);
+		m_state = STATE::attack;
 		break;
 	case STATE::tracking:
 		m_owner->ChangeAnimation(PlayerAni::Move);
