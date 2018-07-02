@@ -2,7 +2,7 @@
 #include "PlayerLogic.h"
 
 PlayerLogic::PlayerLogic(GameObject * tmp) :
-	m_owner(tmp), m_attackIndex(0)
+	m_owner(tmp)
 {
 	m_status = new Status(200, 100, 80);
 }
@@ -23,16 +23,16 @@ void PlayerLogic::trackingState()
 void PlayerLogic::attackState()
 {
 	if (m_owner->getAnimLoop() == LOOP_END) {
-		if (m_isNextIndex) {
+		/*if (m_isNextIndex) {
 			m_attackIndex += 1;
 			if (m_attackIndex >= m_maxAttackIndex)
 				m_attackIndex = 0;
 			m_isNextIndex = false;
 		}
-		else {
+		else {*/
 			changeState(STATE::idle);
 			return;
-		}
+		//}
 	}
 
 	m_owner->Attack();

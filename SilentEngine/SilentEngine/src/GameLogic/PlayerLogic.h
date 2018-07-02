@@ -10,9 +10,9 @@ private:
 	};
 
 	GameObject*		m_owner;
-	UINT					m_attackIndex;
-	bool					m_isNextIndex = false;
-	const UINT			m_maxAttackIndex = 3;
+	//UINT					m_attackIndex;
+	//bool					m_isNextIndex = false;
+	//const UINT			m_maxAttackIndex = 3;
 public:
 	PlayerLogic(GameObject* tmp);
 	~PlayerLogic() {}
@@ -27,6 +27,6 @@ public:
 	void deathState();
 
 	virtual void changeState(STATE newState);
-	UINT getAttackIndex() const { return m_attackIndex; }
+	//UINT getAttackIndex() const { return m_attackIndex; }
 	void reset();
 };

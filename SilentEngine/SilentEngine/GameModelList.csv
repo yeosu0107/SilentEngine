@@ -11,7 +11,7 @@ res\\ModelData\\c_run.FBX,0,0
 res\\ModelData\\c_attack.FBX,23,42
 res\\ModelData\\c_attack2.FBX,0,0
 res\\ModelData\\c_damaged.FBX,0,0
-res\\ModelData\\c_die.FBX,0,0
+res\\ModelData\\c_death.FBX,0,0
 res\\ModelData\\c_attack3.FBX,18,47
 res\\MonsterData\\ghost_move2.FBX,3,res\\Texture\\ghost.dds
 res\\MonsterData\\ghost_idle.FBX,0,0

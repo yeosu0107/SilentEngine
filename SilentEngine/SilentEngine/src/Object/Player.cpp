@@ -178,8 +178,8 @@ void Player::Idle()
 
 void Player::Attack()
 {
-	if (m_AnimIndex != PlayerAni::Attack)
-		return;
+	//if (m_AnimIndex != PlayerAni::Attack || m_AnimIndex != PlayerAni::Attack2)
+	//	return;
 	if (m_loopCheck == LOOP_TRIGGER) {
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
