@@ -1090,6 +1090,8 @@ void DeferredFullScreen::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dC
 
 	LIGHT_MANAGER->UpdateShaderVariables();
 	MATERIAL_MANAGER->UpdateShaderVariables();
+
+	m_pFog->m_xmf4Foginfo.x = GlobalVal::getInstance()->getFogEnable() ? 1.0f : 0.0f;
 	m_BulrCB->CopyData(0, bluerInfo);
 	m_FogCB->CopyData(0, *m_pFog);
 }

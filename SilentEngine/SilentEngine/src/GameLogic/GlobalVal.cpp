@@ -50,6 +50,10 @@ void GlobalVal::setHitPaticle(void * pContext)
 {
 	m_hitPaticle = pContext;
 }
+void GlobalVal::setFogEnable(bool bEnabled)
+{
+	m_bFogEnable = bEnabled;
+}
 GameObject * GlobalVal::getPlayer()
 {
 	return m_player;

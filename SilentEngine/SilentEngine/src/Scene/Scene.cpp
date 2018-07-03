@@ -580,6 +580,9 @@ void TestScene::RoomChange()
 	if (!m_isRoomChange.m_isChange)
 		return;
 
+	bool fogEnabled = GlobalVal::getInstance()->getMapLoader()->getFogEnabled(m_Room[m_isRoomChange.m_roomNum]->getType());
+	GlobalVal::getInstance()->setFogEnable(fogEnabled);
+
 	//맨처음 시작인 경우는 물리가 적용된 방이 없으므로 방에 물리해제를 할 필요가 없다
 	if (m_nowRoom != START_ROOM) {
 		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);

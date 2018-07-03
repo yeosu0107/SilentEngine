@@ -45,7 +45,7 @@ class MapLoader : public ModelLoader
 private:
 	struct StartList {
 		XMFLOAT3	point[4];
-
+		bool		bFogEnable;
 		XMFLOAT3* returnPoint() { return point; }
 	};
 	vector<StartList>	m_startPoint;
@@ -55,4 +55,5 @@ public:
 	~MapLoader();
 
 	StartList getStartpoint(UINT index) const { return m_startPoint[index]; }
+	bool getFogEnabled(UINT index) const { return m_startPoint[index].bFogEnable; }
 };

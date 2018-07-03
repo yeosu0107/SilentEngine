@@ -43,7 +43,8 @@ public:
 protected:
 
 	virtual void CreateRtvAndDsvDescriptorHeaps();
-	virtual void CreateSwapChainRenderTargetViews();
+	virtual void CreateSwapChainRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle);
+
 	virtual void OnWakeUp();
 	virtual void OnResize();
 	
@@ -63,6 +64,10 @@ protected:
 	void BuildObjects();
 	void CreateCommandObjects();
 	void CreateSwapChain();
+	void CreateShadowMap();
+	void CreateDepthStencilViews();
+	void CreateRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle, CTexture* pTexture);
+	void CreateRenderTarget(CTexture* pTexture);
 
 	void FlushCommandQueue();
 
@@ -126,6 +131,7 @@ protected:
 
 	//static const UINT					m_nRenderTargetBuffers = 2;
 	ComPtr<ID3D12Resource>				m_ppd3dRenderTargetBuffers[NUM_RENDERTARGET];
+	ComPtr<ID3D12Resource>				m_ppd3dHDRBuffers[NUM_HDRBUFFER];
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[NUM_RENDERTARGET];
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
 	UINT								m_nRtvDescriptorIncrementSize;
