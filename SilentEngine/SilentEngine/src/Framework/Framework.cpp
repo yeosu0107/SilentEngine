@@ -324,7 +324,7 @@ void Framework::OnResize()
 
 	CTexture *pTexture = new CTexture(NUM_GBUFFERS, RESOURCE_TEXTURE2D, 0);
 
-	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM,{ 1.0f, 1.0f, 1.0f, 1.0f } };
+	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM,{ 0.0f, 0.0f, 0.0f, 1.0f } };
 	for (UINT i = 0; i < NUM_RENDERTARGET; ++i)
 	{
 		m_ppd3dRenderTargetBuffers[i] = pTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(), m_nClientWidth, m_nClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dClearValue, i);
@@ -518,8 +518,8 @@ void Framework::Render()
 	m_pDeferredFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
 	m_pScene[m_nNowScene]->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
 	
-
-	m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
+	if(m_bDebugGBuffers)
+		m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
 #endif
 #endif
 
@@ -897,6 +897,10 @@ void Framework::OnKeyboardInput(const Timer& gt)
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
+
+	if (GetAsyncKeyState(VK_LCONTROL) & 0x0001){
+		m_bDebugGBuffers = !m_bDebugGBuffers;
+	}
 
 	if (GetKeyboardState(pKeysBuffer) && m_pScene[m_nNowScene]) {
 		bProcessedByScene = m_pScene[m_nNowScene]->OnKeyboardInput(gt, m_hMainWnd);

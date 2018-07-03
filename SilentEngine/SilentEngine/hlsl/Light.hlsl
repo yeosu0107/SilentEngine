@@ -66,7 +66,7 @@ float CalcShadowFactor(float4 shadowPosH, int index)
             shadowPosH.xy + offsets[i], depth).r;
     }
     
-    return percentLit / 9.0f;
+    return saturate(percentLit / 9.0f + 0.3f);
 }
 
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMatindex, float fShadowFactor)

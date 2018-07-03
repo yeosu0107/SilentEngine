@@ -990,7 +990,7 @@ void DeferredFullScreen::BuildFog()
 	m_pFog->m_xmf4FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 
 	float fFogMode = 1.0f;
-	float fStart = 100.0f;
+	float fStart = 50.0f;
 	float fEnd = 400.0f;
 	float fDensity = 1.0f;
 	m_pFog->m_xmf4Foginfo = XMFLOAT4(fFogMode, fStart, fEnd, fDensity);

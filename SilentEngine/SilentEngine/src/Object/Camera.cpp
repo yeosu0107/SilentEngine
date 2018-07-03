@@ -125,7 +125,7 @@ void Camera::UpdateShaderVariables(ID3D12GraphicsCommandList * pCommandList)
 	VS_CB_CAMERA_INFO cameraConstant; 
 	XMStoreFloat4x4(&cameraConstant.m_xmf4x4View, DirectX::XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4View)));
 	XMStoreFloat4x4(&cameraConstant.m_xmf4x4Projection, DirectX::XMMatrixTranspose(XMLoadFloat4x4(&m_xmf4x4Projection)));
-	XMStoreFloat4x4(&cameraConstant.m_xmf4x4InvProjection, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4Projection))));
+	XMStoreFloat4x4(&cameraConstant.m_xmf4x4InvProjection, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, XMLoadFloat4x4(&m_xmf4x4View))));
 	
 	for(int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		XMStoreFloat4x4(&cameraConstant.m_xmf4x4ShadowProjection[i], XMLoadFloat4x4(&m_xmf4x4ShadowProjection[i]));

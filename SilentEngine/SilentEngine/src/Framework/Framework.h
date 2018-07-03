@@ -142,6 +142,7 @@ protected:
 	Scene**								m_pScene;
 	POINT								m_ptOldCursorPos;
 
+	bool								m_bDebugGBuffers = false;
 	bool								m_bMouseCapture = false;
 	bool								m_bChangeScene = false;
 	float								m_fMouseSensitive = 4.5f;	// 마우스 민감도

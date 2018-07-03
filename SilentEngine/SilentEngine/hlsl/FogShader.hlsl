@@ -18,7 +18,7 @@ float4 Fog(float4 cColor, float3 vPosition)
         float fFogRange = gFogParameter.z - gFogParameter.y;
         fFogFactor = saturate((gFogParameter.z - fDistance) * 2 / fFogRange);
     }
-    float4 cColorByFog = lerp(cColor, gFogColor, fFogFactor);
+    float4 cColorByFog = lerp(gFogColor, cColor, fFogFactor);
     return cColorByFog;
 }
 

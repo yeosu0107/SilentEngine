@@ -10,16 +10,27 @@
 static float gfLaplacians[9] = { -1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f }; // 가중치의 값
 static int2 gnOffsets[9] = { { -1, -1 }, { 0, -1 }, { 1, -1 }, { -1, 0 }, { 0, 0 }, { 1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } }; // ( 중점을 기준으로 첫번째 픽셀 )
 
+struct VS_OUTPUT
+{
+    float4 position : SV_Position; // vertex position 
+    float2 uvPos : TEXCOORD0;
+};
 
 struct UNPACK_DATA
 {
     float depth;
-    float3 color;
+    float4 color;
     float4 pos;
     float4 norm;
     //float specular;
     //float specpow;
 };
+
+float ConvertZToLinearDepth(float depth)
+{
+    float linearDepth = gmtxProjection[3][2] / (depth - gmtxProjection[2][2]);
+    return linearDepth;
+}
 
 // 데이터 언패킹
 UNPACK_DATA UNPACKING_GBUFFERS(float2 uv)
@@ -28,31 +39,47 @@ UNPACK_DATA UNPACKING_GBUFFERS(float2 uv)
     UNPACK_DATA unpacked_gbuffers = (UNPACK_DATA) 0.0f;
 
     unpacked_gbuffers.color = gBuffer[GBUFFER_COLOR].Load(uvm);
-    unpacked_gbuffers.norm = (gBuffer[GBUFFER_NRM].Load(uvm) - float4(-0.5f, -0.5f, -0.5f, -0.5f)) * 2.0f;
-    unpacked_gbuffers.depth = gBuffer[GBUFFER_DEPTH].Load(uvm).r;
+    unpacked_gbuffers.norm = normalize(gBuffer[GBUFFER_NRM].Load(uvm) * 2.0 - 1.0);
+    float depth = gBuffer[GBUFFER_DEPTH].Load(uvm).r;
+    unpacked_gbuffers.depth = ConvertZToLinearDepth(depth);
     unpacked_gbuffers.pos = gBuffer[GBUFFER_POS].Load(uvm);
     return unpacked_gbuffers;
 }
 
 float3 ConvertPosition(float2 uv, float depth)
 {
-    float3 posCS = mul(float4(uv, 0.0f, 1.0f), gmtxInvProjection).xyz;
-    posCS.xyz = float3(posCS.xy / posCS.z, 1.0f);
+    float4 position;
+    position.xy = uv.xy * float2(1 / gmtxProjection[0][0], 1 / gmtxProjection[1][1]) * depth;
+    position.z = depth;
+    position.w = 1.0f;
 
-    float fz = gmtxProjection[3][2] / (depth - gmtxProjection[2][2]);
-    return posCS * fz;
+    return mul(position, gmtxInvProjection).xyz;
 }
 
-float4 VS_DEFFERED_SHADER(uint nVertexID : SV_VertexID) : SV_Position
+VS_OUTPUT VS_DEFFERED_SHADER(uint nVertexID : SV_VertexID)
 {
-    if (nVertexID == 0) { return float4(-1.0f, +1.0f, 0.0f, 1.0f); }
-    if (nVertexID == 1) { return float4(+1.0f, +1.0f, 0.0f, 1.0f); }
-    if (nVertexID == 2) { return float4(+1.0f, -1.0f, 0.0f, 1.0f); }
-    if (nVertexID == 3) { return float4(-1.0f, +1.0f, 0.0f, 1.0f); }
-    if (nVertexID == 4) { return float4(+1.0f, -1.0f, 0.0f, 1.0f); }
-    if (nVertexID == 5) { return float4(-1.0f, -1.0f, 0.0f, 1.0f); }
-       
-    return (float4) 0.0f;
+    VS_OUTPUT output = (VS_OUTPUT) 0.0f;
+
+    if (nVertexID == 0) 
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+
+    if (nVertexID == 1)
+        output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
+
+    if (nVertexID == 2)
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+
+    if (nVertexID == 3)
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+
+    if (nVertexID == 4)
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+
+    if (nVertexID == 5)
+        output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
+    
+    output.uvPos = output.position.xy;
+    return output;
 };
 
 float4 OutLineAndBlur(int2 position, float4 cColor)
@@ -101,24 +128,26 @@ float4 OutLineAndBlur(int2 position, float4 cColor)
     return cColor;
 }
 
-float4 PS_DEFFERED_SHADER(float4 input : SV_Position) : SV_Target
+float4 PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
 {
-    UNPACK_DATA unpack = UNPACKING_GBUFFERS(input.xy);
+    UNPACK_DATA unpack = UNPACKING_GBUFFERS(input.position.xy);
     LIGHT light = gLights[0];
     MATERIAL mat = gMaterials[0];
+
     float shadowFactor = 0.0f;
     float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
     float4 finalColor = (float4) 0.0f;
-    float3 pos = ConvertPosition(input.xy, unpack.depth);
+    float3 pos = ConvertPosition(input.uvPos, unpack.depth);
 
     float3 toEyeW = normalize(gvCameraPosition - unpack.pos.xyz);
     float3 r = reflect(-toEyeW, unpack.norm.xyz);
     float3 fresnelFactor = SchlickFresnel(fresnelR0, unpack.norm.xyz, r);
 
     shadowFactor = CalcShadowFactor(mul(float4(pos, 1.0f), gmtxShadowProjection[0]), 0);
-    finalColor = float4(unpack.color, 1.0f) * Lighting(pos, unpack.norm.xyz, 0, shadowFactor);
-    finalColor = OutLineAndBlur(int2(input.xy), float4(finalColor.xyz, 1.0f));
-    return finalColor;
+    finalColor = unpack.color * Lighting(pos, unpack.norm.xyz, 0, 1.0f);
+    finalColor.rgb += unpack.norm.w * fresnelFactor * finalColor.rgb;
+    finalColor = OutLineAndBlur(int2(input.position.xy), float4(finalColor.xyz, shadowFactor));
+    return Fog(finalColor, pos);
     //return finalColor;
 };
 #endif
