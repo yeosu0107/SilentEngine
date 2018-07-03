@@ -495,7 +495,6 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
-	case WM_RBUTTONDOWN:
 		/*::SetCapture(hWin);
 		::GetCursorPos(&m_ptOldCursorPos);
 		m_bMouseCapture = true;*/
@@ -522,6 +521,13 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 			return false;
 		}
 		break;
+	case WM_RBUTTONDOWN:
+	{
+		DWORD input = 0;
+		input |= ANI_KICK;
+		m_testPlayer->Movement(input);
+	}
+		break;
 	case WM_MOUSEMOVE:
 		break;
 	default:
@@ -535,10 +541,11 @@ bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, i
 	switch (nMessageID)
 	{
 	case WM_LBUTTONUP:
-	case WM_RBUTTONUP:
 		m_attackEvent = false;
 		/*::ReleaseCapture();
 		m_bMouseCapture = false;*/
+	case WM_RBUTTONUP:
+		
 		break;
 	case WM_MOUSEMOVE:
 		break;

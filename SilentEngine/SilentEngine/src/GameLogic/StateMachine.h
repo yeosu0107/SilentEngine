@@ -13,7 +13,8 @@ enum STATE {
 	death,			//죽음상태
 	//플레이서 추가 상태
 	attack2,
-	attack3
+	attack3,
+	kick
 };
 
 class StateMachine

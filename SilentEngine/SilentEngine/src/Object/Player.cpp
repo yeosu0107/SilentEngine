@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Player.h"
+#include <Windows.h>
 
 const float startSpeed = 80.0f;
 const float accelSpeed = 0.5f;
@@ -77,6 +78,7 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[PlayerAni::Attack2]->SetAnimSpeed(1.7f);
 	m_ani[PlayerAni::Attack3]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::Skill]->SetAnimSpeed(2.0f);
+	m_ani[PlayerAni::KickAttack]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::Hitted]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::die]->DisableLoof(PlayerAni::die);
 	m_ani[PlayerAni::Idle]->EnableLoof();
@@ -160,7 +162,12 @@ bool Player::Movement(DWORD input)
 	if (input & ANI_SKILL) {
 		//m_AnimIndex = PlayerAni::Skill;
 		m_playerLogic->changeState(STATE::skill);
-
+	}
+	if (input & ANI_KICK) {
+		if (GetTickCount() - m_kickDelay > MAX_KICK_DELAY) {
+			m_playerLogic->changeState(STATE::kick);
+			m_kickDelay = GetTickCount();
+		}
 	}
 	if (input & SUPER_SPEED) {
 		if(m_moveSpeed<100.0f)
