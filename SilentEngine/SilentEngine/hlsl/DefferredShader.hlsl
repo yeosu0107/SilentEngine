@@ -20,7 +20,7 @@ struct UNPACK_DATA
 {
     float depth;
     float4 color;
-    float4 pos;
+    float3 pos;
     float4 norm;
     //float specular;
     //float specpow;
@@ -32,20 +32,6 @@ float ConvertZToLinearDepth(float depth)
     return linearDepth;
 }
 
-// 데이터 언패킹
-UNPACK_DATA UNPACKING_GBUFFERS(float2 uv)
-{
-    int3 uvm = int3(uv, 0);
-    UNPACK_DATA unpacked_gbuffers = (UNPACK_DATA) 0.0f;
-
-    unpacked_gbuffers.color = gBuffer[GBUFFER_COLOR].Load(uvm);
-    unpacked_gbuffers.norm = normalize(gBuffer[GBUFFER_NRM].Load(uvm) * 2.0 - 1.0);
-    float depth = gBuffer[GBUFFER_DEPTH].Load(uvm).r;
-    unpacked_gbuffers.depth = ConvertZToLinearDepth(depth);
-    unpacked_gbuffers.pos = gBuffer[GBUFFER_POS].Load(uvm);
-    return unpacked_gbuffers;
-}
-
 float3 ConvertPosition(float2 uv, float depth)
 {
     float4 position;
@@ -55,6 +41,22 @@ float3 ConvertPosition(float2 uv, float depth)
 
     return mul(position, gmtxInvProjection).xyz;
 }
+
+// 데이터 언패킹
+UNPACK_DATA UNPACKING_GBUFFERS(float2 uv, float2 position)
+{
+    int3 uvm = int3(position, 0);
+    UNPACK_DATA unpacked_gbuffers = (UNPACK_DATA) 0.0f;
+
+    unpacked_gbuffers.color = gBuffer[GBUFFER_COLOR].Load(uvm);
+    unpacked_gbuffers.norm = normalize(gBuffer[GBUFFER_NRM].Load(uvm) * 2.0 - 1.0);
+    float depth = gBuffer[GBUFFER_DEPTH].Load(uvm).r;
+    unpacked_gbuffers.depth = ConvertZToLinearDepth(depth);
+    unpacked_gbuffers.pos = ConvertPosition(uv, unpacked_gbuffers.depth);
+    return unpacked_gbuffers;
+}
+
+
 
 VS_OUTPUT VS_DEFFERED_SHADER(uint nVertexID : SV_VertexID)
 {
@@ -130,24 +132,25 @@ float4 OutLineAndBlur(int2 position, float4 cColor)
 
 float4 PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
 {
-    UNPACK_DATA unpack = UNPACKING_GBUFFERS(input.position.xy);
+    UNPACK_DATA unpack = UNPACKING_GBUFFERS(input.uvPos, input.position.xy);
     LIGHT light = gLights[0];
     MATERIAL mat = gMaterials[0];
 
     float shadowFactor = 0.0f;
     float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
     float4 finalColor = (float4) 0.0f;
-    float3 pos = ConvertPosition(input.uvPos, unpack.depth);
 
     float3 toEyeW = normalize(gvCameraPosition - unpack.pos.xyz);
     float3 r = reflect(-toEyeW, unpack.norm.xyz);
     float3 fresnelFactor = SchlickFresnel(fresnelR0, unpack.norm.xyz, r);
 
-    shadowFactor = CalcShadowFactor(mul(float4(pos, 1.0f), gmtxShadowProjection[0]), 0);
-    finalColor = unpack.color * Lighting(pos, unpack.norm.xyz, 0, 1.0f);
+    shadowFactor = CalcShadowFactor(mul(float4(unpack.pos, 1.0f), gmtxShadowProjection[0]), 0);
+
+    finalColor = unpack.color * Lighting(unpack.pos, unpack.norm.xyz, 0, 1.0f);
     finalColor.rgb += unpack.norm.w * fresnelFactor * finalColor.rgb;
     finalColor = OutLineAndBlur(int2(input.position.xy), float4(finalColor.xyz, shadowFactor));
-    return Fog(finalColor, pos);
+  
+    return Fog(finalColor, unpack.pos);
     //return finalColor;
 };
 #endif
