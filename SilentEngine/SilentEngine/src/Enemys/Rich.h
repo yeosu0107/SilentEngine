@@ -13,5 +13,5 @@ public:
 	virtual void SetAnimations(UINT num, LoadAnimation ** tmp);
 
 	virtual void Skill();
-	virtual void Hitted();
+	virtual void Hitted(int damage);
 };

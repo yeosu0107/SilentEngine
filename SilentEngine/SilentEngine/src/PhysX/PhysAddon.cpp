@@ -2,6 +2,9 @@
 #include "PhysAddon.h"
 #include "..\Shaders\PaticleShader.h"
 
+int randDamage[7] = { -3, -2, -1, 0, 1, 2, 3 };
+
+
 void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 {
 	auto CollisionObject = trigger->otherActor;
@@ -18,9 +21,10 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 		if (!enemy->isLive())
 			continue;
 		if (CollisionObject == enemy->getControllerActor()) {
+			int damage = *(int*)trigger->triggerActor->userData + randDamage[rand() % 7];
 			/*reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
 				->SetPos(&Vector3::Add(enemy->GetPosition(), XMFLOAT3(0,20.0f, 0)), 1);*/
-			enemy->Hitted();
+			enemy->Hitted(damage);
 			return;
 		}
 	}
@@ -30,7 +34,9 @@ void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
 	GameObject* player = GlobalVal::getInstance()->getPlayer();
 	if (trigger->otherActor == player->getControllerActor()) {
-		player->Hitted(*(float*)(trigger->triggerActor->userData));
+		DamageVal* damage = (DamageVal*)(trigger->triggerActor->userData);
+		damage->baseDamage += randDamage[rand() % 7];
+		player->Hitted(*damage);
 	}
 	return;
 }

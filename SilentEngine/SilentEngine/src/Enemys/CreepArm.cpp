@@ -17,6 +17,7 @@ CreepArm::CreepArm(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_status = m_State->getStatus();
 	m_size = XMFLOAT2(10.0f, 8.0f);
 	m_triggerSize = XMFLOAT3(30, 10, 30);
+	m_damageVal.hitback = 0.0f;
 	SetScale(0.3f);
 }
 
@@ -36,15 +37,15 @@ void CreepArm::Attack()
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);
-
+		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}
 }
 
-void CreepArm::Hitted()
+void CreepArm::Hitted(int damage)
 {
 	ChangeAnimation(ArmAni::armdamaged);
-	m_status->m_health -= 10;
+	m_status->m_health -= damage;
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
 	m_State->changeState(STATE::hitted);

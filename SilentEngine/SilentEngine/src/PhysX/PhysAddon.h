@@ -27,6 +27,17 @@ inline XMFLOAT3 PXtoXM(const PxVec3& pos) {
 	return XMFLOAT3(pos.x, pos.y, pos.z);
 }
 
+class DamageVal
+{
+public:
+	float hitback;
+	int baseDamage;
+	DamageVal(float back, int damage) {
+		hitback = back;
+		baseDamage = damage;
+	}
+};
+
 class PhysSimulation : public PxSimulationEventCallback
 {
 private:

@@ -155,6 +155,8 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
+class DamageVal;
+
 class GameObject
 {
 public:
@@ -229,8 +231,8 @@ public:
 	virtual void Idle() {}
 	virtual void Attack() {}
 	virtual void Skill() {}
-	virtual void Hitted() {}
-	virtual void Hitted(float& tmp) {}
+	virtual void Hitted(int damage) {}
+	virtual void Hitted(DamageVal& tmp) {}
 	virtual void Death() {}
 	virtual void ChangeAnimation(UINT nextIndex) {}
 

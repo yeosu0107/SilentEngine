@@ -8,7 +8,8 @@ Rich::Rich(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	m_State->setValue(50, 50, 50, 200, 45, false);
 	m_size = XMFLOAT2(1.0f, 10.0f);
 	m_status = m_State->getStatus();
-	m_hitback = 1.5f;
+	m_damageVal.hitback = 1.5f;
+	//m_hitback = 1.5f;
 	SetScale(0.3f);
 }
 
@@ -58,10 +59,10 @@ void Rich::Skill()
 	
 }
 
-void Rich::Hitted()
+void Rich::Hitted(int damage)
 {
 	if (avoid)
 		return;
 
-	Enemy::Hitted();
+	Enemy::Hitted(damage);
 }

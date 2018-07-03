@@ -60,7 +60,7 @@ public:
 		*crash = true;
 		if (hit.other->getActor() ==
 			GlobalVal::getInstance()->getPlayer()->getControllerActor()) {
-			GlobalVal::getInstance()->getPlayer()->Hitted();
+			GlobalVal::getInstance()->getPlayer()->Hitted(10);
 		}
 		//hit는 자기자신
 		//hit.other는 나와 부딪친 객체
@@ -117,7 +117,11 @@ protected:
 	BaseAI*							m_State = nullptr;
 	Status*							m_status = nullptr;
 
-	float								m_hitback = 0.0f;
+	//float								m_hitback = 0.0f;
+
+	//int									m_baseDamage = 10;
+
+	DamageVal					m_damageVal = DamageVal(0, 10);
 public:
 	Enemy(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Enemy();
@@ -131,7 +135,7 @@ public:
 	virtual bool Move(float fTime);
 	virtual void Attack();
 	virtual void Skill();
-	virtual void Hitted();
+	virtual void Hitted(int damage);
 	virtual void Death();
 
 	virtual void Animate(float fTime);

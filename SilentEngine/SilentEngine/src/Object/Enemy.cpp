@@ -73,7 +73,8 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_triggerSize = XMFLOAT3(10, 10, 10);
 
 	m_status = m_State->getStatus();
-	m_hitback = 1.3f;
+	//m_hitback = 1.3f;
+	m_damageVal.hitback = 1.3f;
 }
 
 Enemy::~Enemy()
@@ -133,7 +134,7 @@ void Enemy::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
-		*(float*)m_attackTrigger->userData = m_hitback;
+		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}
 }
@@ -156,12 +157,12 @@ void Enemy::Skill()
 	}
 }
 
-void Enemy::Hitted()
+void Enemy::Hitted(int damage)
 {
 	if (m_State->getState() == STATE::death)
 		return;
 	ChangeAnimation(EnemyAni::AniHitted);
-	m_status->m_health -= 10;
+	m_status->m_health -= damage;
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
 	m_State->changeState(STATE::hitted);

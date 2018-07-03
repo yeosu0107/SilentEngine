@@ -86,10 +86,9 @@ protected:
 
 	PlayerLogic*					m_playerLogic;
 
-	float								hitBackstep = 0.0f;
-
-
+	float								hitBackstep = 0.0f;		
 	//게임 콘텐츠 관련
+	int									m_damage = 10;
 	const UINT						MAX_KICK_DELAY = 5000; //밀리세컨드 단위
 
 	bool								m_avoid = false;
@@ -114,8 +113,8 @@ public:
 	virtual bool Movement(DWORD input);
 	virtual void Idle();
 	virtual void Attack();
-	virtual void Hitted();
-	virtual void Hitted(float& hitback);
+	virtual void Hitted(int damage);
+	virtual void Hitted(DamageVal& hitback);
 	virtual void Skill();
 
 	virtual void SetPosition(float x, float y, float z);

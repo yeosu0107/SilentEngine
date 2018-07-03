@@ -14,7 +14,7 @@ public:
 
 	virtual void Attack();
 	virtual void Skill() {}
-	virtual void Hitted();
+	virtual void Hitted(int damage);
 	virtual void Death();
 
 	virtual void Animate(float fTime);

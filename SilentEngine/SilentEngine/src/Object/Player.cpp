@@ -74,8 +74,8 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	ModelObject::SetAnimations(num, tmp);
 	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
 	//m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
-	m_ani[PlayerAni::Attack]->SetAnimSpeed(1.5f);
-	m_ani[PlayerAni::Attack2]->SetAnimSpeed(1.7f);
+	m_ani[PlayerAni::Attack]->SetAnimSpeed(2.0f);
+	m_ani[PlayerAni::Attack2]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::Attack3]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::Skill]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::KickAttack]->SetAnimSpeed(2.0f);
@@ -198,12 +198,12 @@ void Player::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(m_xmf3Look, 30, false)
 		)));
-
+		*(int*)m_weaponTrigger->userData = m_damage;
 		m_weaponTrigger->setGlobalPose(tmpTr, true);
 	}
 }
 
-void Player::Hitted()
+void Player::Hitted(int damage)
 {
 	if (m_avoid)
 		return;
@@ -211,14 +211,14 @@ void Player::Hitted()
 		m_playerLogic->changeState(STATE::death);
 		return;
 	}
-	m_status->m_health -= 10;
+	m_status->m_health -= damage;
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
-	hitBackstep = 0.0f;
 }
 
-void Player::Hitted(float& hitback)
+
+void Player::Hitted(DamageVal& hitback)
 {
 	if (m_avoid)
 		return;
@@ -226,11 +226,11 @@ void Player::Hitted(float& hitback)
 		m_playerLogic->changeState(STATE::death);
 		return;
 	}
-	m_status->m_health -= 10;
+	m_status->m_health -= hitback.baseDamage;
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
-	hitBackstep = hitback;
+	hitBackstep = hitback.hitback;
 }
 
 void Player::Skill()
