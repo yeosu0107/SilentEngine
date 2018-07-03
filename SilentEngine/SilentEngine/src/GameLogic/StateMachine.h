@@ -12,7 +12,8 @@ enum STATE {
 	hitted,		//공격받은상태
 	death,			//죽음상태
 	//플레이서 추가 상태
-	attack2
+	attack2,
+	attack3
 };
 
 class StateMachine

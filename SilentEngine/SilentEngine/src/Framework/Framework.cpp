@@ -157,7 +157,6 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_MBUTTONDOWN:
 		OnMouseDown(wParam, msg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
-
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_MBUTTONUP:

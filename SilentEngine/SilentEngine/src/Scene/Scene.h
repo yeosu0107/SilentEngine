@@ -134,6 +134,7 @@ protected:
 	//조작관련
 	POINT													m_ptOldCursorPos;
 	float														m_fMouseSensitive = 4.5f;	// 마우스 민감도
+	bool														m_attackEvent = false;
 	//게임 콘텐츠 관련
 	const UINT												KindOfEnemy = 5;
 
@@ -143,7 +144,7 @@ protected:
 	FirePositionLoader*									loader = nullptr;
 	MapLoader*											globalMaps = nullptr;
 	EffectLoader*											globalEffects = nullptr;
-	BillboardShader*					fireObjectShaders = nullptr;
+	BillboardShader*										fireObjectShaders = nullptr;
 };
 
 class GameScene : public Scene

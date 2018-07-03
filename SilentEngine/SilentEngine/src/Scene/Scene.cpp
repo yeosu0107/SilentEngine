@@ -177,6 +177,11 @@ bool TestScene::Update(const Timer & gt)
 	m_physics->stepPhysics(false);
 	//플레이어 애니메이트
 	m_playerShader->Animate(gt.DeltaTime());
+	if (m_attackEvent) {
+		DWORD input = 0;
+		input |= ANI_ATTACK;
+		m_testPlayer->Movement(input);
+	}
 	//게이트 애니메이트(문 열리는 애니메이션, 방 클리어 시만 수행)
 	if (m_Room[m_nowRoom]->IsClear())
 		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
@@ -487,7 +492,6 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y)
 {
 	UINT collButon = 0;
-
 	switch (nMessageID)
 	{
 	case WM_LBUTTONDOWN:
@@ -496,12 +500,14 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 		::GetCursorPos(&m_ptOldCursorPos);
 		m_bMouseCapture = true;*/
 		if (m_bMouseCapture) {
-			DWORD input = 0;
+			/*DWORD input = 0;
 			input |= ANI_ATTACK;
-			m_testPlayer->Movement(input);
+			m_testPlayer->Movement(input);*/
+			m_attackEvent = true;
 		}
 
 		else {
+			m_attackEvent = false;
 			collButon = m_pButtons->CollisionButton();
 
 			if (collButon == 1) {
@@ -530,6 +536,7 @@ bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, i
 	{
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
+		m_attackEvent = false;
 		/*::ReleaseCapture();
 		m_bMouseCapture = false;*/
 		break;

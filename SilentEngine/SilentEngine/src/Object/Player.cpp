@@ -73,8 +73,9 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	ModelObject::SetAnimations(num, tmp);
 	//m_ani[PlayerAni::Idle]->SetAnimSpeed(1.0f);
 	//m_ani[PlayerAni::Move]->SetAnimSpeed(0.5f);
-	m_ani[PlayerAni::Attack]->SetAnimSpeed(2.0f);
-	m_ani[PlayerAni::Attack2]->SetAnimSpeed(2.0f);
+	m_ani[PlayerAni::Attack]->SetAnimSpeed(1.5f);
+	m_ani[PlayerAni::Attack2]->SetAnimSpeed(1.7f);
+	m_ani[PlayerAni::Attack3]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::Skill]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::Hitted]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::die]->DisableLoof(PlayerAni::die);
@@ -148,8 +149,10 @@ bool Player::Movement(DWORD input)
 {
 	if (input & ANI_ATTACK) {
 		//ChangeAnimation(PlayerAni::Attack);
-		if(m_AnimIndex == PlayerAni::Attack)
+		if (m_AnimIndex == PlayerAni::Attack)
 			m_playerLogic->changeState(STATE::attack2);
+		else if (m_AnimIndex == PlayerAni::Attack2)
+			m_playerLogic->changeState(STATE::attack3);
 		else
 			m_playerLogic->changeState(STATE::attack);
 		//Attack();
@@ -157,8 +160,8 @@ bool Player::Movement(DWORD input)
 	if (input & ANI_SKILL) {
 		//m_AnimIndex = PlayerAni::Skill;
 		m_playerLogic->changeState(STATE::skill);
-	}
 
+	}
 	if (input & SUPER_SPEED) {
 		if(m_moveSpeed<100.0f)
 			m_moveSpeed = 320.0f;
