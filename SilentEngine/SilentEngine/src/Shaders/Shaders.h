@@ -79,8 +79,6 @@ public:
 	virtual void Animate(float fTimeElapsed) {}
 	virtual void CreatePipelineParts();
 
-	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
-	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
 	virtual void SetMultiUploadBuffer(void** data);
 
 protected:

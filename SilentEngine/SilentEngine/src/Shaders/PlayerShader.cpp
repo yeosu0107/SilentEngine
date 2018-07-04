@@ -19,28 +19,22 @@ void PlayerShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[5 + NUM_DIRECTION_LIGHTS];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[5];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, SRVTexture2D, 0, 0); // GameObject
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVMultiTexture, 0, 0); // Texture
 	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVMultiTexture + 1, 0, 0);
 	pd3dDescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVMultiTexture + 2, 0, 0); // Player NormalMap
 	pd3dDescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVMultiTexture + 3, 0, 0); // Sword NormalMap
-	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dDescriptorRanges[5 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
-
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[8 + NUM_DIRECTION_LIGHTS];
+	
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
-	pd3dRootParameters[1].InitAsConstantBufferView(4);
-	pd3dRootParameters[2].InitAsConstantBufferView(5);
-	pd3dRootParameters[3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[6].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[7].InitAsDescriptorTable(1, &pd3dDescriptorRanges[4], D3D12_SHADER_VISIBILITY_PIXEL);
-	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[8 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[5 + i], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[4], D3D12_SHADER_VISIBILITY_PIXEL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -121,7 +115,7 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 4 + NUM_DIRECTION_LIGHTS);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 1, 4);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_BoneCB->Resource(), D3DUtil::CalcConstantBufferByteSize(sizeof(CB_DYNAMICOBJECT_INFO)));
 
@@ -138,10 +132,8 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\Sword.dds", 1);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\c_texture_NRM.dds", 2);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\Sword_NRM.dds", 3);
-		for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-			pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
-
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
+		
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 2, true);
 
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -155,7 +147,7 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	if (m_myCamera)
 		tmp->SetCamera(m_myCamera, (BasePhysX*)pContext);
 	tmp->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 0));
-	tmp->SetRootParameterIndex(3);
+	tmp->SetRootParameterIndex(1);
 	m_ppObjects[0] = tmp;
 }
 
@@ -176,7 +168,4 @@ void PlayerShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommand
 
 		m_BoneCB->CopyData(i, cBone);
 	}
-
-	pd3dCommandList->SetGraphicsRootConstantBufferView(1, m_MatCB->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(2, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }

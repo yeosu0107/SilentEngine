@@ -15,25 +15,19 @@ void InstanceModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	int i = 0;
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3 + NUM_DIRECTION_LIGHTS];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArray, 0, 0); // GameObject
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexArrayNorm, 0, 0); // NormTexture
 	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceData, 0, 0); // Texture
-	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dDescriptorRanges[3 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0); // ShadowMap
-
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6 + NUM_DIRECTION_LIGHTS];
+	
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[4];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[2].InitAsConstantBufferView(4);
-	pd3dRootParameters[3].InitAsConstantBufferView(5);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[6 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3 + i], D3D12_SHADER_VISIBILITY_PIXEL);
-
+	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	pd3dRootParameters[3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+	
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
 
@@ -157,9 +151,6 @@ void InstanceModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3d
 		cBuffer.m_nMaterial = 0;
 		m_ObjectCB->CopyData(i, cBuffer);
 	}
-	pd3dCommandList->SetGraphicsRootConstantBufferView(2, m_MatCB->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(3, m_LightsCB->Resource()->GetGPUVirtualAddress());
-
 }
 
 void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
@@ -175,7 +166,7 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_nObjects = 4;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3 + NUM_DIRECTION_LIGHTS);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
 
@@ -185,10 +176,8 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	if (globalMaps->isMat(modelIndex)) {
 		CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), 0);
-		for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-			pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
-
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 1, true);
+		
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 3, 1, true);
 
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -266,7 +255,7 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_nObjects = 1;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3 + NUM_DIRECTION_LIGHTS);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, false);
 
@@ -284,10 +273,7 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 			pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getNorMat(modelIndex).c_str(), index++);
 		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, globalMaps->getMat(modelIndex).c_str(), index);
 	
-		for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-			pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
-
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5 - index, 1, true);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 3 - index, 1, true);
 	
 		m_pMaterial = new CMaterial();
 		m_pMaterial->SetTexture(pTexture);
@@ -334,7 +320,7 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dDescriptorRanges[2].RegisterSpace = 0;
 	pd3dDescriptorRanges[2].OffsetInDescriptorsFromTableStart = 0;
 
-	D3D12_ROOT_PARAMETER pd3dRootParameters[6];
+	D3D12_ROOT_PARAMETER pd3dRootParameters[4];
 
 	pd3dRootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	pd3dRootParameters[0].Descriptor.ShaderRegister = 1; //Camera
@@ -346,25 +332,15 @@ void InstanceDynamicModelShader::CreateGraphicsRootSignature(ID3D12Device * pd3d
 	pd3dRootParameters[1].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[1]; // InstanceData
 	pd3dRootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
-	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[2].Descriptor.ShaderRegister = 4; //Materials
-	pd3dRootParameters[2].Descriptor.RegisterSpace = 0;
-	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	pd3dRootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[2].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[2].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0]; //Texture
+	pd3dRootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	pd3dRootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	pd3dRootParameters[3].Descriptor.ShaderRegister = 5; //Lights
-	pd3dRootParameters[3].Descriptor.RegisterSpace = 0;
+	pd3dRootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	pd3dRootParameters[3].DescriptorTable.NumDescriptorRanges = 1;
+	pd3dRootParameters[3].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //Texture
 	pd3dRootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-	pd3dRootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[4].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[4].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[0]; //Texture
-	pd3dRootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	pd3dRootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	pd3dRootParameters[5].DescriptorTable.NumDescriptorRanges = 1;
-	pd3dRootParameters[5].DescriptorTable.pDescriptorRanges = &pd3dDescriptorRanges[2]; //Texture
-	pd3dRootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc;
@@ -472,9 +448,6 @@ void InstanceDynamicModelShader::UpdateShaderVariables(ID3D12GraphicsCommandList
 
 		m_BoneCB->CopyData(i, cBone);
 	}
-
-	pd3dCommandList->SetGraphicsRootConstantBufferView(2, m_MatCB->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(3, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }
 
 void InstanceDynamicModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)

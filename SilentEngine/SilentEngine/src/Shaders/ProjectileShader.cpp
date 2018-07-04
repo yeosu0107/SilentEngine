@@ -13,10 +13,10 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 
 		Camera* pLamdaCamera = (Camera*)pCamera;
 		float aLengthToCamera = Vector3::Length(Vector3::Subtract(pLamdaCamera->GetPosition(), a->GetPosition(), false));
-		float bLengthToCamera = Vector3::Length(Vector3::Subtract(pLamdaCamera->GetPosition(),b->GetPosition(),false));
+		float bLengthToCamera = Vector3::Length(Vector3::Subtract(pLamdaCamera->GetPosition(), b->GetPosition(), false));
 		return aLengthToCamera > bLengthToCamera; }
 	);
-	
+
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		if (m_ppObjects[i]->isLive()) {
 			XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
@@ -35,8 +35,6 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 			m_ActiveBullet += 1;
 		}
 	}
-	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_MATERIAL, m_MatCB->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_LIGHTS, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }
 
 void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
@@ -61,7 +59,7 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, i++, sizeof(CB_GAMEOBJECT_INFO), false);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_EffectCB->Resource(), 4, i++, sizeof(CB_EFFECT_INFO), false);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 2, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 3, 2, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);

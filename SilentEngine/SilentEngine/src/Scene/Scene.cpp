@@ -226,30 +226,21 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->SetTimeLag(0.30f);
 	
 	PlayerShader* player = new PlayerShader(1, m_Camera.get());
-	player->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-	player->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
-
 	player->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, m_physics);
 	m_playerShader = player;
 	
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
-	Explosion->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-	Explosion->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
 	Explosion->SetCamera(m_Camera.get());
 	Explosion->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
 
 	PaticleShader<HitPaticle>* hitShader = new PaticleShader<HitPaticle>();
-	hitShader->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-	hitShader->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
 	hitShader->SetCamera(m_Camera.get());
 	hitShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(3));
 	hitShader->setAnimSpeed(50.0f);
 	m_hitEffectShaders = hitShader;
 
 	fireObjectShaders = new PaticleShader<PaticleObject>();
-	fireObjectShaders->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-	fireObjectShaders->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
 	fireObjectShaders->SetCamera(m_Camera.get());
 	fireObjectShaders->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(2));
 	fireObjectShaders->setLoop(true);
@@ -259,8 +250,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	map = new InstanceModelShader*[MAX_MAP];
 	for (UINT i = 0; i < MAX_MAP; ++i) {
 		map[i] = new MapShader(i);
-		map[i]->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-		map[i]->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
 		map[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	}
 	/*for (UINT i = 0; i < m_nRoom; ++i) {
@@ -272,8 +261,6 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 
 	InstanceModelShader* gateShader = new InstanceModelShader(10);
-	gateShader->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-	gateShader->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
 	gateShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
@@ -289,14 +276,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	enemyShader[4] = new EnemyShader<Rich>(6);
 
 	for (int i = 0; i < 5; ++i) {
-		enemyShader[i]->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-		enemyShader[i]->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
 		enemyShader[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, (int*)enemyNum[i]);
 	}
 
 	bullet = new ProjectileShader();
-	bullet->SetLightsUploadBuffer(LIGHT_MANAGER->LightUploadBuffer());
-	bullet->SetMaterialUploadBuffer(MATERIAL_MANAGER->MaterialUploadBuffer());
 	bullet->SetCamera(m_Camera.get());
 	bullet->BuildObjects(pDevice, pCommandList , NUM_RENDERTARGET, globalEffects->getTextureFile(0));
 	bullet->setPhys(m_physics);

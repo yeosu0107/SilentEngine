@@ -47,9 +47,6 @@ public:
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets = 1, void * pContext = NULL);
 	virtual void Animate(float fTimeElapsed);
 
-	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
-	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
-
 	virtual GameObject* getObject(int index) { return m_ppObjects[index]; }
 	virtual GameObject** getObjects(UINT& num) { 
 		num = m_nObjects;

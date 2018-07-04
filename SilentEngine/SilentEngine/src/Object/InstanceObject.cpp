@@ -14,7 +14,7 @@ EffectInstanceObject::~EffectInstanceObject()
 void EffectInstanceObject::SetRootParameter(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorHandle);
-	pd3dCommandList->SetGraphicsRootDescriptorTable(4, m_d3dEffectCbvGPUDescriptorHandle);
+	pd3dCommandList->SetGraphicsRootDescriptorTable(2, m_d3dEffectCbvGPUDescriptorHandle);
 }
 
 void EffectInstanceObject::Animate(float fTimeElapsed)

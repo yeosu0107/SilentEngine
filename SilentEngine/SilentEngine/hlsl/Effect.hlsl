@@ -32,10 +32,8 @@ float4 PSEffect(VS_EFFECT_OUTPUT input) : SV_Target
     float4 cColor = (float4) 0.0f;
 
 	cColor = g2DTexture.Sample(gDefaultSamplerState, input.uv);
-	if(cColor.a < 0.9f)
-		cColor.a -= 0.2f;
-
-	clip(cColor.a - 0.1f);
+	if(cColor.a < 1.0f)
+        discard;
 
     return cColor;
 }

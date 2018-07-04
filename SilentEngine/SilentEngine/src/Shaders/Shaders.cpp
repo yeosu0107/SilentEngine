@@ -331,6 +331,7 @@ D3D12_INPUT_LAYOUT_DESC ObjectShader::CreateInputLayout(int index)
 
 void ObjectShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
+	
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
@@ -401,41 +402,16 @@ void ObjectShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 }
 
 void ObjectShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
-{
-	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, m_nObjects, true);
-
-	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
-
-	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_ObjectCB->Resource()->GetGPUVirtualAddress();
-}
+{ }
 
 void ObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
-{
-	CB_GAMEOBJECT_INFO cBuffer;
-
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
-		cBuffer.m_nMaterial = 0;
-		m_ObjectCB->CopyData(i, cBuffer);
-	}
-}
+{ }
 
 void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
-{
-}
+{ }
 
 void ObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
-{
-	Shaders::Render(pd3dCommandList, pCamera);
-
-	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
-
-	for (unsigned int j = 0; j < m_nObjects; j++)
-	{
-		if (m_ppObjects[j])
-			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
-	}
-}
+{ }
 
 //////////////////////////////////////////////////////////////////////
 
@@ -460,105 +436,37 @@ D3D12_INPUT_LAYOUT_DESC NormalMapShader::CreateInputLayout(int index)
 	return inputLayout;
 }
 
-void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
-{
-	m_nObjects = 1;
-	m_nPSO = 1;
-	
-	CreatePipelineParts();
+void NormalMapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext) { }
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "VSNormalMap", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSMultirender", "ps_5_0");
+void NormalMapShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList) { }
 
-	CTexture *pTexture = new CTexture(2, RESOURCE_TEXTURE2DARRAY, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks.dds", 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks_nm.dds", 1);
-	for (int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
+void NormalMapShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList) { }
 
-	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
+void NormalMapShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList) { }
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
-	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 4, true);
-
-	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
-
-	NormalMappingCube *pCubeMesh = new NormalMappingCube(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 50.0f);
-
-	m_ppObjects = vector<GameObject*>(m_nObjects);
-
-	m_pMaterial = new CMaterial();
-	m_pMaterial->SetTexture(pTexture);
-	m_pMaterial->SetReflection(1);
-
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		m_ppObjects[i] = new GameObject();
-		m_ppObjects[i]->SetMesh(0, pCubeMesh);
-		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-	}
-
-	
-}
-
-void NormalMapShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
-{
-	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, m_nObjects, true);
-}
-
-void NormalMapShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
-{
-	CB_GAMEOBJECT_INFO cBuffer;
-
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
-		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
-		cBuffer.m_nMaterial = 0;
-		m_ObjectCB->CopyData(i, cBuffer);
-	}
-
-	pd3dCommandList->SetGraphicsRootConstantBufferView(2, m_MatCB->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(3, m_LightsCB->Resource()->GetGPUVirtualAddress());
-}
-
-void NormalMapShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList)
-{
-	Shaders::OnPrepareRender(pd3dCommandList);
-}
-
-void NormalMapShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
-{
-}
+void NormalMapShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice) { }
 
 /////////////////////////////////////
 
 
 void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
-
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 	int i = 0;
 	
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3 + NUM_DIRECTION_LIGHTS];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceData, 0, 0);
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexture2D, 0, 0);
 	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceEffectData, 0, 0);
-	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dDescriptorRanges[3 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVShadowMap + i, 0, 0);
-
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[6 + NUM_DIRECTION_LIGHTS];
+	
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[4];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[2].InitAsConstantBufferView(4);
-	pd3dRootParameters[3].InitAsConstantBufferView(5);
-	pd3dRootParameters[4].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[5].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	for (i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
-		pd3dRootParameters[6 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3 + i], D3D12_SHADER_VISIBILITY_PIXEL);
-
+	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
+	
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
 
@@ -713,10 +621,6 @@ void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 
 		m_EffectCB->CopyData(i, cEffectBuffer);
 	}
-
-
-	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_MATERIAL, m_MatCB->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_LIGHTS, m_LightsCB->Resource()->GetGPUVirtualAddress());
 }													  
 
 //////////////////////////////////////////////////////////////////
@@ -767,6 +671,7 @@ D3D12_BLEND_DESC TextureToFullScreen::CreateBlendState(int index)
 
 void TextureToFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
+
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
 	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
@@ -824,6 +729,7 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 {
 	m_nObjects = 1;
 	m_nPSO = 1;
+
 	CreatePipelineParts();
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");

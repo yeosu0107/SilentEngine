@@ -37,8 +37,6 @@ public:
 				m_ActivePaticle += 1;
 			}
 		}
-		pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_MATERIAL, m_MatCB->Resource()->GetGPUVirtualAddress());
-		pd3dCommandList->SetGraphicsRootConstantBufferView(ROOTPARAMETER_LIGHTS, m_LightsCB->Resource()->GetGPUVirtualAddress());
 	}
 
 	virtual void BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext) {
@@ -62,7 +60,7 @@ public:
 		CreateShaderVariables(pd3dDevice, pd3dCommandList);
 		CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, i++, sizeof(CB_GAMEOBJECT_INFO), false);
 		CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_EffectCB->Resource(), 4, i++, sizeof(CB_EFFECT_INFO), false);
-		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 5, 2, true);
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 3, 2, true);
 
 		CreateGraphicsRootSignature(pd3dDevice);
 		BuildPSO(pd3dDevice, nRenderTargets);

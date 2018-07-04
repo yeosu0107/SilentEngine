@@ -40,9 +40,6 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void ReleaseObjects() { }
 
-	virtual void SetLightsUploadBuffer(UploadBuffer<LIGHTS>* pLightBuf) { m_LightsCB = pLightBuf; }
-	virtual void SetMaterialUploadBuffer(UploadBuffer<MATERIALS>* pMatBuf) { m_MatCB = pMatBuf; }
-
 protected:
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
