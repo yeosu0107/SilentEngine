@@ -54,6 +54,10 @@ void GlobalVal::setFogEnable(bool bEnabled)
 {
 	m_bFogEnable = bEnabled;
 }
+void GlobalVal::setCamera(Camera * camera)
+{
+	m_sceneCamera = camera;
+}
 GameObject * GlobalVal::getPlayer()
 {
 	return m_player;

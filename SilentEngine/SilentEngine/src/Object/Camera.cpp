@@ -334,6 +334,35 @@ void CThirdPersonCamera::Rotate(float x, float y, float z) {
 	m_xmf4x4Rotate = Matrix4x4::Multiply(m_xmf4x4Rotate, xmf4x4Rotate);
 }
 
+void CThirdPersonCamera::SetPosition(XMFLOAT3 xmf3Position)
+{
+	m_xmf3Position = xmf3Position;
+	if (m_isShake) {
+		Shake(1.0f);
+	}
+}
+
+void CThirdPersonCamera::ShakeInit()
+{
+	m_isShake = true;
+	m_xmf3OriginPos = m_xmf3Position;
+	m_nowShakeCount = baseShakeCount;
+}
+
+void CThirdPersonCamera::Shake(float amount)
+{
+	m_nowShakeCount -= 1;
+
+	XMFLOAT3 m_shake = XMFLOAT3(rand()%30 - 15, rand()%30 - 15, 0);
+	m_shake = Vector3::Normalize(m_shake);
+	m_xmf3Position = Vector3::Add(m_xmf3Position, m_shake, amount);
+
+	if (m_nowShakeCount <= 0) {
+		m_isShake = false;
+		m_xmf3Position = m_xmf3OriginPos;
+	}
+}
+
 void CThirdPersonCamera::Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed)
 {
 	if (m_pPlayer)

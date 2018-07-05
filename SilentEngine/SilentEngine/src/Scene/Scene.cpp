@@ -216,6 +216,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	globalEffects = GlobalVal::getInstance()->getEffectLoader();
 	globalMaps = GlobalVal::getInstance()->getMapLoader();
 	loader = GlobalVal::getInstance()->getFirePos();
+	
 
 	BuildRootSignature(pDevice, pCommandList);
 	CreateShaderVariables(pDevice, pCommandList);
@@ -224,7 +225,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_Camera->InitCamera(pDevice, pCommandList);
 	m_Camera->SetOffset(XMFLOAT3(0.0f, 100.0f, -60.0f));
 	m_Camera->SetTimeLag(0.30f);
-	
+	GlobalVal::getInstance()->setCamera(m_Camera.get());
+
 	PlayerShader* player = new PlayerShader(1, m_Camera.get());
 	player->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, m_physics);
 	m_playerShader = player;

@@ -46,6 +46,9 @@ public:
 protected:
 	//카메라의 위치
 	XMFLOAT3 m_xmf3Position;
+	XMFLOAT3 m_xmf3OriginPos;
+	bool			m_isShake = false;
+
 
 	//카메라의 로컬 x-축(Right), y-축(Up), z-축(Look)
 	XMFLOAT3 m_xmf3Right;
@@ -75,6 +78,7 @@ protected:
 	XMFLOAT4X4 m_xmf4x4Rotate;
 
 	XMFLOAT4X4 m_xmf4x4ShadowProjection[NUM_DIRECTION_LIGHTS];
+
 
 	//뷰포트
 	D3D12_VIEWPORT m_d3dViewport;
@@ -108,7 +112,7 @@ public:
 	void SetMode(DWORD nMode) { m_nMode = nMode; }
 	DWORD GetMode() { return(m_nMode); }
 
-	void SetPosition(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
+	virtual void SetPosition(XMFLOAT3 xmf3Position) { m_xmf3Position = xmf3Position; }
 	XMFLOAT3& GetPosition() { return(m_xmf3Position); }
 
 	UploadBuffer<VS_CB_CAMERA_INFO>* GetUploadBuffer() const { return m_ObjectCB.get(); }
@@ -159,11 +163,17 @@ public:
 	virtual void SetLookAt(XMFLOAT3& xmf3LookAt) { }
 
 	void ReleaseShaderVariables();
+
+	virtual void ShakeInit() {}
+	virtual void Shake(float amount) {}
 };
 
 class CThirdPersonCamera : public Camera
 {
 private:
+	const char baseShakeCount = 5;
+	char			m_nowShakeCount = 0;
+
 public:
 	CThirdPersonCamera();
 	CThirdPersonCamera(Camera *pCamera);
@@ -171,4 +181,8 @@ public:
 	virtual void Update(XMFLOAT3& xmf3LookAt, float fTimeElapsed);
 	virtual void SetLookAt(XMFLOAT3& vLookAt);
 	virtual void Rotate(float fPitch = 0.0f, float fYaw = 0.0f, float fRoll = 0.0f);
+	virtual void SetPosition(XMFLOAT3 xmf3Position);
+
+	virtual void ShakeInit();
+	virtual void Shake(float amount);
 };

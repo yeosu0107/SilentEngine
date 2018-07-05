@@ -14,7 +14,7 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 	XMFLOAT3 hitPoint[2] = { pos, pos };
 	reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
 		->SetPos(hitPoint, 2);
-
+	GlobalVal::getInstance()->getSceneCamera()->ShakeInit();
 
 	for (UINT i = 0; i < *GlobalVal::getInstance()->getNumEnemy(); ++i) {
 		enemy = GlobalVal::getInstance()->getEnemy()[i];

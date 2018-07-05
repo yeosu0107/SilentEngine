@@ -13,6 +13,8 @@ private:
 	EffectLoader*		m_globalEffects = nullptr;
 	FirePositionLoader*  m_globalFirePos = nullptr;
 
+	Camera*			m_sceneCamera = nullptr;
+
 	bool			m_bFogEnable = false;
 	GameObject*		m_player = nullptr;
 	GameObject**	m_Enemys = nullptr;
@@ -31,11 +33,13 @@ public:
 		delete m_globalEffects;
 		delete g_instance;
 		delete m_globalFirePos;
+		delete m_sceneCamera;
 
 		m_globalModels = nullptr;
 		m_globalMaps = nullptr;
 		m_globalEffects = nullptr;
 		m_globalFirePos = nullptr;
+		m_sceneCamera = nullptr;
 		m_player = nullptr;
 		g_instance = nullptr;
 	}
@@ -50,6 +54,7 @@ public:
 	void setPorjectile(void* pContext);
 	void setHitPaticle(void* pContext);
 	void setFogEnable(bool bEnabled);
+	void setCamera(Camera* camera);
 
 	ModelLoader* getModelLoader() { return m_globalModels; }
 	MapLoader* getMapLoader() { return m_globalMaps; }
@@ -61,6 +66,7 @@ public:
 	void* getProjectile() { return m_projecttile; }
 	void* getHitPaticle() { return m_hitPaticle; }
 	bool getFogEnable() { return m_bFogEnable; }
+	Camera* getSceneCamera() { return m_sceneCamera; }
 	UINT* getNumEnemy() { return &m_nEnemy; }
 	int* getRemainEnemy() { return &m_remainEnemy; }
 };
