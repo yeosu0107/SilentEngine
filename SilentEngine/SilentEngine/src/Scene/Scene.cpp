@@ -235,9 +235,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	Explosion->SetCamera(m_Camera.get());
 	Explosion->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(1));
 	m_EffectShaders = Explosion;
-
+	
 	PaticleShader<HitPaticle>* hitShader = new PaticleShader<HitPaticle>();
 	hitShader->SetCamera(m_Camera.get());
+	hitShader->setPaticleSize(100.0f);
 	hitShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(3));
 	hitShader->setAnimSpeed(50.0f);
 	m_hitEffectShaders = hitShader;
@@ -364,8 +365,12 @@ void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList *
 
 void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	if (!m_pTakeDamageScreen->IsUsdedFadeEffect())
-		m_pTakeDamageScreen->SetFadeIn(true, 0.5f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
+	if (GlobalVal::getInstance()->getPlayerHitted()) {
+		if(m_testPlayer->isLive() == true)
+			m_pTakeDamageScreen->SetFadeIn(true, 0.2f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
+		GlobalVal::getInstance()->setPlayerHitted(false);
+	}
+
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
 
 	for (UINT i = 0; i < m_nUIShaders; ++i)

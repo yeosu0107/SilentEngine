@@ -8,6 +8,7 @@ class PaticleShader : public BillboardShader
 {
 private:
 	UINT m_ActivePaticle;
+	float paticleSize = 50.0f;
 public:
 	PaticleShader() : BillboardShader() {
 		m_ActivePaticle = 0;
@@ -70,7 +71,7 @@ public:
 		m_pMaterial->SetReflection(1);
 
 		i = 0;
-		CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 50.0f, 50.0f, 0.0f);
+		CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, paticleSize, paticleSize, 0.0f);
 
 		m_ppObjects.resize(m_nObjects);
 
@@ -136,4 +137,6 @@ public:
 		for (auto& p : m_ppObjects)
 			reinterpret_cast<T*>(p)->setLoop(loop);
 	}
+
+	void setPaticleSize(float size) { paticleSize = size; }
 };

@@ -37,6 +37,8 @@ void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 		DamageVal* damage = (DamageVal*)(trigger->triggerActor->userData);
 		damage->baseDamage += randDamage[rand() % 7];
 		player->Hitted(*damage);
+		GlobalVal::getInstance()->setPlayerHitted(true);
+		GlobalVal::getInstance()->getSceneCamera()->ShakeInit();
 	}
 	return;
 }

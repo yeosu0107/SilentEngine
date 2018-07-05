@@ -340,6 +340,7 @@ void CThirdPersonCamera::SetPosition(XMFLOAT3 xmf3Position)
 	if (m_isShake) {
 		Shake(1.0f);
 	}
+
 }
 
 void CThirdPersonCamera::ShakeInit()

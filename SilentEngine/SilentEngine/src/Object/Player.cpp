@@ -207,7 +207,8 @@ void Player::Hitted(int damage)
 {
 	if (m_avoid)
 		return;
-	if (m_status->m_health <= 0) {
+	if (m_status->m_health <= 0 || m_status->m_health > 10000) {
+		m_status->m_health = 0;
 		m_playerLogic->changeState(STATE::death);
 		return;
 	}
@@ -222,7 +223,8 @@ void Player::Hitted(DamageVal& hitback)
 {
 	if (m_avoid)
 		return;
-	if (m_status->m_health <= 0) {
+	if (m_status->m_health <= 0 || m_status->m_health > 10000) {
+		m_status->m_health = 0;
 		m_playerLogic->changeState(STATE::death);
 		return;
 	}
@@ -275,8 +277,10 @@ void Player::Animate(float fTime)
 	m_playerLogic->update(fTime); //상태머신 수행
 	if (m_playerLogic->getState() != STATE::hitted)
 		hitBackstep = 0.0f;
-	if (m_status->m_health <= 0)
+	if (m_status->m_health <= 0 || m_status->m_health > 10000) {
+		m_status->m_health = 0;
 		m_playerLogic->changeState(STATE::death);
+	}
 	ModelObject::Animate(fTime); //애니메이션
 	
 	if (m_Controller) {
@@ -332,6 +336,7 @@ void Player::reset()
 {
 	m_status->m_health = m_status->prev_health;
 	m_playerLogic->reset();
+	SetLive(true);
 	ChangeAnimation(PlayerAni::Idle);
 	stopAnim(false);
 }

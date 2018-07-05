@@ -15,7 +15,8 @@ private:
 
 	Camera*			m_sceneCamera = nullptr;
 
-	bool			m_bFogEnable = false;
+	bool					m_bFogEnable = false;
+	bool					m_playerHitted = false;
 	GameObject*		m_player = nullptr;
 	GameObject**	m_Enemys = nullptr;
 	void*					m_projecttile = nullptr;
@@ -55,6 +56,7 @@ public:
 	void setHitPaticle(void* pContext);
 	void setFogEnable(bool bEnabled);
 	void setCamera(Camera* camera);
+	void setPlayerHitted(bool tmp) { m_playerHitted = tmp; }
 
 	ModelLoader* getModelLoader() { return m_globalModels; }
 	MapLoader* getMapLoader() { return m_globalMaps; }
@@ -69,4 +71,5 @@ public:
 	Camera* getSceneCamera() { return m_sceneCamera; }
 	UINT* getNumEnemy() { return &m_nEnemy; }
 	int* getRemainEnemy() { return &m_remainEnemy; }
+	bool getPlayerHitted() { return m_playerHitted; }
 };

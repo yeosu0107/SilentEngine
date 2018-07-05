@@ -32,6 +32,8 @@ public:
 
 	virtual void update(float fTime) {
 		fTimeElapsed = fTime;
+		if (m_state > 7)
+			m_state = STATE::idle;
 		(this->*m_stateFunc[m_state])();
 	}
 	virtual void changeState(STATE newState) {

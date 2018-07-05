@@ -63,15 +63,17 @@ void PlayerLogic::deathState()
 	if (m_owner->getAnimLoop() == LOOP_END) {
 		//m_owner->SetLive(false);
 		m_owner->stopAnim(true);
+		m_owner->SetLive(false);
 	}
 }
 
 void PlayerLogic::changeState(STATE newState)
 {
-	/*if (m_state == STATE::attack &&
-		newState == STATE::attack) {
-		m_isNextIndex = true;
-	}*/
+	if (newState == STATE::kick) {
+		m_state = STATE::attack;
+		m_owner->ChangeAnimation(PlayerAni::KickAttack);
+		return;
+	}
 	if (m_state > STATE::tracking) {
 		if (m_state == STATE::attack || m_state == STATE::attack2 || m_state == STATE::attack3 ||
 			m_state == STATE::kick) {
@@ -98,17 +100,17 @@ void PlayerLogic::changeState(STATE newState)
 		m_owner->ChangeAnimation(PlayerAni::Attack);
 		break;
 	case STATE::attack2:
-		m_owner->ChangeAnimation(PlayerAni::Attack2);
 		m_state = STATE::attack;
+		m_owner->ChangeAnimation(PlayerAni::Attack2);
 		break;
 	case STATE::attack3:
-		m_owner->ChangeAnimation(PlayerAni::Attack3);
 		m_state = STATE::attack;
+		m_owner->ChangeAnimation(PlayerAni::Attack3);
 		break;
-	case STATE::kick:
+	/*case STATE::kick:
 		m_owner->ChangeAnimation(PlayerAni::KickAttack);
 		m_state = STATE::attack;
-		break;
+		break;*/
 	case STATE::tracking:
 		m_owner->ChangeAnimation(PlayerAni::Move);
 		break;
