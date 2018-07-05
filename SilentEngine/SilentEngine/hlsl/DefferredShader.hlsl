@@ -139,18 +139,21 @@ float4 PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
     float shadowFactor = 0.0f;
     float3 fresnelR0 = float3(0.1f, 0.1f, 0.1f);
     float4 finalColor = (float4) 0.0f;
-
+    float4 lightColor = (float4) 0.0f;
     float3 toEyeW = normalize(gvCameraPosition - unpack.pos.xyz);
     float3 r = reflect(-toEyeW, unpack.norm.xyz);
     float3 fresnelFactor = SchlickFresnel(fresnelR0, unpack.norm.xyz, r);
 
     shadowFactor = CalcShadowFactor(mul(float4(unpack.pos, 1.0f), gmtxShadowProjection[0]), 0);
 
-    finalColor = unpack.color * Lighting(unpack.pos, unpack.norm.xyz, 0, 1.0f);
+    lightColor = Lighting(unpack.pos, unpack.norm.xyz, 0, 1.0f);
+    finalColor.rgb = unpack.color.rgb * lightColor.rgb;
+    finalColor.a = unpack.color.a;
+
     finalColor.rgb += unpack.norm.w * fresnelFactor * finalColor.rgb;
     finalColor = OutLineAndBlur(int2(input.position.xy), float4(finalColor.xyz, shadowFactor));
   
-    return Fog(finalColor, unpack.pos);
+    return Fog(finalColor, unpack.pos, lightColor.a);
     //return finalColor;
 };
 #endif

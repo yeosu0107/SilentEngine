@@ -7,7 +7,7 @@
 #define EXP_FOG     2.0f
 #define EXP2_FOG    3.0f
 
-float4 Fog(float4 cColor, float3 vPosition)
+float4 Fog(float4 cColor, float3 vPosition, float FogScale)
 {
     float3  vPosToCamera = gvCameraPosition - vPosition;
     float   fDistance     = length(vPosToCamera);
@@ -16,11 +16,12 @@ float4 Fog(float4 cColor, float3 vPosition)
 
     if (gFogParameter.x == 1.0f)
     {
-        float fFogRange = gFogParameter.z - gFogParameter.y;
-        fFogFactor = saturate((gFogParameter.z - fDistance) * 2 / fFogRange);
+        float fFogRange = (gFogParameter.z - gFogParameter.y) ;
+        fFogFactor = saturate((gFogParameter.z * FogScale - fDistance) * 2 / fFogRange);
     
         cColorByFog = lerp(gFogColor, cColor, fFogFactor);
     }
+
     return cColorByFog;
 }
 

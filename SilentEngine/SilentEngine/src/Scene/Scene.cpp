@@ -624,7 +624,12 @@ void TestScene::RoomChange()
 	//방이동이 완료하였으므로 change플레그를 false로 바꿔줌
 	m_isRoomChange.m_isChange = false;
 	std::cout << m_nowRoom << endl;
-	m_gateShader->SetPositions(m_Room[m_nowRoom]->GetGatePos());
+	
+	XMFLOAT3* roomPos = m_Room[m_nowRoom]->GetGatePos();
+
+	for (UINT i = 0; i < 4; ++i)
+		LIGHT_MANAGER->SetPosition(roomPos[i], LightManagement::SPOTLIGHT_START + i, XMFLOAT3(0.0f, 120.0f, 0.0f));
+	m_gateShader->SetPositions(roomPos);
 	//페이드 인아웃 설정
 	m_changeFade = FADE_IN;
 }

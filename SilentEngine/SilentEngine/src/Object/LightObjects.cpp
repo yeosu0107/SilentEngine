@@ -13,12 +13,13 @@ void LightObject::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandList 
 	m_Light = light;
 	m_bHadShadowMap = bShadowMap;
 	SetLookAt(m_Light.m_xmf3Direction);
-	RotateAxis(xmf3RotateAxis, fAngle);
+	
 
-	if (bShadowMap)
+	if (bShadowMap) {
+		RotateAxis(xmf3RotateAxis, fAngle);
 		CalculateLightMatrix();
+	}
 }
-
 
 VS_CB_CAMERA_INFO* LightObject::LightMatrix()
 {
@@ -85,6 +86,15 @@ void LightObject::CalculateLightMatrix()
 	::memcpy(&m_cbCameraInfo.m_xmf3Position, &lightPos, sizeof(XMFLOAT3));
 }
 
+void LightObject::SetPosition(XMFLOAT3 & pos)
+{
+	m_Light.m_xmf3Position = pos;
+	//SetLookAt(m_Light.m_xmf3Direction);
+
+	if (m_bHadShadowMap)
+		CalculateLightMatrix();
+}
+
 
 LightManagement::LightManagement()
 {
@@ -97,6 +107,7 @@ LightManagement::~LightManagement()
 
 void LightManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pd3dCommandLis, float fAngle, XMFLOAT3& xmf3Axis)
 {
+	
 	m_pd3dcbLights = std::make_unique<UploadBuffer<LIGHTS>>(pDevice, 1, true);
 
 	LIGHTS lights;
@@ -117,38 +128,28 @@ void LightManagement::BuildObject(ID3D12Device * pDevice, ID3D12GraphicsCommandL
 	//lights.m_pLights[0].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
 	//lights.m_pLights[0].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
 
-	lights.m_pLights[1].m_bEnable = 0;
+	lights.m_pLights[1].m_bEnable = 1;
 	lights.m_pLights[1].m_nType = DIRECTIONAL_LIGHT;
-	lights.m_pLights[1].m_fRange = 300.0f;
 	lights.m_pLights[1].m_xmf4Ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	lights.m_pLights[1].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	lights.m_pLights[1].m_xmf4Specular = XMFLOAT4(0.1f, 0.1f, 0.1f, 0.0f);
-	lights.m_pLights[1].m_xmf3Position = XMFLOAT3(200.f, 0.0f, 28.442f);
-	lights.m_pLights[1].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	lights.m_pLights[1].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	//lights.m_pLights[1].m_fFalloff = 40.0f;
-	//lights.m_pLights[1].m_fPhi = (float)cos(XMConvertToRadians(60.0f));
-	//lights.m_pLights[1].m_fTheta = (float)cos(XMConvertToRadians(20.0f));
+	lights.m_pLights[1].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
+	lights.m_pLights[1].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
-	lights.m_pLights[2].m_bEnable = 1;
-	lights.m_pLights[2].m_nType = DIRECTIONAL_LIGHT;
-	lights.m_pLights[2].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	lights.m_pLights[2].m_xmf4Diffuse = XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f);
-	lights.m_pLights[2].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	lights.m_pLights[2].m_xmf3Direction = XMFLOAT3(1.0f, 0.0f, 0.0f);
+	for (unsigned int i = 0; i < SPOTLIGHT_COUNT; ++i) {
+		lights.m_pLights[2 + i].m_bEnable = 1;
+		lights.m_pLights[2 + i].m_nType = SPOT_LIGHT;
+		lights.m_pLights[2 + i].m_fRange = 180.0f;
+		lights.m_pLights[2 + i].m_xmf4Ambient = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		lights.m_pLights[2 + i].m_xmf4Diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		lights.m_pLights[2 + i].m_xmf4Specular = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		lights.m_pLights[2 + i].m_xmf3Position = XMFLOAT3(0.0f, -150.0f, -350.0f);
+		lights.m_pLights[2 + i].m_xmf3Direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+		lights.m_pLights[2 + i].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
+		lights.m_pLights[2 + i].m_fFalloff = 1.0f;
+		lights.m_pLights[2 + i].m_fPhi = (float)cos(XMConvertToRadians(35.0f));
+		lights.m_pLights[2 + i].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
+	}
 
-	lights.m_pLights[3].m_bEnable = 0;
-	lights.m_pLights[3].m_nType = SPOT_LIGHT;
-	lights.m_pLights[3].m_fRange = 60.0f;
-	lights.m_pLights[3].m_xmf4Ambient = XMFLOAT4(0.1f, 1.0f, 1.0f, 1.0f);
-	lights.m_pLights[3].m_xmf4Diffuse = XMFLOAT4(0.5f, 0.0f, 0.0f, 1.0f);
-	lights.m_pLights[3].m_xmf4Specular = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	lights.m_pLights[3].m_xmf3Position = XMFLOAT3(-150.0f, 30.0f, 30.0f);
-	lights.m_pLights[3].m_xmf3Direction = XMFLOAT3(0.0f, 1.0f, 1.0f);
-	lights.m_pLights[3].m_xmf3Attenuation = XMFLOAT3(1.0f, 0.01f, 0.0001f);
-	lights.m_pLights[3].m_fFalloff = 8.0f;
-	lights.m_pLights[3].m_fPhi = (float)cos(XMConvertToRadians(90.0f));
-	lights.m_pLights[3].m_fTheta = (float)cos(XMConvertToRadians(30.0f));
 
 	for (int i = 0; i < MAX_LIGHTS; ++i) {
 		LIGHT l = lights.m_pLights[i];
@@ -188,6 +189,12 @@ void LightManagement::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera
 	if (m_pShaderForTest)
 		m_pShaderForTest->Render(pd3dCommandList, pCamera);
 #endif
+}
+
+void LightManagement::SetPosition(XMFLOAT3 & pos, UINT index, XMFLOAT3& offset)
+{
+	XMFLOAT3 finalpos = Vector3::Add(pos, offset);
+	m_pLights[index].SetPosition(finalpos);
 }
 
 LightManagement * LightManagement::Instance()
@@ -244,7 +251,7 @@ LightBoxShader::~LightBoxShader()
 void LightBoxShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	LIGHTS lights = *(LIGHTS*)pContext;
-	m_nObjects = MAX_LIGHTS - 2;
+	m_nObjects = LIGHT_MANAGER->SPOTLIGHT_COUNT;
 	m_nPSO = 1;
 
 	CreatePipelineParts();
@@ -253,7 +260,7 @@ void LightBoxShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSTextured", "ps_5_0");
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2DARRAY, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\bricks.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\c_face.dds", 0);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
 
@@ -273,13 +280,28 @@ void LightBoxShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
 
-	for (unsigned int i = 0; i < m_nObjects; ++i) {
+	for (unsigned int i = 0; i < LIGHT_MANAGER->SPOTLIGHT_COUNT; ++i) {
 		m_ppObjects[i] = new GameObject();
-		m_ppObjects[i]->SetPosition(lights.m_pLights[i].m_xmf3Position);
+		m_ppObjects[i]->SetPosition(lights.m_pLights[i + LIGHT_MANAGER->SPOTLIGHT_START].m_xmf3Position);
 		m_ppObjects[i]->SetMesh(0, pCubeMesh);
 		m_ppObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
 }
+
+void LightBoxShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CB_GAMEOBJECT_INFO cBuffer;
+
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
+		m_ppObjects[i]->SetPosition(LIGHT_MANAGER->Light(i + LIGHT_MANAGER->SPOTLIGHT_START).m_xmf3Position);
+		m_ppObjects[i]->SetLookAt(Vector3::Subtract(m_ppObjects[i]->GetPosition(), LIGHT_MANAGER->Light(i + LIGHT_MANAGER->SPOTLIGHT_START).m_xmf3Direction, false));
+
+		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
+		cBuffer.m_nMaterial = 0;
+		m_ObjectCB->CopyData(i, cBuffer);
+	}
+}
+
 
 void LightBoxShader::SetMatrix(XMFLOAT4X4 * mat)
 {

@@ -402,16 +402,40 @@ void ObjectShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 }
 
 void ObjectShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
-{ }
+{ 
+	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, m_nObjects, true);
+
+	UINT objCBByteSize = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_GAMEOBJECT_INFO));
+
+	D3D12_GPU_VIRTUAL_ADDRESS cbAddress = m_ObjectCB->Resource()->GetGPUVirtualAddress();
+}
 
 void ObjectShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
-{ }
+{ 
+	CB_GAMEOBJECT_INFO cBuffer;
+
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
+		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
+		cBuffer.m_nMaterial = 0;
+		m_ObjectCB->CopyData(i, cBuffer);
+	}
+}
 
 void ObjectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 { }
 
 void ObjectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
-{ }
+{ 
+	Shaders::Render(pd3dCommandList, pCamera);
+
+	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
+
+	for (unsigned int j = 0; j < m_nObjects; j++)
+	{
+		if (m_ppObjects[j])
+			m_ppObjects[j]->Render(pd3dCommandList, pCamera);
+	}	
+}
 
 //////////////////////////////////////////////////////////////////////
 

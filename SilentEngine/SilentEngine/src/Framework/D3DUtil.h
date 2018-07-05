@@ -265,7 +265,7 @@ struct Texture
 };
 
 
-#define MAX_LIGHTS	  4
+#define MAX_LIGHTS	  8
 #define MAX_MATERIALS 8
 
 #define PSO_OBJECT					0
