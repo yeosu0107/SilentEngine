@@ -115,9 +115,58 @@ float4 PSDeferredFullScreen(float4 position : SV_Position) : SV_Target
 
 }
 
-float4 PSFadeEffect(float4 position : SV_POSITION) : SV_Target
+VS_TEXTURED_OUTPUT VSFadeEffect(uint nVertexID : SV_VertexID)
 {
-    return gFadeColor;
+    VS_TEXTURED_OUTPUT output = (VS_TEXTURED_OUTPUT) 0.0f;
+   
+    if (nVertexID == 0)
+    {
+        output.uv = (float2(0.0f, 0.0f)); // 스크린 왼쪽 위 
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+    }
+    if (nVertexID == 1)
+    {
+        output.uv = (float2(1.0f, 0.0f)); // 스크린 오른쪽 위
+        output.position = float4(+1.0f, +1.0f, 0.0f, 1.0f);
+
+    }
+    if (nVertexID == 2)
+    {
+        output.uv = (float2(1.0f, 1.0f)); // 스크린 오른쪽 아래
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+
+    }
+    if (nVertexID == 3)
+    {
+        output.uv = (float2(0.0f, 0.0f)); // 스크린 왼쪽 위
+        output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+
+    }
+    if (nVertexID == 4)
+    {
+        output.uv = (float2(1.0f, 1.0f)); // 스크린 오른쪽 아래
+        output.position = float4(+1.0f, -1.0f, 0.0f, 1.0f);
+
+    }
+    if (nVertexID == 5)
+    {
+        output.uv = (float2(0.0f, 1.0f)); // 스크린 왼쪽 아래
+        output.position = float4(-1.0f, -1.0f, 0.0f, 1.0f);
+    }
+   
+    return output;
+}
+
+float4 PSFadeEffect(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    float4 finalColor = gFadeColor;
+    if (gFadeColor.r >= 0.5f)
+    {
+        finalColor = g2DTexture.Sample(gDefaultSamplerState, input.uv);
+        finalColor.a *= gFadeColor.a;
+    }
+   
+    return finalColor;
 }
 
 float4 PSFullScreen(float4 position : SV_POSITION) : SV_Target

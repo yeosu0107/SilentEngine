@@ -152,7 +152,7 @@ void TestScene::UpdateShaderVarialbes() {
 bool TestScene::Update(const Timer & gt)
 {
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
-
+	m_pTakeDamageScreen->Animate(gt.DeltaTime());
 	if (m_isGameEnd && m_changeFade == FADE_END) {
 		m_isGameEnd = false;
 		m_bMouseCapture = true;
@@ -287,7 +287,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	bullet->setPhys(m_physics);
 
 	m_pFadeEffectShader = new FadeEffectShader();
-	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1);
+	m_pFadeEffectShader->BuildObjects(pDevice, pCommandList, 1, NULL);
 
 	m_testPlayer = player->getPlayer(0);
 	m_testPlayer->GetPosition();
@@ -316,6 +316,10 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	texutredata[0].m_texture = L"res\\Texture\\PauseGame.DDS";
 	m_pPauseScreen = new TextureToFullScreen();
 	m_pPauseScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+
+	texutredata[0].m_texture = L"res\\Texture\\blood4_bullet.DDS";
+	m_pTakeDamageScreen = new FadeEffectShader();
+	m_pTakeDamageScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
 	texutredata[1].m_texture = L"res\\Texture\\Back.DDS";
 	texutredata[0].m_texture = L"res\\Texture\\BackToMainMenu.DDS";
@@ -360,6 +364,10 @@ void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList *
 
 void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	if (!m_pTakeDamageScreen->IsUsdedFadeEffect())
+		m_pTakeDamageScreen->SetFadeIn(true, 0.5f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
+	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
+
 	for (UINT i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
 
@@ -367,8 +375,10 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 		m_pPauseScreen->Render(pCommandList, m_Camera.get());
 		m_pButtons->Render(pCommandList);
 	}
+	
 	//페이트 INOUT 랜더링
 	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
+
 }
 
 void TestScene::CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index)

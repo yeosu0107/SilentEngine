@@ -1186,20 +1186,56 @@ void FadeEffectShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[1];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[1];
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexture2D, 0, 0);
 
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2];
 	pd3dRootParameters[0].InitAsConstantBufferView(7, 0);
+	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
+	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
+
+	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		0.0f,
+		1,
+		D3D12_COMPARISON_FUNC_ALWAYS,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+		0.0f,
+		D3D12_FLOAT32_MAX,
+		D3D12_SHADER_VISIBILITY_PIXEL
+	);
+
+	d3dSamplerDesc[1] = CD3DX12_STATIC_SAMPLER_DESC(
+		1, // shaderRegister
+		D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
+		0.0f,                               // mipLODBias
+		16,                                 // maxAnisotropy
+		D3D12_COMPARISON_FUNC_LESS_EQUAL,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK
+	);
 
 	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
 	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
 	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
 	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = 2;
+	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
 	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
 
 	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
 	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
 	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
+
 
 	if (pd3dErrorBlob != nullptr)
 	{
@@ -1219,11 +1255,21 @@ void FadeEffectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
+	TextureDataForm* mtexture = (pContext == NULL) ? nullptr : (TextureDataForm*)pContext;
+	
+	if (mtexture != nullptr) {
+		m_pTexture = make_unique<CTexture>(1, RESOURCE_TEXTURE2D, 0);
+		m_pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
+	}
+
+	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSFadeEffect", "vs_5_0");
 	m_PSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFadeEffect", "ps_5_0");
 
+	if (mtexture != nullptr) {
+		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
+		CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 1, true);
+	}
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
 }
@@ -1258,7 +1304,15 @@ void FadeEffectShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camer
 {
 	if (!m_bFadeOn) return;
 
-	OnPrepareRender(pd3dCommandList, 0);
+	
+	if (m_pTexture) {
+		Shaders::OnPrepareRender(pd3dCommandList, 0);
+		m_pTexture->UpdateShaderVariables(pd3dCommandList);
+	}
+	else
+		OnPrepareRender(pd3dCommandList, 0);
+
+	pd3dCommandList->SetGraphicsRootConstantBufferView(0, m_FadeCB->Resource()->GetGPUVirtualAddress());
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
@@ -1280,8 +1334,6 @@ void FadeEffectShader::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandLi
 
 	if (m_pPSO[index])
 		pd3dCommandList->SetPipelineState(m_pPSO[index].Get());
-
-	pd3dCommandList->SetGraphicsRootConstantBufferView(0, m_FadeCB->Resource()->GetGPUVirtualAddress());
 
 	UpdateShaderVariables(pd3dCommandList);
 }

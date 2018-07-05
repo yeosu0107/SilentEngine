@@ -108,6 +108,8 @@ public:
 	void ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 protected:
 	TextureToFullScreen*								m_pPauseScreen = nullptr;
+	FadeEffectShader*								m_pTakeDamageScreen = nullptr;
+
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
 	BillboardShader*										m_EffectShaders = nullptr;
