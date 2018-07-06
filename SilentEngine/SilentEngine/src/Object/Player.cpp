@@ -169,6 +169,10 @@ bool Player::Movement(DWORD input)
 			m_kickDelay = GetTickCount();
 		}
 	}
+	if (input & ANI_UPPER) {
+		m_playerLogic->changeState(STATE::upper);
+
+	}
 	if (input & SUPER_SPEED) {
 		if(m_moveSpeed<100.0f)
 			m_moveSpeed = 320.0f;
@@ -198,9 +202,31 @@ void Player::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(m_xmf3Look, 30, false)
 		)));
-		*(int*)m_weaponTrigger->userData = m_damage;
+		*(DamageVal*)m_weaponTrigger->userData = m_AttackDamage;
+		//*(int*)m_weaponTrigger->userData = m_damage;
 		m_weaponTrigger->setGlobalPose(tmpTr, true);
 	}
+}
+
+void Player::Attack_Normal()
+{
+	m_AttackDamage.baseDamage = 10;
+	m_AttackDamage.hitback = 0.0f;
+	Player::Attack();
+}
+
+void Player::Attack_Kick()
+{
+	m_AttackDamage.baseDamage = 30;
+	m_AttackDamage.hitback = 1.3f;
+	Player::Attack();
+}
+
+void Player::Attack_Upper()
+{
+	m_AttackDamage.baseDamage = 30;
+	m_AttackDamage.hitback = 0.0f;
+	Player::Attack();
 }
 
 void Player::Hitted(int damage)

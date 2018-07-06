@@ -32,6 +32,7 @@ class DamageVal
 public:
 	float hitback;
 	int baseDamage;
+	
 	DamageVal(float back, int damage) {
 		hitback = back;
 		baseDamage = damage;

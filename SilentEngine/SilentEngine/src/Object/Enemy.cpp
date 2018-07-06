@@ -168,6 +168,18 @@ void Enemy::Hitted(int damage)
 	m_State->changeState(STATE::hitted);
 }
 
+void Enemy::Hitted(DamageVal & hitback)
+{
+	if (m_State->getState() == STATE::death)
+		return;
+	ChangeAnimation(EnemyAni::AniHitted);
+	m_status->m_health -= hitback.baseDamage;
+	m_hitback = hitback.hitback;
+	cout << "Enemy Hit!" << "\t";
+	cout << "remain HP : " << m_status->m_health << endl;
+	m_State->changeState(STATE::hitted);
+}
+
 void Enemy::Death()
 {
 	ChangeAnimation(EnemyAni::AniDeath);
@@ -179,6 +191,11 @@ void Enemy::Animate(float fTime)
 	m_State->update(fTime);
 	if (m_status->m_health <= 0)
 		m_State->changeState(STATE::death);
+	XMFLOAT3 hitback = XMFLOAT3(0,0,0);
+	if (m_State->getState() != STATE::hitted)
+		m_hitback = 0.0f;
+	else
+		hitback = Vector3::Add(XMFLOAT3(0, 0, 0), GetLook(), m_hitback);
 	//if (m_Crash)
 	//	Rotate(&GetUp(), 90.0f);
 
@@ -187,6 +204,8 @@ void Enemy::Animate(float fTime)
 	if (m_Controller) {
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
+		//뒤로 밀림 처리
+		m_Controller->move(XMtoPX(hitback), 0.1f, fTime, m_ControllerFilter);
 		//실제 이동
 		GameObject::SetPosition(PXtoXM(m_Controller->getFootPosition()));
 		

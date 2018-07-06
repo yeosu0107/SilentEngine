@@ -89,6 +89,7 @@ protected:
 	float								hitBackstep = 0.0f;		
 	//게임 콘텐츠 관련
 	int									m_damage = 10;
+	DamageVal					m_AttackDamage = DamageVal(0.0f, 10);
 	const UINT						MAX_KICK_DELAY = 5000; //밀리세컨드 단위
 
 	bool								m_avoid = false;
@@ -113,6 +114,9 @@ public:
 	virtual bool Movement(DWORD input);
 	virtual void Idle();
 	virtual void Attack();
+	virtual void Attack_Normal();
+	virtual void Attack_Kick();
+	virtual void Attack_Upper();
 	virtual void Hitted(int damage);
 	virtual void Hitted(DamageVal& hitback);
 	virtual void Skill();

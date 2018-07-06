@@ -117,11 +117,11 @@ protected:
 	BaseAI*							m_State = nullptr;
 	Status*							m_status = nullptr;
 
-	//float								m_hitback = 0.0f;
+	float								m_hitback = 0.0f;
 
-	//int									m_baseDamage = 10;
+	//int								m_baseDamage = 10;
 
-	DamageVal					m_damageVal = DamageVal(0, 10);
+	DamageVal					m_damageVal = DamageVal(0.0f, 10);
 public:
 	Enemy(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Enemy();
@@ -136,6 +136,7 @@ public:
 	virtual void Attack();
 	virtual void Skill();
 	virtual void Hitted(int damage);
+	virtual void Hitted(DamageVal& hitback);
 	virtual void Death();
 
 	virtual void Animate(float fTime);

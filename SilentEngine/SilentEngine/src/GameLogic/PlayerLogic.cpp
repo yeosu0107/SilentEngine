@@ -5,6 +5,7 @@ PlayerLogic::PlayerLogic(GameObject * tmp) :
 	m_owner(tmp)
 {
 	m_status = new Status(200, 100, 80);
+	m_attackType = AttackType::Normal;
 }
 
 void PlayerLogic::idleState()
@@ -23,19 +24,21 @@ void PlayerLogic::trackingState()
 void PlayerLogic::attackState()
 {
 	if (m_owner->getAnimLoop() == LOOP_END) {
-		/*if (m_isNextIndex) {
-			m_attackIndex += 1;
-			if (m_attackIndex >= m_maxAttackIndex)
-				m_attackIndex = 0;
-			m_isNextIndex = false;
-		}
-		else {*/
 			changeState(STATE::idle);
 			return;
-		//}
+
 	}
 
-	m_owner->Attack();
+	else if (m_attackType == AttackType::Kick) {
+		m_owner->Attack_Kick();
+	}
+	else if (m_attackType == AttackType::Upper) {
+		m_owner->Attack_Upper();
+	}
+	else {
+		//기본공격
+		m_owner->Attack_Normal();
+	}
 }
 
 void PlayerLogic::skillState()
@@ -70,9 +73,15 @@ void PlayerLogic::deathState()
 void PlayerLogic::changeState(STATE newState)
 {
 	if (newState == STATE::kick) {
+		m_attackType = AttackType::Kick;
 		m_state = STATE::attack;
 		m_owner->ChangeAnimation(PlayerAni::KickAttack);
 		return;
+	}
+	if (newState == STATE::upper) {
+		m_attackType = AttackType::Upper;
+		m_state = STATE::attack;
+		m_owner->ChangeAnimation(PlayerAni::KickAttack);
 	}
 	if (m_state > STATE::tracking) {
 		if (m_state == STATE::attack || m_state == STATE::attack2 || m_state == STATE::attack3 ||
@@ -97,13 +106,16 @@ void PlayerLogic::changeState(STATE newState)
 		m_owner->ChangeAnimation(PlayerAni::die);
 		break;
 	case STATE::attack:
+		m_attackType = AttackType::Normal;
 		m_owner->ChangeAnimation(PlayerAni::Attack);
 		break;
 	case STATE::attack2:
+		m_attackType = AttackType::Normal;
 		m_state = STATE::attack;
 		m_owner->ChangeAnimation(PlayerAni::Attack2);
 		break;
 	case STATE::attack3:
+		m_attackType = AttackType::Normal;
 		m_state = STATE::attack;
 		m_owner->ChangeAnimation(PlayerAni::Attack3);
 		break;

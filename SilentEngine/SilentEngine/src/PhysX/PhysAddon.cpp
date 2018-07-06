@@ -21,10 +21,12 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 		if (!enemy->isLive())
 			continue;
 		if (CollisionObject == enemy->getControllerActor()) {
-			int damage = *(int*)trigger->triggerActor->userData + randDamage[rand() % 7];
+			//int damage = *(int*)trigger->triggerActor->userData + randDamage[rand() % 7];
+			DamageVal* damage = (DamageVal*)trigger->triggerActor->userData;
+			damage->baseDamage += randDamage[rand() % 7];
 			/*reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
 				->SetPos(&Vector3::Add(enemy->GetPosition(), XMFLOAT3(0,20.0f, 0)), 1);*/
-			enemy->Hitted(damage);
+			enemy->Hitted(*damage);
 			return;
 		}
 	}

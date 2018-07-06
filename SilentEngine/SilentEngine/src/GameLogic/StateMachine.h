@@ -14,7 +14,8 @@ enum STATE {
 	//플레이서 추가 상태
 	attack2,
 	attack3,
-	kick
+	kick,
+	upper
 };
 
 class StateMachine

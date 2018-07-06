@@ -81,7 +81,8 @@ void ModelObject::SetAnimations(UINT num, LoadAnimation ** tmp)
 void ModelObject::Animate(float fTime)
 {
 	if (m_ani) {
-		m_loopCheck = m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, fTime, m_Bones);
+		if(m_AnimIndex <m_NumofAnim)
+			m_loopCheck = m_ani[m_AnimIndex]->BoneTransform(m_AnimIndex, fTime, m_Bones);
 	}
 }
 

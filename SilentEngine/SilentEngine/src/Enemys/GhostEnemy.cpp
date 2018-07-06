@@ -59,6 +59,16 @@ void Ghost::Hitted(int damage)
 	m_State->changeState(STATE::hitted);
 }
 
+void Ghost::Hitted(DamageVal & damage)
+{
+	if (m_State->getState() == STATE::death)
+		return;
+	m_status->m_health -= damage.baseDamage;
+	cout << "Enemy Hit!" << "\t";
+	cout << "remain HP : " << m_status->m_health << endl;
+	m_State->changeState(STATE::hitted);
+}
+
 void Ghost::Death()
 {
 	//ChangeAnimation(EnemyAni::AniMove);

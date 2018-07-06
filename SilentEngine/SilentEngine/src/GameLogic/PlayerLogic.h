@@ -9,11 +9,12 @@ private:
 		Idle = 0, Move = 1, Attack = 2, Skill = 3, Hitted = 4, die = 5, Attack2 = 6, Attack3 = 7,
 		KickAttack = 8
 	};
-
+	enum AttackType
+	{
+		Normal = 0, Kick = 1, Upper = 2
+	};
 	GameObject*		m_owner;
-	//UINT					m_attackIndex;
-	//bool					m_isNextIndex = false;
-	//const UINT			m_maxAttackIndex = 3;
+	AttackType			m_attackType;
 public:
 	PlayerLogic(GameObject* tmp);
 	~PlayerLogic() {}

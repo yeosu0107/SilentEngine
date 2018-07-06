@@ -66,3 +66,11 @@ void Rich::Hitted(int damage)
 
 	Enemy::Hitted(damage);
 }
+
+void Rich::Hitted(DamageVal & damage)
+{
+	if (avoid)
+		return;
+
+	Enemy::Hitted(damage);
+}

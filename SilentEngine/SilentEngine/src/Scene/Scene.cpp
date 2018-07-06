@@ -449,7 +449,9 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	}
 
 	if (GetAsyncKeyState('Q') & 0x0001) {
-		return true;
+		input |= ANI_UPPER;
+	}
+	if (GetAsyncKeyState('E') & 0x0001) {
 	}
 
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
@@ -739,11 +741,18 @@ void TestScene::ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	RoomSetting();
 	RoomChange();
 	//BuildUI(pDevice, pCommandList);
+
 	auto minimap = reinterpret_cast<UIMiniMapShaders*>(m_ppUIShaders[1]);
 	minimap->SetNumObject(m_nRoom);
 	minimap->setRoomPos(m_Room);
 	minimap->SetNowRoom(&m_nowRoom);
 	m_changeFade = FADE_OUT;
+
+	if (!m_bMouseCapture) {
+		::GetCursorPos(&m_ptOldCursorPos);
+		m_bMouseCapture = true;
+	}
+
 	reinterpret_cast<Player*>(m_testPlayer)->reset();
 }
 

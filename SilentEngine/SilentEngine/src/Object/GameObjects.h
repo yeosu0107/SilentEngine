@@ -21,6 +21,7 @@ class Shaders;
 #define ANI_IDLE					0x120
 #define SUPER_SPEED			0x130
 #define ANI_KICK					0x200
+#define ANI_UPPER					0x400
 
 const UINT LOOP_IN					= 0;
 const UINT LOOP_END				= 1;
@@ -230,6 +231,9 @@ public:
 
 	virtual void Idle() {}
 	virtual void Attack() {}
+	virtual void Attack_Normal() {}
+	virtual void Attack_Kick() {}
+	virtual void Attack_Upper() {}
 	virtual void Skill() {}
 	virtual void Hitted(int damage) {}
 	virtual void Hitted(DamageVal& tmp) {}
