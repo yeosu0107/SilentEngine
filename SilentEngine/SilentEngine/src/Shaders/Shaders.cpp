@@ -39,7 +39,7 @@ void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets, int index
 	psoDesc.PrimitiveTopologyType	= D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets		= nRenderTargets;
 	for (UINT i = 0; i < nRenderTargets; i++) 
-		psoDesc.RTVFormats[i] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		psoDesc.RTVFormats[i] = m_Format;
 	psoDesc.SampleDesc.Count		= 1;
 	psoDesc.DSVFormat				= DXGI_FORMAT_D24_UNORM_S8_UINT;
 	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPSO[index].GetAddressOf())));
@@ -112,6 +112,15 @@ D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3
 	case RESOURCE_TEXTURE2D_SHADOWMAP:
 		d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		d3dShaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		d3dShaderResourceViewDesc.Texture2D.MipLevels = 1;
+		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
+		break;
+	case RESOURCE_TEXTURE2D_HDR:
+		d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		d3dShaderResourceViewDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		d3dShaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		d3dShaderResourceViewDesc.Texture2D.MipLevels = 1;
@@ -893,6 +902,7 @@ void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
+	m_Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 
 	for(int i = 0; i < NUM_DIRECTION_LIGHTS; ++i)
 		m_pTexture->AddTexture(ShadowShader->Rsc(i), ShadowShader->UploadBuffer(i), RESOURCE_TEXTURE2D_SHADOWMAP);
@@ -1398,6 +1408,104 @@ void DrawGBuffers::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * 
 
 	OnPrepareRender(pd3dCommandList);
 
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+
+	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
+
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+}
+
+///////////////////////////////////////////////////
+
+
+void HDRShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+{
+	int i = 0;
+	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
+
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_HDRBUFFER];
+	for (i = 0; i < NUM_HDRBUFFER; ++i)
+		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
+
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER];
+	for (i = 0; i < NUM_HDRBUFFER; ++i)
+		pd3dRootParameters[i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
+
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
+	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
+
+	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		0.0f,
+		1,
+		D3D12_COMPARISON_FUNC_ALWAYS,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+		0.0f,
+		D3D12_FLOAT32_MAX,
+		D3D12_SHADER_VISIBILITY_PIXEL
+	);
+
+
+	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
+	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = 1;
+	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
+	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
+
+	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
+	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
+	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
+
+	if (pd3dErrorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
+	}
+	ThrowIfFailed(hr);
+
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
+		pd3dSignatureBlob->GetBufferPointer(),
+		pd3dSignatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
+	);
+}
+
+void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	CTexture* pTexture = (CTexture *)pContext;
+	m_pTexture = make_unique<CTexture>(*pTexture);
+
+	m_nObjects = 1;
+	m_nPSO = 1;
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSHDR", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSHDR", "ps_5_0");
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 0, true);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+}
+
+void HDRShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+}
+
+void HDRShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+
+	OnPrepareRender(pd3dCommandList);
 	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 
 	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);

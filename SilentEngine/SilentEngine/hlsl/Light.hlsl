@@ -171,7 +171,7 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera,
 
 float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowFactor)
 {
-    const float FOG_DOWNSCALE = 0.2f;
+    const float FOG_DOWNSCALE = 0.4f;
 
 	float3 vCameraPosition = float3(gvCameraPosition.x, gvCameraPosition.y, gvCameraPosition.z);
 	float3 vToCamera = normalize(vCameraPosition - vPosition);
@@ -248,7 +248,7 @@ VS_TEXTURED_LIGHTING_OUTPUT VSTexturedLighting(VS_TEXTURED_LIGHTING_INPUT input)
 	return(output);
 };
 
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT input, uint nPrimitiveID : SV_PrimitiveID)
 {
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 
@@ -296,7 +296,7 @@ VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE VSInstanceTexturedLighting(VS_TEXTURED_LIGH
 	return(output);
 };
 
-PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID) : SV_TARGET
+PS_MULTIPLE_RENDER_TARGETS_OUTPUT PSInstanceTexturedLighting(VS_TEXTURED_LIGHTING_OUTPUT_INSTANCE input, uint nPrimitiveID : SV_PrimitiveID)
 {
 	PS_MULTIPLE_RENDER_TARGETS_OUTPUT output;
 

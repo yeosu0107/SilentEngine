@@ -50,6 +50,9 @@ protected:
 	
 	virtual void Update();
 	virtual void RenderShadow();
+	virtual void RenderOBJ();
+	virtual void RenderDeffered();
+	virtual void RenderHDR();
 	virtual void Render();
 
 	virtual void OnKeyboardInput(const Timer& gt);
@@ -66,8 +69,11 @@ protected:
 	void CreateSwapChain();
 	void CreateShadowMap();
 	void CreateDepthStencilViews();
-	void CreateRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle, CTexture* pTexture);
+	void CreateRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle, CTexture* pTexture, DXGI_FORMAT format, UINT start, UINT count);
 	void CreateRenderTarget(CTexture* pTexture);
+	void CreateHDRRenderTarget(CTexture* pTexture);
+
+	void ExcuteCommandList();
 
 	void FlushCommandQueue();
 
@@ -76,6 +82,8 @@ protected:
 	D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 
 	void CalculateFrameState();
+
+	void ClearRTVnDSV();
 
 	void LogAdapters();
 	void LogAdapterOutputs(IDXGIAdapter* padapter);
@@ -132,7 +140,8 @@ protected:
 	//static const UINT					m_nRenderTargetBuffers = 2;
 	ComPtr<ID3D12Resource>				m_ppd3dRenderTargetBuffers[NUM_RENDERTARGET];
 	ComPtr<ID3D12Resource>				m_ppd3dHDRBuffers[NUM_HDRBUFFER];
-	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[NUM_RENDERTARGET];
+
+	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[NUM_RENDERTARGET + NUM_HDRBUFFER];
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
 	UINT								m_nRtvDescriptorIncrementSize;
 
@@ -156,7 +165,7 @@ protected:
 	Camera*								m_pCamera = nullptr;
 
 	unique_ptr<DeferredFullScreen>		m_pDeferredFullScreenShader;
-
+	unique_ptr<HDRShader>				m_HDRShader = nullptr;
 
 	unique_ptr<DrawGBuffers>			m_GbufferDebug;
 };

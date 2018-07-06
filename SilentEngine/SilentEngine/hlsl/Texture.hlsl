@@ -22,6 +22,13 @@
     #define GBUFFER_DEPTH       3
 #endif
 
+#ifndef NUM_HDRRENDERTARGET
+    #define NUM_HDRRENDERTARGET 1
+
+    #define GBUFFER_COLOR       0
+#endif
+
+
 
 
 struct VS_TEXTURED_INPUT
@@ -77,5 +84,5 @@ Texture2D gTextures[NUM_MAX_TEXTURE] : register(t13);
 Texture2D gNormalTextures[NUM_MAX_TEXTURE] : register(t15);
 
 Texture2D<float4> gBuffer[NUM_RENDERTARGET] : register(t17);
-
+Texture2D<float4> gHDRBuffer[NUM_HDRRENDERTARGET] : register(t22);
 #endif

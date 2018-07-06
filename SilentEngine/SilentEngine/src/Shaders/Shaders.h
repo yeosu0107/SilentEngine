@@ -105,6 +105,8 @@ protected:
 
 	UploadBuffer<LIGHTS>*							m_LightsCB = nullptr;
 	UploadBuffer<MATERIALS>*						m_MatCB = nullptr;
+
+	DXGI_FORMAT										m_Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 };
 
 class ObjectShader : public Shaders
@@ -265,6 +267,19 @@ protected:
 	bool m_bAutoChange;	// 자동 페이드 변환
 	
 	float m_fExistTime;
+};
+
+class HDRShader : public DeferredFullScreen
+{
+public:
+	HDRShader() {};
+	virtual ~HDRShader() {};
+
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
+
 };
 
 class ShadowDebugShader : public DeferredFullScreen

@@ -25,18 +25,21 @@
 #include "D3DMath.h"
 
 enum SRVRegisterNumber { 
-	SRVTexArray					= 0,
-	SRVInstanceData				= 1, 
-	SRVTexArrayNorm				= 2, 
-	SRVTexture2D				= 3,
-	SRVTexture2DNorm			= 4,
-	SRVInstanceEffectData		= 5,
-	SRVInstanceAnimationInfo	= 6,
-	SRVShadowMap				= 7,
-	SRVUITextureMap				= 9,
-	SRVMultiTexture				= 13,
-	SRVFullScreenTexture		= 17,
-	SRVFullScreenNormalTexture	= 18
+	SRVTexArray						= 0,
+	SRVInstanceData					= 1, 
+	SRVTexArrayNorm					= 2, 
+	SRVTexture2D					= 3,
+	SRVTexture2DNorm				= 4,
+	SRVInstanceEffectData			= 5,
+	SRVInstanceAnimationInfo		= 6,
+	SRVShadowMap					= 7,
+	SRVUITextureMap					= 9,
+	SRVMultiTexture					= 13,
+	SRVFullScreenTexture			= 17,
+	SRVFullScreenOutLineNormTexture	= 18,
+	SRVFullScreenNormalTexture		= 19,
+	SRVFullScreenDepthTexture		= 20,
+	SRVFullScreenHDR				= 22
 };
 
 enum CBVRegisterNumber {
@@ -56,7 +59,7 @@ enum RTVType {
 	RTV_COLOR /* 색상 추출 */,
 	RTV_OUTLINENRM /* 외곽선을 위한 노말 벡터 추출 */,
 	RTV_NRM, /* 노말 매핑 후의 노말 벡터 추출 */
-	RTV_POS
+	RTV_HDR
 };
 
 extern const int gNumFrameResources;
