@@ -123,8 +123,8 @@ float4 PointLight(int nIndex, float3 vPosition, float3 vNormal, float3 vToCamera
 		float fAttenuationFactor = 1.0f / dot(gLights[nIndex].m_vAttenuation, float3(1.0f, fDistance, fDistance*fDistance));
 
 		return(((gLights[nIndex].m_cAmbient * gMaterials[nMatindex].m_cAmbient) + 
-			(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse) * fShadowFactor +
-			(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular) * fShadowFactor) *
+			(gLights[nIndex].m_cDiffuse * fDiffuseFactor * gMaterials[nMatindex].m_cDiffuse)+
+			(gLights[nIndex].m_cSpecular * fSpecularFactor * gMaterials[nMatindex].m_cSpecular)) *
 			fAttenuationFactor);
 	}
 	return(float4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -180,29 +180,37 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowF
     int j = 0;
     float fogScale = 1.0f;
     float4 cColor = float4(0.0f, 0.0f, 0.0f, 0.0f); // R,G,B, fogScale 
+    
+    float4 directionColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 pointColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float4 spotColor = float4(0.0f, 0.0f, 0.0f, 0.0f);
+
 	for (int i = 0; i < MAX_LIGHTS; i++)
 	{
 		if (gLights[i].m_bEnable == 1)
 		{
 			if (gLights[i].m_nType == DIRECTIONAL_LIGHT)
 			{
-                cColor += DirectionalLight(i, vNormal, vToCamera, nMatindex, shadowFactor[j]) * shadowFactor[j];
+                directionColor += DirectionalLight(i, vNormal, vToCamera, nMatindex, shadowFactor[j]) ;
             }
 			else if (gLights[i].m_nType == POINT_LIGHT)
 			{
-                cColor += PointLight(i, vPosition, vNormal, vToCamera, nMatindex, shadowFactor[j]);
+                pointColor += PointLight(i, vPosition, vNormal, vToCamera, nMatindex, shadowFactor[j]);
             }
 			else if (gLights[i].m_nType == SPOT_LIGHT)
 			{
-                float4 spotColor = SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
-                cColor += spotColor;
-                if (length(spotColor.rgb) > 0.0f)
+                float4 resultSpotLight = SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
+                spotColor += resultSpotLight;
+                if (length(resultSpotLight.rgb) > 0.0f)
                     fogScale += FOG_DOWNSCALE;
             }
 		}
 	}
 
-	cColor += (gcGlobalAmbientLight * gMaterials[nMatindex].m_cAmbient);
+   
+    directionColor *= shadowFactor[j];
+
+    cColor += (gcGlobalAmbientLight * gMaterials[nMatindex].m_cAmbient) + directionColor + pointColor + spotColor;
     cColor.a = fogScale;
 	
 	return(cColor);

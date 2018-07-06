@@ -146,12 +146,12 @@ float4 PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
 
     shadowFactor = CalcShadowFactor(mul(float4(unpack.pos, 1.0f), gmtxShadowProjection[0]), 0);
 
-    lightColor = Lighting(unpack.pos, unpack.norm.xyz, 0, 1.0f);
+    lightColor = Lighting(unpack.pos, unpack.norm.xyz, 0, shadowFactor);
     finalColor.rgb = unpack.color.rgb * lightColor.rgb;
     finalColor.a = unpack.color.a;
 
     finalColor.rgb += unpack.norm.w * fresnelFactor * finalColor.rgb;
-    finalColor = OutLineAndBlur(int2(input.position.xy), float4(finalColor.xyz, shadowFactor));
+    finalColor = OutLineAndBlur(int2(input.position.xy), float4(finalColor.xyz, 1.0f));
   
     return Fog(finalColor, unpack.pos, lightColor.a);
     //return finalColor;
