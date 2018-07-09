@@ -52,6 +52,7 @@ protected:
 	virtual void RenderShadow();
 	virtual void RenderOBJ();
 	virtual void RenderDeffered();
+	virtual void DispatchComputeShaders();
 	virtual void RenderHDR();
 	virtual void Render();
 
@@ -69,6 +70,7 @@ protected:
 	void CreateSwapChain();
 	void CreateShadowMap();
 	void CreateDepthStencilViews();
+	void CreateComputeOutputBuffers(CTexture* pTexture);
 	void CreateRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle, CTexture* pTexture, DXGI_FORMAT format, UINT start, UINT count);
 	void CreateRenderTarget(CTexture* pTexture);
 	void CreateHDRRenderTarget(CTexture* pTexture);
@@ -140,6 +142,7 @@ protected:
 	//static const UINT					m_nRenderTargetBuffers = 2;
 	ComPtr<ID3D12Resource>				m_ppd3dRenderTargetBuffers[NUM_RENDERTARGET];
 	ComPtr<ID3D12Resource>				m_ppd3dHDRBuffers[NUM_HDRBUFFER];
+	ComPtr<ID3D12Resource>				m_ppd3dComputeOuputBuffers[2];
 
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[NUM_RENDERTARGET + NUM_HDRBUFFER];
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];

@@ -4,6 +4,19 @@
 #include "Cbuffer.hlsl"
 #include "Texture.hlsl"
 #include "Sampler.hlsl"
+#include "UnorderedAccess.hlsl"
+
+static const float4 LUM_FACTOR = float4(0.299, 0.587, 0.114, 0);
+
+float3 ToneMApping(float3 color)
+{
+    float lumScale = dot(color, LUM_FACTOR.xyz);
+    lumScale *= gMiddleGrey / gAverageValues[0];
+    lumScale = (lumScale + lumScale * lumScale / gLumWhiteSqr) / (1.0f + lumScale);
+
+    return color * lumScale;
+
+}
 
 VS_TEXTURED_OUTPUT VSHDR(uint nVertexID : SV_VertexID)
 {
@@ -11,8 +24,8 @@ VS_TEXTURED_OUTPUT VSHDR(uint nVertexID : SV_VertexID)
    
     if (nVertexID == 0)
     {
-        output.uv = (float2(0.0f, 0.0f)); // 스크린 왼쪽 위 
         output.position = float4(-1.0f, +1.0f, 0.0f, 1.0f);
+        output.uv = (float2(0.0f, 0.0f)); // 스크린 왼쪽 위 
     }
     if (nVertexID == 1)
     {
@@ -54,7 +67,8 @@ float4 PSHDR(VS_TEXTURED_OUTPUT input) : SV_Target
     float2 uv = input.uv;
  
     finalColor = gHDRBuffer[0].Sample(gDefaultSamplerState, uv);
- 
-    return finalColor;
+    //finalColor.xyz = ToneMApping(finalColor.xyz);
+
+    return float4(finalColor.xyz, 1.0f);
 }
 #endif

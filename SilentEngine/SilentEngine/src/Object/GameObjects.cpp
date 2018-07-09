@@ -72,6 +72,22 @@ void CTexture::UpdateShaderVariables(ID3D12GraphicsCommandList *pd3dCommandList)
 	}
 }
 
+void CTexture::UpdateComputeShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	if (m_pTextureType[0] == RESOURCE_TEXTURE2D_ARRAY)
+	{
+		pd3dCommandList->SetComputeRootDescriptorTable(m_pRootArgumentInfos[0].m_nRootParameterIndex, m_pRootArgumentInfos[0].m_d3dSrvGpuDescriptorHandle);
+	}
+	else
+	{
+		for (int i = 0; i < m_nTextures; i++)
+		{
+			// 바인딩할 슬롯 넘버
+			pd3dCommandList->SetComputeRootDescriptorTable(m_pRootArgumentInfos[i].m_nRootParameterIndex, m_pRootArgumentInfos[i].m_d3dSrvGpuDescriptorHandle);
+		}
+	}
+}
+
 void CTexture::UpdateShaderVariable(ID3D12GraphicsCommandList *pd3dCommandList, int nIndex)
 {
 	pd3dCommandList->SetGraphicsRootDescriptorTable(m_pRootArgumentInfos[nIndex].m_nRootParameterIndex, m_pRootArgumentInfos[nIndex].m_d3dSrvGpuDescriptorHandle);

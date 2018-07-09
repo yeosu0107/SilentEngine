@@ -17,6 +17,21 @@ struct CB_SCENEBLUR_INFO
 	float	m_Enable;
 };
 
+struct CB_HDR_TONEMAPPING_INFO
+{
+	float m_MiddleGrey;
+	float m_LumWhiteSqr;
+	float m_EnableHDR;
+};
+
+
+struct CB_HDR_DOWNSCALE_INFO
+{
+	XMUINT2 m_Res;			// 화면 크기
+	UINT	m_Domain;		// 다운 스케일된 이미지 픽셀 수 
+	UINT	m_GroupSize;	// 첫 패스에 적용된 그룹 수 
+};
+
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
 class CompiledShaders
 {
@@ -49,14 +64,16 @@ public:
 
 	virtual D3D12_SHADER_BYTECODE CreateVertexShader(int index = 0);
 	virtual D3D12_SHADER_BYTECODE CreatePixelShader(int index = 0);
+	virtual D3D12_SHADER_BYTECODE CreateComputeShader(int index = 0);
 
 	void Release() {};
 
 	virtual void BuildPSO(ID3D12Device *pd3dDevice, UINT nRenderTargets = 1, int index = 0) ;
-	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement);
-	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
+	virtual void BuildComputePSO(ID3D12Device *pd3dDevice, int index = 0);
+	void CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement);
+	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, bool bIsGraphics = true);
 	virtual void CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12Resource* pd3dConstantBuffers, UINT nRootParameterStartIndex, UINT nPreConstanceBuffers, UINT nElementSize, bool bAutoIncrement);
-	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews);
+	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceView, bool bIsGraphics = true);
 	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride) ;
 //	void CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
@@ -72,6 +89,7 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void ReleaseObjects() { }
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+	virtual void DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index = 0);
 	virtual void RenderToDepthBuffer(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
 	virtual void OnPrepareRender(ID3D12GraphicsCommandList *pd3dCommandList, int index = 0);
@@ -83,11 +101,18 @@ public:
 
 protected:
 	ComPtr<ID3D12RootSignature>*					m_RootSignature = nullptr;
+	ComPtr<ID3D12RootSignature>*					m_ComputeRootSignature = nullptr;
+
 	ComPtr<ID3D12DescriptorHeap>					m_CBVHeap = nullptr;
 	ComPtr<ID3D12DescriptorHeap>					m_CbvSrvDescriptorHeap = nullptr;
+	ComPtr<ID3D12DescriptorHeap>					m_ComputeCbvSrvDescriptorHeap = nullptr;
+
 	ComPtr<ID3D12PipelineState>*					m_pPSO = nullptr;
+	ComPtr<ID3D12PipelineState>*					m_pComputePSO = nullptr;
+
 	ComPtr<ID3DBlob>*								m_VSByteCode = nullptr;
 	ComPtr<ID3DBlob>*								m_PSByteCode = nullptr;
+	ComPtr<ID3DBlob>*								m_CSByteCode = nullptr;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_pInputElementDesc;
 	vector<GameObject* >							m_ppObjects;
@@ -95,11 +120,19 @@ protected:
 	
 	UINT											m_nObjects = 0;
 	UINT											m_nPSO = 1;
+	UINT											m_nComputePSO = 0;
+	UINT											m_nDescriptorUAVStartIndex = 0;
+	XMUINT3											m_nComputeThreadCount = XMUINT3(1, 1, 1);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dCbvGPUDescriptorStartHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dSrvGPUDescriptorStartHandle;
+
+	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dComputeCbvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dComputeCbvGPUDescriptorStartHandle;
+	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dComputeSrvCPUDescriptorStartHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dComputeSrvGPUDescriptorStartHandle;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_InputLayout;
 
@@ -275,10 +308,25 @@ public:
 	HDRShader() {};
 	virtual ~HDRShader() {};
 
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void CreateComputeRootSignature(ID3D12Device *pd3dDevice);
+	virtual void CreateUAVResourceView(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT descriptorIndex, UINT nTextureIndex, UINT numElements);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
+	virtual void DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index = 0);
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
+
+protected:
+	unique_ptr<UploadBuffer<CB_HDR_DOWNSCALE_INFO>>		m_HDRDownScaleCB;
+	CB_HDR_DOWNSCALE_INFO								m_HDRDownScaleData;
+
+	unique_ptr<UploadBuffer<CB_HDR_TONEMAPPING_INFO>>	m_HDRToneMappCB;
+	CB_HDR_TONEMAPPING_INFO								m_HDRToneMappData;
+
+	unique_ptr<CTexture>								m_pComputeTexture;
+
+	ComPtr<ID3D12Resource>								m_pComputeOuput1D;
 
 };
 
