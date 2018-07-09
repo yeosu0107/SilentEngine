@@ -45,3 +45,10 @@ res\\MonsterData\\Lich@MeleeAttack.FBX,0,0
 res\\MonsterData\\Lich@SpinAttack.FBX,0,0
 res\\MonsterData\\Lich@TakeDamage.FBX,0,0
 res\\MonsterData\\Lich@Die.FBX,0,0
+res\\MonsterData\\mutant_idle.FBX,6,res\\Texture\\mutant.dds
+res\\MonsterData\\mutant_idle.FBX,0,0
+res\\MonsterData\\mutant_walk.FBX,0,0
+res\\MonsterData\\mutant_attack01.FBX,0,0
+res\\MonsterData\\mutant_attack02.FBX,0,0
+res\\MonsterData\\mutant_hitted.FBX,0,0
+res\\MonsterData\\mutant_death.FBX,0,0

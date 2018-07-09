@@ -74,7 +74,7 @@ Enemy::Enemy(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 
 	m_status = m_State->getStatus();
 	//m_hitback = 1.3f;
-	m_damageVal.hitback = 1.3f;
+	//m_damageVal.hitback = 1.3f;
 }
 
 Enemy::~Enemy()
@@ -134,6 +134,7 @@ void Enemy::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
+		m_damageVal.hitback = 0.0f;
 		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}
@@ -151,7 +152,8 @@ void Enemy::Skill()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
-		*(float*)m_attackTrigger->userData = 0.0f;
+		m_damageVal.hitback = 1.3f;
+		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 
 	}

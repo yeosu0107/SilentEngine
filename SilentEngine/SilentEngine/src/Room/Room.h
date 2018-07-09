@@ -67,7 +67,10 @@ public:
 		m_enemyShader = enemy; 
 	}
 	void SetProjectileShader(ProjectileShader* projectile) {
-		isProjectile = true;
+		if (projectile == nullptr) 
+			isProjectile = false;
+		else
+			isProjectile = true;
 		m_Projectile = projectile;
 	}
 

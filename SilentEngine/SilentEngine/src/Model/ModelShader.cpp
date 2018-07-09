@@ -132,6 +132,13 @@ void ModelShader::Animate(float fTimeElapsed)
 	}
 }
 
+void ModelShader::setScale(float scale)
+{
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_ppObjects[i]->SetScale(scale);
+	}
+}
+
 DynamicModelShader::DynamicModelShader(int index) : ModelShader(index)
 {
 }

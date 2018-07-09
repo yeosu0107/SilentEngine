@@ -270,17 +270,20 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	
 	enemyShader = new ModelShader*[KindOfEnemy];
-	int enemyNum[5] = { 6,3,4,2,1 };
+	int enemyNum[7] = { 6,3,2,2,4,2,1 };
 
 	enemyShader[0] = new EnemyShader<CreepArm>(4);
 	enemyShader[1] = new EnemyShader<Enemy>(3);
-	enemyShader[2] = new EnemyShader<Ghost>(2);
-	enemyShader[3] = new EnemyShader<Skull>(5);
-	enemyShader[4] = new EnemyShader<Rich>(6);
+	enemyShader[2] = new EnemyShader<Enemy>(0);
+	enemyShader[3] = new EnemyShader<Enemy>(7);
+	enemyShader[4] = new EnemyShader<Ghost>(2);
+	enemyShader[5] = new EnemyShader<Skull>(5);
+	enemyShader[6] = new EnemyShader<Rich>(6);
 
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < KindOfEnemy; ++i) {
 		enemyShader[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, (int*)enemyNum[i]);
 	}
+	enemyShader[3]->setScale(1.5f);
 
 	bullet = new ProjectileShader();
 	bullet->SetCamera(m_Camera.get());
@@ -721,11 +724,14 @@ void TestScene::RoomSetting()
 		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
 		UINT index = i % (KindOfEnemy - 1);
+		//UINT index = rand() % (KindOfEnemy - 1);
 		m_Room[i]->SetEnemyShader(enemyShader[index]);
-		if (index >= 2)
+		if (index >= 4)
 			m_Room[i]->SetProjectileShader(bullet);
 	}
-	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[4]);
+	m_Room[0]->SetEnemyShader(enemyShader[0]);
+	m_Room[0]->SetProjectileShader(nullptr);
+	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[KindOfEnemy-1]);
 	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
 }
 
