@@ -366,6 +366,14 @@ void Framework::RenderDeffered()
 	ExcuteCommandList();
 }
 
+void Framework::DispatchComputeShaders()
+{
+
+	m_HDRShader->DispatchComputePipeline(m_pCommandList.Get(), 0);
+
+
+}
+
 void Framework::RenderHDR()
 {
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_HDR].Get(),
@@ -410,7 +418,6 @@ void Framework::Render()
 	m_pCommandList->RSSetViewports(1, &m_ScreenViewport);
 	m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
 
-	
 	ClearRTVnDSV();
 	RenderOBJ();
 	RenderDeffered();
@@ -422,8 +429,6 @@ void Framework::Render()
 		m_nNowScene = (m_nNowScene + 1) % 2;
 		m_bChangeScene = false;
 	}
-
-
 }
 
 
@@ -706,6 +711,27 @@ void Framework::CreateDepthStencilViews()
 	}
 }
 
+void Framework::CreateComputeOutputBuffers(CTexture* pTexture)
+{
+	ThrowIfFailed(m_pD3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer((4* m_nClientWidth * m_nClientHeight) / (16 * 1024)),
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&m_ppd3dComputeOuputBuffers[0]))
+	);
+
+	ThrowIfFailed(m_pD3dDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(4),
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&m_ppd3dComputeOuputBuffers[1]))
+	);
+}
+
 void Framework::CreateRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle, CTexture* pTexture, DXGI_FORMAT format, UINT start, UINT count)
 {
 	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc = D3D12_RENDER_TARGET_VIEW_DESC{ format, D3D12_RTV_DIMENSION_TEXTURE2D, 0 , 0 };
@@ -740,7 +766,7 @@ void Framework::CreateHDRRenderTarget(CTexture * pTexture)
 	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R16G16B16A16_FLOAT ,{ 0.0f, 0.0f, 0.0f, 1.0f } };
 	for (UINT i = 0; i < NUM_HDRBUFFER; ++i)
 		m_ppd3dHDRBuffers[i] = pTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(), m_nClientWidth, m_nClientHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, 
-			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dClearValue, i);
+			D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dClearValue, i);
 }
 
 void Framework::ExcuteCommandList()

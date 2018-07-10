@@ -39,7 +39,9 @@ enum SRVRegisterNumber {
 	SRVFullScreenOutLineNormTexture	= 18,
 	SRVFullScreenNormalTexture		= 19,
 	SRVFullScreenDepthTexture		= 20,
-	SRVFullScreenHDR				= 22
+	SRVFullScreenHDR				= 22,
+	SRVAverageValues1D				= 24,
+	SRVAverageValues				= 25
 };
 
 enum CBVRegisterNumber {
@@ -52,7 +54,10 @@ enum CBVRegisterNumber {
 	CBVEffect			= 6,
 	CBVFade				= 7,
 	CBVFog				= 8,
-	CBVUIInfo			= 9
+	CBVUIInfo			= 9,
+	CBVBlurInfo			= 10,
+	CBVHDRDownScale		= 11,
+	CBVHDRToneMapp		= 12
 };
 
 enum RTVType {

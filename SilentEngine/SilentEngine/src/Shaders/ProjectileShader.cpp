@@ -59,7 +59,7 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, i++, sizeof(CB_GAMEOBJECT_INFO), false);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_EffectCB->Resource(), 4, i++, sizeof(CB_EFFECT_INFO), false);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 3, 2, true);
+	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 3, 2, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);

@@ -136,6 +136,20 @@ cbuffer cbSceneBlurInfo : register(b10)
     float gEnable;
 }
 
+cbuffer cbHDRDownScale : register(b11)
+{
+    uint2 Res : packoffset(c0);         // 화면 크기
+    uint Domain : packoffset(c0.z);     // 다운 스케일된 이미지 픽셀 수 
+    uint GroupSize : packoffset(c0.w);  // 첫 패스에 적용된 그룹 수 
+}
+
+cbuffer cbHDRToneMapping : register(b12)
+{
+    float gMiddleGrey : packoffset(c0);
+    float gLumWhiteSqr : packoffset(c0.y);
+    float gHDREnable : packoffset(c0.z);
+}
+
 static matrix gmtxTexture =
 {
     0.5f, 0.0f, 0.0f, 0.0f,

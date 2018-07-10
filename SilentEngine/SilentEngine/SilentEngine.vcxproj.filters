@@ -411,6 +411,15 @@
     <FxCompile Include="hlsl\DefferredShader.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\UnorderedAccess.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\HDRShader.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\ComputeShaders.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="NormalSkyrim.cur">

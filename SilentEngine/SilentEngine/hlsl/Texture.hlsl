@@ -85,4 +85,8 @@ Texture2D gNormalTextures[NUM_MAX_TEXTURE] : register(t15);
 
 Texture2D<float4> gBuffer[NUM_RENDERTARGET] : register(t17);
 Texture2D<float4> gHDRBuffer[NUM_HDRRENDERTARGET] : register(t22);
+
+StructuredBuffer<float> AverageValues1D : register(t24);
+StructuredBuffer<float> gAverageValues: register(t25);
+
 #endif
