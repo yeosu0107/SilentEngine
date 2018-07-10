@@ -14,6 +14,8 @@ const char START_NORTH	= 3;
 const UINT START_ROOM = 100;
 const char BLANK_ROOM = 100;
 
+const char BOSS_ROOM = 10;
+
 struct Door
 {
 	UINT									m_roomNum;
@@ -35,6 +37,7 @@ private:
 	UINT									m_nextRoom[4];
 	XMFLOAT3							m_spawnPoint[6];
 	XMFLOAT3*						m_pFirePos;
+	float									m_yPos = -180.0f;
 	
 	UINT									m_type;
 
@@ -79,6 +82,7 @@ public:
 	void SetSpawnPoint(XMFLOAT3* point);
 	void SetFirePosition(XMFLOAT3* pos);
 	void ResetFire();
+	void setType(UINT type) { m_type = type; }
 
 	bool IsEnemy() const { return isEnemy; }
 	bool IsProjectile() const { return isProjectile; }

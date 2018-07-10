@@ -19,7 +19,7 @@ void Room::SetStartPoint(XMFLOAT3 * point)
 	for (UINT i = 0; i < 4; ++i) {
 		m_startPoint[i] = point[i];
 	}
-	
+	m_yPos = point->y;
 	m_doorRect[0].left			= point[0].x-30.0f;
 	m_doorRect[0].top			= point[0].z + 30.0f;
 	m_doorRect[0].right		= point[0].x;
@@ -57,7 +57,7 @@ void Room::SetNextRoom(UINT * room)
 void Room::SetSpawnPoint(XMFLOAT3 * point)
 {
 	float x	= point[0].x;
-	float y = -180.0f;
+	float y	= point[0].y;
 	float z	= point[3].z;
 
 	m_spawnPoint[0].x = x / 2;		m_spawnPoint[0].z = - z / 2;
@@ -69,6 +69,8 @@ void Room::SetSpawnPoint(XMFLOAT3 * point)
 	
 	for (int i = 0; i < 6; ++i)
 		m_spawnPoint[i].y = y;
+
+	m_yPos = y;
 }
 
 void Room::SetFirePosition(XMFLOAT3 * pos)
@@ -136,6 +138,11 @@ void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 	//m_mapShader->Animate(fTime);
 	//방 이동함수
 	if (isClear) { //현재 방이 클리어상태인 경우에만 다음 방으로 이동할 수 있음
+		if (m_type == BOSS_ROOM) //보스방이면 다음 방 이동 없음 
+		{
+			cout << "clear\n";
+			return;
+		}
 		for (UINT i = 0; i < 4; ++i) {
 			if (playerPos.x > m_doorRect[i].left && playerPos.x < m_doorRect[i].right &&
 				playerPos.z < m_doorRect[i].top && playerPos.z > m_doorRect[i].bottom) {

@@ -77,7 +77,7 @@ using namespace std;
 #define NUM_GBUFFERS NUM_RENDERTARGET + NUM_DEPTHGBUFFERS
 
 
-const UINT MAX_MAP = 10;
+const UINT MAX_MAP = 11;
 
 extern UINT	gnCbvSrvDescriptorIncrementSize;
 

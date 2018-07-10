@@ -165,9 +165,6 @@ bool TestScene::Update(const Timer & gt)
 	RoomChange();	
 	RoomFade();		
 
-	if (m_Room[m_nRoom - 1]->IsClear())
-		cout << "Clear" << endl;
-
 	if (!m_bMouseCapture) {
 		m_pButtons->CollisionButton();
 		return false;
@@ -183,8 +180,10 @@ bool TestScene::Update(const Timer & gt)
 		m_testPlayer->Movement(input);
 	}
 	//게이트 애니메이트(문 열리는 애니메이션, 방 클리어 시만 수행)
-	if (m_Room[m_nowRoom]->IsClear())
-		m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
+	if (m_Room[m_nowRoom]->IsClear()) {
+		if(m_Room[m_nowRoom]->getType() != BOSS_ROOM)
+			m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
+	}
 
 	//발사체 있을 경우 발사체 경로계산 및 발사
 	if (m_Projectile) {
@@ -263,7 +262,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	}*/
 
 
-	InstanceModelShader* gateShader = new InstanceModelShader(10);
+	InstanceModelShader* gateShader = new InstanceModelShader(11);
 	gateShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	gateShader->setPhys(m_physics);
 	m_gateShader = gateShader;
@@ -354,7 +353,8 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	//플레이어 랜더링
 	m_playerShader->Render(pCommandList, m_Camera.get());
 	//문 랜더링
-	m_gateShader->Render(pCommandList, m_Camera.get());
+	if(m_Room[m_nowRoom]->getType() != BOSS_ROOM)
+		m_gateShader->Render(pCommandList, m_Camera.get());
 	//맵, 적, 발사체 랜더링 (방)
 	m_Room[m_nowRoom]->Render(pCommandList, m_Camera.get());
 	//이펙트 파티클 랜더링
@@ -685,6 +685,7 @@ void TestScene::RoomSetting()
 		}
 	}
 	cout << endl;
+	//m_Room[0]->setType(10);
 	for (int i = 0; i < sizeY; ++i) {
 		for (int j = 0; j < sizeX; ++j) {
 			cout << m_virtualMap[i][j] << "\t";
