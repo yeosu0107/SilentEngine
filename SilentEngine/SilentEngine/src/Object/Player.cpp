@@ -79,6 +79,7 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[PlayerAni::Attack3]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::Skill]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::KickAttack]->SetAnimSpeed(2.0f);
+	m_ani[PlayerAni::KickAttack2]->SetAnimSpeed(1.5f);
 	m_ani[PlayerAni::Hitted]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::die]->DisableLoof(PlayerAni::die);
 	m_ani[PlayerAni::Idle]->EnableLoof();
@@ -150,18 +151,19 @@ bool Player::Move(DWORD input, float fTime)
 bool Player::Movement(DWORD input)
 {
 	if (input & ANI_ATTACK) {
-		//ChangeAnimation(PlayerAni::Attack);
 		if (m_AnimIndex == PlayerAni::Attack)
 			m_playerLogic->changeState(STATE::attack2);
 		else if (m_AnimIndex == PlayerAni::Attack2)
 			m_playerLogic->changeState(STATE::attack3);
 		else
 			m_playerLogic->changeState(STATE::attack);
-		//Attack();
 	}
 	if (input & ANI_SKILL) {
-		//m_AnimIndex = PlayerAni::Skill;
-		m_playerLogic->changeState(STATE::skill);
+		if (GetTickCount() - m_avoidDelay > MAX_AVOID_DELAY) {
+			m_playerLogic->changeState(STATE::skill);
+			m_avoidDelay = GetTickCount();
+		}
+		
 	}
 	if (input & ANI_KICK) {
 		if (GetTickCount() - m_kickDelay > MAX_KICK_DELAY) {
@@ -170,7 +172,11 @@ bool Player::Movement(DWORD input)
 		}
 	}
 	if (input & ANI_UPPER) {
-		m_playerLogic->changeState(STATE::upper);
+		if (GetTickCount() - m_kick2Delay > MAX_KICK2_DELAY) {
+			m_playerLogic->changeState(STATE::upper);
+			m_kick2Delay = GetTickCount();
+		}
+		
 
 	}
 	if (input & SUPER_SPEED) {

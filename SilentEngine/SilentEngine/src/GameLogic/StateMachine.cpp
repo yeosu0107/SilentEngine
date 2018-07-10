@@ -182,3 +182,12 @@ float BaseAI::rotDir(XMFLOAT3& pos)
 	return Vector3::DotProduct(m_owner->GetUp(), 
 		Vector3::CrossProduct(pos, m_owner->GetLook()));
 }
+
+void BaseAI::Death()
+{
+	m_owner->Death();
+	m_owner->SetLive(false);
+	reinterpret_cast<Enemy*>(m_owner)->releasePhys();
+	*GlobalVal::getInstance()->getRemainEnemy() -= 1;
+	cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
+}

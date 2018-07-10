@@ -7,7 +7,7 @@ private:
 	enum PlayerAni
 	{
 		Idle = 0, Move = 1, Attack = 2, Skill = 3, Hitted = 4, die = 5, Attack2 = 6, Attack3 = 7,
-		KickAttack = 8
+		KickAttack = 8, KickAttack2 = 9
 	};
 	enum AttackType
 	{

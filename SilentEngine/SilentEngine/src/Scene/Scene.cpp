@@ -685,7 +685,7 @@ void TestScene::RoomSetting()
 		}
 	}
 	cout << endl;
-	//m_Room[0]->setType(10);
+	m_Room[count - 1]->setType(10);
 	for (int i = 0; i < sizeY; ++i) {
 		for (int j = 0; j < sizeX; ++j) {
 			cout << m_virtualMap[i][j] << "\t";

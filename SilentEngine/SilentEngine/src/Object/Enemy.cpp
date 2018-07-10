@@ -174,7 +174,11 @@ void Enemy::Hitted(DamageVal & hitback)
 {
 	if (m_State->getState() == STATE::death)
 		return;
-	ChangeAnimation(EnemyAni::AniHitted);
+	m_damageStack += hitback.baseDamage;
+	if (m_damageStack > 25) {
+		ChangeAnimation(EnemyAni::AniHitted);
+		m_damageStack = 0;
+	}
 	m_status->m_health -= hitback.baseDamage;
 	m_hitback = hitback.hitback;
 	cout << "Enemy Hit!" << "\t";

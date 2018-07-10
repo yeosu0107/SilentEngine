@@ -81,7 +81,8 @@ void PlayerLogic::changeState(STATE newState)
 	if (newState == STATE::upper) {
 		m_attackType = AttackType::Upper;
 		m_state = STATE::attack;
-		m_owner->ChangeAnimation(PlayerAni::KickAttack);
+		m_owner->ChangeAnimation(PlayerAni::KickAttack2);
+		return;
 	}
 	if (m_state > STATE::tracking) {
 		if (m_state == STATE::attack || m_state == STATE::attack2 || m_state == STATE::attack3 ||

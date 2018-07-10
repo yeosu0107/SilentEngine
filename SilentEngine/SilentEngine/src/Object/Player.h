@@ -20,7 +20,7 @@
 enum PlayerAni
 {
 	Idle=0, Move=1, Attack=2, Skill=3, Hitted=4, die=5, Attack2 = 6, Attack3 = 7,
-	KickAttack = 8
+	KickAttack = 8, KickAttack2 = 9
 };
 
 //플레이어 충돌 콜백 함수
@@ -90,10 +90,16 @@ protected:
 	//게임 콘텐츠 관련
 	int									m_damage = 10;
 	DamageVal					m_AttackDamage = DamageVal(0.0f, 10);
-	const UINT						MAX_KICK_DELAY = 5000; //밀리세컨드 단위
+
+	//밀리세컨드 단위
+	const UINT						MAX_KICK_DELAY = 5000;
+	const UINT						MAX_AVOID_DELAY = 5000;
+	const UINT						MAX_KICK2_DELAY = 5000;
 
 	bool								m_avoid = false;
 	DWORD							m_kickDelay = 0;
+	DWORD							m_avoidDelay = 0;
+	DWORD							m_kick2Delay = 0;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();

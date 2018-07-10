@@ -92,4 +92,6 @@ public:
 	bool recognize(XMFLOAT3& pos, float range);
 	XMFLOAT3 trackDir(XMFLOAT3& pos);
 	float rotDir(XMFLOAT3& pos);
+
+	void Death();
 };
