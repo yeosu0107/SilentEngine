@@ -62,12 +62,12 @@ void LightObject::CalculateLightMatrix()
 
 	XMFLOAT4X4	lightView = Matrix4x4::LookToLH(lightPos, lightDir, lightUp);
 	
-	float l =  -250.0f; 
-	float b =  -500.0f;
+	float l =  -750.0f; 
+	float b =  -750.0f;
 	float n =  +0.001f;
-	float r =  +250.0f;
-	float t =  +500.0f;
-	float f =  +1000.0f; 
+	float r =  +750.0f;
+	float t =  +750.0f;
+	float f =  +1500.0f; 
 
 	XMMATRIX lightProj = XMMatrixOrthographicOffCenterLH(l, r, b, t, n, f);
 
