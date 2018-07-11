@@ -7,11 +7,11 @@ private:
 	enum PlayerAni
 	{
 		Idle = 0, Move = 1, Attack = 2, Skill = 3, Hitted = 4, die = 5, Attack2 = 6, Attack3 = 7,
-		KickAttack = 8, KickAttack2 = 9
+		KickAttack = 8, KickAttack2 = 9, PowerPunch = 10
 	};
 	enum AttackType
 	{
-		Normal = 0, Kick = 1, Upper = 2
+		Normal = 0, Kick = 1, Upper = 2, Punch = 3
 	};
 	GameObject*		m_owner;
 	AttackType			m_attackType;

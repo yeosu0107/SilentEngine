@@ -46,10 +46,10 @@ void GlobalVal::setPorjectile(void * pContext)
 {
 	m_projecttile = pContext;
 }
-void GlobalVal::setHitPaticle(void * pContext)
-{
-	m_hitPaticle = pContext;
-}
+//void GlobalVal::setHitPaticle(void * pContext)
+//{
+//	m_hitPaticle = pContext;
+//}
 void GlobalVal::setFogEnable(bool bEnabled)
 {
 	m_bFogEnable = bEnabled;
@@ -57,6 +57,13 @@ void GlobalVal::setFogEnable(bool bEnabled)
 void GlobalVal::setCamera(Camera * camera)
 {
 	m_sceneCamera = camera;
+}
+void GlobalVal::setPaticle(int type, XMFLOAT3 * pos)
+{
+	paticleType = type;
+	m_hitPoint[0] = pos[0];
+	m_hitPoint[1] = pos[1];
+	draw_paticle = true;
 }
 GameObject * GlobalVal::getPlayer()
 {
@@ -66,4 +73,16 @@ GameObject * GlobalVal::getPlayer()
 GameObject ** GlobalVal::getEnemy()
 {
 	return m_Enemys;
+}
+
+bool GlobalVal::isDrawPaticle(int & type, XMFLOAT3* pos)
+{
+	if (draw_paticle) {
+		type = paticleType;
+		pos[0] = m_hitPoint[0];
+		pos[1] = m_hitPoint[1];
+		draw_paticle = false;
+		return true;
+	}
+	return false;
 }

@@ -20,7 +20,7 @@
 enum PlayerAni
 {
 	Idle=0, Move=1, Attack=2, Skill=3, Hitted=4, die=5, Attack2 = 6, Attack3 = 7,
-	KickAttack = 8, KickAttack2 = 9
+	KickAttack = 8, KickAttack2 = 9, PowerPunch = 10
 };
 
 //플레이어 충돌 콜백 함수
@@ -123,6 +123,7 @@ public:
 	virtual void Attack_Normal();
 	virtual void Attack_Kick();
 	virtual void Attack_Upper();
+	virtual void Attack_Power();
 	virtual void Hitted(int damage);
 	virtual void Hitted(DamageVal& hitback);
 	virtual void Skill();

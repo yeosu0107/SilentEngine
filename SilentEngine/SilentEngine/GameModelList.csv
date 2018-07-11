@@ -5,7 +5,7 @@ res\\MonsterData\\M_ATTACK2.FBX,0,0
 res\\MonsterData\\M_ATTACK.FBX,0,0
 res\\MonsterData\\M_HITTED.FBX,0,0
 res\\MonsterData\\M_DIE.FBX,0,0
-res\\ModelData\\c_idle.FBX,10,res\\Texture\\c_texture.dds
+res\\ModelData\\c_idle.FBX,11,res\\Texture\\c_texture.dds
 res\\ModelData\\c_idle.FBX,0,0
 res\\ModelData\\c_run.FBX,0,0
 res\\ModelData\\c_attack.FBX,23,42
@@ -16,6 +16,7 @@ res\\ModelData\\c_attack3.FBX,18,40
 res\\ModelData\\c_attack4.FBX,18,47
 res\\ModelData\\c_kick.FBX,20,40
 res\\ModelData\\c_kick2.FBX,40,72
+res\\ModelData\\c_powerpunch.FBX,31,46
 res\\MonsterData\\ghost_move2.FBX,3,res\\Texture\\ghost.dds
 res\\MonsterData\\ghost_idle.FBX,0,0
 res\\MonsterData\\ghost_move2.FBX,0,0
