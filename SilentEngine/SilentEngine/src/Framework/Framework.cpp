@@ -368,10 +368,15 @@ void Framework::RenderDeffered()
 
 void Framework::DispatchComputeShaders()
 {
-
 	m_HDRShader->DispatchComputePipeline(m_pCommandList.Get(), 0);
+	m_HDRShader->GetUAVData(m_pCommandList.Get(), 0);
+	ExcuteCommandList();
+	//m_HDRShader->DebugOutputBuffer(m_pCommandList.Get(), 0);
 
-
+	m_HDRShader->DispatchComputePipeline(m_pCommandList.Get(), 1);
+	m_HDRShader->GetUAVData(m_pCommandList.Get(), 1);
+	//m_HDRShader->DebugOutputBuffer(m_pCommandList.Get(), 1);
+	ExcuteCommandList();
 }
 
 void Framework::RenderHDR()
@@ -421,6 +426,7 @@ void Framework::Render()
 	ClearRTVnDSV();
 	RenderOBJ();
 	RenderDeffered();
+	DispatchComputeShaders();
 	RenderHDR();
 	
 	m_nCurrBuffer = (m_nCurrBuffer + 1) % m_nSwapChainBuffers;
@@ -713,23 +719,7 @@ void Framework::CreateDepthStencilViews()
 
 void Framework::CreateComputeOutputBuffers(CTexture* pTexture)
 {
-	ThrowIfFailed(m_pD3dDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer((4* m_nClientWidth * m_nClientHeight) / (16 * 1024)),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,
-		IID_PPV_ARGS(&m_ppd3dComputeOuputBuffers[0]))
-	);
-
-	ThrowIfFailed(m_pD3dDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(4),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,
-		IID_PPV_ARGS(&m_ppd3dComputeOuputBuffers[1]))
-	);
+	
 }
 
 void Framework::CreateRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle, CTexture* pTexture, DXGI_FORMAT format, UINT start, UINT count)
@@ -912,6 +902,24 @@ void Framework::OnKeyboardInput(const Timer& gt)
 	if (GetAsyncKeyState(VK_LCONTROL) & 0x0001){
 		m_bDebugGBuffers = !m_bDebugGBuffers;
 	}
+	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001) {
+		m_bHDR = !m_bHDR;
+		m_HDRShader->EnableHDR(m_bHDR);
+	}
+
+	if (GetAsyncKeyState(VK_F2) & 0x0001) {
+		m_HDRShader->UpGreyScale(0.01f);
+	}
+	if (GetAsyncKeyState(VK_F1) & 0x0001) {
+		m_HDRShader->UpGreyScale(-0.01f);
+	}
+
+	if (GetAsyncKeyState(VK_F11) & 0x0001) {
+		m_HDRShader->UpWhiteScale(0.1f);
+	}
+	if (GetAsyncKeyState(VK_F10) & 0x0001) {
+		m_HDRShader->UpWhiteScale(-0.1f);
+	}
 
 	if (GetKeyboardState(pKeysBuffer) && m_pScene[m_nNowScene]) {
 		bProcessedByScene = m_pScene[m_nNowScene]->OnKeyboardInput(gt, m_hMainWnd);
@@ -940,7 +948,7 @@ void Framework::OnMouseUp(WPARAM btnState , UINT nMessageID, int x, int y)
 
 void Framework::OnMouseMove(WPARAM btnState, UINT nMessageID, int x, int y)
 {
-	// 해당 씬의 마우스 캡쳐가 비활성화된 경우에만 마우스 좌표를 넘겨줌
+	//// 해당 씬의 마우스 캡쳐가 비활성화된 경우에만 마우스 좌표를 넘겨줌
 	if(m_pScene[m_nNowScene] != nullptr && !m_pScene[m_nNowScene]->IsCaptureMouse())
 		m_pScene[m_nNowScene]->OnMouseMove(static_cast<float>(x), static_cast<float>(y));
 	if (GetCapture() == m_hMainWnd)

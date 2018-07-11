@@ -72,11 +72,14 @@ public:
 	virtual void BuildComputePSO(ID3D12Device *pd3dDevice, int index = 0);
 	void CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, UINT nInstanceParameterCount, bool bAutoIncrement);
 	void CreateShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, bool bIsGraphics = true);
+	//void CreateShaderResourceView(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT texIndex, UINT nRootParameterStartIndex,D3D12_SHADER_RESOURCE_VIEW_DESC desc);
 	virtual void CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12Resource* pd3dConstantBuffers, UINT nRootParameterStartIndex, UINT nPreConstanceBuffers, UINT nElementSize, bool bAutoIncrement);
 	void CreateCbvAndSrvDescriptorHeaps(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, int nShaderResourceView, bool bIsGraphics = true);
 	void CreateConstantBufferViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nConstantBufferViews, ID3D12Resource *pd3dConstantBuffers, UINT nStride) ;
 //	void CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
+	virtual void CreateComputeDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews);
+	virtual void CreateComputeShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, UINT* elements);
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	ID3D12RootSignature *GetGraphicsRootSignature(const UINT index = 0) { return(m_RootSignature[index].Get()); }
 
@@ -122,7 +125,7 @@ protected:
 	UINT											m_nPSO = 1;
 	UINT											m_nComputePSO = 0;
 	UINT											m_nDescriptorUAVStartIndex = 0;
-	XMUINT3											m_nComputeThreadCount = XMUINT3(1, 1, 1);
+	XMUINT3*										m_nComputeThreadCount;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dCbvGPUDescriptorStartHandle;
@@ -133,6 +136,14 @@ protected:
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dComputeCbvGPUDescriptorStartHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dComputeSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dComputeSrvGPUDescriptorStartHandle;
+
+	vector<ComPtr<ID3D12Resource>>					m_pComputeUAVBuffers;
+	vector<ComPtr<ID3D12Resource>>					m_pComputeOutputBuffers;
+
+	vector<D3D12_CPU_DESCRIPTOR_HANDLE>				m_pComputeUAVCPUHandles;
+	vector<D3D12_GPU_DESCRIPTOR_HANDLE>				m_pComputeUAVGPUHandles;
+	vector<D3D12_CPU_DESCRIPTOR_HANDLE>				m_pComputeSRVCPUHandles;
+	vector<D3D12_GPU_DESCRIPTOR_HANDLE>				m_pComputeSRVGPUHandles;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_InputLayout;
 
@@ -304,6 +315,8 @@ protected:
 
 class HDRShader : public DeferredFullScreen
 {
+	// 계산셰이더1 -> 결과 -> 계산셰이더2 SRV로 입력 -> 결과 -> 계산셰이더 마지막으로 입력 
+	enum { DownScaleFirstPass, DownScaleSecondPass};
 public:
 	HDRShader() {};
 	virtual ~HDRShader() {};
@@ -313,9 +326,15 @@ public:
 	virtual void CreateComputeRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateUAVResourceView(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT descriptorIndex, UINT nTextureIndex, UINT numElements);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void CreateComputeBuffer(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index = 0);
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
+	virtual void EnableHDR(bool enabled);
+	virtual void UpGreyScale(float addScale);
+	virtual void UpWhiteScale(float addScale);
+	virtual void GetUAVData(ID3D12GraphicsCommandList * pd3dCommandList, int index);
+	virtual void DebugOutputBuffer(ID3D12GraphicsCommandList * pd3dCommandList, int index);
 
 protected:
 	unique_ptr<UploadBuffer<CB_HDR_DOWNSCALE_INFO>>		m_HDRDownScaleCB;
@@ -325,8 +344,6 @@ protected:
 	CB_HDR_TONEMAPPING_INFO								m_HDRToneMappData;
 
 	unique_ptr<CTexture>								m_pComputeTexture;
-
-	ComPtr<ID3D12Resource>								m_pComputeOuput1D;
 
 };
 

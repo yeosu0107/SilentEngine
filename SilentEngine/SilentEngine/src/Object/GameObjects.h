@@ -36,6 +36,7 @@ const UINT LOOP_SKIP		= 4;
 #define RESOURCE_BUFFER							0x05
 #define RESOURCE_TEXTURE2D_SHADOWMAP	0x06
 #define RESOURCE_TEXTURE2D_HDR	0x07
+#define RESOURCE_BUFFER_FLOAT32			0x08
 
 struct CB_GAMEOBJECT_INFO
 {
@@ -73,11 +74,11 @@ struct CB_FOG_INFO
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-struct SRVROOTARGUMENTINFO
+typedef struct SRVROOTARGUMENTINFO
 {
 	UINT							m_nRootParameterIndex = 0;
 	D3D12_GPU_DESCRIPTOR_HANDLE		m_d3dSrvGpuDescriptorHandle;
-};
+} SRVROOTARGUMENTINFO, UAVROOTARGUMENTINFO;
 
 class CTexture
 {

@@ -12,7 +12,7 @@ float3 ToneMApping(float3 color)
 {
     float lumScale = dot(color, LUM_FACTOR.xyz);
     lumScale *= gMiddleGrey / gAverageValues[0];
-    lumScale = (lumScale + lumScale * lumScale / gLumWhiteSqr) / (1.0f + lumScale);
+    lumScale = (lumScale + (lumScale * lumScale) / gLumWhiteSqr) / (1.0f + lumScale);
 
     return color * lumScale;
 
@@ -67,8 +67,8 @@ float4 PSHDR(VS_TEXTURED_OUTPUT input) : SV_Target
     float2 uv = input.uv;
  
     finalColor = gHDRBuffer[0].Sample(gDefaultSamplerState, uv);
-    //finalColor.xyz = ToneMApping(finalColor.xyz);
-
+    if (gHDREnable >= 1.0f)
+        finalColor.xyz = ToneMApping(finalColor.xyz);
     return float4(finalColor.xyz, 1.0f);
 }
 #endif

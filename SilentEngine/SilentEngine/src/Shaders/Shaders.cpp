@@ -86,7 +86,7 @@ void Shaders::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D1
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType)
 {
-	D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc;
+	D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = {};
 	d3dShaderResourceViewDesc.Format = d3dResourceDesc.Format;
 	d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	switch (nTextureType)
@@ -99,6 +99,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3
 		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
 		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 		break;
+
 	case RESOURCE_TEXTURE2DARRAY: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize != 1)
 		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 		d3dShaderResourceViewDesc.Texture2DArray.MipLevels = -1;
@@ -108,12 +109,14 @@ D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3
 		d3dShaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0;
 		d3dShaderResourceViewDesc.Texture2DArray.ArraySize = d3dResourceDesc.DepthOrArraySize;
 		break;
+
 	case RESOURCE_TEXTURE_CUBE: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE2D)(d3dResourceDesc.DepthOrArraySize == 6)
 		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 		d3dShaderResourceViewDesc.TextureCube.MipLevels = -1;
 		d3dShaderResourceViewDesc.TextureCube.MostDetailedMip = 0;
 		d3dShaderResourceViewDesc.TextureCube.ResourceMinLODClamp = 0.0f;
 		break;
+
 	case RESOURCE_BUFFER: //(d3dResourceDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
 		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
 		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
@@ -121,6 +124,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3
 		d3dShaderResourceViewDesc.Buffer.StructureByteStride = 0;
 		d3dShaderResourceViewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 		break;
+
 	case RESOURCE_TEXTURE2D_SHADOWMAP:
 		d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		d3dShaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
@@ -129,6 +133,13 @@ D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3
 		d3dShaderResourceViewDesc.Texture2D.MipLevels = 1;
 		d3dShaderResourceViewDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 		d3dShaderResourceViewDesc.Texture2D.PlaneSlice = 0;
+		break;
+	case RESOURCE_BUFFER_FLOAT32:
+		d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		d3dShaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		d3dShaderResourceViewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		d3dShaderResourceViewDesc.Buffer.FirstElement = 0;
+		d3dShaderResourceViewDesc.Buffer.NumElements = 1;
 		break;
 	case RESOURCE_TEXTURE2D_HDR:
 		d3dShaderResourceViewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -173,6 +184,7 @@ void Shaders::CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12Graphics
 	}
 }
 
+
 void Shaders::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, ID3D12Resource * pd3dConstantBuffers, UINT nRootParameterStartIndex, UINT nPreInstanceBuffers, UINT nElementSize, bool bAutoIncrement)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle = m_d3dSrvCPUDescriptorStartHandle;
@@ -199,6 +211,70 @@ void Shaders::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D1
 
 		pd3dDevice->CreateShaderResourceView(pd3dConstantBuffers, &d3dShaderResourceViewDesc, d3dSrvCPUDescriptorHandle);
 	}
+}
+
+void Shaders::CreateComputeDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews)
+{
+	D3D12_DESCRIPTOR_HEAP_DESC d3dDescriptorHeapDesc;
+	d3dDescriptorHeapDesc.NumDescriptors = nConstantBufferViews + nShaderResourceViews + nUnorderedAccessViews; //CBVs + SRVs  + UAVs
+	d3dDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	d3dDescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	d3dDescriptorHeapDesc.NodeMask = 0;
+
+	HRESULT hResult = pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc, __uuidof(ID3D12DescriptorHeap), (void **)&m_ComputeCbvSrvDescriptorHeap);
+
+	ThrowIfFailed(pd3dDevice->CreateDescriptorHeap(&d3dDescriptorHeapDesc,
+		IID_PPV_ARGS(&m_ComputeCbvSrvDescriptorHeap)));
+
+	m_d3dComputeCbvCPUDescriptorStartHandle = m_ComputeCbvSrvDescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	m_d3dComputeCbvGPUDescriptorStartHandle = m_ComputeCbvSrvDescriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	m_d3dComputeSrvCPUDescriptorStartHandle.ptr = m_d3dCbvCPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
+	m_d3dComputeSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
+}
+
+void Shaders::CreateComputeShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, UINT* elements)
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle;
+
+	d3dSrvCPUDescriptorHandle = m_d3dComputeCbvCPUDescriptorStartHandle;
+	d3dSrvGPUDescriptorHandle = m_d3dComputeCbvGPUDescriptorStartHandle;
+	
+	int nTextures = pTexture->GetTextureCount();
+	int nBuffers = m_pComputeUAVBuffers.size();
+
+	for (int i = 0; i < nTextures; i++)
+	{
+		int nTextureType = pTexture->GetTextureType(i);
+		ComPtr<ID3D12Resource> pShaderResource = pTexture->GetTexture(i);
+		D3D12_RESOURCE_DESC d3dResourceDesc = pShaderResource->GetDesc();
+		D3D12_SHADER_RESOURCE_VIEW_DESC d3dShaderResourceViewDesc = GetShaderResourceViewDesc(d3dResourceDesc, nTextureType);
+		pd3dDevice->CreateShaderResourceView(pShaderResource.Get(), &d3dShaderResourceViewDesc, d3dSrvCPUDescriptorHandle);
+		d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+
+		pTexture->SetRootArgument(i, (bAutoIncrement) ? (nRootParameterStartIndex + i) : nRootParameterStartIndex, d3dSrvGPUDescriptorHandle);
+		d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	}
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0;
+	
+	for (int i = 0; i < nBuffers; ++i)
+	{
+		srvDesc.Buffer.NumElements = elements[i];
+
+		pd3dDevice->CreateShaderResourceView(m_pComputeOutputBuffers[i].Get(), &srvDesc, d3dSrvCPUDescriptorHandle);
+	
+		m_pComputeSRVCPUHandles[i] = d3dSrvCPUDescriptorHandle;
+		m_pComputeSRVGPUHandles[i] = d3dSrvGPUDescriptorHandle;
+	
+		d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+		d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+	}
+	
 }
 
 void Shaders::CreateCbvAndSrvDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews,  bool bIsGraphics)
@@ -374,6 +450,14 @@ void Shaders::CreatePipelineParts()
 	if (m_nComputePSO > 0) {
 		m_ComputeRootSignature = new ComPtr<ID3D12RootSignature>();
 		m_pComputePSO = new ComPtr<ID3D12PipelineState>[m_nComputePSO];
+
+		m_pComputeUAVCPUHandles = vector<D3D12_CPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
+		m_pComputeUAVGPUHandles = vector<D3D12_GPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
+		m_pComputeSRVCPUHandles = vector<D3D12_CPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
+		m_pComputeSRVGPUHandles = vector<D3D12_GPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
+
+		m_pComputeUAVBuffers = vector<ComPtr<ID3D12Resource>>(m_nComputePSO);
+		m_pComputeOutputBuffers = vector<ComPtr<ID3D12Resource>>(m_nComputePSO);
 
 		m_CSByteCode = new ComPtr<ID3DBlob>[m_nComputePSO];
 	}
@@ -1491,13 +1575,13 @@ void HDRShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_HDRDownScaleData.m_Domain = m_HDRDownScaleData.m_Res.x * m_HDRDownScaleData.m_Res.y;
 	m_HDRDownScaleData.m_GroupSize = (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f);
 	
-	m_nComputeThreadCount.x = m_HDRDownScaleData.m_GroupSize;
-
+	m_nComputeThreadCount[0] = XMUINT3(m_HDRDownScaleData.m_GroupSize, 1, 1);
+	m_nComputeThreadCount[1] = XMUINT3(1, 1, 1);
 
 	m_HDRToneMappCB = make_unique<UploadBuffer<CB_HDR_TONEMAPPING_INFO>>(pd3dDevice, 1, true);
 
-	m_HDRToneMappData.m_LumWhiteSqr = 1.53f;
-	m_HDRToneMappData.m_MiddleGrey = 0.863;
+	m_HDRToneMappData.m_LumWhiteSqr = 1.5f;
+	m_HDRToneMappData.m_MiddleGrey = 0.35f;
 	m_HDRToneMappData.m_EnableHDR = 1.0f;
 }
 
@@ -1510,7 +1594,7 @@ void HDRShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	for (i = 0; i < NUM_HDRBUFFER; ++i)
 		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
-	pd3dDescriptorRanges[NUM_HDRBUFFER].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
+	pd3dDescriptorRanges[NUM_HDRBUFFER].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
 
 	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 3];
 
@@ -1574,16 +1658,17 @@ void HDRShader::CreateComputeRootSignature(ID3D12Device * pd3dDevice)
 
 	for (i = 0; i < NUM_HDRBUFFER; ++i)
 		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
-	pd3dDescriptorRanges[NUM_HDRBUFFER].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues1D);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
+	pd3dDescriptorRanges[NUM_HDRBUFFER + 0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues1D);
+	pd3dDescriptorRanges[NUM_HDRBUFFER + 1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
+	pd3dDescriptorRanges[NUM_HDRBUFFER + 2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 3];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 4];
 	pd3dRootParameters[0].InitAsConstantBufferView(CBVHDRDownScale);
 	for (i = 0; i < NUM_HDRBUFFER; ++i)
 		pd3dRootParameters[i + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[NUM_HDRBUFFER + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[NUM_HDRBUFFER + 2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER + 1], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[NUM_HDRBUFFER + 3].InitAsUnorderedAccessView(1);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1653,18 +1738,28 @@ void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_nPSO = 1;
 	m_nComputePSO = 2;
 	CreatePipelineParts();
+	CreateComputeBuffer(pd3dDevice, pd3dCommandList);
+
+	m_pTexture->AddTexture(m_pComputeOutputBuffers[NUM_HDRBUFFER].Get(), nullptr, RESOURCE_BUFFER_FLOAT32);
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSHDR", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSHDR", "ps_5_0");
 	m_CSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleFirstPass", "cs_5_0");
 	m_CSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleSecondPass", "cs_5_0");
 
+	m_nComputeThreadCount = new XMUINT3[m_nComputePSO];
+	
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pComputeTexture->GetTextureCount(), false);
+	CreateComputeDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pComputeTexture->GetTextureCount(), 2);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	
+	UINT* elements = new UINT[m_nComputePSO];
+	for (int i = 0; i < m_nComputePSO; ++i)
+		elements[i] = m_nComputeThreadCount[i].x;
+
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 2, true);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pComputeTexture.get(), 1, true, false);
+	CreateComputeShaderResourceViews(pd3dDevice, pd3dCommandList, m_pComputeTexture.get(), 1, true, elements);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	CreateComputeRootSignature(pd3dDevice);
@@ -1675,23 +1770,45 @@ void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	BuildComputePSO(pd3dDevice, 1);
 }
 
+void HDRShader::CreateComputeBuffer(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	UINT byteSize = 4 * (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f);
+	D3DUtil::CreateUnorderedAccessResource(pd3dDevice, pd3dCommandList, byteSize, m_pComputeUAVBuffers[DownScaleFirstPass], m_pComputeOutputBuffers[DownScaleFirstPass]);
+	
+	byteSize = 4;
+	D3DUtil::CreateUnorderedAccessResource(pd3dDevice, pd3dCommandList, byteSize, m_pComputeUAVBuffers[DownScaleSecondPass], m_pComputeOutputBuffers[DownScaleSecondPass]);
+}
+
 void HDRShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	m_HDRDownScaleCB->CopyData(0, m_HDRDownScaleData);
 	m_HDRToneMappCB->CopyData(0, m_HDRToneMappData);
 
 	pd3dCommandList->SetGraphicsRootConstantBufferView(0, m_HDRDownScaleCB->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(0, m_HDRToneMappCB->Resource()->GetGPUVirtualAddress());
+	pd3dCommandList->SetGraphicsRootConstantBufferView(1, m_HDRToneMappCB->Resource()->GetGPUVirtualAddress());
 }
 
 void HDRShader::DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index)
 {
+	pd3dCommandList->SetPipelineState(m_pComputePSO[index].Get());
 	pd3dCommandList->SetComputeRootSignature(m_ComputeRootSignature[0].Get());
 	pd3dCommandList->SetDescriptorHeaps(1, m_ComputeCbvSrvDescriptorHeap.GetAddressOf());
 	
+	
 	m_pComputeTexture->UpdateComputeShaderVariables(pd3dCommandList);
+	if (index == 0)
+	{
+		pd3dCommandList->SetComputeRootConstantBufferView(0, m_HDRDownScaleCB->Resource()->GetGPUVirtualAddress());
+		pd3dCommandList->SetComputeRootUnorderedAccessView(4, m_pComputeUAVBuffers[index]->GetGPUVirtualAddress());
+	}
+	else
+	{
+		pd3dCommandList->SetComputeRootConstantBufferView(0, m_HDRDownScaleCB->Resource()->GetGPUVirtualAddress());
+		pd3dCommandList->SetComputeRootDescriptorTable(2, m_pComputeSRVGPUHandles[index - 1]);
+		pd3dCommandList->SetComputeRootUnorderedAccessView(4, m_pComputeUAVBuffers[index]->GetGPUVirtualAddress());
+	}
 
-	pd3dCommandList->Dispatch(m_nComputeThreadCount.x, m_nComputeThreadCount.y, m_nComputeThreadCount.z);
+	pd3dCommandList->Dispatch(m_nComputeThreadCount[index].x, m_nComputeThreadCount[index].y, m_nComputeThreadCount[index].z);
 }
 
 void HDRShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -1705,4 +1822,61 @@ void HDRShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCa
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void HDRShader::EnableHDR(bool enabled)
+{
+	m_HDRToneMappData.m_EnableHDR = enabled ? 1.0f : 0.0f;
+}
+
+void HDRShader::UpGreyScale(float addScale)
+{
+	m_HDRToneMappData.m_MiddleGrey += addScale;
+	std::cout << "MiddGrey : " << m_HDRToneMappData.m_MiddleGrey << std::endl;
+}
+
+void HDRShader::UpWhiteScale(float addScale)
+{
+	m_HDRToneMappData.m_LumWhiteSqr += addScale;
+	std::cout << "LumWhiteSqr : " << m_HDRToneMappData.m_LumWhiteSqr << std::endl;
+}
+
+void HDRShader::GetUAVData(ID3D12GraphicsCommandList * pd3dCommandList, int index)
+{
+	pd3dCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		m_pComputeUAVBuffers[index].Get(),
+		D3D12_RESOURCE_STATE_COMMON,
+		D3D12_RESOURCE_STATE_COPY_SOURCE
+	));
+
+	pd3dCommandList->CopyResource(m_pComputeOutputBuffers[index].Get(), m_pComputeUAVBuffers[index].Get());
+
+	pd3dCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+		m_pComputeUAVBuffers[index].Get(),
+		D3D12_RESOURCE_STATE_COPY_SOURCE,
+		D3D12_RESOURCE_STATE_COMMON
+	));
+}
+
+void HDRShader::DebugOutputBuffer(ID3D12GraphicsCommandList * pd3dCommandList, int index)
+{
+	UINT size = 0;
+	if (index == 0) {
+		size = (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f);
+	}
+
+	if (index != 0) {
+		size = 1;
+	}
+
+	float* buf = new float[size];
+	D3D12_RANGE range = D3D12_RANGE{ 0, m_nComputeThreadCount[index].x };
+	ThrowIfFailed(m_pComputeOutputBuffers[index]->Map(0, &range, reinterpret_cast<void**>(&buf)));
+
+	for (int i = 0; i < size / 4; ++i) {
+		std::cout << buf[i] << "\t";
+	}
+	std::cout << std::endl;
+
+	m_pComputeOutputBuffers[index]->Unmap(0, nullptr);
 }
