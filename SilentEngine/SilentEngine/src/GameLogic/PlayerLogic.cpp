@@ -29,14 +29,11 @@ void PlayerLogic::attackState()
 
 	}
 
-	if (m_attackType == AttackType::Kick) {
+	else if (m_attackType == AttackType::Kick) {
 		m_owner->Attack_Kick();
 	}
 	else if (m_attackType == AttackType::Upper) {
 		m_owner->Attack_Upper();
-	}
-	else if (m_attackType == AttackType::Punch) {
-		m_owner->Attack_Power();
 	}
 	else {
 		//기본공격
@@ -87,15 +84,9 @@ void PlayerLogic::changeState(STATE newState)
 		m_owner->ChangeAnimation(PlayerAni::KickAttack2);
 		return;
 	}
-	if (newState == STATE::punch) {
-		m_attackType = AttackType::Punch;
-		m_state = STATE::attack;
-		m_owner->ChangeAnimation(PlayerAni::PowerPunch);
-		return;
-	}
 	if (m_state > STATE::tracking) {
 		if (m_state == STATE::attack || m_state == STATE::attack2 || m_state == STATE::attack3 ||
-			m_state == STATE::kick || m_state==STATE::punch) {
+			m_state == STATE::kick) {
 			if (m_owner->getAnimLoop() == LOOP_TRIGGER || m_owner->getAnimLoop() == LOOP_IN)
 				return;
 		}

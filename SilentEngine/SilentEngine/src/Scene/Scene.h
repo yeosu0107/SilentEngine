@@ -113,8 +113,7 @@ protected:
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
 	BillboardShader*										m_EffectShaders = nullptr;
-	//BillboardShader*										m_hitEffectShaders = nullptr;
-	vector<BillboardShader*>							m_hitEffectShaders;
+	BillboardShader*										m_hitEffectShaders = nullptr;
 	UIButtonShaders*									m_pButtons;
 
 	ProjectileShader*									m_Projectile = nullptr;

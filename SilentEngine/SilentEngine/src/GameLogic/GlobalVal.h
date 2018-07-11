@@ -20,11 +20,7 @@ private:
 	GameObject*		m_player = nullptr;
 	GameObject**	m_Enemys = nullptr;
 	void*					m_projecttile = nullptr;
-	//void*					m_hitPaticle = nullptr;
-
-	XMFLOAT3			m_hitPoint[2] = { XMFLOAT3(0,0,0), XMFLOAT3(0,0,0) };
-	int						paticleType = 0;
-	bool					draw_paticle = false;
+	void*					m_hitPaticle = nullptr;
 
 	UINT					m_nEnemy;
 	int						m_remainEnemy;
@@ -57,12 +53,10 @@ public:
 	void setPlayer(GameObject* object);
 	void setEnemy(GameObject** objects);
 	void setPorjectile(void* pContext);
-	//void setHitPaticle(void* pContext);
+	void setHitPaticle(void* pContext);
 	void setFogEnable(bool bEnabled);
 	void setCamera(Camera* camera);
 	void setPlayerHitted(bool tmp) { m_playerHitted = tmp; }
-
-	void setPaticle(int type, XMFLOAT3* pos);
 
 	ModelLoader* getModelLoader() { return m_globalModels; }
 	MapLoader* getMapLoader() { return m_globalMaps; }
@@ -72,12 +66,10 @@ public:
 	GameObject* getPlayer();
 	GameObject** getEnemy();
 	void* getProjectile() { return m_projecttile; }
-	//void* getHitPaticle() { return m_hitPaticle; }
+	void* getHitPaticle() { return m_hitPaticle; }
 	bool getFogEnable() { return m_bFogEnable; }
 	Camera* getSceneCamera() { return m_sceneCamera; }
 	UINT* getNumEnemy() { return &m_nEnemy; }
 	int* getRemainEnemy() { return &m_remainEnemy; }
 	bool getPlayerHitted() { return m_playerHitted; }
-
-	bool isDrawPaticle(int& type, XMFLOAT3* pos);
 };

@@ -200,15 +200,7 @@ bool TestScene::Update(const Timer & gt)
 
 	//빌보드 이펙트 애니메이트
 	m_EffectShaders->Animate(gt.DeltaTime());
-	int type;
-	XMFLOAT3 pos[2];
-	if (GlobalVal::getInstance()->isDrawPaticle(type, pos)) {
-		m_hitEffectShaders[type]->SetPos(pos, 2);
-	}
-	for (auto&p : m_hitEffectShaders) {
-		p->Animate(gt.DeltaTime());
-	}
-	//m_hitEffectShaders->Animate(gt.DeltaTime());
+	m_hitEffectShaders->Animate(gt.DeltaTime());
 
 	
 	return false;
@@ -248,29 +240,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	hitShader->setPaticleSize(100.0f);
 	hitShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(3));
 	hitShader->setAnimSpeed(50.0f);
-	m_hitEffectShaders.emplace_back(hitShader);
-	//m_hitEffectShaders = hitShader;
-
-	PaticleShader<HitPaticle>* hitShader2 = new PaticleShader<HitPaticle>();
-	hitShader2->SetCamera(m_Camera.get());
-	hitShader2->setPaticleSize(150.0f);
-	hitShader2->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(4));
-	hitShader2->setAnimSpeed(50.0f);
-	m_hitEffectShaders.emplace_back(hitShader2);
-
-	PaticleShader<HitPaticle>* hitShader3 = new PaticleShader<HitPaticle>();
-	hitShader3->SetCamera(m_Camera.get());
-	hitShader3->setPaticleSize(150.0f);
-	hitShader3->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(5));
-	hitShader3->setAnimSpeed(50.0f);
-	m_hitEffectShaders.emplace_back(hitShader3);
-
-	PaticleShader<HitPaticle>* hitShader4 = new PaticleShader<HitPaticle>();
-	hitShader4->SetCamera(m_Camera.get());
-	hitShader4->setPaticleSize(300.0f);
-	hitShader4->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(6));
-	hitShader4->setAnimSpeed(25.0f);
-	m_hitEffectShaders.emplace_back(hitShader4);
+	m_hitEffectShaders = hitShader;
 
 	fireObjectShaders = new PaticleShader<PaticleObject>();
 	fireObjectShaders->SetCamera(m_Camera.get());
@@ -284,6 +254,13 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 		map[i] = new MapShader(i);
 		map[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
 	}
+	/*for (UINT i = 0; i < m_nRoom; ++i) {
+		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
+		m_Room[i]->SetFireShader(fireObjectShaders);
+		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
+		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
+	}*/
+
 
 	InstanceModelShader* gateShader = new InstanceModelShader(11);
 	gateShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET);
@@ -319,7 +296,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_testPlayer->GetPosition();
 	GlobalVal::getInstance()->setPlayer(m_testPlayer);
 	
-	//GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
+	GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
 
 	BuildUI(pDevice, pCommandList);
 }
@@ -382,10 +359,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	m_Room[m_nowRoom]->Render(pCommandList, m_Camera.get());
 	//이펙트 파티클 랜더링
 	m_EffectShaders->Render(pCommandList, m_Camera.get());
-	for (auto& p : m_hitEffectShaders) {
-		p->Render(pCommandList, m_Camera.get());
-	}
-	//m_hitEffectShaders->Render(pCommandList, m_Camera.get());
+	m_hitEffectShaders->Render(pCommandList, m_Camera.get());
 	
 	LIGHT_MANAGER->Render(pCommandList, m_Camera.get());
 }
@@ -481,7 +455,6 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 		input |= ANI_UPPER;
 	}
 	if (GetAsyncKeyState('E') & 0x0001) {
-		input |= ANI_PUNCH;
 	}
 
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {

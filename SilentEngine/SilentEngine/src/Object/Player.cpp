@@ -80,7 +80,6 @@ void Player::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[PlayerAni::Skill]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::KickAttack]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::KickAttack2]->SetAnimSpeed(1.5f);
-	m_ani[PlayerAni::PowerPunch]->SetAnimSpeed(1.5f);
 	m_ani[PlayerAni::Hitted]->SetAnimSpeed(2.0f);
 	m_ani[PlayerAni::die]->DisableLoof(PlayerAni::die);
 	m_ani[PlayerAni::Idle]->EnableLoof();
@@ -177,12 +176,9 @@ bool Player::Movement(DWORD input)
 			m_playerLogic->changeState(STATE::upper);
 			m_kick2Delay = GetTickCount();
 		}
-	}
+		
 
-	if (input & ANI_PUNCH) {
-		m_playerLogic->changeState(STATE::punch);
 	}
-
 	if (input & SUPER_SPEED) {
 		if(m_moveSpeed<100.0f)
 			m_moveSpeed = 320.0f;
@@ -222,7 +218,6 @@ void Player::Attack_Normal()
 {
 	m_AttackDamage.baseDamage = 10;
 	m_AttackDamage.hitback = 0.0f;
-	m_AttackDamage.paticleType = 0;
 	Player::Attack();
 }
 
@@ -230,23 +225,13 @@ void Player::Attack_Kick()
 {
 	m_AttackDamage.baseDamage = 30;
 	m_AttackDamage.hitback = 1.3f;
-	m_AttackDamage.paticleType = 1;
 	Player::Attack();
 }
 
 void Player::Attack_Upper()
 {
 	m_AttackDamage.baseDamage = 30;
-	m_AttackDamage.hitback = 1.3f;
-	m_AttackDamage.paticleType = 2;
-	Player::Attack();
-}
-
-void Player::Attack_Power()
-{
-	m_AttackDamage.baseDamage = 50;
 	m_AttackDamage.hitback = 0.0f;
-	m_AttackDamage.paticleType = 3;
 	Player::Attack();
 }
 
