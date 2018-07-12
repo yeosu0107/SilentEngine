@@ -36,7 +36,6 @@ void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 		DamageVal* damage = reinterpret_cast<DamageVal*>(trigger->triggerActor->userData);
 		player->Hitted(*damage);
 	}
-	return;
 }
 
 void PhysSimulation::onTrigger(PxTriggerPair * pairs, PxU32 count)
