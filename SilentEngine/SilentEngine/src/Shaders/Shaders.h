@@ -124,6 +124,7 @@ protected:
 	UINT											m_nObjects = 0;
 	UINT											m_nPSO = 1;
 	UINT											m_nComputePSO = 0;
+	UINT											m_nComputeBuffers = 0;
 	UINT											m_nDescriptorUAVStartIndex = 0;
 	XMUINT3*										m_nComputeThreadCount;
 
@@ -316,7 +317,24 @@ protected:
 class HDRShader : public DeferredFullScreen
 {
 	// 계산셰이더1 -> 결과 -> 계산셰이더2 SRV로 입력 -> 결과 -> 계산셰이더 마지막으로 입력 
-	enum { DownScaleFirstPass, DownScaleSecondPass};
+	enum { DownScaleFirstPass, DownScaleSecondPass, BloomAvgLum, BloomBlurVertical, BloomBlurHorizon };
+	enum { CBDownScale, SRHDR, SRAverageValues1DOutput, SRAverageValuesOutput, UAAverageLumInput };	// RootSignature인덱스
+
+	/*
+	for (i = 0; i < NUM_HDRBUFFER; ++i)
+		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
+	pd3dDescriptorRanges[NUM_HDRBUFFER + 0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues1D);
+	pd3dDescriptorRanges[NUM_HDRBUFFER + 1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
+	pd3dDescriptorRanges[NUM_HDRBUFFER + 2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
+
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 4];
+	pd3dRootParameters[0].InitAsConstantBufferView(CBVHDRDownScale);
+	for (i = 0; i < NUM_HDRBUFFER; ++i)
+		pd3dRootParameters[i + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[NUM_HDRBUFFER + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[NUM_HDRBUFFER + 2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER + 1], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[NUM_HDRBUFFER + 3].InitAsUnorderedAccessView(1);
+	*/
 public:
 	HDRShader() {};
 	virtual ~HDRShader() {};

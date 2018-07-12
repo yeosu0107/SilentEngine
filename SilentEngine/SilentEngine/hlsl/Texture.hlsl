@@ -89,4 +89,7 @@ Texture2D<float4> gHDRBuffer[NUM_HDRRENDERTARGET] : register(t22);
 StructuredBuffer<float> AverageValues1D : register(t24);
 StructuredBuffer<float> gAverageValues: register(t25);
 
+Texture2D<float4> gHDRDownScaleTexture : register(t26);
+Texture2D<float4> gBloomInput : register(t27);
+
 #endif

@@ -1654,21 +1654,18 @@ void HDRShader::CreateComputeRootSignature(ID3D12Device * pd3dDevice)
 	int i = 0;
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_HDRBUFFER + 3];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
 
-	for (i = 0; i < NUM_HDRBUFFER; ++i)
-		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues1D);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues1D);
+	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 4];
-	pd3dRootParameters[0].InitAsConstantBufferView(CBVHDRDownScale);
-	for (i = 0; i < NUM_HDRBUFFER; ++i)
-		pd3dRootParameters[i + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[NUM_HDRBUFFER + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[NUM_HDRBUFFER + 2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER + 1], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[NUM_HDRBUFFER + 3].InitAsUnorderedAccessView(1);
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[5];
+	pd3dRootParameters[CBDownScale].InitAsConstantBufferView(CBVHDRDownScale);
+	pd3dRootParameters[SRHDR].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[SRAverageValues1DOutput].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[SRAverageValuesOutput].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[UAAverageLumInput].InitAsUnorderedAccessView(1);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1733,19 +1730,21 @@ void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 
 	m_pTexture = make_unique<CTexture>(*pTexture);
 	m_pComputeTexture = make_unique<CTexture>(*pTexture);
-
+	
 	m_nObjects = 1;
 	m_nPSO = 1;
 	m_nComputePSO = 2;
+	m_nComputeBuffers = 2;
+
 	CreatePipelineParts();
 	CreateComputeBuffer(pd3dDevice, pd3dCommandList);
 
-	m_pTexture->AddTexture(m_pComputeOutputBuffers[NUM_HDRBUFFER].Get(), nullptr, RESOURCE_BUFFER_FLOAT32);
+	m_pTexture->AddTexture(m_pComputeOutputBuffers[DownScaleSecondPass].Get(), nullptr, RESOURCE_BUFFER_FLOAT32);
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSHDR", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSHDR", "ps_5_0");
-	m_CSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleFirstPass", "cs_5_0");
-	m_CSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleSecondPass", "cs_5_0");
+	m_CSByteCode[DownScaleFirstPass] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleFirstPass", "cs_5_0");
+	m_CSByteCode[DownScaleSecondPass] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleSecondPass", "cs_5_0");
 
 	m_nComputeThreadCount = new XMUINT3[m_nComputePSO];
 	
@@ -1794,20 +1793,32 @@ void HDRShader::DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandL
 	pd3dCommandList->SetComputeRootSignature(m_ComputeRootSignature[0].Get());
 	pd3dCommandList->SetDescriptorHeaps(1, m_ComputeCbvSrvDescriptorHeap.GetAddressOf());
 	
-	
 	m_pComputeTexture->UpdateComputeShaderVariables(pd3dCommandList);
-	if (index == 0)
+
+	switch (index)
 	{
+	case DownScaleFirstPass:
 		pd3dCommandList->SetComputeRootConstantBufferView(0, m_HDRDownScaleCB->Resource()->GetGPUVirtualAddress());
 		pd3dCommandList->SetComputeRootUnorderedAccessView(4, m_pComputeUAVBuffers[index]->GetGPUVirtualAddress());
-	}
-	else
-	{
+		break;
+
+	case DownScaleSecondPass:
 		pd3dCommandList->SetComputeRootConstantBufferView(0, m_HDRDownScaleCB->Resource()->GetGPUVirtualAddress());
 		pd3dCommandList->SetComputeRootDescriptorTable(2, m_pComputeSRVGPUHandles[index - 1]);
 		pd3dCommandList->SetComputeRootUnorderedAccessView(4, m_pComputeUAVBuffers[index]->GetGPUVirtualAddress());
+		break;
+
+	case BloomAvgLum:
+		break;
+
+	case BloomBlurVertical:
+		break;
+
+	case BloomBlurHorizon:
+		break;
 	}
 
+	
 	pd3dCommandList->Dispatch(m_nComputeThreadCount[index].x, m_nComputeThreadCount[index].y, m_nComputeThreadCount[index].z);
 }
 
