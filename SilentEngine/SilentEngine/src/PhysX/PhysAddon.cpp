@@ -2,9 +2,6 @@
 #include "PhysAddon.h"
 #include "..\Shaders\PaticleShader.h"
 
-//char randDamage[7] = { -3, -2, -1, 0, 1, 2, 3 };
-
-
 void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 {
 	auto CollisionObject = trigger->otherActor;
@@ -13,7 +10,6 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 	
 	XMFLOAT3 hitPoint[2] = { pos, pos };
 	DamageVal* damage = reinterpret_cast<DamageVal*>(trigger->triggerActor->userData);
-	//damage->baseDamage += randDamage[rand() % 7];
 
 	GlobalVal::getInstance()->setPaticle(damage->paticleType, hitPoint);
 
@@ -32,13 +28,13 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 
 void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
-	GameObject* player = GlobalVal::getInstance()->getPlayer();
+	if (player == nullptr) {
+		cout << "Player is nullptr!\n";
+		return;
+	}
 	if (trigger->otherActor == player->getControllerActor()) {
 		DamageVal* damage = reinterpret_cast<DamageVal*>(trigger->triggerActor->userData);
-		//damage->baseDamage += randDamage[rand() % 7];
 		player->Hitted(*damage);
-		GlobalVal::getInstance()->setPlayerHitted(true);
-		GlobalVal::getInstance()->getSceneCamera()->ShakeInit();
 	}
 	return;
 }
@@ -48,7 +44,7 @@ void PhysSimulation::onTrigger(PxTriggerPair * pairs, PxU32 count)
 	for (PxU32 i = 0; i < count; ++i) {
 		if (pairs[i].status & PxPairFlag::eNOTIFY_TOUCH_FOUND) {
 			if(pairs[i].triggerActor ==	//현재 트리거가 플레이어의 트리거일 경우
-				GlobalVal::getInstance()->getPlayer()->getTriggerActor())
+				player->getTriggerActor())
 				PlayerToEnemy(&pairs[i]);
 			else {
 				EnemyToPlayer(&pairs[i]);

@@ -50,5 +50,7 @@ public:
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }
+
+	void registerPlayer(GameObject* object);
 };
 

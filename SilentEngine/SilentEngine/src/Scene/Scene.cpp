@@ -318,7 +318,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_testPlayer = player->getPlayer(0);
 	m_testPlayer->GetPosition();
 	GlobalVal::getInstance()->setPlayer(m_testPlayer);
-	
+	m_physics->registerPlayer(m_testPlayer);
 	//GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
 
 	BuildUI(pDevice, pCommandList);
@@ -394,10 +394,10 @@ void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList *
 
 void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	if (GlobalVal::getInstance()->getPlayerHitted()) {
+	if (m_testPlayer->getHitted() == true) {
 		if(m_testPlayer->isLive() == true)
 			m_pTakeDamageScreen->SetFadeIn(true, 0.2f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
-		GlobalVal::getInstance()->setPlayerHitted(false);
+		m_testPlayer->setHitted(false);
 	}
 
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());

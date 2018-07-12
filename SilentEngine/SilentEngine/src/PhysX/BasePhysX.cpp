@@ -38,7 +38,6 @@ void BasePhysX::InitPhysics()
 #endif
 	//시뮬레이터 이벤트콜백 생성
 	//gSimulator = new PhysSimulation();
-
 	//scene 생성
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -10.0f, 0.0f); //현실세계 중력가속도 반올림
@@ -204,5 +203,10 @@ PxRigidStatic * BasePhysX::getTrigger(PxVec3 & t, XMFLOAT3 size)
 	*tmp = 1;*/
 	gScene->addActor(*staticActor);
 	return staticActor;
+}
+
+void BasePhysX::registerPlayer(GameObject * object)
+{
+	gSimulator.setPlayer(object);
 }
 

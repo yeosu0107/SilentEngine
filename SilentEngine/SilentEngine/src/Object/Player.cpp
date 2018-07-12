@@ -255,6 +255,7 @@ void Player::Hitted(int damage)
 {
 	if (m_avoid)
 		return;
+	setHitted(true);
 	if (m_status->m_health <= 0 || m_status->m_health > 10000) {
 		m_status->m_health = 0;
 		m_playerLogic->changeState(STATE::death);
@@ -264,6 +265,8 @@ void Player::Hitted(int damage)
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
+
+	m_pCamera->ShakeInit();
 }
 
 
@@ -276,11 +279,14 @@ void Player::Hitted(DamageVal& hitback)
 		m_playerLogic->changeState(STATE::death);
 		return;
 	}
+	setHitted(true);
 	m_status->m_health -= hitback.baseDamage;
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
 	m_playerLogic->changeState(STATE::hitted);
 	hitBackstep = hitback.hitback;
+
+	m_pCamera->ShakeInit();
 }
 
 void Player::Skill()

@@ -188,6 +188,8 @@ protected:
 	float																m_moveSpeed = 0.0f;
 	UINT																m_loopCheck = 0;	//애니메이션 한 루프 종료 여부 (종료시 1)
 	int																	m_nRootIndex = 1;
+
+	bool																m_isHitted = false;
 public:
 	void SetMesh(int nIndex, MeshGeometry *pMesh);
 	void SetShader(Shaders *pShader);
@@ -262,4 +264,8 @@ public:
 	virtual void* getTriggerActor() { return nullptr; }
 
 	virtual Status* GetStatus();
+
+	//플레이어 타격 체크
+	void setHitted(bool hit) { m_isHitted = hit; }
+	bool getHitted() const { return m_isHitted; }
 };

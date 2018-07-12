@@ -51,6 +51,8 @@ class PhysSimulation : public PxSimulationEventCallback
 private:
 	void PlayerToEnemy(PxTriggerPair* trigger);
 	void EnemyToPlayer(PxTriggerPair* trigger);
+
+	GameObject* player = nullptr;
 public:
 	void onTrigger(PxTriggerPair* pairs, PxU32 count); //트리거박스 충돌 체크
 	void onAdvance(const PxRigidBody*const*, const PxTransform*, const PxU32) {}
@@ -58,6 +60,8 @@ public:
 	void onWake(PxActor**, PxU32) { }
 	void onSleep(PxActor**, PxU32) {  }
 	void onContact(const PxContactPairHeader&, const PxContactPair*, PxU32) { }
+
+	void setPlayer(GameObject* object) { player = object; }
 };
 
 class Raycast
