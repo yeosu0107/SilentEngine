@@ -10,7 +10,7 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 	
 	XMFLOAT3 hitPoint[2] = { pos, pos };
 	DamageVal* damage = reinterpret_cast<DamageVal*>(trigger->triggerActor->userData);
-
+	
 	GlobalVal::getInstance()->setPaticle(damage->paticleType, hitPoint);
 
 	GlobalVal::getInstance()->getSceneCamera()->ShakeInit();
@@ -21,6 +21,7 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 			continue;
 		if (CollisionObject == enemy->getControllerActor()) {
 			enemy->Hitted(*damage);
+			//enemy->Hitted(10);
 			break;
 		}
 	}
@@ -30,6 +31,7 @@ void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
 	if (trigger->otherActor == player->getControllerActor()) {
 		player->Hitted(*reinterpret_cast<DamageVal*>(trigger->triggerActor->userData));
+		//player->Hitted(10);
 	}
 }
 

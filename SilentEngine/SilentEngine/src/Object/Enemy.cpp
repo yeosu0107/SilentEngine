@@ -86,6 +86,7 @@ void Enemy::SetPhysController(BasePhysX * control, PxUserControllerHitReport * c
 {
 	ModelObject::SetPhysController(control, &m_Callback, pos);
 	m_attackTrigger = control->getTrigger(PxVec3(100,100,100), m_triggerSize);
+	m_attackTrigger->userData = m_damageVal;
 }
 
 void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
@@ -135,10 +136,11 @@ void Enemy::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
-		m_damageVal.hitback = 0.0f;
-		m_damageVal.baseDamage = m_baseDamage;
-		m_damageVal.randDamage();
-		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
+		m_damageVal->hitback = 0.0f;
+		m_damageVal->baseDamage = m_baseDamage;
+		m_damageVal->randDamage();
+		//*reinterpret_cast<DamageVal*>(m_attackTrigger->userData) = m_damageVal;
+		//*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}
 }
@@ -155,10 +157,10 @@ void Enemy::Skill()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
-		m_damageVal.hitback = 1.3f;
-		m_damageVal.baseDamage = m_baseDamage;
-		m_damageVal.randDamage();
-		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
+		m_damageVal->hitback = 1.3f;
+		m_damageVal->baseDamage = m_baseDamage;
+		m_damageVal->randDamage();
+		//*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 
 	}

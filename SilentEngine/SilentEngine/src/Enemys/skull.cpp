@@ -9,7 +9,7 @@ Skull::Skull(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_size = XMFLOAT2(1.0f, 10.0f);
 	m_status = m_State->getStatus();
 	//m_hitback = 0.0f;
-	m_damageVal.hitback = 0.0f;
+	m_damageVal->hitback = 0.0f;
 	SetScale(0.3f);
 }
 

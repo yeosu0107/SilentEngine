@@ -120,7 +120,7 @@ protected:
 	float								m_hitback = 0.0f;
 
 	int									m_baseDamage = 10;								
-	DamageVal					m_damageVal = DamageVal(0.0f, 10);
+	DamageVal*					m_damageVal = new DamageVal(0.0f, 10);
 	int									m_damageStack = 0;
 public:
 	Enemy(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);

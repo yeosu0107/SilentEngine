@@ -17,7 +17,7 @@ CreepArm::CreepArm(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_status = m_State->getStatus();
 	m_size = XMFLOAT2(10.0f, 8.0f);
 	m_triggerSize = XMFLOAT3(30, 10, 30);
-	m_damageVal.hitback = 0.0f;
+	m_damageVal->hitback = 0.0f;
 	SetScale(0.3f);
 }
 
@@ -37,9 +37,9 @@ void CreepArm::Attack()
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);
-		m_damageVal.baseDamage = m_baseDamage;
-		m_damageVal.randDamage();
-		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
+		m_damageVal->baseDamage = m_baseDamage;
+		m_damageVal->randDamage();
+		//(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}
 }

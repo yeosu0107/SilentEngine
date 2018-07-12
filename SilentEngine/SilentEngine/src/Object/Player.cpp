@@ -212,8 +212,10 @@ void Player::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(m_xmf3Look, 30, false)
 		)));
-		m_AttackDamage.randDamage();
-		*(DamageVal*)m_weaponTrigger->userData = m_AttackDamage;
+		m_AttackDamage->randDamage();
+		//*reinterpret_cast<DamageVal*>(m_weaponTrigger->userData) = m_AttackDamage;
+		//memcpy(m_weaponTrigger->userData, &m_AttackDamage, sizeof(DamageVal));
+		//*(DamageVal*)m_weaponTrigger->userData = m_AttackDamage;
 		//*(int*)m_weaponTrigger->userData = m_damage;
 		m_weaponTrigger->setGlobalPose(tmpTr, true);
 	}
@@ -221,33 +223,33 @@ void Player::Attack()
 
 void Player::Attack_Normal()
 {
-	m_AttackDamage.baseDamage = 10;
-	m_AttackDamage.hitback = 0.0f;
-	m_AttackDamage.paticleType = 0;
+	m_AttackDamage->baseDamage = 10;
+	m_AttackDamage->hitback = 0.0f;
+	m_AttackDamage->paticleType = 0;
 	Player::Attack();
 }
 
 void Player::Attack_Kick()
 {
-	m_AttackDamage.baseDamage = 30;
-	m_AttackDamage.hitback = 1.3f;
-	m_AttackDamage.paticleType = 1;
+	m_AttackDamage->baseDamage = 30;
+	m_AttackDamage->hitback = 1.3f;
+	m_AttackDamage->paticleType = 1;
 	Player::Attack();
 }
 
 void Player::Attack_Upper()
 {
-	m_AttackDamage.baseDamage = 30;
-	m_AttackDamage.hitback = 1.3f;
-	m_AttackDamage.paticleType = 2;
+	m_AttackDamage->baseDamage = 30;
+	m_AttackDamage->hitback = 1.3f;
+	m_AttackDamage->paticleType = 2;
 	Player::Attack();
 }
 
 void Player::Attack_Power()
 {
-	m_AttackDamage.baseDamage = 50;
-	m_AttackDamage.hitback = 0.0f;
-	m_AttackDamage.paticleType = 3;
+	m_AttackDamage->baseDamage = 50;
+	m_AttackDamage->hitback = 0.0f;
+	m_AttackDamage->paticleType = 3;
 	Player::Attack();
 }
 
@@ -374,6 +376,7 @@ void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
 	m_cameraController = phys->getBoxController(XMtoPXEx(m_pCamera->GetPosition()), &m_CameraCallback, XMFLOAT3(5.0f, 5.0f, 5.0f), 30.0f, 10.0f);
 
 	m_weaponTrigger = phys->getTrigger(PxVec3(100,100,100), XMFLOAT3(10,10,10));
+	m_weaponTrigger->userData = m_AttackDamage;
 }
 
 void Player::CalibrateLook(XMFLOAT3& look)

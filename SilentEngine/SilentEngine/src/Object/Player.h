@@ -89,7 +89,7 @@ protected:
 	float								hitBackstep = 0.0f;		
 	//게임 콘텐츠 관련
 	int									m_damage = 10;
-	DamageVal					m_AttackDamage = DamageVal(0.0f, 10);
+	DamageVal*					m_AttackDamage = new DamageVal(0.0f, 10);
 
 	//밀리세컨드 단위
 	const UINT						MAX_KICK_DELAY = 5000;
