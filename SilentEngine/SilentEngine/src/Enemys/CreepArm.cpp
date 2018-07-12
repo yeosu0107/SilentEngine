@@ -37,6 +37,8 @@ void CreepArm::Attack()
 		PxTransform tmpTr(m_Controller->getPosition().x,
 			m_Controller->getPosition().y,
 			m_Controller->getPosition().z);
+		m_damageVal.baseDamage = m_baseDamage;
+		m_damageVal.randDamage();
 		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}

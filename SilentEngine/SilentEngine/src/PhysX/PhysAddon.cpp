@@ -2,7 +2,7 @@
 #include "PhysAddon.h"
 #include "..\Shaders\PaticleShader.h"
 
-int randDamage[7] = { -3, -2, -1, 0, 1, 2, 3 };
+//char randDamage[7] = { -3, -2, -1, 0, 1, 2, 3 };
 
 
 void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
@@ -12,8 +12,8 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 	XMFLOAT3 pos = Vector3::Add(PXtoXM(trigger->triggerActor->getGlobalPose().p), GlobalVal::getInstance()->getPlayer()->GetLook(), 10);
 	
 	XMFLOAT3 hitPoint[2] = { pos, pos };
-	DamageVal* damage = (DamageVal*)trigger->triggerActor->userData;
-	damage->baseDamage += randDamage[rand() % 7];
+	DamageVal* damage = reinterpret_cast<DamageVal*>(trigger->triggerActor->userData);
+	//damage->baseDamage += randDamage[rand() % 7];
 
 	GlobalVal::getInstance()->setPaticle(damage->paticleType, hitPoint);
 
@@ -34,8 +34,8 @@ void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
 	GameObject* player = GlobalVal::getInstance()->getPlayer();
 	if (trigger->otherActor == player->getControllerActor()) {
-		DamageVal* damage = (DamageVal*)(trigger->triggerActor->userData);
-		damage->baseDamage += randDamage[rand() % 7];
+		DamageVal* damage = reinterpret_cast<DamageVal*>(trigger->triggerActor->userData);
+		//damage->baseDamage += randDamage[rand() % 7];
 		player->Hitted(*damage);
 		GlobalVal::getInstance()->setPlayerHitted(true);
 		GlobalVal::getInstance()->getSceneCamera()->ShakeInit();

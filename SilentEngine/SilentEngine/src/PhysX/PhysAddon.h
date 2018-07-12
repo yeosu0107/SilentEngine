@@ -29,14 +29,20 @@ inline XMFLOAT3 PXtoXM(const PxVec3& pos) {
 
 class DamageVal
 {
+private:
+	char randDamageVal[7] = { -3, -2, -1, 0, 1, 2, 3 };
 public:
 	float hitback;
-	int baseDamage;
-	int paticleType = 0;
+	char baseDamage;
+	char paticleType;
 
 	DamageVal(float back, int damage) {
 		hitback = back;
 		baseDamage = damage;
+		paticleType = 0;
+	}
+	void randDamage() {
+		baseDamage += randDamageVal[rand() % 7];
 	}
 };
 

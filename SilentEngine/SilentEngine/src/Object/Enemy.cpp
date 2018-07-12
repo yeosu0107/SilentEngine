@@ -135,6 +135,8 @@ void Enemy::Attack()
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
 		m_damageVal.hitback = 0.0f;
+		m_damageVal.baseDamage = m_baseDamage;
+		m_damageVal.randDamage();
 		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 	}
@@ -153,6 +155,8 @@ void Enemy::Skill()
 			Vector3::ScalarProduct(GetLook(), -30, false)
 		)));
 		m_damageVal.hitback = 1.3f;
+		m_damageVal.baseDamage = m_baseDamage;
+		m_damageVal.randDamage();
 		*(DamageVal*)m_attackTrigger->userData = m_damageVal;
 		m_attackTrigger->setGlobalPose(tmpTr, true);
 

@@ -212,6 +212,7 @@ void Player::Attack()
 		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
 			Vector3::ScalarProduct(m_xmf3Look, 30, false)
 		)));
+		m_AttackDamage.randDamage();
 		*(DamageVal*)m_weaponTrigger->userData = m_AttackDamage;
 		//*(int*)m_weaponTrigger->userData = m_damage;
 		m_weaponTrigger->setGlobalPose(tmpTr, true);
