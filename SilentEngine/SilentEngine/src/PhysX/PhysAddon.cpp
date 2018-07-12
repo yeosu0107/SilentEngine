@@ -28,13 +28,8 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 
 void PhysSimulation::EnemyToPlayer(PxTriggerPair * trigger)
 {
-	if (player == nullptr) {
-		cout << "Player is nullptr!\n";
-		return;
-	}
 	if (trigger->otherActor == player->getControllerActor()) {
-		DamageVal* damage = reinterpret_cast<DamageVal*>(trigger->triggerActor->userData);
-		player->Hitted(*damage);
+		player->Hitted(*reinterpret_cast<DamageVal*>(trigger->triggerActor->userData));
 	}
 }
 
