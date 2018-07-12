@@ -98,6 +98,7 @@ void ModelObject::ChangeAnimation(UINT nextIndex)
 		return;
 
 	m_ani[m_AnimIndex]->ResetAnimation();
+	//m_loopCheck = 0;
 	m_AnimIndex = nextIndex;
 }
 

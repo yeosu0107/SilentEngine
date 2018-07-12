@@ -21,7 +21,7 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 			continue;
 		if (CollisionObject == enemy->getControllerActor()) {
 			enemy->Hitted(*damage);
-			return;
+			break;
 		}
 	}
 }

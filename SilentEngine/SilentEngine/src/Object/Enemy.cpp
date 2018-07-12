@@ -96,6 +96,7 @@ void Enemy::SetAnimations(UINT num, LoadAnimation ** tmp)
 	m_ani[EnemyAni::AniAttack]->SetAnimSpeed(0.5f);
 	m_ani[EnemyAni::AniIdle]->SetAnimSpeed(1.0f);*/
 	m_ani[EnemyAni::AniIdle]->EnableLoof();
+	m_ani[EnemyAni::AniDeath]->DisableLoof(0);
 	m_ani[EnemyAni::AniHitted]->SetAnimSpeed(2.0f);
 }
 

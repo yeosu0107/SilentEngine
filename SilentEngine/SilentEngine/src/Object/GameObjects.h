@@ -26,9 +26,9 @@ class Shaders;
 
 const UINT LOOP_IN					= 0;
 const UINT LOOP_END				= 1;
-const UINT LOOP_TRIGGER					= 2;
+const UINT LOOP_TRIGGER			= 2;
 const UINT LOOP_STOP				= 3;
-const UINT LOOP_SKIP		= 4;
+const UINT LOOP_SKIP				= 4;
 
 #define RESOURCE_TEXTURE2D						0x01
 #define RESOURCE_TEXTURE2D_ARRAY			0x02	//[]
@@ -186,7 +186,7 @@ protected:
 	bool																m_live = true;
 	bool																m_bLockRotateXZ = false;
 	float																m_moveSpeed = 0.0f;
-	UINT																m_loopCheck = 0;	//애니메이션 한 루프 종료 여부 (종료시 1)
+	UINT																m_loopCheck = 0;
 	int																	m_nRootIndex = 1;
 
 	bool																m_isHitted = false;
