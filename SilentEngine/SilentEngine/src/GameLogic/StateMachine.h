@@ -11,11 +11,12 @@ enum STATE {
 	avoid,		//회피/도망 상태
 	hitted,		//공격받은상태
 	death,			//죽음상태
-	//플레이서 추가 상태
+	//플레이어 추가 상태
 	attack2,
 	attack3,
 	kick,
-	upper
+	upper,
+	punch
 };
 
 class StateMachine

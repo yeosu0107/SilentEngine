@@ -12,8 +12,11 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 	XMFLOAT3 pos = Vector3::Add(PXtoXM(trigger->triggerActor->getGlobalPose().p), GlobalVal::getInstance()->getPlayer()->GetLook(), 10);
 	
 	XMFLOAT3 hitPoint[2] = { pos, pos };
-	reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
-		->SetPos(hitPoint, 2);
+	DamageVal* damage = (DamageVal*)trigger->triggerActor->userData;
+	damage->baseDamage += randDamage[rand() % 7];
+
+	GlobalVal::getInstance()->setPaticle(damage->paticleType, hitPoint);
+
 	GlobalVal::getInstance()->getSceneCamera()->ShakeInit();
 
 	for (UINT i = 0; i < *GlobalVal::getInstance()->getNumEnemy(); ++i) {
@@ -21,11 +24,6 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 		if (!enemy->isLive())
 			continue;
 		if (CollisionObject == enemy->getControllerActor()) {
-			//int damage = *(int*)trigger->triggerActor->userData + randDamage[rand() % 7];
-			DamageVal* damage = (DamageVal*)trigger->triggerActor->userData;
-			damage->baseDamage += randDamage[rand() % 7];
-			/*reinterpret_cast<PaticleShader<PaticleObject>*>(GlobalVal::getInstance()->getHitPaticle())
-				->SetPos(&Vector3::Add(enemy->GetPosition(), XMFLOAT3(0,20.0f, 0)), 1);*/
 			enemy->Hitted(*damage);
 			return;
 		}
