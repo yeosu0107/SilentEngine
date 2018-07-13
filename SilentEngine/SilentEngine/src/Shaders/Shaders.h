@@ -22,6 +22,7 @@ struct CB_HDR_TONEMAPPING_INFO
 	float m_MiddleGrey;
 	float m_LumWhiteSqr;
 	float m_EnableHDR;
+	float m_EnableBloom;
 };
 
 
@@ -30,6 +31,7 @@ struct CB_HDR_DOWNSCALE_INFO
 	XMUINT2 m_Res;			// 화면 크기
 	UINT	m_Domain;		// 다운 스케일된 이미지 픽셀 수 
 	UINT	m_GroupSize;	// 첫 패스에 적용된 그룹 수 
+	float	m_BloomThreshold; // 블룸 임계값
 };
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
@@ -79,7 +81,7 @@ public:
 //	void CreateShaderResourceViews(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, CTexture *pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement);
 
 	virtual void CreateComputeDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nConstantBufferViews, int nShaderResourceViews, int nUnorderedAccessViews);
-	virtual void CreateComputeShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, UINT* elements);
+	virtual void CreateComputeShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, XMUINT2* elements);
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	ID3D12RootSignature *GetGraphicsRootSignature(const UINT index = 0) { return(m_RootSignature[index].Get()); }
 
@@ -127,6 +129,7 @@ protected:
 	UINT											m_nComputeBuffers = 0;
 	UINT											m_nDescriptorUAVStartIndex = 0;
 	XMUINT3*										m_nComputeThreadCount;
+	XMUINT2*										m_nBuffTypeElements;
 
 	D3D12_CPU_DESCRIPTOR_HANDLE						m_d3dCbvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE						m_d3dCbvGPUDescriptorStartHandle;
@@ -141,10 +144,8 @@ protected:
 	vector<ComPtr<ID3D12Resource>>					m_pComputeUAVBuffers;
 	vector<ComPtr<ID3D12Resource>>					m_pComputeOutputBuffers;
 
-	vector<D3D12_CPU_DESCRIPTOR_HANDLE>				m_pComputeUAVCPUHandles;
-	vector<D3D12_GPU_DESCRIPTOR_HANDLE>				m_pComputeUAVGPUHandles;
-	vector<D3D12_CPU_DESCRIPTOR_HANDLE>				m_pComputeSRVCPUHandles;
-	vector<D3D12_GPU_DESCRIPTOR_HANDLE>				m_pComputeSRVGPUHandles;
+	vector<D3D12_CPU_DESCRIPTOR_HANDLE>				m_pComputeSRVUAVCPUHandles;
+	vector<D3D12_GPU_DESCRIPTOR_HANDLE>				m_pComputeSRVUAVGPUHandles;
 
 	vector<D3D12_INPUT_ELEMENT_DESC>				m_InputLayout;
 
@@ -317,24 +318,15 @@ protected:
 class HDRShader : public DeferredFullScreen
 {
 	// 계산셰이더1 -> 결과 -> 계산셰이더2 SRV로 입력 -> 결과 -> 계산셰이더 마지막으로 입력 
-	enum { DownScaleFirstPass, DownScaleSecondPass, BloomAvgLum, BloomBlurVertical, BloomBlurHorizon };
-	enum { CBDownScale, SRHDR, SRAverageValues1DOutput, SRAverageValuesOutput, UAAverageLumInput };	// RootSignature인덱스
+	enum { DownScaleFirstPass, DownScaleSecondPass, BloomAvgLum, BloomBlurVertical, BloomBlurHorizon };	// ComputeShader 인덱스
 
-	/*
-	for (i = 0; i < NUM_HDRBUFFER; ++i)
-		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues1D);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
-	pd3dDescriptorRanges[NUM_HDRBUFFER + 2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 1);
+	enum { FirstPassAverageLumBuffer, SecondPassAverageLumBuffer, HDRDownScaleBuffer, HandleAverageBloomBuffer, HandleVerticalBloomBuffer, HandleHorizonBloomBuffer };	// Buffer 인덱스
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 4];
-	pd3dRootParameters[0].InitAsConstantBufferView(CBVHDRDownScale);
-	for (i = 0; i < NUM_HDRBUFFER; ++i)
-		pd3dRootParameters[i + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[NUM_HDRBUFFER + 1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[NUM_HDRBUFFER + 2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[NUM_HDRBUFFER + 1], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[NUM_HDRBUFFER + 3].InitAsUnorderedAccessView(1);
-	*/
+	enum { CBDownScale, SRHDR, SRAverageValues1DOutput, SRAverageValuesOutput, UAAverageLumInput, UAHDRDownScale, SRHDRDownScale, UABloom, SRBloomInput, UABloomOutput };	// RootSignature 인덱스
+
+	enum { HandleFirstPassAverageLumUAV, HandleFirstPassAverageLumSRV, HandleSecondPassAverageLumUAV, HandleSecondPassAverageLumSRV, HandleHDRDownScaleUAV, HandleHDRDownScaleSRV,
+		HandleAverageBloomUAV, HandleAverageBloomSRV, HandleVerticalBloomUAV, HandleVerticalBloomSRV, HandleHorizonBloomUAV, HandleHorizonBloomSRV };	// UAVHandle 인덱스
+	
 public:
 	HDRShader() {};
 	virtual ~HDRShader() {};
@@ -349,9 +341,13 @@ public:
 	virtual void DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index = 0);
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	virtual void EnableHDR(bool enabled);
+	virtual void EnableBloom(bool enabled);
+	virtual void Dispatch(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void UpGreyScale(float addScale);
 	virtual void UpWhiteScale(float addScale);
+	virtual void UpBloomScale(float addScale);
 	virtual void GetUAVData(ID3D12GraphicsCommandList * pd3dCommandList, int index);
+	virtual void GetUADataInCurrentPipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index);
 	virtual void DebugOutputBuffer(ID3D12GraphicsCommandList * pd3dCommandList, int index);
 
 protected:

@@ -149,6 +149,7 @@ cbuffer cbHDRToneMapping : register(b12)
     float gMiddleGrey : packoffset(c0);
     float gLumWhiteSqr : packoffset(c0.y);
     float gHDREnable : packoffset(c0.z);
+    float gBloomEnable : packoffset(c0.w);
 }
 
 static matrix gmtxTexture =

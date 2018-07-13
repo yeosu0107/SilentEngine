@@ -52,7 +52,7 @@ float HDRDownScale4x4(uint2 position, uint groupThreadID)
             }
         }
         fDownScales /= 16.0f;
-        //gHDRDownScale[position] = fDownScales;
+        gHDRDownScale[position] = fDownScales;
         avgLum = dot(fDownScales, LUM_FACTOR); // 휘도 계산
 
         SharedPosition[groupThreadID] = avgLum;
@@ -193,7 +193,7 @@ void BloomPass(uint3 dispatchThreadID : SV_DispatchThreadID)
         float4 color = gHDRDownScaleTexture.Load(int3(position, 0));
         float lum = dot(color, LUM_FACTOR);
         float avgLum = gAverageLum[0];
-
+       
         float colorScale = saturate(lum - avgLum * BloomThreshold);
 
         gBloom[position] = color * colorScale;
@@ -204,7 +204,7 @@ void BloomPass(uint3 dispatchThreadID : SV_DispatchThreadID)
 [numthreads(BLOOM_GROUP_THREAD, 1, 1)]
 void VerticalBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIndex)
 {
-    int2 position = int2(groupID.x, groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.x);
+    int2 position = int2(groupID.x, groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.y);
     position = clamp(position, int2(0, 0), int2(Res.x - 1, Res.y - 1)); // 텍스쳐 범위 내에서만 읽게 범위 제한
 
     SharedInput[groupIndex] = gBloomInput.Load(int3(position, 0));
@@ -222,6 +222,7 @@ void VerticalBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupI
 
         gBloomOutput[position] = float4(outColor.rgb, 1.0f);
     }
+
 }
 
 // 수평 필터링
@@ -243,7 +244,7 @@ void HorizonBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIn
         [unroll]
         for (int i = -BLOOM_KERNELHALF; i <= BLOOM_KERNELHALF; ++i)
             outColor += SharedInput[groupIndex + i] * SAMPLE_WEIGHTS[i + BLOOM_KERNELHALF];
-
+        
         gBloomOutput[position] = float4(outColor.rgb, 1.0f);
     }
 }

@@ -369,15 +369,11 @@ void Framework::RenderDeffered()
 
 void Framework::DispatchComputeShaders()
 {
-	m_HDRShader->DispatchComputePipeline(m_pCommandList.Get(), 0);
-	m_HDRShader->GetUAVData(m_pCommandList.Get(), 0);
-	ExcuteCommandList();
-	//m_HDRShader->DebugOutputBuffer(m_pCommandList.Get(), 0);
 
-	m_HDRShader->DispatchComputePipeline(m_pCommandList.Get(), 1);
-	m_HDRShader->GetUAVData(m_pCommandList.Get(), 1);
-	//m_HDRShader->DebugOutputBuffer(m_pCommandList.Get(), 1);
-	ExcuteCommandList();
+		m_HDRShader->Dispatch(m_pCommandList.Get());
+
+		ExcuteCommandList();
+	
 }
 
 void Framework::RenderHDR()
@@ -907,6 +903,10 @@ void Framework::OnKeyboardInput(const Timer& gt)
 		m_bHDR = !m_bHDR;
 		m_HDRShader->EnableHDR(m_bHDR);
 	}
+	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001) {
+		m_bBloom = !m_bBloom;
+		m_HDRShader->EnableBloom(m_bBloom);
+	}
 
 	if (GetAsyncKeyState(VK_F2) & 0x0001) {
 		m_HDRShader->UpGreyScale(0.01f);
@@ -914,6 +914,10 @@ void Framework::OnKeyboardInput(const Timer& gt)
 	if (GetAsyncKeyState(VK_F1) & 0x0001) {
 		m_HDRShader->UpGreyScale(-0.01f);
 	}
+	if (GetAsyncKeyState(VK_F3) & 0x0001)
+		m_HDRShader->UpBloomScale(-0.1f);
+	if (GetAsyncKeyState(VK_F4) & 0x0001)
+		m_HDRShader->UpBloomScale(0.1f);
 
 	if (GetAsyncKeyState(VK_F11) & 0x0001) {
 		m_HDRShader->UpWhiteScale(0.1f);

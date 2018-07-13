@@ -60,15 +60,19 @@ VS_TEXTURED_OUTPUT VSHDR(uint nVertexID : SV_VertexID)
     return output;
 };
 
-
 float4 PSHDR(VS_TEXTURED_OUTPUT input) : SV_Target
 {
     float4 finalColor = (float4) 0.0f;
     float2 uv = input.uv;
  
     finalColor = gHDRBuffer[0].Sample(gDefaultSamplerState, uv);
+
+    if (gBloomEnable >= 1.0f)
+        finalColor.xyz += gBloomInput.Sample(gDefaultSamplerState, uv).xyz;
+
     if (gHDREnable >= 1.0f)
         finalColor.xyz = ToneMApping(finalColor.xyz);
+
     return float4(finalColor.xyz, 1.0f);
 }
 #endif

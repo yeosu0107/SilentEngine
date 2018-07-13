@@ -102,6 +102,7 @@ protected:
 	bool m_bFullscreenState = false;
 	bool m_bInitialized = false;
 	bool m_bHDR = true;
+	bool m_bBloom = true;
 	bool m_b4xMassState = false;
 	UINT m_4xMsaaQuality = 0;
 

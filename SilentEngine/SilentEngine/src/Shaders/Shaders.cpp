@@ -232,7 +232,7 @@ void Shaders::CreateComputeDescriptorHeaps(ID3D12Device * pd3dDevice, ID3D12Grap
 	m_d3dComputeSrvGPUDescriptorStartHandle.ptr = m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * nConstantBufferViews);
 }
 
-void Shaders::CreateComputeShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, UINT* elements)
+void Shaders::CreateComputeShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, CTexture * pTexture, UINT nRootParameterStartIndex, bool bAutoIncrement, XMUINT2* elements)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle;
@@ -258,19 +258,48 @@ void Shaders::CreateComputeShaderResourceViews(ID3D12Device * pd3dDevice, ID3D12
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	srvDesc.Buffer.FirstElement = 0;
 	
+	D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
+
 	for (int i = 0; i < nBuffers; ++i)
 	{
-		srvDesc.Buffer.NumElements = elements[i];
+		if (elements[i].x == UAFloatBuffer) {
+			uavDesc.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+			uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
+			uavDesc.Buffer.NumElements = elements[i].y;
+			
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+			srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+			srvDesc.Buffer.FirstElement = 0;
+			srvDesc.Buffer.NumElements = elements[i].y;
+			srvDesc.Texture2D.MipLevels = 0;
+		}
+		else if (elements[i].x == UATexBuffer) {
+			uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+			uavDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			uavDesc.Buffer.FirstElement = 0;
+			uavDesc.Texture2D.MipSlice = 0;
+			
+			srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+			srvDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			srvDesc.Buffer.FirstElement = 0;
+			srvDesc.Buffer.NumElements = 0;
+			srvDesc.Texture2D.MipLevels = 1;
+		}
+
+		pd3dDevice->CreateUnorderedAccessView(m_pComputeUAVBuffers[i].Get(), nullptr, &uavDesc, d3dSrvCPUDescriptorHandle);
+
+		m_pComputeSRVUAVCPUHandles[i * 2] = d3dSrvCPUDescriptorHandle;
+		m_pComputeSRVUAVGPUHandles[i * 2] = d3dSrvGPUDescriptorHandle;
+
+		d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
+		d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 
 		pd3dDevice->CreateShaderResourceView(m_pComputeOutputBuffers[i].Get(), &srvDesc, d3dSrvCPUDescriptorHandle);
 	
-		m_pComputeSRVCPUHandles[i] = d3dSrvCPUDescriptorHandle;
-		m_pComputeSRVGPUHandles[i] = d3dSrvGPUDescriptorHandle;
-	
+		m_pComputeSRVUAVCPUHandles[i * 2 + 1] = d3dSrvCPUDescriptorHandle;
+		m_pComputeSRVUAVGPUHandles[i * 2 + 1] = d3dSrvGPUDescriptorHandle;
+
 		d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 		d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize;
 	}
@@ -451,13 +480,11 @@ void Shaders::CreatePipelineParts()
 		m_ComputeRootSignature = new ComPtr<ID3D12RootSignature>();
 		m_pComputePSO = new ComPtr<ID3D12PipelineState>[m_nComputePSO];
 
-		m_pComputeUAVCPUHandles = vector<D3D12_CPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
-		m_pComputeUAVGPUHandles = vector<D3D12_GPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
-		m_pComputeSRVCPUHandles = vector<D3D12_CPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
-		m_pComputeSRVGPUHandles = vector<D3D12_GPU_DESCRIPTOR_HANDLE>(m_nComputePSO);
-
-		m_pComputeUAVBuffers = vector<ComPtr<ID3D12Resource>>(m_nComputePSO);
-		m_pComputeOutputBuffers = vector<ComPtr<ID3D12Resource>>(m_nComputePSO);
+		m_pComputeSRVUAVCPUHandles = vector<D3D12_CPU_DESCRIPTOR_HANDLE>(m_nComputeBuffers * 2);
+		m_pComputeSRVUAVGPUHandles = vector<D3D12_GPU_DESCRIPTOR_HANDLE>(m_nComputeBuffers * 2);
+		
+		m_pComputeUAVBuffers = vector<ComPtr<ID3D12Resource>>(m_nComputeBuffers);
+		m_pComputeOutputBuffers = vector<ComPtr<ID3D12Resource>>(m_nComputeBuffers);
 
 		m_CSByteCode = new ComPtr<ID3DBlob>[m_nComputePSO];
 	}
@@ -1574,15 +1601,20 @@ void HDRShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_HDRDownScaleData.m_Res = XMUINT2(FRAME_BUFFER_WIDTH / 4, FRAME_BUFFER_HEIGHT / 4);
 	m_HDRDownScaleData.m_Domain = m_HDRDownScaleData.m_Res.x * m_HDRDownScaleData.m_Res.y;
 	m_HDRDownScaleData.m_GroupSize = (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f);
-	
-	m_nComputeThreadCount[0] = XMUINT3(m_HDRDownScaleData.m_GroupSize, 1, 1);
-	m_nComputeThreadCount[1] = XMUINT3(1, 1, 1);
+	m_HDRDownScaleData.m_BloomThreshold = 1.1f;
+
+	m_nComputeThreadCount[DownScaleFirstPass]	= XMUINT3(m_HDRDownScaleData.m_GroupSize, 1, 1);
+	m_nComputeThreadCount[DownScaleSecondPass]	= XMUINT3(1, 1, 1);
+	m_nComputeThreadCount[BloomAvgLum]			= XMUINT3{ m_HDRDownScaleData.m_GroupSize, 1, 1 };
+	m_nComputeThreadCount[BloomBlurHorizon]		= XMUINT3{ (UINT)ceil(((float)m_HDRDownScaleData.m_Res.x) / (128.0f - 12.0f)), m_HDRDownScaleData.m_Res.y, 1 };
+	m_nComputeThreadCount[BloomBlurVertical]	= XMUINT3{ m_HDRDownScaleData.m_Res.x, (UINT)ceil(((float)m_HDRDownScaleData.m_Res.y) / (128.0f - 12.0f)), 1 };
 
 	m_HDRToneMappCB = make_unique<UploadBuffer<CB_HDR_TONEMAPPING_INFO>>(pd3dDevice, 1, true);
 
 	m_HDRToneMappData.m_LumWhiteSqr = 1.5f;
 	m_HDRToneMappData.m_MiddleGrey = 0.35f;
 	m_HDRToneMappData.m_EnableHDR = 1.0f;
+	m_HDRToneMappData.m_EnableBloom = 1.0f;
 }
 
 void HDRShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
@@ -1590,19 +1622,21 @@ void HDRShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	int i = 0;
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_HDRBUFFER + 1];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_HDRBUFFER + 2];
 
 	for (i = 0; i < NUM_HDRBUFFER; ++i)
 		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
 	pd3dDescriptorRanges[NUM_HDRBUFFER].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
+	pd3dDescriptorRanges[NUM_HDRBUFFER + 1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVBloomInput);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 3];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_HDRBUFFER + 4];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(CBVHDRDownScale);
 	pd3dRootParameters[1].InitAsConstantBufferView(CBVHDRToneMapp);
 	for (i = 0; i < NUM_HDRBUFFER; ++i)
 		pd3dRootParameters[i + 2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
 	pd3dRootParameters[NUM_HDRBUFFER + 2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[NUM_HDRBUFFER + 3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
 	
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1654,18 +1688,29 @@ void HDRShader::CreateComputeRootSignature(ID3D12Device * pd3dDevice)
 	int i = 0;
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[9];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenHDR, 0, 0);
 	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues1D);
 	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVAverageValues);
+	pd3dDescriptorRanges[3].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAVAverageLum);
+	pd3dDescriptorRanges[4].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAVHDRDownScale);
+	pd3dDescriptorRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVHDRDownScale);
+	pd3dDescriptorRanges[6].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAVBloom);
+	pd3dDescriptorRanges[7].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVBloomInput);
+	pd3dDescriptorRanges[8].Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, UAVBloomOutput);
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[5];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[10];
 	pd3dRootParameters[CBDownScale].InitAsConstantBufferView(CBVHDRDownScale);
 	pd3dRootParameters[SRHDR].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[SRAverageValues1DOutput].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
 	pd3dRootParameters[SRAverageValuesOutput].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[UAAverageLumInput].InitAsUnorderedAccessView(1);
+	pd3dRootParameters[UAAverageLumInput].InitAsDescriptorTable(1, &pd3dDescriptorRanges[3], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[UAHDRDownScale].InitAsDescriptorTable(1, &pd3dDescriptorRanges[4], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[SRHDRDownScale].InitAsDescriptorTable(1, &pd3dDescriptorRanges[5], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[UABloom].InitAsDescriptorTable(1, &pd3dDescriptorRanges[6], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[SRBloomInput].InitAsDescriptorTable(1, &pd3dDescriptorRanges[7], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[UABloomOutput].InitAsDescriptorTable(1, &pd3dDescriptorRanges[8], D3D12_SHADER_VISIBILITY_ALL);
 
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
@@ -1733,49 +1778,62 @@ void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	
 	m_nObjects = 1;
 	m_nPSO = 1;
-	m_nComputePSO = 2;
-	m_nComputeBuffers = 2;
+	m_nComputePSO = 5;
+	m_nComputeBuffers = 6;
 
-	CreatePipelineParts();
-	CreateComputeBuffer(pd3dDevice, pd3dCommandList);
+	CreatePipelineParts();								// ok
+	CreateComputeBuffer(pd3dDevice, pd3dCommandList);	// ok
 
 	m_pTexture->AddTexture(m_pComputeOutputBuffers[DownScaleSecondPass].Get(), nullptr, RESOURCE_BUFFER_FLOAT32);
+	m_pTexture->AddTexture(m_pComputeOutputBuffers[HandleHorizonBloomBuffer].Get(), nullptr, RESOURCE_TEXTURE2D_HDR);
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSHDR", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSHDR", "ps_5_0");
 	m_CSByteCode[DownScaleFirstPass] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleFirstPass", "cs_5_0");
 	m_CSByteCode[DownScaleSecondPass] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleSecondPass", "cs_5_0");
+	m_CSByteCode[BloomAvgLum] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "BloomPass", "cs_5_0");
+	m_CSByteCode[BloomBlurVertical] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "VerticalBloomFilter", "cs_5_0");
+	m_CSByteCode[BloomBlurHorizon] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "HorizonBloomFilter", "cs_5_0");
 
-	m_nComputeThreadCount = new XMUINT3[m_nComputePSO];
 	
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
-	CreateComputeDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pComputeTexture->GetTextureCount(), 2);
+	CreateComputeDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pComputeTexture->GetTextureCount(), m_nComputeBuffers * 2);
 
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	
-	UINT* elements = new UINT[m_nComputePSO];
-	for (int i = 0; i < m_nComputePSO; ++i)
-		elements[i] = m_nComputeThreadCount[i].x;
 
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 2, true);
-	CreateComputeShaderResourceViews(pd3dDevice, pd3dCommandList, m_pComputeTexture.get(), 1, true, elements);
+	CreateComputeShaderResourceViews(pd3dDevice, pd3dCommandList, m_pComputeTexture.get(), 1, true, m_nBuffTypeElements);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	CreateComputeRootSignature(pd3dDevice);
 
 	BuildPSO(pd3dDevice, nRenderTargets);
 
-	BuildComputePSO(pd3dDevice, 0);
-	BuildComputePSO(pd3dDevice, 1);
+	for(int i = DownScaleFirstPass; i <= BloomBlurHorizon; ++i ) 
+		BuildComputePSO(pd3dDevice, i);
+	
 }
 
 void HDRShader::CreateComputeBuffer(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	UINT byteSize = 4 * (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f);
-	D3DUtil::CreateUnorderedAccessResource(pd3dDevice, pd3dCommandList, byteSize, m_pComputeUAVBuffers[DownScaleFirstPass], m_pComputeOutputBuffers[DownScaleFirstPass]);
+	m_nBuffTypeElements = new XMUINT2[m_nComputeBuffers];
+	m_nComputeThreadCount = new XMUINT3[m_nComputePSO];
+
+	XMUINT2 byteSize = XMUINT2{ 4 * (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f) , 0 };
+	D3DUtil::CreateUnorderedAccessResource(pd3dDevice, pd3dCommandList, byteSize, m_pComputeUAVBuffers[FirstPassAverageLumBuffer], m_pComputeOutputBuffers[FirstPassAverageLumBuffer], UAFloatBuffer);
+	m_nBuffTypeElements[FirstPassAverageLumBuffer] = { UAFloatBuffer , byteSize.x / 4 };
 	
-	byteSize = 4;
-	D3DUtil::CreateUnorderedAccessResource(pd3dDevice, pd3dCommandList, byteSize, m_pComputeUAVBuffers[DownScaleSecondPass], m_pComputeOutputBuffers[DownScaleSecondPass]);
+	byteSize.x = 4;
+	D3DUtil::CreateUnorderedAccessResource(pd3dDevice, pd3dCommandList, byteSize, m_pComputeUAVBuffers[SecondPassAverageLumBuffer], m_pComputeOutputBuffers[SecondPassAverageLumBuffer], UAFloatBuffer);
+	m_nBuffTypeElements[SecondPassAverageLumBuffer] = { UAFloatBuffer , byteSize.x / 4 };
+
+	byteSize = { FRAME_BUFFER_WIDTH / 4, FRAME_BUFFER_HEIGHT / 4};
+
+	for (int i = HDRDownScaleBuffer; i <= HandleHorizonBloomBuffer; ++i) {
+		D3DUtil::CreateUnorderedAccessResource(pd3dDevice, pd3dCommandList, byteSize, m_pComputeUAVBuffers[i], m_pComputeOutputBuffers[i], UATexBuffer);
+		m_nBuffTypeElements[i] = { UATexBuffer , 0 };
+	}
+
 }
 
 void HDRShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
@@ -1794,27 +1852,46 @@ void HDRShader::DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandL
 	pd3dCommandList->SetDescriptorHeaps(1, m_ComputeCbvSrvDescriptorHeap.GetAddressOf());
 	
 	m_pComputeTexture->UpdateComputeShaderVariables(pd3dCommandList);
-
+	//CBDownScale, SRHDR, SRAverageValues1DOutput, SRAverageValuesOutput, UAAverageLumInput
 	switch (index)
 	{
 	case DownScaleFirstPass:
 		pd3dCommandList->SetComputeRootConstantBufferView(0, m_HDRDownScaleCB->Resource()->GetGPUVirtualAddress());
-		pd3dCommandList->SetComputeRootUnorderedAccessView(4, m_pComputeUAVBuffers[index]->GetGPUVirtualAddress());
+
+		pd3dCommandList->SetComputeRootDescriptorTable(UAAverageLumInput, m_pComputeSRVUAVGPUHandles[HandleFirstPassAverageLumUAV]);
+		pd3dCommandList->SetComputeRootDescriptorTable(UAHDRDownScale, m_pComputeSRVUAVGPUHandles[HandleHDRDownScaleUAV]);
 		break;
 
 	case DownScaleSecondPass:
 		pd3dCommandList->SetComputeRootConstantBufferView(0, m_HDRDownScaleCB->Resource()->GetGPUVirtualAddress());
-		pd3dCommandList->SetComputeRootDescriptorTable(2, m_pComputeSRVGPUHandles[index - 1]);
-		pd3dCommandList->SetComputeRootUnorderedAccessView(4, m_pComputeUAVBuffers[index]->GetGPUVirtualAddress());
+
+		pd3dCommandList->SetComputeRootDescriptorTable(SRAverageValues1DOutput, m_pComputeSRVUAVGPUHandles[HandleFirstPassAverageLumSRV]);
+		pd3dCommandList->SetComputeRootDescriptorTable(UAAverageLumInput, m_pComputeSRVUAVGPUHandles[HandleSecondPassAverageLumUAV]);
 		break;
 
 	case BloomAvgLum:
+		// gHDRDownScaleTexture gAverageLum : SRV 
+		pd3dCommandList->SetComputeRootDescriptorTable(SRAverageValuesOutput, m_pComputeSRVUAVGPUHandles[HandleSecondPassAverageLumSRV]);
+		pd3dCommandList->SetComputeRootDescriptorTable(SRHDRDownScale, m_pComputeSRVUAVGPUHandles[HandleHDRDownScaleSRV]);
+		
+		// gBloom : UAV
+		pd3dCommandList->SetComputeRootDescriptorTable(UABloom, m_pComputeSRVUAVGPUHandles[HandleAverageBloomUAV]);
 		break;
 
 	case BloomBlurVertical:
+		// gBloomInput : SRV
+		pd3dCommandList->SetComputeRootDescriptorTable(SRBloomInput, m_pComputeSRVUAVGPUHandles[HandleAverageBloomSRV]);
+
+		// gBloomOutput : UAV
+		pd3dCommandList->SetComputeRootDescriptorTable(UABloomOutput, m_pComputeSRVUAVGPUHandles[HandleVerticalBloomUAV]);
 		break;
 
 	case BloomBlurHorizon:
+		// gBloomInput : SRV
+		pd3dCommandList->SetComputeRootDescriptorTable(SRBloomInput, m_pComputeSRVUAVGPUHandles[HandleVerticalBloomSRV]);
+
+		// gBloomOutput : UAV
+		pd3dCommandList->SetComputeRootDescriptorTable(UABloomOutput, m_pComputeSRVUAVGPUHandles[HandleHorizonBloomUAV]);
 		break;
 	}
 
@@ -1840,6 +1917,19 @@ void HDRShader::EnableHDR(bool enabled)
 	m_HDRToneMappData.m_EnableHDR = enabled ? 1.0f : 0.0f;
 }
 
+void HDRShader::EnableBloom(bool enabled)
+{
+	m_HDRToneMappData.m_EnableBloom = enabled ? 1.0f : 0.0f;
+}
+
+void HDRShader::Dispatch(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	for (int i = DownScaleFirstPass; i <= BloomBlurHorizon; ++i) {
+		DispatchComputePipeline(pd3dCommandList, i);
+		GetUADataInCurrentPipeline(pd3dCommandList, i);
+	}
+}
+
 void HDRShader::UpGreyScale(float addScale)
 {
 	m_HDRToneMappData.m_MiddleGrey += addScale;
@@ -1850,6 +1940,12 @@ void HDRShader::UpWhiteScale(float addScale)
 {
 	m_HDRToneMappData.m_LumWhiteSqr += addScale;
 	std::cout << "LumWhiteSqr : " << m_HDRToneMappData.m_LumWhiteSqr << std::endl;
+}
+
+void HDRShader::UpBloomScale(float addScale)
+{
+	m_HDRDownScaleData.m_BloomThreshold += addScale;
+	std::cout << "BloomThreshold : " << m_HDRDownScaleData.m_BloomThreshold << std::endl;
 }
 
 void HDRShader::GetUAVData(ID3D12GraphicsCommandList * pd3dCommandList, int index)
@@ -1867,6 +1963,33 @@ void HDRShader::GetUAVData(ID3D12GraphicsCommandList * pd3dCommandList, int inde
 		D3D12_RESOURCE_STATE_COPY_SOURCE,
 		D3D12_RESOURCE_STATE_COMMON
 	));
+}
+
+void HDRShader::GetUADataInCurrentPipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index)
+{
+	switch (index)
+	{
+	case DownScaleFirstPass:
+		GetUAVData(pd3dCommandList, FirstPassAverageLumBuffer);
+		GetUAVData(pd3dCommandList, HDRDownScaleBuffer);
+		break;
+
+	case DownScaleSecondPass:
+		GetUAVData(pd3dCommandList, SecondPassAverageLumBuffer);
+		break;
+
+	case BloomAvgLum:
+		GetUAVData(pd3dCommandList, HandleAverageBloomBuffer);
+		break;
+
+	case BloomBlurVertical:
+		GetUAVData(pd3dCommandList, HandleVerticalBloomBuffer);
+		break;
+
+	case BloomBlurHorizon:
+		GetUAVData(pd3dCommandList, HandleHorizonBloomBuffer);
+		break;
+	}
 }
 
 void HDRShader::DebugOutputBuffer(ID3D12GraphicsCommandList * pd3dCommandList, int index)

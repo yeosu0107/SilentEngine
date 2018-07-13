@@ -41,7 +41,16 @@ enum SRVRegisterNumber {
 	SRVFullScreenDepthTexture		= 20,
 	SRVFullScreenHDR				= 22,
 	SRVAverageValues1D				= 24,
-	SRVAverageValues				= 25
+	SRVAverageValues				= 25,
+	SRVHDRDownScale					= 26,
+	SRVBloomInput					= 27 
+};
+
+enum UAVRegisterNumber {
+	UAVAverageLum		= 1,
+	UAVHDRDownScale		= 2,
+	UAVBloom			= 3,
+	UAVBloomOutput		= 4
 };
 
 enum CBVRegisterNumber {
@@ -58,6 +67,11 @@ enum CBVRegisterNumber {
 	CBVBlurInfo			= 10,
 	CBVHDRDownScale		= 11,
 	CBVHDRToneMapp		= 12
+};
+
+enum UABufferType {
+	UAFloatBuffer = 0,
+	UATexBuffer = 1
 };
 
 enum RTVType {
@@ -147,7 +161,7 @@ public:
 		UINT nWidth, UINT nHeight, DXGI_FORMAT dxgiFormat, D3D12_RESOURCE_FLAGS d3dResourceFlags,
 		D3D12_RESOURCE_STATES d3dResourceStates, D3D12_CLEAR_VALUE *pd3dClearValue);
 
-	static void CreateUnorderedAccessResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT size, ComPtr<ID3D12Resource>& buffer, ComPtr<ID3D12Resource>& readbackBuffer);
+	static void CreateUnorderedAccessResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, XMUINT2& size, ComPtr<ID3D12Resource>& buffer, ComPtr<ID3D12Resource>& readbackBuffer, UINT type);
 
 	static ComPtr<ID3D12Resource> CreateTextureResourceFromFile(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList,
 		const wchar_t *pszFileName,ID3D12Resource* ppd3dUploadBuffer, D3D12_RESOURCE_STATES d3dResourceStates);

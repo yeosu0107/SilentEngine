@@ -147,27 +147,38 @@ ComPtr<ID3D12Resource> D3DUtil::CreateTexture2DResource(ID3D12Device *pd3dDevice
 	return(pd3dTexture);
 }
 
-void D3DUtil::CreateUnorderedAccessResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, UINT size, ComPtr<ID3D12Resource>& buffer, ComPtr<ID3D12Resource>& readbackBuffer)
+void D3DUtil::CreateUnorderedAccessResource(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, XMUINT2& size, ComPtr<ID3D12Resource>& buffer, ComPtr<ID3D12Resource>& readbackBuffer, UINT type)
 {
-	ThrowIfFailed(pd3dDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(
-			size,
-			D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		nullptr,
-		IID_PPV_ARGS(buffer.GetAddressOf()))
-	);
+	switch (type) {
+	case UAFloatBuffer:
+		ThrowIfFailed(pd3dDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(
+				size.x,
+				D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS),
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			nullptr,
+			IID_PPV_ARGS(buffer.GetAddressOf()))
+		);
 
-	ThrowIfFailed(pd3dDevice->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(size),
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,
-		IID_PPV_ARGS(readbackBuffer.GetAddressOf()))
-	);
+		ThrowIfFailed(pd3dDevice->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(size.x),
+			D3D12_RESOURCE_STATE_COPY_DEST,
+			nullptr,
+			IID_PPV_ARGS(readbackBuffer.GetAddressOf()))
+		);
+		break;
+
+	case UATexBuffer:
+		buffer = D3DUtil::CreateTexture2DResource(pd3dDevice, pd3dCommandList, size.x, size.y, 
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, nullptr);
+		readbackBuffer = D3DUtil::CreateTexture2DResource(pd3dDevice, pd3dCommandList, size.x, size.y,
+			DXGI_FORMAT_R16G16B16A16_FLOAT, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, nullptr);
+		break;
+	}
 }
 
 
