@@ -21,6 +21,7 @@ Framework::Framework(HINSTANCE hInstance)
 	GlobalVal::getInstance()->LoadMaps(new MapLoader("MapList.csv"));
 	GlobalVal::getInstance()->LoadEffects(new EffectLoader("EffectList.csv"));
 	GlobalVal::getInstance()->LoadFirePos(new FirePositionLoader("TochPosition.csv"));
+	SoundMgr::getInstance()->init();
 }
 
 Framework* Framework::GetFramework()

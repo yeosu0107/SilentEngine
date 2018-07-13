@@ -95,6 +95,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{047f113d-f8c5-481e-ad9f-5bb8636204df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SoundMgr">
+      <UniqueIdentifier>{3888e615-f4bc-4f04-a9af-c8426fba0dda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SilentEngine.rc">
@@ -226,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="src\Enemys\Rich.cpp">
       <Filter>Object\Enemy\expansion</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sound\SoundMgr.cpp">
+      <Filter>SoundMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -369,6 +375,9 @@
     </ClInclude>
     <ClInclude Include="src\Enemys\Rich.h">
       <Filter>Object\Enemy\expansion</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sound\SoundMgr.h">
+      <Filter>SoundMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

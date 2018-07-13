@@ -664,6 +664,8 @@ void TestScene::RoomChange()
 	m_gateShader->SetPositions(roomPos);
 	//페이드 인아웃 설정
 	m_changeFade = FADE_IN;
+
+	SoundMgr::getInstance()->changeSound(SOUND::BGM_SCARY_3, CHANNEL::BGM);
 }
 
 void TestScene::RoomSetting()
@@ -832,6 +834,8 @@ void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_fFadeInTime = 1.0f;
 	m_fFadeOutTime = 1.0f;
 	m_bMouseCapture = false;
+
+	SoundMgr::getInstance()->play(SOUND::BGM_SCARY_2, CHANNEL::BGM);
 }
 
 void MainScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
