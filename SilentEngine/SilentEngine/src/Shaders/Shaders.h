@@ -256,7 +256,7 @@ public:
 	virtual D3D12_DEPTH_STENCIL_DESC	CreateDepthStencilState(int index = 0);
 	virtual D3D12_BLEND_DESC			CreateBlendState(int index = 0);
 
-	void BuildFog();
+	
 	void SetNowScene(UINT* nowScene) { m_pNowScene = nowScene; }
 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
@@ -268,10 +268,7 @@ public:
 	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
 protected:
 	unique_ptr<UploadBuffer<CB_SCENEBLUR_INFO>>	m_BulrCB = nullptr;
-	unique_ptr<UploadBuffer<CB_FOG_INFO>>				m_FogCB = nullptr;
 	unique_ptr<CTexture>				m_pTexture;
-
-	CB_FOG_INFO*										m_pFog;
 
 	GameObject*				m_pPlayer;
 
@@ -361,6 +358,23 @@ protected:
 
 };
 
+class OutlineFogShader : public DeferredFullScreen
+{
+public:
+	OutlineFogShader() {};
+	virtual ~OutlineFogShader() {};
+
+	void BuildFog();
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void CreateShaderVariables(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+	virtual void CreateGraphicsRootSignature(ID3D12Device * pd3dDevice);
+protected:
+	CB_FOG_INFO * m_pFog;
+	unique_ptr<UploadBuffer<CB_FOG_INFO>>				m_FogCB = nullptr;
+};
+
 class ShadowDebugShader : public DeferredFullScreen
 {
 public:
@@ -391,4 +405,5 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+
 };

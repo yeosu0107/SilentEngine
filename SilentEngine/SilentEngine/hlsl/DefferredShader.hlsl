@@ -84,7 +84,7 @@ VS_OUTPUT VS_DEFFERED_SHADER(uint nVertexID : SV_VertexID)
     return output;
 };
 
-float4 OutLineAndBlur(int2 position, float4 cColor)
+float4 Blur(int2 position, float4 cColor)
 {
     float fEdgeness = 0.0f;
     float3 cEdgeness = float3(0.0f, 0.0f, 0.0f);
@@ -107,25 +107,29 @@ float4 OutLineAndBlur(int2 position, float4 cColor)
             cColor.xyz = gBuffer[GBUFFER_COLOR][(int2) position.xy].xyz;
     }
 
-    //  ¾ÈÁ×À¸¸é ¿Ü°û¼±µµ Ã³¸®
-    else
+    return cColor;
+}
+
+float4 Outline(int2 position, float4 cColor)
+{
+    float fEdgeness = 0.0f;
+    float3 cEdgeness = float3(0.0f, 0.0f, 0.0f);
+
+    if ((position.x >= 1) || (position.y >= 1) || (position.x <= gBuffer[GBUFFER_OUTLINENRM].Length.x - 2) || (position.y <= gBuffer[GBUFFER_OUTLINENRM].Length.y - 2))
     {
-        if ((position.x >= 1) || (position.y >= 1) || (position.x <= gBuffer[GBUFFER_OUTLINENRM].Length.x - 2) || (position.y <= gBuffer[GBUFFER_OUTLINENRM].Length.y - 2))
+        float3 vNormal = float3(1.0f, 1.0f, 1.0f);
+        for (int i = 0; i < 9; i++)
         {
-            float3 vNormal = float3(1.0f, 1.0f, 1.0f);
-            for (int i = 0; i < 9; i++)
-            {
-                vNormal = gBuffer[GBUFFER_OUTLINENRM][int2(position.xy) + gnOffsets[i]].xyz;
-                vNormal = vNormal * 2.0f - 1.0f;
-                cEdgeness += gfLaplacians[i] * vNormal;
-            }
-            fEdgeness = cEdgeness.r * 0.3f + cEdgeness.g * 0.3f + cEdgeness.b * 0.4f;
-            cEdgeness = float3(fEdgeness, fEdgeness, fEdgeness);
+            vNormal = gBuffer[GBUFFER_OUTLINENRM][int2(position.xy) + gnOffsets[i]].xyz;
+            vNormal = vNormal * 2.0f - 1.0f;
+            cEdgeness += gfLaplacians[i] * vNormal;
         }
-	
-        cColor.xyz = cColor.xyz;
-        cColor.xyz = (fEdgeness < 0.25f) ? cColor.xyz : ((fEdgeness < 0.55) ? (cColor.xyz - cEdgeness) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
+        fEdgeness = cEdgeness.r * 0.3f + cEdgeness.g * 0.3f + cEdgeness.b * 0.4f;
+        cEdgeness = float3(fEdgeness, fEdgeness, fEdgeness);
     }
+	
+    cColor.xyz = cColor.xyz;
+    cColor.xyz = (fEdgeness < 0.25f) ? cColor.xyz : ((fEdgeness < 0.55) ? (cColor.xyz - cEdgeness) : float3(1.0f, 1.0f, 1.0f) - cEdgeness);
 
     return cColor;
 }
@@ -151,9 +155,18 @@ float4 PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
     finalColor.a = unpack.color.a;
 
     finalColor.rgb += unpack.norm.w * fresnelFactor * finalColor.rgb;
-    finalColor = OutLineAndBlur(int2(input.position.xy), float4(finalColor.xyz, 1.0f));
+    finalColor = Blur(int2(input.position.xy), float4(finalColor.xyz, 1.0f));
   
-    return Fog(finalColor, unpack.pos, lightColor.a);
-    //return finalColor;
+   //return Fog(finalColor, unpack.pos, lightColor.a);
+    return finalColor;
 };
+
+float4 PS_FOG_OUTLINE_SHADE(VS_OUTPUT input) : SV_Target
+{
+    float4 finalColor = (float4) 0.0f;
+    UNPACK_DATA  unpack = UNPACKING_GBUFFERS(input.uvPos, input.position.xy);
+
+    finalColor = Outline(int2(input.position.xy), float4(unpack.color.xyz, 1.0f));
+    return Fog(finalColor, unpack.pos, 1.0f);
+}
 #endif

@@ -236,6 +236,8 @@ void Framework::OnWakeUp()
 	m_pScene = new Scene*[2];
 	m_pDeferredFullScreenShader = make_unique<DeferredFullScreen>();
 	m_GbufferDebug = make_unique<DrawGBuffers>();
+	m_OutlineShader = make_unique<OutlineFogShader>();
+
 	m_pDeferredFullScreenShader->SetNowScene(&m_nNowScene);
 	m_HDRShader = make_unique<HDRShader>();
 }
@@ -286,6 +288,7 @@ void Framework::OnResize()
 	CreateRenderTargetViews(d3dRtvCPUDescriptorHandle, pHDRTexture, DXGI_FORMAT_R16G16B16A16_FLOAT, NUM_RENDERTARGET, NUM_HDRBUFFER);
 
 	m_HDRShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pHDRTexture);
+	m_OutlineShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pTexture);
 	m_pDeferredFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
 	m_GbufferDebug->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pTexture);
 
@@ -374,18 +377,31 @@ void Framework::RenderDeffered()
 	ExcuteCommandList();
 }
 
-void Framework::DispatchComputeShaders()
-{
-
-		m_HDRShader->Dispatch(m_pCommandList.Get());
-
-		ExcuteCommandList();
-	
-}
 
 void Framework::RenderHDR()
 {
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_HDR].Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+	
+	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_COLOR].Get(),
+		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[RTV_COLOR], pfClearColor/*Colors::Azure*/, 0, NULL);
+	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvRenderTargetBufferCPUHandles[RTV_COLOR], TRUE, &DepthStencilView());
+
+	m_HDRShader->Render(m_pCommandList.Get(), m_pCamera);
+	
+	if (m_bDebugGBuffers)
+		m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
+
+	
+}
+
+void Framework::RenderOutlineFog()
+{
+	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_COLOR].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
@@ -396,11 +412,8 @@ void Framework::RenderHDR()
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], pfClearColor/*Colors::Azure*/, 0, NULL);
 	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], TRUE, &DepthStencilView());
 
-	m_HDRShader->Render(m_pCommandList.Get(), m_pCamera);
+	m_OutlineShader->Render(m_pCommandList.Get(), m_pCamera);
 	m_pScene[m_nNowScene]->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
-
-	if (m_bDebugGBuffers)
-		m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -413,6 +426,16 @@ void Framework::RenderHDR()
 	ThrowIfFailed(m_pSwapChain->Present(0, 0));
 	FlushCommandQueue();
 }
+
+void Framework::DispatchComputeShaders()
+{
+
+		m_HDRShader->Dispatch(m_pCommandList.Get());
+
+		ExcuteCommandList();
+	
+}
+
 
 //#define _SHADOWMAP_DEBUG
 //#define _GRAPHICS_DEBUG
@@ -432,7 +455,8 @@ void Framework::Render()
 	RenderDeffered();
 	DispatchComputeShaders();
 	RenderHDR();
-	
+	RenderOutlineFog();
+
 	m_nCurrBuffer = (m_nCurrBuffer + 1) % m_nSwapChainBuffers;
 
 	if (m_bChangeScene) {
@@ -457,7 +481,11 @@ void Framework::ClearRTVnDSV()
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dHDRBuffers[i].Get(),
 			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	}
-
+	//for (int i = 0; i < NUM_LIGHTMAP; ++i) {
+	//	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
+	//		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	//}
+   ///
 	for (i = 0; i < NUM_DEPTHGBUFFERS; ++i) {
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
 			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));

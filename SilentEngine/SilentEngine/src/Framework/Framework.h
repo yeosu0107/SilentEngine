@@ -52,6 +52,7 @@ protected:
 	virtual void RenderShadow();
 	virtual void RenderOBJ();
 	virtual void RenderDeffered();
+	virtual void RenderOutlineFog();
 	virtual void DispatchComputeShaders();
 	virtual void RenderHDR();
 	virtual void Render();
@@ -143,7 +144,7 @@ protected:
 	//static const UINT					m_nRenderTargetBuffers = 2;
 	ComPtr<ID3D12Resource>				m_ppd3dRenderTargetBuffers[NUM_RENDERTARGET];
 	ComPtr<ID3D12Resource>				m_ppd3dHDRBuffers[NUM_HDRBUFFER];
-	ComPtr<ID3D12Resource>				m_ppd3dComputeOuputBuffers[2];
+	ComPtr<ID3D12Resource>				m_ppd3dLightMapBuffers[NUM_LIGHTMAP];
 
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[NUM_RENDERTARGET + NUM_HDRBUFFER];
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
@@ -172,5 +173,6 @@ protected:
 	unique_ptr<HDRShader>				m_HDRShader = nullptr;
 
 	unique_ptr<DrawGBuffers>			m_GbufferDebug;
+	unique_ptr<OutlineFogShader>		m_OutlineShader;
 };
 

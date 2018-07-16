@@ -985,7 +985,7 @@ DeferredFullScreen::~DeferredFullScreen()
 void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	int i = 0;
-	const int numofCB = 5;
+	const int numofCB = 4;
 
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
@@ -1004,7 +1004,6 @@ void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	pd3dRootParameters[1].InitAsConstantBufferView(CBVMaterial);
 	pd3dRootParameters[2].InitAsConstantBufferView(CBVLights);
 	pd3dRootParameters[3].InitAsConstantBufferView(CBVCameraInfo);
-	pd3dRootParameters[4].InitAsConstantBufferView(CBVFog);
 
 	for (int i = 0; i < NUM_GBUFFERS; ++i) {
 		pd3dRootParameters[i + numofCB].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
@@ -1073,8 +1072,6 @@ void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	BuildFog();
-
 	CTexture* pTexture = (CTexture *)pContext;
 	m_pTexture = make_unique<CTexture>(*pTexture);
 	m_Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -1091,25 +1088,12 @@ void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get() , 5, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get() , 4, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
 }
 
-void DeferredFullScreen::BuildFog()
-{
-	m_pFog = new CB_FOG_INFO();
-	::ZeroMemory(m_pFog, sizeof(CB_FOG_INFO));
-
-	m_pFog->m_xmf4FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
-
-	float fFogMode = 1.0f;
-	float fStart = 50.0f;
-	float fEnd = 400.0f;
-	float fDensity = 1.0f;
-	m_pFog->m_xmf4Foginfo = XMFLOAT4(fFogMode, fStart, fEnd, fDensity);
-}
 
 D3D12_DEPTH_STENCIL_DESC DeferredFullScreen::CreateDepthStencilState(int index)
 {
@@ -1172,8 +1156,7 @@ void DeferredFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Cam
 
 	if( pCamera != nullptr)
 		pd3dCommandList->SetGraphicsRootConstantBufferView(3, pCamera->GetUploadBuffer()->Resource()->GetGPUVirtualAddress());
-	pd3dCommandList->SetGraphicsRootConstantBufferView(4, m_FogCB->Resource()->GetGPUVirtualAddress()); //Materials
-
+	
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
@@ -1206,14 +1189,11 @@ void DeferredFullScreen::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dC
 	LIGHT_MANAGER->UpdateShaderVariables();
 	MATERIAL_MANAGER->UpdateShaderVariables();
 
-	m_pFog->m_xmf4Foginfo.x = GlobalVal::getInstance()->getFogEnable() ? 1.0f : 0.0f;
 	m_BulrCB->CopyData(0, bluerInfo);
-	m_FogCB->CopyData(0, *m_pFog);
 }
 
 void DeferredFullScreen::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 {
-	m_FogCB = std::make_unique<UploadBuffer<CB_FOG_INFO>>(pd3dDevice, 1, true);
 	m_BulrCB = make_unique<UploadBuffer<CB_SCENEBLUR_INFO>>(pd3dDevice, m_nObjects, true);
 }
 
@@ -1572,7 +1552,7 @@ void DrawGBuffers::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 5, true);
-
+	
 	CreateGraphicsRootSignature(pd3dDevice);
 	BuildPSO(pd3dDevice, nRenderTargets);
 }
@@ -1601,7 +1581,7 @@ void HDRShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_HDRDownScaleData.m_Res = XMUINT2(FRAME_BUFFER_WIDTH / 4, FRAME_BUFFER_HEIGHT / 4);
 	m_HDRDownScaleData.m_Domain = m_HDRDownScaleData.m_Res.x * m_HDRDownScaleData.m_Res.y;
 	m_HDRDownScaleData.m_GroupSize = (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f);
-	m_HDRDownScaleData.m_BloomThreshold = 1.1f;
+	m_HDRDownScaleData.m_BloomThreshold = 3.5f;
 
 	m_nComputeThreadCount[DownScaleFirstPass]	= XMUINT3(m_HDRDownScaleData.m_GroupSize, 1, 1);
 	m_nComputeThreadCount[DownScaleSecondPass]	= XMUINT3(1, 1, 1);
@@ -2013,4 +1993,153 @@ void HDRShader::DebugOutputBuffer(ID3D12GraphicsCommandList * pd3dCommandList, i
 	std::cout << std::endl;
 
 	m_pComputeOutputBuffers[index]->Unmap(0, nullptr);
+}
+
+/////////////////////////////////////////////////////
+
+
+void OutlineFogShader::BuildFog()
+{
+	m_pFog = new CB_FOG_INFO();
+	::ZeroMemory(m_pFog, sizeof(CB_FOG_INFO));
+
+	m_pFog->m_xmf4FogColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
+
+	float fFogMode = 1.0f;
+	float fStart = 50.0f;
+	float fEnd = 400.0f;
+	float fDensity = 1.0f;
+	m_pFog->m_xmf4Foginfo = XMFLOAT4(fFogMode, fStart, fEnd, fDensity);
+}
+
+void OutlineFogShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	BuildFog();
+
+	CTexture* pTexture = (CTexture *)pContext;
+	m_pTexture = make_unique<CTexture>(*pTexture);
+
+	m_nObjects = 1;
+	m_nPSO = 1;
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "VS_DEFFERED_SHADER", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "PS_FOG_OUTLINE_SHADE", "ps_5_0");
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 2, true);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+}
+
+void OutlineFogShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	m_pFog->m_xmf4Foginfo.x = GlobalVal::getInstance()->getFogEnable() ? 1.0f : 0.0f;
+	m_FogCB->CopyData(0, *m_pFog);
+}
+
+void OutlineFogShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	m_FogCB = std::make_unique<UploadBuffer<CB_FOG_INFO>>(pd3dDevice, 1, true);
+}
+
+void OutlineFogShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+
+	OnPrepareRender(pd3dCommandList);
+	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
+	pCamera->UpdateShaderVariables(pd3dCommandList);
+
+	if (m_pTexture) m_pTexture->UpdateShaderVariables(pd3dCommandList);
+
+	pd3dCommandList->SetGraphicsRootConstantBufferView(0, m_FogCB->Resource()->GetGPUVirtualAddress()); //Materials
+
+	if (pCamera != nullptr)
+		pd3dCommandList->SetGraphicsRootConstantBufferView(1, pCamera->GetUploadBuffer()->Resource()->GetGPUVirtualAddress());
+
+	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void OutlineFogShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+{
+	int i = 0;
+	const int numofCB = 2;
+
+	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
+
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_GBUFFERS];
+
+	for (int i = 0; i < NUM_GBUFFERS; ++i) {
+		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenTexture + i, 0, 0); // Texture
+	}
+
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_GBUFFERS + numofCB];
+
+	pd3dRootParameters[0].InitAsConstantBufferView(CBVFog);
+	pd3dRootParameters[1].InitAsConstantBufferView(CBVCameraInfo);
+
+	for (int i = 0; i < NUM_GBUFFERS; ++i) {
+		pd3dRootParameters[i + numofCB].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
+	}
+
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
+	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
+
+	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		0.0f,
+		1,
+		D3D12_COMPARISON_FUNC_ALWAYS,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+		0.0f,
+		D3D12_FLOAT32_MAX,
+		D3D12_SHADER_VISIBILITY_PIXEL
+	);
+
+	d3dSamplerDesc[1] = CD3DX12_STATIC_SAMPLER_DESC(
+		1, // shaderRegister
+		D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT, // filter
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressU
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressV
+		D3D12_TEXTURE_ADDRESS_MODE_BORDER,  // addressW
+		0.0f,                               // mipLODBias
+		16,                                 // maxAnisotropy
+		D3D12_COMPARISON_FUNC_LESS_EQUAL,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK
+	);
+
+
+
+	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
+	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = 2;
+	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
+	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
+
+	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
+	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
+	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
+
+	if (pd3dErrorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
+	}
+	ThrowIfFailed(hr);
+
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
+		pd3dSignatureBlob->GetBufferPointer(),
+		pd3dSignatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
+	);
 }
