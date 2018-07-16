@@ -434,5 +434,8 @@
     <None Include="NormalSkyrim.cur">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="cursor.cur">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

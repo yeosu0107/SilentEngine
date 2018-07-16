@@ -183,6 +183,13 @@ bool TestScene::Update(const Timer & gt)
 	if (m_Room[m_nowRoom]->IsClear()) {
 		if(m_Room[m_nowRoom]->getType() != BOSS_ROOM)
 			m_gateShader->Animate(gt.DeltaTime(), m_Room[m_nowRoom]->getNextRoom());
+
+		//클리어 보너스
+		if (m_Room[m_nowRoom]->IsStatBouns()) {
+			m_Room[m_nowRoom]->SetStatBouns(false);
+			//reinterpret_cast<Player*>(m_testPlayer)->roomClearBouns(ClearBouns::plusAtk);
+			reinterpret_cast<Player*>(m_testPlayer)->roomClearBouns();
+		}
 	}
 
 	//발사체 있을 경우 발사체 경로계산 및 발사
@@ -217,8 +224,9 @@ bool TestScene::Update(const Timer & gt)
 void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	//RoomSetting();
-
+	//마우스 초기화 관련
 	::GetCursorPos(&m_ptOldCursorPos);
+
 	
 	globalEffects = GlobalVal::getInstance()->getEffectLoader();
 	globalMaps = GlobalVal::getInstance()->getMapLoader();

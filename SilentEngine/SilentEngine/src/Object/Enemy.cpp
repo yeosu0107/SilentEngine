@@ -238,6 +238,7 @@ void Enemy::teleport(XMFLOAT3 pos)
 void Enemy::reset()
 {
 	SetLive(true);
-	m_status->m_health = m_status->prev_health;
+	//m_status->m_health = m_status->prev_health;
+	m_status->reset();
 	m_State->changeState(STATE::idle);
 }

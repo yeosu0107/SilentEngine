@@ -44,6 +44,7 @@ private:
 	bool									isClear;
 	bool									isEnemy;
 	bool									isProjectile;
+	bool									isStatBouns;
 
 	ModelShader*						m_mapShader;
 	ModelShader*		m_enemyShader;
@@ -87,8 +88,10 @@ public:
 	bool IsEnemy() const { return isEnemy; }
 	bool IsProjectile() const { return isProjectile; }
 	bool IsClear() const { return isClear; }
+	bool IsStatBouns() const { return isStatBouns; }
 
 	void SetClear(bool clear) { isClear = clear; }
+	void SetStatBouns(bool stat) { isStatBouns = stat; }
 
 	XMFLOAT3* RegistShader(BasePhysX* phys, bool state, const char& loc);
 	XMFLOAT3* GetGatePos() { return m_gatePoint; }

@@ -3,7 +3,7 @@
 
 Room::Room(UINT type) : m_type(type), 
 	m_enemyShader(nullptr), m_mapShader(nullptr), m_Projectile(nullptr),
-	isEnemy(false), isProjectile(false), isClear(false)
+	isEnemy(false), isProjectile(false), isClear(false), isStatBouns(true)
 {
 }
 

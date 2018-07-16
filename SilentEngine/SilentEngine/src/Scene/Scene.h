@@ -138,6 +138,7 @@ protected:
 	POINT													m_ptOldCursorPos;
 	float														m_fMouseSensitive = 4.5f;	// 마우스 민감도
 	bool														m_attackEvent = false;
+
 	//게임 콘텐츠 관련
 	const UINT												KindOfEnemy = 7;
 

@@ -357,6 +357,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="cursor.cur" />
     <None Include="NormalSkyrim.cur" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
