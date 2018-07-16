@@ -48,8 +48,10 @@ void CreepArm::Hitted(int damage)
 {
 	ChangeAnimation(ArmAni::armdamaged);
 	m_status->m_health -= damage;
+#ifdef _DEBUG
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
+#endif
 	m_State->changeState(STATE::hitted);
 }
 
@@ -58,8 +60,10 @@ void CreepArm::Hitted(DamageVal & damage)
 	ChangeAnimation(ArmAni::armdamaged);
 	m_status->m_health -= damage.baseDamage;
 	m_hitback = damage.hitback;
+#ifdef _DEBUG
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
+#endif
 	m_State->changeState(STATE::hitted);
 }
 

@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "Enemy.h"
 
-string* name = new string("bullet");
-
 Bullet::Bullet()
 {
 	m_live = false;
@@ -172,8 +170,10 @@ void Enemy::Hitted(int damage)
 		return;
 	ChangeAnimation(EnemyAni::AniHitted);
 	m_status->m_health -= damage;
+#ifdef _DEBUG
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
+#endif
 	m_State->changeState(STATE::hitted);
 }
 
@@ -188,8 +188,10 @@ void Enemy::Hitted(DamageVal & hitback)
 	}
 	m_status->m_health -= hitback.baseDamage;
 	m_hitback = hitback.hitback;
+#ifdef _DEBUG
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
+#endif
 	m_State->changeState(STATE::hitted);
 }
 

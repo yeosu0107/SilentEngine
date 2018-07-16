@@ -92,14 +92,13 @@ protected:
 	DamageVal*					m_AttackDamage = new DamageVal(0.0f, 10);
 
 	//밀리세컨드 단위
-	const UINT						MAX_KICK_DELAY = 5000;
-	const UINT						MAX_AVOID_DELAY = 5000;
-	const UINT						MAX_KICK2_DELAY = 5000;
+	const UINT						MAX_SKILL_DELAY = 5000;
 
 	bool								m_avoid = false;
 	DWORD							m_kickDelay = 0;
 	DWORD							m_avoidDelay = 0;
 	DWORD							m_kick2Delay = 0;
+	DWORD							m_punchDelay = 0;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();

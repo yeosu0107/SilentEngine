@@ -140,7 +140,9 @@ void Room::Animate(float fTime, XMFLOAT3& playerPos, Door& change)
 	if (isClear) { //현재 방이 클리어상태인 경우에만 다음 방으로 이동할 수 있음
 		if (m_type == BOSS_ROOM) //보스방이면 다음 방 이동 없음 
 		{
+#ifdef _DEBUG
 			cout << "clear\n";
+#endif
 			return;
 		}
 		for (UINT i = 0; i < 4; ++i) {

@@ -160,27 +160,51 @@ bool Player::Movement(DWORD input)
 			m_playerLogic->changeState(STATE::attack);
 	}
 	if (input & ANI_SKILL) {
-		if (GetTickCount() - m_avoidDelay > MAX_AVOID_DELAY) {
+		if (GetTickCount() - m_avoidDelay > MAX_SKILL_DELAY) {
 			m_playerLogic->changeState(STATE::skill);
 			m_avoidDelay = GetTickCount();
 		}
 		
 	}
 	if (input & ANI_KICK) {
-		if (GetTickCount() - m_kickDelay > MAX_KICK_DELAY) {
-			m_playerLogic->changeState(STATE::kick);
-			m_kickDelay = GetTickCount();
+		if (GetTickCount() - m_kickDelay > MAX_SKILL_DELAY) {
+			if (m_status->m_mp >= 1) {
+				m_status->m_mp -= 1;
+				m_playerLogic->changeState(STATE::kick);
+				m_kickDelay = GetTickCount();
+			}
+#ifdef _DEBUG
+			else
+				cout << "mp lack : " << m_status->m_mp << endl;
+#endif
 		}
 	}
 	if (input & ANI_UPPER) {
-		if (GetTickCount() - m_kick2Delay > MAX_KICK2_DELAY) {
-			m_playerLogic->changeState(STATE::upper);
-			m_kick2Delay = GetTickCount();
+		if (GetTickCount() - m_kick2Delay > MAX_SKILL_DELAY) {
+			if (m_status->m_mp >= 2) {
+				m_status->m_mp -= 2;
+				m_playerLogic->changeState(STATE::upper);
+				m_kick2Delay = GetTickCount();
+			}
+#ifdef _DEBUG
+			else
+				cout << "mp lack : " << m_status->m_mp << endl;
+#endif
 		}
 	}
 
 	if (input & ANI_PUNCH) {
-		m_playerLogic->changeState(STATE::punch);
+		if (GetTickCount() - m_punchDelay > MAX_SKILL_DELAY) {
+			if (m_status->m_mp >= 3) {
+				m_status->m_mp -= 3;
+				m_playerLogic->changeState(STATE::punch);
+				m_punchDelay = GetTickCount();
+			}
+#ifdef _DEBUG
+			else
+				cout << "mp lack : " << m_status->m_mp << endl;
+#endif
+		}
 	}
 
 	if (input & SUPER_SPEED) {
@@ -264,8 +288,10 @@ void Player::Hitted(int damage)
 		return;
 	}
 	m_status->m_health -= damage;
+#ifdef _DEBUG
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
+#endif
 	m_playerLogic->changeState(STATE::hitted);
 
 	m_pCamera->ShakeInit();
@@ -283,8 +309,10 @@ void Player::Hitted(DamageVal& hitback)
 	}
 	setHitted(true);
 	m_status->m_health -= hitback.baseDamage;
+#ifdef _DEBUG
 	cout << "Player Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;;
+#endif
 	m_playerLogic->changeState(STATE::hitted);
 	hitBackstep = hitback.hitback;
 

@@ -39,6 +39,7 @@ public:
 			data.m_MaxY = atof(st.nextToken().c_str()); //y°¹¼ö
 
 			m_textureList.emplace_back(data);
+			cout << "Effect Data Load Success " << m_textureList.size() << endl;
 		}
 		in.close();
 	};
@@ -105,10 +106,10 @@ public:
 
 			m_PositionList[nRoomNo].m_Position = firedatas;
 			m_PositionList[nRoomNo].m_FireType = fireType;
-			
 			nRoomNo++;
 		}
 		in.close();
+		cout << "Extra Data Load Success" << endl;
 	};
 	~FirePositionLoader() {
 		m_PositionList.clear();

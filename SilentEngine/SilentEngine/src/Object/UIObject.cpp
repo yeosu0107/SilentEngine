@@ -79,15 +79,16 @@ void UIObject::SetNumSprite(XMUINT2 & numSprite, XMUINT2& nowSprite)
 void HPBarObject::SetPlayerStatus(Status * pPlayerStatus)
 {
 	m_pPlayerStatus = pPlayerStatus;
-	m_fMaxHP = static_cast<float>(pPlayerStatus->m_health);
-	m_fLerpHP = m_fMaxHP;
+	//m_fMaxHP = static_cast<float>(pPlayerStatus->m_health);
+	m_fMaxHP = static_cast<float>(pPlayerStatus->m_maxhealth);
+	//m_fLerpHP = m_fMaxHP;
 }
 
 void HPBarObject::Update(float fTimeElapsed)
 {
-	float currHP = m_pPlayerStatus->m_health;
-
-	m_fLerpHP = currHP + (m_fLerpHP - currHP) * fTimeElapsed;
+	float currHP = static_cast<float>(m_pPlayerStatus->m_health);
+	m_fMaxHP = static_cast<float>(m_pPlayerStatus->m_maxhealth);
+	//m_fLerpHP = currHP + (m_fLerpHP - currHP) * fTimeElapsed;
 
 	m_fData = currHP / m_fMaxHP;
 }

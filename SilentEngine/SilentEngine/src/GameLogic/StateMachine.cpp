@@ -147,7 +147,7 @@ void BaseAI::deathState()
 		m_owner->SetLive(false);
 		reinterpret_cast<Enemy*>(m_owner)->releasePhys();
 		*GlobalVal::getInstance()->getRemainEnemy() -= 1;
-		cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
+		//cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
 	}
 }
 
@@ -189,5 +189,5 @@ void BaseAI::Death()
 	m_owner->SetLive(false);
 	reinterpret_cast<Enemy*>(m_owner)->releasePhys();
 	*GlobalVal::getInstance()->getRemainEnemy() -= 1;
-	cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
+	//cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
 }

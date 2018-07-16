@@ -491,9 +491,10 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState(VK_SPACE) & 0x0001)
 		input |= SUPER_SPEED;
 
-
+#ifdef _DEBUG
 	if (GetAsyncKeyState(VK_RETURN) & 0x0001)
 		cout << m_testPlayer->GetPosition();
+#endif
 
 	if (m_bMouseCapture)
 	{
@@ -655,7 +656,7 @@ void TestScene::RoomChange()
 	m_nowRoom = m_isRoomChange.m_roomNum;
 	//방이동이 완료하였으므로 change플레그를 false로 바꿔줌
 	m_isRoomChange.m_isChange = false;
-	std::cout << m_nowRoom << endl;
+	//std::cout << m_nowRoom << endl;
 	
 	XMFLOAT3* roomPos = m_Room[m_nowRoom]->GetGatePos();
 
@@ -708,20 +709,20 @@ void TestScene::RoomSetting()
 				m_Room[count]->m_mapPosX = j;
 				m_Room[count]->m_mapPosY = i;
 				m_virtualMap[i][j] = count;
-				cout << count << "\t" << m_Room[count]->getType() << endl;
+				//cout << count << "\t" << m_Room[count]->getType() << endl;
 				count += 1;
 			}
 		}
 	}
-	cout << endl;
+	//cout << endl;
 	m_Room[count - 1]->setType(10);
-	for (int i = 0; i < sizeY; ++i) {
+	/*for (int i = 0; i < sizeY; ++i) {
 		for (int j = 0; j < sizeX; ++j) {
 			cout << m_virtualMap[i][j] << "\t";
 		}
 		cout << endl;
 	}
-	cout << endl;
+	cout << endl;*/
 	UINT nextRoom[4] = { BLANK_ROOM,BLANK_ROOM,BLANK_ROOM,BLANK_ROOM };
 	for (int i = 0; i < m_nRoom; ++i) {
 		int nowX = m_Room[i]->m_mapPosX;

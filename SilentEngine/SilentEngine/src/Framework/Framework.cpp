@@ -22,6 +22,13 @@ Framework::Framework(HINSTANCE hInstance)
 	GlobalVal::getInstance()->LoadEffects(new EffectLoader("EffectList.csv"));
 	GlobalVal::getInstance()->LoadFirePos(new FirePositionLoader("TochPosition.csv"));
 	SoundMgr::getInstance()->init();
+	cout << "Game initialize Success!" << endl;
+#ifdef _DEBUG
+	cout << "NOW GAME SETTING - DEBUG" << endl;
+#else
+	HWND hWndConsole = GetConsoleWindow();	//콘솔창 윈도우 핸들 가져오기
+	ShowWindow(hWndConsole, SW_HIDE);		//콘솔창 숨기기
+#endif
 }
 
 Framework* Framework::GetFramework()
@@ -518,10 +525,11 @@ bool Framework::InitDirect3D()
 {
 	HRESULT hResult;
 
-
+#ifdef _DEBUG
 	ComPtr<ID3D12Debug> pDebugController;
 	ThrowIfFailed(D3D12GetDebugInterface(IID_PPV_ARGS(&pDebugController)));
 	pDebugController->EnableDebugLayer();
+#endif
 
 
 	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&m_pDxgiFactory)));
