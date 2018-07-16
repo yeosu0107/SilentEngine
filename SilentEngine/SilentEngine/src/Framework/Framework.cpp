@@ -209,7 +209,7 @@ void Framework::CreateRtvAndDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
 	::ZeroMemory(&rtvHeapDesc, sizeof(D3D12_DESCRIPTOR_HEAP_DESC));
-	rtvHeapDesc.NumDescriptors	= m_nSwapChainBuffers + NUM_RENDERTARGET + NUM_HDRBUFFER;
+	rtvHeapDesc.NumDescriptors	= m_nSwapChainBuffers + NUM_RENDERTARGET + NUM_HDRBUFFER + NUM_LIGHTMAP;
 	rtvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	rtvHeapDesc.NodeMask		= 0;
@@ -250,6 +250,8 @@ void Framework::OnResize()
 
 	FlushCommandQueue();
 
+	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM,{ 0.0f, 0.0f, 0.0f, 1.0f } };
+	D3D12_RENDER_TARGET_VIEW_DESC desc = { DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RTV_DIMENSION_TEXTURE2D, 0 , 0 };
 	/* 檬扁拳 */
 	ThrowIfFailed(m_pCommandList->Reset(m_pDirectCmdListAlloc.Get(), nullptr));
 
@@ -278,7 +280,7 @@ void Framework::OnResize()
 	// 坊歹鸥百 积己
 	CTexture *pTexture = new CTexture(NUM_GBUFFERS, RESOURCE_TEXTURE2D, 0);
 	CreateRenderTarget(pTexture);
-
+	m_ppd3dLightMapBuffers[0] = D3DUtil::CreateTexture2DResource(m_pD3dDevice.Get(), m_pCommandList.Get(), m_nClientWidth, m_nClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dClearValue);
 	// DSV 积己	
 	CreateDepthStencilViews();
 	CreateRenderTargetViews(d3dRtvCPUDescriptorHandle, pTexture, DXGI_FORMAT_R8G8B8A8_UNORM, 0, NUM_RENDERTARGET);
@@ -287,10 +289,15 @@ void Framework::OnResize()
 	CreateHDRRenderTarget(pHDRTexture);
 	CreateRenderTargetViews(d3dRtvCPUDescriptorHandle, pHDRTexture, DXGI_FORMAT_R16G16B16A16_FLOAT, NUM_RENDERTARGET, NUM_HDRBUFFER);
 
+	m_pd3dRtvLightMapBufferCPUHandle[0] = d3dRtvCPUDescriptorHandle;
+	m_pD3dDevice->CreateRenderTargetView(m_ppd3dLightMapBuffers[0].Get(), &desc, m_pd3dRtvLightMapBufferCPUHandle[0]);
+
 	m_HDRShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pHDRTexture);
-	m_OutlineShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pTexture);
-	m_pDeferredFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(),1, pTexture);
+	m_pDeferredFullScreenShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 2, pTexture);
 	m_GbufferDebug->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pTexture);
+
+	pTexture->AddTexture(m_ppd3dLightMapBuffers[0].Get(), nullptr, RESOURCE_TEXTURE2D);
+	m_OutlineShader->BuildObjects(m_pD3dDevice.Get(), m_pCommandList.Get(), 1, pTexture);
 
 	ThrowIfFailed(m_pCommandList->Close());
 	ID3D12CommandList* cmdList[] = { m_pCommandList.Get() };
@@ -370,7 +377,9 @@ void Framework::RenderDeffered()
 			D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_GENERIC_READ));
 	}
 
-	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvRenderTargetBufferCPUHandles[RTV_HDR], TRUE, &DepthStencilView());
+	
+	D3D12_CPU_DESCRIPTOR_HANDLE handle[2] = { m_pd3dRtvRenderTargetBufferCPUHandles[RTV_HDR], m_pd3dRtvLightMapBufferCPUHandle[0] };
+	m_pCommandList->OMSetRenderTargets(2, handle, TRUE, &DepthStencilView());
 
 	m_pDeferredFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
 
@@ -393,10 +402,6 @@ void Framework::RenderHDR()
 
 	m_HDRShader->Render(m_pCommandList.Get(), m_pCamera);
 	
-	if (m_bDebugGBuffers)
-		m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
-
-	
 }
 
 void Framework::RenderOutlineFog()
@@ -407,6 +412,11 @@ void Framework::RenderOutlineFog()
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
+	for (int i = 0; i < NUM_LIGHTMAP; ++i) {
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+	}
+
 	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], pfClearColor/*Colors::Azure*/, 0, NULL);
@@ -414,6 +424,10 @@ void Framework::RenderOutlineFog()
 
 	m_OutlineShader->Render(m_pCommandList.Get(), m_pCamera);
 	m_pScene[m_nNowScene]->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
+	if (m_bDebugGBuffers)
+		m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
+
+
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -481,11 +495,11 @@ void Framework::ClearRTVnDSV()
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dHDRBuffers[i].Get(),
 			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	}
-	//for (int i = 0; i < NUM_LIGHTMAP; ++i) {
-	//	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
-	//		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	//}
-   ///
+	for (int i = 0; i < NUM_LIGHTMAP; ++i) {
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
+			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	}
+   
 	for (i = 0; i < NUM_DEPTHGBUFFERS; ++i) {
 		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
 			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
@@ -785,8 +799,6 @@ void Framework::CreateRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle,
 
 void Framework::CreateRenderTarget(CTexture* pTexture)
 {
-	D3D12_RENDER_TARGET_VIEW_DESC d3dRenderTargetViewDesc = D3D12_RENDER_TARGET_VIEW_DESC{ DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RTV_DIMENSION_TEXTURE2D, 0 , 0 };
-
 	D3D12_CLEAR_VALUE d3dClearValue = { DXGI_FORMAT_R8G8B8A8_UNORM,{ 0.0f, 0.0f, 0.0f, 1.0f } };
 	for (UINT i = 0; i < NUM_RENDERTARGET; ++i)
 		m_ppd3dRenderTargetBuffers[i] = pTexture->CreateTexture(m_pD3dDevice.Get(), m_pCommandList.Get(), m_nClientWidth, m_nClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ, &d3dClearValue, i);

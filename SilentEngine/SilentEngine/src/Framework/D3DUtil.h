@@ -78,8 +78,7 @@ enum RTVType {
 	RTV_COLOR /* 색상 추출 */,
 	RTV_OUTLINENRM /* 외곽선을 위한 노말 벡터 추출 */,
 	RTV_NRM, /* 노말 매핑 후의 노말 벡터 추출 */
-	RTV_HDR,
-	RTV_LIGHTMAP = 2
+	RTV_HDR
 };
 
 extern const int gNumFrameResources;

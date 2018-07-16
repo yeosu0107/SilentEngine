@@ -134,8 +134,18 @@ float4 Outline(int2 position, float4 cColor)
     return cColor;
 }
 
-float4 PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
+
+struct PS_MULTIRENDERTARGET_DEFFERED
 {
+    float4 color : SV_TARGET0;
+    float4 lightColor : SV_TARGET1;
+};
+
+
+PS_MULTIRENDERTARGET_DEFFERED PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
+{
+    PS_MULTIRENDERTARGET_DEFFERED output;
+
     UNPACK_DATA unpack = UNPACKING_GBUFFERS(input.uvPos, input.position.xy);
     LIGHT light = gLights[0];
     MATERIAL mat = gMaterials[0];
@@ -151,14 +161,17 @@ float4 PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
     shadowFactor = CalcShadowFactor(mul(float4(unpack.pos, 1.0f), gmtxShadowProjection[0]), 0);
 
     lightColor = Lighting(unpack.pos, unpack.norm.xyz, 0, shadowFactor);
+    output.lightColor = lightColor;
+
     finalColor.rgb = unpack.color.rgb * lightColor.rgb;
     finalColor.a = unpack.color.a;
 
     finalColor.rgb += unpack.norm.w * fresnelFactor * finalColor.rgb;
     finalColor = Blur(int2(input.position.xy), float4(finalColor.xyz, 1.0f));
   
+    output.color = finalColor;
    //return Fog(finalColor, unpack.pos, lightColor.a);
-    return finalColor;
+    return output;
 };
 
 float4 PS_FOG_OUTLINE_SHADE(VS_OUTPUT input) : SV_Target
@@ -167,6 +180,7 @@ float4 PS_FOG_OUTLINE_SHADE(VS_OUTPUT input) : SV_Target
     UNPACK_DATA  unpack = UNPACKING_GBUFFERS(input.uvPos, input.position.xy);
 
     finalColor = Outline(int2(input.position.xy), float4(unpack.color.xyz, 1.0f));
-    return Fog(finalColor, unpack.pos, 1.0f);
+    float fogScale = gBuffer[GBUFFER_LIGHT][input.position.xy].a * 5.0f;
+    return Fog(finalColor, unpack.pos, fogScale);
 }
 #endif

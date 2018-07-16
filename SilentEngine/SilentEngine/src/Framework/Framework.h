@@ -147,6 +147,7 @@ protected:
 	ComPtr<ID3D12Resource>				m_ppd3dLightMapBuffers[NUM_LIGHTMAP];
 
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvRenderTargetBufferCPUHandles[NUM_RENDERTARGET + NUM_HDRBUFFER];
+	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvLightMapBufferCPUHandle[NUM_LIGHTMAP];
 	D3D12_CPU_DESCRIPTOR_HANDLE			m_pd3dRtvSwapChainBackBufferCPUHandles[m_nSwapChainBuffers];
 	UINT								m_nRtvDescriptorIncrementSize;
 

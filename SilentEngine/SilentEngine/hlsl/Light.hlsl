@@ -211,7 +211,7 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowF
     directionColor *= shadowFactor[j];
 
     cColor += (gcGlobalAmbientLight * gMaterials[nMatindex].m_cAmbient) + directionColor + pointColor + spotColor;
-    cColor.a = fogScale;
+    cColor.a = fogScale / 5.0f;
 	
 	return(cColor);
 }

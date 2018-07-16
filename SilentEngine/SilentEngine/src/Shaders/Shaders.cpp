@@ -955,7 +955,7 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
+	Shaders::BuildPSO(pd3dDevice, nRenderTargets);
 }
 
 void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -980,6 +980,28 @@ DeferredFullScreen::DeferredFullScreen()
 
 DeferredFullScreen::~DeferredFullScreen()
 {
+}
+
+void DeferredFullScreen::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets, int index)
+{
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
+	::ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
+
+	psoDesc.InputLayout = CreateInputLayout(index);
+	psoDesc.pRootSignature = m_RootSignature[index].Get();
+	psoDesc.VS = CreateVertexShader(index);
+	psoDesc.PS = CreatePixelShader(index);
+	psoDesc.RasterizerState = CreateRasterizerState(index);
+	psoDesc.BlendState = CreateBlendState(index);
+	psoDesc.DepthStencilState = CreateDepthStencilState(index);
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.NumRenderTargets = nRenderTargets;
+	psoDesc.RTVFormats[0] = m_Format;
+	psoDesc.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	psoDesc.SampleDesc.Count = 1;
+	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	ThrowIfFailed(pd3dDevice->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(m_pPSO[index].GetAddressOf())));
 }
 
 void DeferredFullScreen::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
@@ -1298,7 +1320,7 @@ void ShadowDebugShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 		m_UploadBuffer[i] = m_pTexture->GetUploadBuffer(i);
 	}
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
+	Shaders::BuildPSO(pd3dDevice, nRenderTargets);
 }
 
 void ShadowDebugShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
@@ -1460,7 +1482,7 @@ void FadeEffectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	}
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
+	Shaders::BuildPSO(pd3dDevice, nRenderTargets);
 }
 
 void FadeEffectShader::Animate(float fTimeElapsed)
@@ -1551,10 +1573,10 @@ void DrawGBuffers::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
-	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 5, true);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 4, true);
 	
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
+	Shaders::BuildPSO(pd3dDevice, nRenderTargets);
 }
 
 void DrawGBuffers::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
@@ -1787,7 +1809,7 @@ void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	CreateGraphicsRootSignature(pd3dDevice);
 	CreateComputeRootSignature(pd3dDevice);
 
-	BuildPSO(pd3dDevice, nRenderTargets);
+	Shaders::BuildPSO(pd3dDevice, nRenderTargets);
 
 	for(int i = DownScaleFirstPass; i <= BloomBlurHorizon; ++i ) 
 		BuildComputePSO(pd3dDevice, i);
@@ -2031,7 +2053,7 @@ void OutlineFogShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, m_pTexture.get(), 2, true);
 
 	CreateGraphicsRootSignature(pd3dDevice);
-	BuildPSO(pd3dDevice, nRenderTargets);
+	Shaders::BuildPSO(pd3dDevice, nRenderTargets);
 }
 
 void OutlineFogShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
@@ -2071,18 +2093,18 @@ void OutlineFogShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_GBUFFERS];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[NUM_GBUFFERS + 1];
 
-	for (int i = 0; i < NUM_GBUFFERS; ++i) {
+	for (int i = 0; i < NUM_GBUFFERS + 1; ++i) {
 		pd3dDescriptorRanges[i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVFullScreenTexture + i, 0, 0); // Texture
 	}
 
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_GBUFFERS + numofCB];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[NUM_GBUFFERS + numofCB + 1];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(CBVFog);
 	pd3dRootParameters[1].InitAsConstantBufferView(CBVCameraInfo);
 
-	for (int i = 0; i < NUM_GBUFFERS; ++i) {
+	for (int i = 0; i < NUM_GBUFFERS + 1; ++i) {
 		pd3dRootParameters[i + numofCB].InitAsDescriptorTable(1, &pd3dDescriptorRanges[i], D3D12_SHADER_VISIBILITY_PIXEL);
 	}
 
