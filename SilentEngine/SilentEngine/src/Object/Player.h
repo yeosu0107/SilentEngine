@@ -23,6 +23,12 @@ enum PlayerAni
 	KickAttack = 8, KickAttack2 = 9, PowerPunch = 10
 };
 
+enum ClearBouns
+{
+	plusHP = 0, plusMP = 1, recoveryHP, recoveryMP, plusAtk,
+	mpCost, skillCost
+};
+
 //플레이어 충돌 콜백 함수
 //무브함수가 실행될 때만 실행됨
 class PlayerCollisionCallback : public PxUserControllerHitReport
@@ -99,6 +105,9 @@ protected:
 	DWORD							m_avoidDelay = 0;
 	DWORD							m_kick2Delay = 0;
 	DWORD							m_punchDelay = 0;
+
+	UINT								m_mpCostBouns = 0;
+	DWORD							m_skillCostBouns = 0;
 public:
 	Player(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Player();
@@ -135,4 +144,7 @@ public:
 	Status* GetStatus() { return m_status; }
 	void* getTriggerActor() { return m_weaponTrigger; }
 	void reset();
+
+	void roomClearBouns(ClearBouns index);
+	void roomClearBouns();
 };

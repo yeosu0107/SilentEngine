@@ -160,16 +160,16 @@ bool Player::Movement(DWORD input)
 			m_playerLogic->changeState(STATE::attack);
 	}
 	if (input & ANI_SKILL) {
-		if (GetTickCount() - m_avoidDelay > MAX_SKILL_DELAY) {
+		if (GetTickCount() - m_avoidDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
 			m_playerLogic->changeState(STATE::skill);
 			m_avoidDelay = GetTickCount();
 		}
 		
 	}
 	if (input & ANI_KICK) {
-		if (GetTickCount() - m_kickDelay > MAX_SKILL_DELAY) {
-			if (m_status->m_mp >= 1) {
-				m_status->m_mp -= 1;
+		if (GetTickCount() - m_kickDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
+			if (m_status->m_mp >= (1 - m_mpCostBouns)) {
+				m_status->m_mp -= (1 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::kick);
 				m_kickDelay = GetTickCount();
 			}
@@ -180,9 +180,9 @@ bool Player::Movement(DWORD input)
 		}
 	}
 	if (input & ANI_UPPER) {
-		if (GetTickCount() - m_kick2Delay > MAX_SKILL_DELAY) {
-			if (m_status->m_mp >= 2) {
-				m_status->m_mp -= 2;
+		if (GetTickCount() - m_kick2Delay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
+			if (m_status->m_mp >= (2 - m_mpCostBouns)) {
+				m_status->m_mp -= (2 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::upper);
 				m_kick2Delay = GetTickCount();
 			}
@@ -194,9 +194,9 @@ bool Player::Movement(DWORD input)
 	}
 
 	if (input & ANI_PUNCH) {
-		if (GetTickCount() - m_punchDelay > MAX_SKILL_DELAY) {
-			if (m_status->m_mp >= 3) {
-				m_status->m_mp -= 3;
+		if (GetTickCount() - m_punchDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
+			if (m_status->m_mp >= (3 - m_mpCostBouns)) {
+				m_status->m_mp -= (3 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::punch);
 				m_punchDelay = GetTickCount();
 			}
@@ -247,7 +247,7 @@ void Player::Attack()
 
 void Player::Attack_Normal()
 {
-	m_AttackDamage->baseDamage = 10;
+	m_AttackDamage->baseDamage = m_damage;
 	m_AttackDamage->hitback = 0.0f;
 	m_AttackDamage->paticleType = 0;
 	Player::Attack();
@@ -255,7 +255,7 @@ void Player::Attack_Normal()
 
 void Player::Attack_Kick()
 {
-	m_AttackDamage->baseDamage = 30;
+	m_AttackDamage->baseDamage = m_damage * 2;
 	m_AttackDamage->hitback = 1.3f;
 	m_AttackDamage->paticleType = 1;
 	Player::Attack();
@@ -263,7 +263,7 @@ void Player::Attack_Kick()
 
 void Player::Attack_Upper()
 {
-	m_AttackDamage->baseDamage = 30;
+	m_AttackDamage->baseDamage = m_damage * 3;
 	m_AttackDamage->hitback = 1.3f;
 	m_AttackDamage->paticleType = 2;
 	Player::Attack();
@@ -271,7 +271,7 @@ void Player::Attack_Upper()
 
 void Player::Attack_Power()
 {
-	m_AttackDamage->baseDamage = 50;
+	m_AttackDamage->baseDamage = m_damage * 5;
 	m_AttackDamage->hitback = 0.0f;
 	m_AttackDamage->paticleType = 3;
 	Player::Attack();
@@ -419,9 +419,94 @@ void Player::CalibrateLook(XMFLOAT3& look)
 
 void Player::reset()
 {
-	m_status->m_health = m_status->prev_health;
+	//m_status->m_health = m_status->prev_health;
+	m_status->reset();
 	m_playerLogic->reset();
 	SetLive(true);
 	ChangeAnimation(PlayerAni::Idle);
 	stopAnim(false);
+
+	m_skillCostBouns = 0;
+	m_mpCostBouns = 0;
+	m_damage = 10;
+}
+
+void Player::roomClearBouns(ClearBouns index)
+{
+#ifdef _DEBUG
+	cout << "clear bouns number : " << index << endl;
+#endif
+	switch (index) {
+	case ClearBouns::mpCost:
+		m_mpCostBouns = 1;
+		break;
+	case ClearBouns::skillCost:
+		m_skillCostBouns = 1000;
+		break;
+	case ClearBouns::plusAtk:
+		m_damage += 2;
+		break;
+	case ClearBouns::plusHP:
+		m_status->m_maxhealth += 30;
+		break;
+	case ClearBouns::plusMP:
+		m_status->m_maxmp += 1;
+		break;
+	case ClearBouns::recoveryHP:
+		m_status->m_health += 50;
+		if (m_status->m_health > m_status->m_maxhealth)
+			m_status->m_health = m_status->m_maxhealth;
+		break;
+	case ClearBouns::recoveryMP:
+		m_status->m_mp += 3;
+		if (m_status->m_mp > m_status->m_maxmp)
+			m_status->m_mp = m_status->m_maxmp;
+		break;
+	default:
+#ifdef _DEBUG
+		cout << "undefined bouns" << endl;
+#endif
+		break;
+	}
+}
+
+void Player::roomClearBouns()
+{
+	UINT index = rand() % 7;
+#ifdef _DEBUG
+	cout << "clear bouns number : " << index << endl;
+#endif
+
+	switch (index) {
+	case ClearBouns::mpCost:
+		m_mpCostBouns = 1;
+		break;
+	case ClearBouns::skillCost:
+		m_skillCostBouns = 1000;
+		break;
+	case ClearBouns::plusAtk:
+		m_damage += 2;
+		break;
+	case ClearBouns::plusHP:
+		m_status->m_maxhealth += 30;
+		break;
+	case ClearBouns::plusMP:
+		m_status->m_maxmp += 1;
+		break;
+	case ClearBouns::recoveryHP:
+		m_status->m_health += 50;
+		if (m_status->m_health > m_status->m_maxhealth)
+			m_status->m_health = m_status->m_maxhealth;
+		break;
+	case ClearBouns::recoveryMP:
+		m_status->m_mp += 3;
+		if (m_status->m_mp > m_status->m_maxmp)
+			m_status->m_mp = m_status->m_maxmp;
+		break;
+	default:
+#ifdef _DEBUG
+		cout << "undefined bouns" << endl;
+#endif
+		break;
+	}
 }

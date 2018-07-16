@@ -155,6 +155,9 @@ protected:
 	int									m_nClientWidth = FRAME_BUFFER_WIDTH;
 	int									m_nClientHeight = FRAME_BUFFER_HEIGHT;
 
+	RECT									m_clientRect;
+	POINT								pt1, pt2;
+
 	const UINT							m_nMaxScene = 3;
 	UINT								m_nNowScene = 0;
 

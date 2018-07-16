@@ -304,7 +304,7 @@ void Framework::OnResize()
 void Framework::Update()
 {
 	m_Timer.Tick();
-
+	//ClipCursor(&m_clientRect);
 	OnKeyboardInput(m_Timer);
 
 	if (m_pScene[m_nNowScene]->Update(m_Timer))
@@ -507,7 +507,7 @@ bool Framework::InitMainWindow()
 	wc.cbWndExtra		= 0;
 	wc.hInstance		= m_hFrameworkInst;
 	wc.hIcon			= LoadIcon(0, IDI_APPLICATION);
-	wc.hCursor			= LoadCursor(m_hFrameworkInst, MAKEINTRESOURCE(IDC_CURSOR1));
+	wc.hCursor			= LoadCursor(m_hFrameworkInst, MAKEINTRESOURCE(IDC_CURSOR2));
 	wc.hbrBackground	= (HBRUSH)GetStockObject(NULL_BRUSH);
 	wc.lpszMenuName		= 0;
 	wc.lpszClassName	= L"MainWnd";
@@ -546,6 +546,22 @@ bool Framework::InitMainWindow()
 	ShowWindow(m_hMainWnd, SW_SHOW);
 	UpdateWindow(m_hMainWnd);
 	
+	//마우스를 클라이언트 영역에 가두기
+	GetClientRect(m_hMainWnd, &m_clientRect);
+	pt1.x = m_clientRect.left;
+	pt1.y = m_clientRect.top;
+	pt2.x = m_clientRect.right;
+	pt2.y = m_clientRect.bottom;
+
+	ClientToScreen(m_hMainWnd, &pt1);
+	ClientToScreen(m_hMainWnd, &pt2);
+
+	m_clientRect.left = pt1.x;
+	m_clientRect.top = pt1.y;
+	m_clientRect.right = pt2.x;
+	m_clientRect.bottom = pt2.y;
+
+	ClipCursor(&m_clientRect);
 	return true;
 }
 
