@@ -151,6 +151,10 @@ void TestScene::UpdateShaderVarialbes() {
 
 bool TestScene::Update(const Timer & gt)
 {
+	if (m_bIsGameOver) {
+		return m_pGameOverScene->Update(gt);
+	}
+
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	m_pTakeDamageScreen->Animate(gt.DeltaTime());
 	if (m_isGameEnd && m_changeFade == FADE_END) {
@@ -359,13 +363,16 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	texutredata[0].m_texture = L"res\\Texture\\BackToMainMenu.DDS";
 	
 	m_pButtons = new UIButtonShaders();
-	m_pButtons->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &texutredata);
+	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
 	m_pButtons->SetPoint(m_pCursorPos);
 	m_pButtons->SetPos(new XMFLOAT2(640.0f, 720.0f - 407.3f), 0);
 	m_pButtons->SetPos(new XMFLOAT2(870.0f, 720.0f - 455.0f), 1);
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 0);
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 1);
 	m_pButtons->CreateCollisionBox();
+
+	m_pGameOverScene = make_unique<GameOverScene>();
+	m_pGameOverScene->BuildScene(pDevice, pCommandList);
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -402,6 +409,11 @@ void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList *
 
 void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	if (m_bIsGameOver) {
+		m_pGameOverScene->Render(pDevice, pCommandList);
+		return;
+	}
+
 	if (m_testPlayer->getHitted() == true) {
 		if(m_testPlayer->isLive() == true)
 			m_pTakeDamageScreen->SetFadeIn(true, 0.2f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
@@ -480,6 +492,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 
 	if (GetAsyncKeyState('P') & 0x0001) {
 		m_testPlayer->GetStatus()->m_health = 0.0f;
+		m_bIsGameOver = true;
 	}
 	if (GetAsyncKeyState('T') & 0x0001) {
 		m_Room[m_nowRoom]->SetClear(true);
@@ -502,6 +515,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 #ifdef _DEBUG
 	if (GetAsyncKeyState(VK_RETURN) & 0x0001)
 		cout << m_testPlayer->GetPosition();
+
 #endif
 
 	if (m_bMouseCapture)

@@ -55,6 +55,14 @@ void UIShaders::Animate(float fTimeElapsed)
 		m_pUIObjects[i]->Update(fTimeElapsed);
 }
 
+void UIShaders::SetPosScreenRatio(XMFLOAT2& ratio, UINT index)
+{
+	m_pUIObjects[index]->m_xmf2ScreenPos = XMFLOAT2(
+		static_cast<float>(FRAME_BUFFER_WIDTH) * ratio.x,
+		static_cast<float>(FRAME_BUFFER_HEIGHT) * ratio.y
+	);
+}
+
 void UIShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
@@ -295,40 +303,7 @@ void UIMiniMapShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
-	/*m_pUIObjects = vector<UIObject*>(m_nObjects);
-	UIObject* minimapBG = new UIObject();
 
-	minimapBG->SetType(1);
-	minimapBG->SetScale(XMFLOAT2(1.0f, 1.0f));
-	minimapBG->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
-	minimapBG->SetNumSprite(XMUINT2(1, 1), XMUINT2(0, 0));
-	minimapBG->SetScale(XMFLOAT2(1.0f, 0.5f));
-	minimapBG->SetSize(GetSpriteSize(1, pTexture, minimapBG->m_nNumSprite));
-	minimapBG->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr);
-	minimapBG->SetPosition(XMFLOAT2(
-		static_cast<float>(FRAME_BUFFER_WIDTH) * 7.05 / 8.0,
-		static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0)
-	));
-	m_pUIObjects[0] = minimapBG;
-	m_pUIObjects[0]->CreateCollisionBox();
-
-	for (unsigned int i = 1; i < m_nObjects; ++i) {
-		UIObject* minimapObj = new UIObject();
-
-		minimapObj->SetType(0);
-		minimapObj->SetScale(XMFLOAT2(1.0f, 1.0f));
-		minimapObj->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
-		minimapObj->SetNumSprite(XMUINT2(3, 1), XMUINT2(0, 0));
-		minimapObj->SetSize(GetSpriteSize(0, pTexture, minimapObj->m_nNumSprite));
-		minimapObj->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
-		minimapObj->SetPosition(XMFLOAT2(
-			static_cast<float>(FRAME_BUFFER_WIDTH) * 6.6 / 8.0 + static_cast<float>(data[i - 1]->m_mapPosX * minimapObj->m_nSize.x),
-			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.3 / 8.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y)
-		));
-		m_pUIObjects[i] = minimapObj;
-		m_pUIObjects[i]->CreateCollisionBox();
-	}
-	m_pUIObjects[1]->m_fData = 1.0f;*/
 }
 
 void UIMiniMapShaders::Animate(float fTimeElapsed)
@@ -452,3 +427,128 @@ UINT UIButtonShaders::CollisionButton()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+void UIFullScreenShaders::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets, void *pContext)
+{
+	m_nObjects = 2;
+	m_nPSO = 1;
+
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSBlockUI", "ps_5_0");
+
+	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\MainSceneTexture\\MainBackgound_COLOR.dds", 0);
+
+	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 1, true);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	m_pUIObjects = vector<UIObject*>(m_nObjects);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	XMFLOAT2 pos[2] = { XMFLOAT2(
+			static_cast<float>(FRAME_BUFFER_WIDTH) * 0.25,
+			static_cast<float>(FRAME_BUFFER_HEIGHT) * 0.5f
+		),
+			XMFLOAT2(
+			static_cast<float>(FRAME_BUFFER_WIDTH) * 0.75,
+			static_cast<float>(FRAME_BUFFER_HEIGHT) * 0.5f
+		) 
+	};
+	XMFLOAT2 scale = XMFLOAT2(0.5f, 1.0f);
+
+	UIObject* leftBlock;
+	leftBlock = new UIObject();
+	leftBlock->SetPosition(pos[0]);
+	leftBlock->SetScale(scale);
+	m_pUIObjects[0] = leftBlock;
+
+	UIObject* rightBlock;
+	rightBlock = new UIObject();
+	rightBlock->SetPosition(pos[1]);
+	rightBlock->SetScale(scale);
+	m_pUIObjects[1] = rightBlock;
+
+
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(0, pTexture, XMUINT2(1, 1)));
+		m_pUIObjects[i]->SetType(0);
+		m_pUIObjects[i]->m_nNumSprite = XMUINT2(2, 1);
+		m_pUIObjects[i]->CreateCollisionBox();
+		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+		m_pUIObjects[i]->m_fData = i * 1.0f;
+	}
+
+}
+
+void UIFullScreenShaders::Animate(float fTimeElapsed)
+{
+}
+
+void UIFullScreenShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+{
+	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
+
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, CBVUIInfo, 0, 0); // GameObject
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVUITextureMap, 0, 0); // Texture
+
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2];
+	pd3dRootParameters[0].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
+
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
+	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
+
+	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		0.0f,
+		1,
+		D3D12_COMPARISON_FUNC_ALWAYS,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+		0.0f,
+		D3D12_FLOAT32_MAX,
+		D3D12_SHADER_VISIBILITY_PIXEL
+	);
+
+
+	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
+	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = 1;
+	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
+	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
+
+	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
+	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
+	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
+
+	if (pd3dErrorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
+	}
+	ThrowIfFailed(hr);
+
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
+		pd3dSignatureBlob->GetBufferPointer(),
+		pd3dSignatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
+	);
+}

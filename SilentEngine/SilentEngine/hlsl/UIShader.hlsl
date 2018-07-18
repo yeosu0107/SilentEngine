@@ -92,4 +92,16 @@ float4 PSUIHPBar(VS_TEXTURED_OUTPUT input) : SV_Target
     return finalColor;
 
 }
+
+float4 PSBlockUI(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    float4 finalColor = (float4) 0.0f;
+    float2 uv = input.uv;
+ 
+    uv = float2(input.uv.x / gnNumSprite.x + gfData / gnNumSprite.x, input.uv.y);
+
+    finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+
+    return finalColor;
+}
 #endif

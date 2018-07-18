@@ -16,6 +16,7 @@ public:
 
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetPos(XMFLOAT2* pos, UINT index = 0) { m_pUIObjects[index]->m_xmf2ScreenPos = *pos; }
+	virtual void SetPosScreenRatio(XMFLOAT2& ratio, UINT index = 0);
 	virtual void SetScale(XMFLOAT2* scale, UINT index = 0) { m_pUIObjects[index]->m_xmf2Scale = *scale; }
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateCollisionBox();
@@ -76,3 +77,15 @@ private:
 	CTexture *pTexture = nullptr;
 };
 
+class UIFullScreenShaders : public UIShaders
+{
+public:
+	UIFullScreenShaders() {};
+	~UIFullScreenShaders() {};
+
+public:
+	virtual void SetNumObject(int nObject) { m_nObjects = nObject; }
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void Animate(float fTimeElapsed);
+	virtual void CreateGraphicsRootSignature(ID3D12Device * pd3dDevice);
+};

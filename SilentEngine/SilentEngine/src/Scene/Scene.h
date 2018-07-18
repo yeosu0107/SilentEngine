@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "Camera.h"
 #include "UIShaders.h"
+#include "GameOverScene.h"
 
 #include "..\Model\ModelObject.h"
 #include "..\Room\Room.h"
@@ -107,6 +108,8 @@ public:
 	virtual void CaptureCursor();
 	void ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 protected:
+	bool												m_bIsGameOver = false;
+	unique_ptr<GameOverScene>						m_pGameOverScene = nullptr;
 	TextureToFullScreen*								m_pPauseScreen = nullptr;
 	FadeEffectShader*								m_pTakeDamageScreen = nullptr;
 

@@ -233,6 +233,9 @@
     <ClCompile Include="src\Sound\SoundMgr.cpp">
       <Filter>SoundMgr</Filter>
     </ClCompile>
+    <ClCompile Include="GameOverScene.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Framework\D3DUtil.h">
@@ -378,6 +381,9 @@
     </ClInclude>
     <ClInclude Include="src\Sound\SoundMgr.h">
       <Filter>SoundMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="GameOverScene.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
