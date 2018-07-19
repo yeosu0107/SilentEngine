@@ -13,7 +13,7 @@ struct CB_UI_INFO {
 	float	 m_fData;
 
 	XMFLOAT2 m_xmf2Scale;
-	float    m_fdump1 = 0;
+	float    m_fAlpha = 1.0f;
 	float    m_fdump2 = 0;
 };
 
@@ -40,6 +40,7 @@ public:
 	virtual void SetPosition(XMFLOAT2& pos);
 	virtual void SetScale(XMFLOAT2& scale);
 	virtual void SetSize(XMUINT2& size);
+	virtual void SetAlpha(float alpha);
 	virtual void SetNumSprite(XMUINT2& numSprite, XMUINT2& nowSprite);
 
 	virtual void SetType(UINT type) { m_nTexType = type; }
@@ -59,6 +60,7 @@ public:
 	XMUINT2		m_nSize;
 	UINT		m_nTexType;
 	float		m_fData = 0.0f;
+	float		m_fAlpha = 1.0f;
 
 	XMFLOAT2	m_xmf2Scale = XMFLOAT2(1.0f, 1.0f);
 	XMFLOAT2	m_xmf2StartPos;

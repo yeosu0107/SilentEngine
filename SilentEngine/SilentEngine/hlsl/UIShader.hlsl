@@ -68,6 +68,7 @@ float4 PSMiniMap(VS_TEXTURED_OUTPUT input) : SV_Target
     else if (gnTexType == 1)
         finalColor = gUITextures[1].Sample(gDefaultSamplerState, uv);
 
+    finalColor.a *= gfAlpha;
     return finalColor;
 }
 
@@ -89,6 +90,8 @@ float4 PSUIHPBar(VS_TEXTURED_OUTPUT input) : SV_Target
     else if (gnTexType == 3)
         finalColor = gUITextures[3].Sample(gDefaultSamplerState, uv);
 
+    finalColor.a *= gfAlpha;
+
     return finalColor;
 
 }
@@ -101,6 +104,8 @@ float4 PSBlockUI(VS_TEXTURED_OUTPUT input) : SV_Target
     uv = float2(input.uv.x / gnNumSprite.x + gfData / gnNumSprite.x, input.uv.y);
 
     finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+
+    finalColor.a *= gfAlpha;
 
     return finalColor;
 }

@@ -125,7 +125,7 @@ cbuffer cbUIInfo : register(b9)
     float   gfData;
 
     float2 gfScale;
-    float  dump1;
+    float  gfAlpha;
     float  dump2;
 };
 

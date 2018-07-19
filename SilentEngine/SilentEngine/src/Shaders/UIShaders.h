@@ -17,6 +17,7 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetPos(XMFLOAT2* pos, UINT index = 0) { m_pUIObjects[index]->m_xmf2ScreenPos = *pos; }
 	virtual void SetPosScreenRatio(XMFLOAT2& ratio, UINT index = 0);
+	virtual void SetAlpha(float alpha, UINT index = 0);
 	virtual void SetScale(XMFLOAT2* scale, UINT index = 0) { m_pUIObjects[index]->m_xmf2Scale = *scale; }
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateCollisionBox();

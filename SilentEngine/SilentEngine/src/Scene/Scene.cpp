@@ -151,10 +151,7 @@ void TestScene::UpdateShaderVarialbes() {
 
 bool TestScene::Update(const Timer & gt)
 {
-	if (m_bIsGameOver) {
-		return m_pGameOverScene->Update(gt);
-	}
-
+	
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	m_pTakeDamageScreen->Animate(gt.DeltaTime());
 	if (m_isGameEnd && m_changeFade == FADE_END) {
@@ -168,6 +165,12 @@ bool TestScene::Update(const Timer & gt)
 
 	RoomChange();	
 	RoomFade();		
+
+
+	if (m_bIsGameOver) {
+		return m_pGameOverScene->Update(gt);
+	}
+
 
 	if (!m_bMouseCapture) {
 		m_pButtons->CollisionButton();
@@ -346,6 +349,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	UIHPBarShaders* pHPBar = new UIHPBarShaders();
 	pHPBar->BuildObjects(pDevice, pCommandList, 1, m_testPlayer);
 	m_ppUIShaders[0] = pHPBar;
+
 	UIMiniMapShaders* pMinimap = new UIMiniMapShaders();
 	pMinimap->SetNumObject(21);
 	pMinimap->BuildObjects(pDevice, pCommandList, 1);
@@ -410,11 +414,7 @@ void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList *
 
 void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	if (m_bIsGameOver) {
-		m_pGameOverScene->Render(pDevice, pCommandList);
-		return;
-	}
-
+	
 	if (m_testPlayer->getHitted() == true) {
 		if(m_testPlayer->isLive() == true)
 			m_pTakeDamageScreen->SetFadeIn(true, 0.2f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
@@ -426,11 +426,18 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 	for (UINT i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
 
-	if (!m_bMouseCapture) {
+	if (!m_bMouseCapture && !m_bIsGameOver) {
 		m_pPauseScreen->Render(pCommandList, m_Camera.get());
 		m_pButtons->Render(pCommandList);
 	}
 	
+
+	if (m_bIsGameOver) {
+		m_pGameOverScene->Render(pDevice, pCommandList);
+		return;
+	}
+
+
 	//페이트 INOUT 랜더링
 	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
 
@@ -494,7 +501,10 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState('P') & 0x0001) {
 		m_testPlayer->GetStatus()->m_health = 0.0f;
 		m_bIsGameOver = true;
+		::ReleaseCapture();
+		m_bMouseCapture = false;
 	}
+
 #ifdef _DEBUG
 	if (GetAsyncKeyState('T') & 0x0001) {
 		m_Room[m_nowRoom]->SetClear(true);
@@ -559,8 +569,10 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 		}
 
 		else {
+			
 			m_attackEvent = false;
-			collButon = m_pButtons->CollisionButton();
+
+			collButon = m_bIsGameOver ? m_pGameOverScene->CollisionToMouse(m_pCursorPos) : m_pButtons->CollisionButton();
 
 			if (collButon == 1) {
 				m_changeFade = FADE_IN;
@@ -613,6 +625,7 @@ bool TestScene::OnMouseMove(float x, float y)
 	if (m_changeFade > FADE_OFF)
 		return false;
 
+
 	// 프레임워크에서 넘어온 값을 제대로 처리하기 위해 한번 더 판별
 	if (!m_bMouseCapture) {
 		m_pCursorPos->x = x;
@@ -620,6 +633,12 @@ bool TestScene::OnMouseMove(float x, float y)
 	}
 	else
 		m_testPlayer->Rotate(y, x, 0.0f);
+
+	if (m_bIsGameOver) {
+		int result = m_pGameOverScene->CollisionToMouse(m_pCursorPos);
+		return result > 0;
+	}
+
 	return true;
 }
 
@@ -801,6 +820,8 @@ void TestScene::CaptureCursor()
 void TestScene::ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	m_isRoomChange = Door(0, START_SOUTH, true);
+	m_pGameOverScene->Reset();
+	m_bIsGameOver = false;
 	m_nowRoom = START_ROOM;
 	RoomSetting();
 	RoomChange();

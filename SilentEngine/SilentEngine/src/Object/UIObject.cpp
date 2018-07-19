@@ -25,6 +25,11 @@ void UIObject::Render(ID3D12GraphicsCommandList * pd3dCommandList)
 
 bool UIObject::CollisionUI(POINT * pPoint, float trueSetData, float falseSetData)
 {
+	if (m_fAlpha < 1.0f) {
+		m_fData = falseSetData;
+		return false;
+	}
+
 	if (m_xmf2StartPos.x < pPoint->x && m_xmf2StartPos.y > pPoint->y) {
 		if (m_xmf2EndPos.x > pPoint->x && m_xmf2EndPos.y < pPoint->y) {
 			m_fData = trueSetData;
@@ -65,6 +70,11 @@ void UIObject::SetScale(XMFLOAT2 & scale)
 void UIObject::SetSize(XMUINT2 & size)
 {
 	m_nSize = size;
+}
+
+void UIObject::SetAlpha(float alpha)
+{
+	m_fAlpha = alpha;
 }
 
 void UIObject::SetNumSprite(XMUINT2 & numSprite, XMUINT2& nowSprite)

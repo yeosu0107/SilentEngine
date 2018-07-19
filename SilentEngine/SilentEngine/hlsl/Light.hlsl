@@ -202,7 +202,7 @@ float4 Lighting(float3 vPosition, float3 vNormal, uint nMatindex, float4 shadowF
                 float4 resultSpotLight = SpotLight(i, vPosition, vNormal, vToCamera, nMatindex);
                 spotColor += resultSpotLight;
                 if (length(resultSpotLight.rgb) > 0.0f)
-                    fogScale += FOG_DOWNSCALE;
+                    fogScale += resultSpotLight.r;
             }
 		}
 	}

@@ -63,6 +63,11 @@ void UIShaders::SetPosScreenRatio(XMFLOAT2& ratio, UINT index)
 	);
 }
 
+void UIShaders::SetAlpha(float alpha, UINT index)
+{
+	m_pUIObjects[index]->m_fAlpha = alpha;
+}
+
 void UIShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
@@ -158,7 +163,7 @@ void UIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandLis
 		cBuffer.m_nTexType = m_pUIObjects[i]->m_nTexType;
 		cBuffer.m_xmf2ScreenPos = m_pUIObjects[i]->m_xmf2ScreenPos;
 		cBuffer.m_xmf2ScreenSize = m_pUIObjects[i]->m_xmf2ScreenSize;
-
+		cBuffer.m_fAlpha = m_pUIObjects[i]->m_fAlpha;
 		m_ObjectCB->CopyData(i, cBuffer);
 	}
 }

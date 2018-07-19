@@ -89,7 +89,8 @@ MapLoader::MapLoader(string fileName, string fileName2)
 		StartList point = {
 			XMFLOAT3(horizontal, height, 0), XMFLOAT3(-horizontal, height, 0),		//WEST, EAST
 			XMFLOAT3(0,height, -vertical), XMFLOAT3(0,height, vertical),				//SOUTH, NORTH
-			rand() % 50 > 25 ? true : false
+			//rand() % 50 > 25 ? true : false
+			true
 		};
 		
 		m_Objects.emplace_back(make_pair(tmpModel, nullptr)); //map 파일은 애니메이션이 없다.

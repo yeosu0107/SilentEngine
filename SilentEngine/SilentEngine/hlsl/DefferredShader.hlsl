@@ -179,8 +179,26 @@ float4 PS_FOG_OUTLINE_SHADE(VS_OUTPUT input) : SV_Target
     float4 finalColor = (float4) 0.0f;
     UNPACK_DATA  unpack = UNPACKING_GBUFFERS(input.uvPos, input.position.xy);
 
-    finalColor = Outline(int2(input.position.xy), float4(unpack.color.xyz, 1.0f));
     float fogScale = gBuffer[GBUFFER_LIGHT][input.position.xy].a * 5.0f;
+    finalColor = float4(unpack.color.xyz, 1.0f);
+    if (fogScale > 1.0f)
+    {
+        float addFogScale = 0.0f;
+        float4 addColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+        for (int i = -1; i <= 1; ++i)
+        {
+            for (int j = -1; j <= 1; ++j)
+            {
+                addColor += gBuffer[GBUFFER_COLOR][int2(input.position.x + i, input.position.y + j)];
+                addFogScale += gBuffer[GBUFFER_LIGHT][int2(input.position.x + i, input.position.y + j)].a * 5.0f - 1.0f;
+            }
+        }
+        finalColor = addColor / 9.0f;
+        fogScale = 1.0f + min(0.2f, addFogScale / 9.0f);
+    }
+
+    finalColor = Outline(int2(input.position.xy), finalColor);
     return Fog(finalColor, unpack.pos, fogScale);
 }
 #endif
