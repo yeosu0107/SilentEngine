@@ -15,7 +15,7 @@ Room::~Room()
 
 void Room::SetStartPoint(XMFLOAT3 * point)
 {
-	SetSpawnPoint(point);
+	//SetSpawnPoint(point);
 	for (UINT i = 0; i < 4; ++i) {
 		m_startPoint[i] = point[i];
 	}
@@ -73,6 +73,14 @@ void Room::SetSpawnPoint(XMFLOAT3 * point)
 	m_yPos = y;
 }
 
+void Room::SetSpawnPoint(UINT num, XMFLOAT2* point)
+{
+	m_numEnemy = num;
+	for (int i = 0; i < num; ++i) {
+		m_spawnPoint[i] = XMFLOAT3(point[i].x, m_yPos, point[i].y);
+	}
+}
+
 void Room::SetFirePosition(XMFLOAT3 * pos)
 {
 	m_pFirePos = pos;
@@ -89,7 +97,7 @@ XMFLOAT3* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 	if (state) {
 		if (m_enemyShader && !isClear) {
 			m_enemyShader->setPhys(phys);
-			m_enemyShader->setPosition(m_spawnPoint);
+			m_enemyShader->setPosition(m_spawnPoint, m_numEnemy);
 		}
 		if(m_mapShader)
 			m_mapShader->setPhys(phys);

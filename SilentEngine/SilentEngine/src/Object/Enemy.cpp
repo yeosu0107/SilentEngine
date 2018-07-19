@@ -182,7 +182,7 @@ void Enemy::Hitted(DamageVal & hitback)
 	if (m_State->getState() == STATE::death)
 		return;
 	m_damageStack += hitback.baseDamage;
-	if (m_damageStack > 25) {
+	if (m_damageStack > 20) {
 		ChangeAnimation(EnemyAni::AniHitted);
 		m_damageStack = 0;
 	}

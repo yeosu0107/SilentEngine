@@ -67,7 +67,7 @@ void ModelLoader::LodingModels(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandL
 	}
 }
 
-MapLoader::MapLoader(string fileName)
+MapLoader::MapLoader(string fileName, string fileName2)
 {
 	ifstream in(fileName);
 
@@ -99,6 +99,24 @@ MapLoader::MapLoader(string fileName)
 	}
 	m_numModels = (UINT)m_Objects.size();
 	in.close();
+
+	ifstream spawn(fileName2);
+	int num_spawn = 0;
+	float x = 0, z = 0;
+	while (getline(spawn, tmpName)) {
+		st = StringTokenizer(tmpName, delim);
+		num_spawn = atoi(st.nextToken().c_str());
+		vector<XMFLOAT2> tmpVector;
+		tmpVector.resize(num_spawn);
+		for (int i = 0; i < num_spawn; ++i) {
+			getline(spawn, tmpName);
+			st = StringTokenizer(tmpName, delim); 
+			x = atof(st.nextToken().c_str());
+			z = atof(st.nextToken().c_str());
+			tmpVector[i] = XMFLOAT2(x, z);
+		}
+		m_spawnPoint.emplace_back(tmpVector);
+	}
 }
 
 

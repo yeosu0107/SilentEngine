@@ -18,7 +18,7 @@ Framework::Framework(HINSTANCE hInstance)
 	m_pFramework = this;
 
 	GlobalVal::getInstance()->LoadModels(new ModelLoader("GameModelList.csv"));
-	GlobalVal::getInstance()->LoadMaps(new MapLoader("MapList.csv"));
+	GlobalVal::getInstance()->LoadMaps(new MapLoader("MapList.csv", "spawnpoint.csv"));
 	GlobalVal::getInstance()->LoadEffects(new EffectLoader("EffectList.csv"));
 	GlobalVal::getInstance()->LoadFirePos(new FirePositionLoader("TochPosition.csv"));
 	SoundMgr::getInstance()->init();
@@ -959,7 +959,7 @@ void Framework::OnKeyboardInput(const Timer& gt)
 {
 	static UCHAR pKeysBuffer[256];
 	bool bProcessedByScene = false;
-
+#ifdef _DEBUG
 	if (GetAsyncKeyState(VK_LCONTROL) & 0x0001){
 		m_bDebugGBuffers = !m_bDebugGBuffers;
 	}
@@ -989,7 +989,7 @@ void Framework::OnKeyboardInput(const Timer& gt)
 	if (GetAsyncKeyState(VK_F10) & 0x0001) {
 		m_HDRShader->UpWhiteScale(-0.1f);
 	}
-
+#endif
 	if (GetKeyboardState(pKeysBuffer) && m_pScene[m_nNowScene]) {
 		bProcessedByScene = m_pScene[m_nNowScene]->OnKeyboardInput(gt, m_hMainWnd);
 	}

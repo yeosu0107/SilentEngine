@@ -48,12 +48,16 @@ private:
 		bool		bFogEnable;
 		XMFLOAT3* returnPoint() { return point; }
 	};
-	vector<StartList>	m_startPoint;
+	vector<StartList>						m_startPoint;
+	vector <vector<XMFLOAT2>>	m_spawnPoint;
 	
 public:
-	MapLoader(string fileName);
+	MapLoader(string fileName, string fileName2);
 	~MapLoader();
 
 	StartList getStartpoint(UINT index) const { return m_startPoint[index]; }
 	bool getFogEnabled(UINT index) const { return m_startPoint[index].bFogEnable; }
+
+	int	getNumOfSpawn(UINT index) const { return m_spawnPoint[index].size(); }
+	XMFLOAT2* getSpawnPoint(UINT index) { return m_spawnPoint[index].data(); }
 };

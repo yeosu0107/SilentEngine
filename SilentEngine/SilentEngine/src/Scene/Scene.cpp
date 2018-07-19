@@ -304,7 +304,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	
 	enemyShader = new ModelShader*[KindOfEnemy];
-	int enemyNum[7] = { 6,3,2,2,4,2,1 };
+	int enemyNum[7] = { 10,10,10,10,10,10,1 };
 
 	enemyShader[0] = new EnemyShader<CreepArm>(4);
 	enemyShader[1] = new EnemyShader<Enemy>(3);
@@ -317,7 +317,8 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	for (int i = 0; i < KindOfEnemy; ++i) {
 		enemyShader[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, (int*)enemyNum[i]);
 	}
-	enemyShader[3]->setScale(1.5f);
+	enemyShader[2]->setScale(1.5f);
+	enemyShader[3]->setScale(2.0f);
 
 	bullet = new ProjectileShader();
 	bullet->SetCamera(m_Camera.get());
@@ -494,9 +495,15 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 		m_testPlayer->GetStatus()->m_health = 0.0f;
 		m_bIsGameOver = true;
 	}
+#ifdef _DEBUG
 	if (GetAsyncKeyState('T') & 0x0001) {
 		m_Room[m_nowRoom]->SetClear(true);
 	}
+	if (GetAsyncKeyState(VK_SPACE) & 0x0001)
+		input |= SUPER_SPEED;
+	if (GetAsyncKeyState(VK_RETURN) & 0x0001)
+		cout << m_testPlayer->GetPosition();
+#endif
 
 	if (GetAsyncKeyState('Q') & 0x0001) {
 		input |= ANI_UPPER;
@@ -508,15 +515,6 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState(VK_SHIFT) & 0x8000) {
 		input |= ANI_SKILL;
 	}
-
-	if (GetAsyncKeyState(VK_SPACE) & 0x0001)
-		input |= SUPER_SPEED;
-
-#ifdef _DEBUG
-	if (GetAsyncKeyState(VK_RETURN) & 0x0001)
-		cout << m_testPlayer->GetPosition();
-
-#endif
 
 	if (m_bMouseCapture)
 	{
@@ -656,6 +654,7 @@ void TestScene::RoomChange()
 
 		*GlobalVal::getInstance()->getRemainEnemy()
 			= m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getRemainObjects();
+		//*GlobalVal::getInstance()->getRemainEnemy() = m_Room[m_isRoomChange.m_roomNum].get
 	}
 	else
 		GlobalVal::getInstance()->setEnemy(nullptr);
@@ -731,20 +730,25 @@ void TestScene::RoomSetting()
 				m_Room[count]->m_mapPosX = j;
 				m_Room[count]->m_mapPosY = i;
 				m_virtualMap[i][j] = count;
-				//cout << count << "\t" << m_Room[count]->getType() << endl;
+#ifdef _DEBUG
+				cout << count << "\t" << m_Room[count]->getType() << endl;
+#endif
 				count += 1;
 			}
 		}
 	}
-	//cout << endl;
+	
 	m_Room[count - 1]->setType(10);
-	/*for (int i = 0; i < sizeY; ++i) {
+#ifdef _DEBUG
+	cout << endl;
+	for (int i = 0; i < sizeY; ++i) {
 		for (int j = 0; j < sizeX; ++j) {
 			cout << m_virtualMap[i][j] << "\t";
 		}
 		cout << endl;
 	}
-	cout << endl;*/
+	cout << endl;
+#endif
 	UINT nextRoom[4] = { BLANK_ROOM,BLANK_ROOM,BLANK_ROOM,BLANK_ROOM };
 	for (int i = 0; i < m_nRoom; ++i) {
 		int nowX = m_Room[i]->m_mapPosX;
@@ -776,6 +780,7 @@ void TestScene::RoomSetting()
 		m_Room[i]->SetFireShader(fireObjectShaders);
 		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
+		m_Room[i]->SetSpawnPoint(globalMaps->getNumOfSpawn(m_Room[i]->getType()), globalMaps->getSpawnPoint(m_Room[i]->getType()));
 		UINT index = i % (KindOfEnemy - 1);
 		//UINT index = rand() % (KindOfEnemy - 1);
 		m_Room[i]->SetEnemyShader(enemyShader[index]);

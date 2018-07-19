@@ -35,11 +35,12 @@ private:
 	XMFLOAT3							m_startPoint[4]; //플레이어 시작지점 4방향 문
 	RECT									m_doorRect[4];
 	UINT									m_nextRoom[4];
-	XMFLOAT3							m_spawnPoint[6];
+	XMFLOAT3							m_spawnPoint[10];
 	XMFLOAT3*						m_pFirePos;
 	float									m_yPos = -180.0f;
 	
 	UINT									m_type;
+	UINT									m_numEnemy;
 
 	bool									isClear;
 	bool									isEnemy;
@@ -81,6 +82,7 @@ public:
 	void SetStartPoint(XMFLOAT3* point);
 	void SetNextRoom(UINT *room);
 	void SetSpawnPoint(XMFLOAT3* point);
+	void SetSpawnPoint(UINT num, XMFLOAT2* point);
 	void SetFirePosition(XMFLOAT3* pos);
 	void ResetFire();
 	void setType(UINT type) { m_type = type; }

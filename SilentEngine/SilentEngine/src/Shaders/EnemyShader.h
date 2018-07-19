@@ -73,7 +73,8 @@ public:
 		}
 	}
 
-	void setPosition(XMFLOAT3* pos) {
+	void setPosition(XMFLOAT3* pos, UINT num) {
+		m_nObjects = num;
 		for (int i = 0; i < m_nObjects; ++i) {
 			T* tmp = reinterpret_cast<T*>(m_ppObjects[i]);
 			tmp->reset();
