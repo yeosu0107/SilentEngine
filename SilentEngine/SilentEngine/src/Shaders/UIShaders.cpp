@@ -61,6 +61,8 @@ void UIShaders::SetPosScreenRatio(XMFLOAT2& ratio, UINT index)
 		static_cast<float>(FRAME_BUFFER_WIDTH) * ratio.x,
 		static_cast<float>(FRAME_BUFFER_HEIGHT) * ratio.y
 	);
+
+	m_pUIObjects[index]->CreateCollisionBox();
 }
 
 void UIShaders::SetAlpha(float alpha, UINT index)
@@ -168,7 +170,57 @@ void UIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandLis
 	}
 }
 
-void UIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext) { }
+void UIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext) { 
+	TextureDataForm* textures = reinterpret_cast<TextureDataForm*>(pContext);
+	UINT nTextures = 1;
+
+	m_nObjects = nTextures;
+	m_nPSO = 1;
+
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSMiniMap", "ps_5_0");
+
+	CTexture *pTexture = new CTexture(nTextures, RESOURCE_TEXTURE2D, 0);
+	for (int i = 0; i < nTextures; ++i) {
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, (*textures).m_texture.c_str(), i);
+	}
+	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 1, true);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	m_pUIObjects = vector<UIObject*>(m_nObjects);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f);
+
+	for (int i = 0; i < m_nObjects; ++i) {
+		UIObject* ui;
+		ui = new UIObject();
+		ui->SetPosition(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH) / 2, static_cast<float>(FRAME_BUFFER_HEIGHT) * (3.0f - 1.5f * i) / 9.0));
+		ui->SetScale(scale);
+		m_pUIObjects[i] = ui;
+	}
+
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		m_pUIObjects[i]->SetNumSprite(XMUINT2((*textures).m_MaxX, (*textures).m_MaxY), XMUINT2(0, 0));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2(XMUINT2((*textures).m_MaxX, (*textures).m_MaxY))));
+		m_pUIObjects[i]->SetType(i);
+		m_pUIObjects[i]->CreateCollisionBox();
+		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+	}
+}
 
 void UIShaders::OnPrepareRender(ID3D12GraphicsCommandList * pd3dCommandList, int index)
 {
@@ -206,7 +258,7 @@ XMUINT2 UIShaders::GetSpriteSize(const int texIndex, CTexture* pTexture, XMUINT2
 
 void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
-	m_nObjects = 4;
+	m_nObjects = 3;
 	m_nPSO = 1;
 
 	CreatePipelineParts();
@@ -214,11 +266,10 @@ void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSUIHPBar", "ps_5_0");
 
-	CTexture *pTexture = new CTexture(4, RESOURCE_TEXTURE2D, 0);
+	CTexture *pTexture = new CTexture(m_nObjects, RESOURCE_TEXTURE2D, 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\HPBarTedori.dds", 0);
 	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\HPBar.dds", 1);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\FaceTedori.dds", 2);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\c_face.dds", 3);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\MPBar.dds", 2);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
 
@@ -237,16 +288,22 @@ void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	m_pMaterial->SetReflection(1);
 
 	XMFLOAT2 pos = XMFLOAT2(
-		static_cast<float>(FRAME_BUFFER_WIDTH) / 5.0,
+		static_cast<float>(FRAME_BUFFER_WIDTH) / 6.0,
 		static_cast<float>(FRAME_BUFFER_HEIGHT) * 8.0f / 9.0
 	);
-	XMFLOAT2 scale = XMFLOAT2(0.5f, 0.5f);
+	XMFLOAT2 scale = XMFLOAT2(0.7f, 0.7f);
+	XMUINT2 hpTedoriSize = GetSpriteSize(0, pTexture, XMUINT2(1, 1));
 
 	UIObject* HPTedori;
 	HPTedori = new UIObject();
 	HPTedori->SetPosition(pos);
 	HPTedori->SetScale(scale);
 	m_pUIObjects[0] = HPTedori;
+
+	pos = XMFLOAT2(
+		pos.x + static_cast<float>(hpTedoriSize.x) * (0.65f - 0.5f) * scale.x, 
+		pos.y + static_cast<float>(hpTedoriSize.y) * (0.272f) * scale.y
+	);
 
 	HPBarObject* hpBar;
 	hpBar = new HPBarObject();
@@ -255,17 +312,18 @@ void UIHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	hpBar->SetScale(scale);
 	m_pUIObjects[1] = hpBar;
 
-	UIObject* FaceTedori;
-	FaceTedori = new UIObject();
-	FaceTedori->SetPosition(XMFLOAT2(pos.x - 300.0f * scale.x, pos.y + 40.0f * scale.y));
-	FaceTedori->SetScale(XMFLOAT2(0.5f, 0.5f));
-	m_pUIObjects[2] = FaceTedori;
+	pos = XMFLOAT2(
+		pos.x,
+		pos.y - static_cast<float>(hpTedoriSize.y) * (0.161f) * scale.y
+	);
 
-	UIObject* Face;
-	Face = new UIObject();
-	Face->SetPosition(XMFLOAT2(pos.x - 299.0f * scale.x, pos.y + 40.0f * scale.y));
-	Face->SetScale(XMFLOAT2(0.5f, 0.5f));
-	m_pUIObjects[3] = Face;
+	HPBarObject* mpBar;
+	mpBar = new HPBarObject();
+	mpBar->SetPosition(pos);
+	mpBar->SetHPType(false);
+	mpBar->SetPlayerStatus(reinterpret_cast<GameObject*>(pContext)->GetStatus());
+	mpBar->SetScale(scale);
+	m_pUIObjects[2] = mpBar;
 
 	for (int i = 0; i < m_nObjects; ++i) {
 		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
@@ -328,33 +386,34 @@ void UIMiniMapShaders::setRoomPos(void* pContext)
 	m_pUIObjects.resize(m_nObjects);
 	//m_pUIObjects = vector<UIObject*>(m_nObjects);
 	UIObject* minimapBG = new UIObject();
+	XMFLOAT2 sacle = XMFLOAT2(1.1f,0.5f);
 
 	minimapBG->SetType(1);
-	minimapBG->SetScale(XMFLOAT2(1.0f, 1.0f));
 	minimapBG->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
 	minimapBG->SetNumSprite(XMUINT2(1, 1), XMUINT2(0, 0));
-	minimapBG->SetScale(XMFLOAT2(1.0f, 0.5f));
+	minimapBG->SetScale(sacle);
 	minimapBG->SetSize(GetSpriteSize(1, pTexture, minimapBG->m_nNumSprite));
 	minimapBG->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr);
 	minimapBG->SetPosition(XMFLOAT2(
-		static_cast<float>(FRAME_BUFFER_WIDTH) * 7.05 / 8.0,
-		static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0)
+		static_cast<float>(FRAME_BUFFER_WIDTH) / 6.0f,
+		static_cast<float>((FRAME_BUFFER_HEIGHT) * 6.0f / 9.0f)
 	));
 	m_pUIObjects[0] = minimapBG;
 	m_pUIObjects[0]->CreateCollisionBox();
 
+	sacle.y = sacle.x;
 	for (unsigned int i = 1; i < m_nObjects; ++i) {
 		UIObject* minimapObj = new UIObject();
 
 		minimapObj->SetType(0);
-		minimapObj->SetScale(XMFLOAT2(1.0f, 1.0f));
+		minimapObj->SetScale(sacle);
 		minimapObj->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
 		minimapObj->SetNumSprite(XMUINT2(3, 1), XMUINT2(0, 0));
 		minimapObj->SetSize(GetSpriteSize(0, pTexture, minimapObj->m_nNumSprite));
 		minimapObj->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		minimapObj->SetPosition(XMFLOAT2(
-			static_cast<float>(FRAME_BUFFER_WIDTH) * 6.6 / 8.0 + static_cast<float>(data[i - 1]->m_mapPosX * minimapObj->m_nSize.x),
-			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.3 / 8.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y)
+			static_cast<float>(FRAME_BUFFER_WIDTH) / 9.6f + static_cast<float>(data[i - 1]->m_mapPosX * minimapObj->m_nSize.x) * sacle.x,
+			static_cast<float>((FRAME_BUFFER_HEIGHT) * 6.3 / 9.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y * sacle.y)
 		));
 		m_pUIObjects[i] = minimapObj;
 		m_pUIObjects[i]->CreateCollisionBox();
@@ -398,17 +457,13 @@ void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	XMFLOAT2 scale = XMFLOAT2(0.5f, 0.5f);
 
-	UIObject* button1;
-	button1 = new UIObject();
-	button1->SetPosition(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH) / 2, static_cast<float>(FRAME_BUFFER_HEIGHT) * 3.0f / 9.0));
-	button1->SetScale(scale);
-	m_pUIObjects[0] = button1;
-
-	UIObject* button2;
-	button2 = new UIObject();
-	button2->SetPosition(XMFLOAT2(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH) / 2, static_cast<float>(FRAME_BUFFER_HEIGHT) * 1.5f / 9.0)));
-	button2->SetScale(scale);
-	m_pUIObjects[1] = button2;
+	for (int i = 0; i < m_nObjects; ++i) {
+		UIObject* button1;
+		button1 = new UIObject();
+		button1->SetPosition(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH) / 2, static_cast<float>(FRAME_BUFFER_HEIGHT) * (3.0f - 1.5f * i) / 9.0));
+		button1->SetScale(scale);
+		m_pUIObjects[i] = button1;
+	}
 
 	for (int i = 0; i < m_nObjects; ++i) {
 		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));

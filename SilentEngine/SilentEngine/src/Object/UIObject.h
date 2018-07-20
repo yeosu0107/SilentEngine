@@ -75,14 +75,14 @@ public:
 
 public:
 	void SetPlayerStatus(Status* pPlayerStatus);
-
+	void SetHPType(bool type) { m_IsHP = type; }
 	virtual void Update(float fTimeElapsed);
-
+	
 protected:
 	Status * m_pPlayerStatus;
 
+	bool m_IsHP = true;
 	float m_fMaxHP;		// 최대 HP
-	float m_fLerpHP;	// 
-
+	float m_fMaxMP;		// 최대 HP
 	float m_fLerpTime;
 };

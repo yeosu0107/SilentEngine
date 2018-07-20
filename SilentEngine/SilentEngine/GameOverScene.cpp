@@ -18,14 +18,13 @@ void GameOverScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList
 	m_pBlocks = make_unique<UIFullScreenShaders>();
 	m_pBlocks->BuildObjects(pDevice, pCommandList, 1);
 
-	vector<TextureDataForm> texutredata(2);
-	texutredata[1].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
-	texutredata[0].m_texture = L"res\\Texture\\RestartGame.dds";
+	vector<TextureDataForm> texutredata(1);
+	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
 
 	m_pButtons = make_unique<UIButtonShaders>();
 	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
 	m_pButtons->SetAlpha(0.0f, 0);
-	m_pButtons->SetAlpha(0.0f, 1);
+	m_pButtons->SetPosScreenRatio(XMFLOAT2(0.5f, 2.25 / 9.0f));
 }
 
 void GameOverScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -37,8 +36,7 @@ void GameOverScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 void GameOverScene::Reset()
 {
 	m_pButtons->SetAlpha(0.0f, 0);
-	m_pButtons->SetAlpha(0.0f, 1);
-
+	
 	m_Anitype = CLOSE_FIRST;
 
 	m_pBlocks->SetPosScreenRatio(XMFLOAT2(m_BlockStartMovePos, 0.5f), 0);
@@ -51,7 +49,7 @@ int GameOverScene::CollisionToMouse(POINT * mousePos)
 {
 	// return 0 : Restart , 1 : Exit
 	m_pButtons->SetPoint(mousePos);
-	return m_pButtons->CollisionButton() - 1;
+	return m_pButtons->CollisionButton();
 }
 
 bool GameOverScene::Update(const Timer & gt)
@@ -102,8 +100,7 @@ bool GameOverScene::Update(const Timer & gt)
 		fConvertProgressTime = min(1.0, fConvertProgressTime / (m_TotalAnimationTime * 0.2f));
 		fMoveRatio = D3DMath::Lerp(0.0f, 1.0f, fConvertProgressTime);
 		m_pButtons->SetAlpha(fMoveRatio, 0);
-		m_pButtons->SetAlpha(fMoveRatio, 1);
-
+		
 		if (fConvertProgressTime >= 1.0f) {
 			m_Anitype = Animate_None;
 			m_ProgessTime = 0.0f;

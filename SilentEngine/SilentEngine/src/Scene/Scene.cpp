@@ -343,8 +343,10 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	m_ppUIShaders.clear();
-	m_nUIShaders = 2;
+	m_nUIShaders = 3;
 	m_ppUIShaders.resize(m_nUIShaders);
+
+	vector<TextureDataForm> texutredata(2);
 
 	UIHPBarShaders* pHPBar = new UIHPBarShaders();
 	pHPBar->BuildObjects(pDevice, pCommandList, 1, m_testPlayer);
@@ -355,7 +357,15 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	pMinimap->BuildObjects(pDevice, pCommandList, 1);
 	m_ppUIShaders[1] = pMinimap;
 
-	vector<TextureDataForm> texutredata(2);
+	UIShaders* pSkill = new UIShaders();
+	texutredata[0].m_texture = L"res\\Texture\\Skill.DDS";
+	texutredata[0].m_MaxX = 1;
+	texutredata[0].m_MaxY = 1;
+
+	pSkill->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	pSkill->SetPosScreenRatio(XMFLOAT2( 1.2f / 6.0f, 0.1f));
+	m_ppUIShaders[2] = pSkill;
+
 	texutredata[0].m_texture = L"res\\Texture\\PauseGame.DDS";
 	m_pPauseScreen = new TextureToFullScreen();
 	m_pPauseScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
