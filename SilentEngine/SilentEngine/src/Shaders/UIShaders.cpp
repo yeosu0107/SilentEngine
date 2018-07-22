@@ -211,7 +211,7 @@ void UIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
 
-	XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f);
+	XMFLOAT2 scale = XMFLOAT2(0.7f, 0.7f);
 
 	for (int i = 0; i < m_nObjects; ++i) {
 		UIObject* ui;
