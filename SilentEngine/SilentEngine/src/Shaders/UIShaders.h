@@ -3,6 +3,8 @@
 #include "UIObject.h"
 
 #define NUM_MAX_UITEXTURE 4
+struct OPTIONSETALL {};
+extern const DECLSPEC_SELECTANY OPTIONSETALL OPTSETALL;
 
 class UIShaders : public Shaders
 {
@@ -19,6 +21,7 @@ public:
 	virtual void SetPosScreenRatio(XMFLOAT2& ratio, UINT index = 0);
 	virtual void SetAlpha(float alpha, UINT index = 0);
 	virtual void SetScale(XMFLOAT2* scale, UINT index = 0) { m_pUIObjects[index]->m_xmf2Scale = *scale; }
+	virtual void SetScale(XMFLOAT2* scale, const OPTIONSETALL);
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateCollisionBox();
 	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);

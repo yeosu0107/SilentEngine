@@ -4,7 +4,7 @@
 #include "Timer.h"
 #include "Camera.h"
 #include "UIShaders.h"
-#include "GameOverScene.h"
+#include "SceneState.h"
 
 #include "..\Model\ModelObject.h"
 #include "..\Room\Room.h"
@@ -79,6 +79,8 @@ protected:
 
 class TestScene : public Scene
 {
+	enum SceneType{ PAUSE, GAMEOVER, CLEAR, NORMALLY };
+	enum BottonType{ NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF };
 public:
 	TestScene();
 	~TestScene();
@@ -105,21 +107,28 @@ public:
 
 	void RoomChange();
 	void RoomSetting();
+
+	UINT TranslateButton(UINT nbutton);
+	void ActiveButton(UINT nbuttonType);
+	UINT CalNowScene();
 	virtual void CaptureCursor();
 	void ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 protected:
+	const int m_nUIScenes = 3;
 	bool												m_bIsGameOver = false;
-	unique_ptr<GameOverScene>						m_pGameOverScene = nullptr;
-	TextureToFullScreen*								m_pPauseScreen = nullptr;
-	FadeEffectShader*								m_pTakeDamageScreen = nullptr;
+	bool												m_bIsClear = false;
+
+	SceneType											m_nSceneState = NORMALLY;
+	virtualScene**						m_pUIScenes;
+	
+	FadeEffectShader*									m_pTakeDamageScreen = nullptr;
 
 	PlayerShader*											m_playerShader = nullptr;
 	InstanceModelShader*								m_gateShader = nullptr;
 	BillboardShader*										m_EffectShaders = nullptr;
 	//BillboardShader*										m_hitEffectShaders = nullptr;
 	vector<BillboardShader*>							m_hitEffectShaders;
-	UIButtonShaders*									m_pButtons;
-
+	
 	ProjectileShader*									m_Projectile = nullptr;
 	
 	Room**													m_Room = nullptr;

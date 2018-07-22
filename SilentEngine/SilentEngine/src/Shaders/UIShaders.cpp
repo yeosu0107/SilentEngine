@@ -70,6 +70,15 @@ void UIShaders::SetAlpha(float alpha, UINT index)
 	m_pUIObjects[index]->m_fAlpha = alpha;
 }
 
+void UIShaders::SetScale(XMFLOAT2 * scale, const OPTIONSETALL)
+{
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pUIObjects[i]->m_xmf2Scale = *scale;
+	}
+
+	CreateCollisionBox();
+}
+
 void UIShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 {
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
@@ -455,7 +464,7 @@ void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
 
-	XMFLOAT2 scale = XMFLOAT2(0.5f, 0.5f);
+	XMFLOAT2 scale = XMFLOAT2(1.0f, 1.0f);
 
 	for (int i = 0; i < m_nObjects; ++i) {
 		UIObject* button1;
@@ -489,6 +498,7 @@ UINT UIButtonShaders::CollisionButton()
 
 void UIFullScreenShaders::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets, void *pContext)
 {
+	TextureDataForm* textures = reinterpret_cast<TextureDataForm*>(pContext);
 	m_nObjects = 2;
 	m_nPSO = 1;
 
@@ -498,7 +508,7 @@ void UIFullScreenShaders::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSBlockUI", "ps_5_0");
 
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\MainSceneTexture\\MainBackgound_COLOR.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, textures->m_texture.c_str(), 0);
 
 	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
 

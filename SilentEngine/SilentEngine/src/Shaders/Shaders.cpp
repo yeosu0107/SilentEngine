@@ -960,13 +960,10 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 
 void TextureToFullScreen::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 {
-	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 
 	OnPrepareRender(pd3dCommandList);
 
 	m_pMaterial->UpdateShaderVariables(pd3dCommandList);
-
-	pCamera->SetViewportsAndScissorRects(pd3dCommandList);
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);

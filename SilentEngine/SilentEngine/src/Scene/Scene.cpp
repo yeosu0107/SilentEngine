@@ -166,16 +166,21 @@ bool TestScene::Update(const Timer & gt)
 	RoomChange();	
 	RoomFade();		
 
-
-	if (m_bIsGameOver) {
-		return m_pGameOverScene->Update(gt);
+	m_nSceneState = static_cast<SceneType>(CalNowScene());
+	if (m_nSceneState != NORMALLY) {
+		m_pUIScenes[m_nSceneState]->CollisionToMouse(m_pCursorPos);
+		return m_pUIScenes[m_nSceneState]->Update(gt);
 	}
 
-
-	if (!m_bMouseCapture) {
-		m_pButtons->CollisionButton();
-		return false;
-	}
+	//if (m_bIsGameOver) {
+	//	return m_pGameOverScene->Update(gt);
+	//}
+	//
+	//
+	//if (!m_bMouseCapture) {
+	//	m_pPauseScene->CollisionToMouse(m_pCursorPos);
+	//	return false;
+	//}
 
 	//물리 시물레이트
 	m_physics->stepPhysics(false);
@@ -366,28 +371,25 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	pSkill->SetPosScreenRatio(XMFLOAT2( 1.2f / 6.0f, 0.1f));
 	m_ppUIShaders[2] = pSkill;
 
-	texutredata[0].m_texture = L"res\\Texture\\PauseGame.DDS";
-	m_pPauseScreen = new TextureToFullScreen();
-	m_pPauseScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
-
 	texutredata[0].m_texture = L"res\\Texture\\blood4_bullet.DDS";
 	m_pTakeDamageScreen = new FadeEffectShader();
 	m_pTakeDamageScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
-	texutredata[1].m_texture = L"res\\Texture\\Back.DDS";
-	texutredata[0].m_texture = L"res\\Texture\\BackToMainMenu.DDS";
-	
-	m_pButtons = new UIButtonShaders();
-	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
-	m_pButtons->SetPoint(m_pCursorPos);
-	m_pButtons->SetPos(new XMFLOAT2(640.0f, 720.0f - 407.3f), 0);
-	m_pButtons->SetPos(new XMFLOAT2(870.0f, 720.0f - 455.0f), 1);
-	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 0);
-	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), 1);
-	m_pButtons->CreateCollisionBox();
 
-	m_pGameOverScene = make_unique<GameOverScene>();
-	m_pGameOverScene->BuildScene(pDevice, pCommandList);
+	m_pUIScenes = new virtualScene*[m_nUIScenes];
+
+	PauseScene* pauseScene = new PauseScene();
+	pauseScene->BuildScene(pDevice, pCommandList);
+	pauseScene->SetPoint(m_pCursorPos);
+	m_pUIScenes[PAUSE] = pauseScene;
+
+	GameOverScene* gameOverScene = new GameOverScene();
+	gameOverScene->BuildScene(pDevice, pCommandList);
+	m_pUIScenes[GAMEOVER] = gameOverScene;
+
+	ClearScene* clearScene = new ClearScene();
+	clearScene->BuildScene(pDevice, pCommandList);
+	m_pUIScenes[CLEAR] =clearScene;
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -436,16 +438,19 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 	for (UINT i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
 
-	if (!m_bMouseCapture && !m_bIsGameOver) {
-		m_pPauseScreen->Render(pCommandList, m_Camera.get());
-		m_pButtons->Render(pCommandList);
+	m_nSceneState = static_cast<SceneType>(CalNowScene());
+	if (m_nSceneState != NORMALLY) {
+		m_pUIScenes[m_nSceneState]->Render(pDevice, pCommandList);
 	}
-	
-
-	if (m_bIsGameOver) {
-		m_pGameOverScene->Render(pDevice, pCommandList);
-		return;
-	}
+	//if (!m_bMouseCapture && !m_bIsGameOver) {
+	//	m_pPauseScene->Render(pDevice, pCommandList);
+	//}
+	//
+	//
+	//if (m_bIsGameOver) {
+	//	m_pGameOverScene->Render(pDevice, pCommandList);
+	//	return;
+	//}
 
 
 	//페이트 INOUT 랜더링
@@ -476,13 +481,15 @@ void TestScene::CalculateLightMatrix(VS_CB_CAMERA_INFO & cameraInfo, int index, 
 bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 {
 	if (GetAsyncKeyState(VK_ESCAPE) & 0x0001) {
-		if (!m_bMouseCapture) {
+		if (!m_bMouseCapture && CalNowScene() == NORMALLY) {
 			::GetCursorPos(&m_ptOldCursorPos);
 			m_bMouseCapture = true;
+			m_nSceneState = static_cast<SceneType>(CalNowScene());
 		}
 		else {
 			::ReleaseCapture();
 			m_bMouseCapture = false;
+			m_nSceneState = static_cast<SceneType>(CalNowScene());
 		}
 	}
 
@@ -582,17 +589,11 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 			
 			m_attackEvent = false;
 
-			collButon = m_bIsGameOver ? m_pGameOverScene->CollisionToMouse(m_pCursorPos) : m_pButtons->CollisionButton();
-
-			if (collButon == 1) {
-				m_changeFade = FADE_IN;
-				m_isGameEnd = true;
-				m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
-			}
-			else if (collButon == 2) {
-				::GetCursorPos(&m_ptOldCursorPos);
-				m_bMouseCapture = true;
-			}
+			//collButon = m_bIsGameOver ? m_pGameOverScene->CollisionToMouse(m_pCursorPos) : m_pPauseScene->CollisionToMouse(m_pCursorPos);
+			m_nSceneState = static_cast<SceneType>(CalNowScene());
+			collButon = TranslateButton((m_nSceneState != NORMALLY) ? m_pUIScenes[m_nSceneState]->CollisionToMouse(m_pCursorPos) : 0);
+			ActiveButton(collButon);
+			
 			return false;
 		}
 		break;
@@ -643,11 +644,6 @@ bool TestScene::OnMouseMove(float x, float y)
 	}
 	else
 		m_testPlayer->Rotate(y, x, 0.0f);
-
-	if (m_bIsGameOver) {
-		int result = m_pGameOverScene->CollisionToMouse(m_pCursorPos);
-		return result > 0;
-	}
 
 	return true;
 }
@@ -822,6 +818,70 @@ void TestScene::RoomSetting()
 	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
 }
 
+UINT TestScene::TranslateButton(UINT nbutton)
+{
+	switch (m_nSceneState) {
+	case PAUSE:
+		switch (nbutton) {
+		case 0: return NONE;
+		case 1: return CONTINUE;
+		case 2: return EXIT;
+		case 3: return CONTINUE;
+		case 4: return CONTINUE;
+		} break;
+	
+	case GAMEOVER:
+	case CLEAR:
+		switch (nbutton) {
+		case 0: return NONE;
+		case 1: return EXIT;
+		} break;
+
+	case NORMALLY:
+		break;
+	}
+	//NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF
+	return NONE;
+}
+
+void TestScene::ActiveButton(UINT nbuttonType)
+{
+	//NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF
+	switch (nbuttonType) {
+	case NONE:
+		return;
+
+	case EXIT:
+		m_changeFade = FADE_IN;
+		m_isGameEnd = true;
+		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
+		return;
+
+	case CONTINUE: 
+		::GetCursorPos(&m_ptOldCursorPos);
+		m_bMouseCapture = true;
+		m_nSceneState = static_cast<SceneType>(CalNowScene());
+		return;
+
+	case HDRONOFF:
+		return;
+
+	case BLOOMONOFF:
+		return;
+	}
+
+	return;
+}
+
+
+UINT TestScene::CalNowScene()
+{
+	if (m_bIsGameOver) return GAMEOVER;
+	if (m_bIsClear) return CLEAR;
+	if (!m_bMouseCapture) return PAUSE;
+	return NORMALLY;
+}
+
 void TestScene::CaptureCursor()
 {
 	::GetCursorPos(&m_ptOldCursorPos);
@@ -830,8 +890,12 @@ void TestScene::CaptureCursor()
 void TestScene::ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	m_isRoomChange = Door(0, START_SOUTH, true);
-	m_pGameOverScene->Reset();
+	for (int i = 0; i < m_nUIScenes; ++i) {
+		m_pUIScenes[i]->Reset();
+	}
 	m_bIsGameOver = false;
+	m_bIsClear = false;
+
 	m_nowRoom = START_ROOM;
 	RoomSetting();
 	RoomChange();
@@ -879,9 +943,11 @@ void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	vector<TextureDataForm> texutredata(2);
 	texutredata[1].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
 	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameStart.dds";
+
 	m_pButtons = new UIButtonShaders();
 	m_pButtons->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &texutredata);
 	m_pButtons->SetPoint(m_pCursorPos);
+	m_pButtons->SetScale(&XMFLOAT2(1.5f, 1.5f), OPTSETALL);
 
 	texutredata[0].m_texture = L"res\\MainSceneTexture\\MainBackgound_COLOR.dds";
 	m_pBackground = new TextureToFullScreen();

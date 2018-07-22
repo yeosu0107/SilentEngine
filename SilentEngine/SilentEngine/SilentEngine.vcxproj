@@ -162,7 +162,7 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GameOverScene.cpp" />
+    <ClCompile Include="SceneState.cpp" />
     <ClCompile Include="src\Enemys\CreepArm.cpp" />
     <ClCompile Include="src\Enemys\GhostEnemy.cpp" />
     <ClCompile Include="src\Enemys\Rich.cpp" />
@@ -210,7 +210,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameOverScene.h" />
+    <ClInclude Include="SceneState.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\Enemys\CreepArm.h" />
     <ClInclude Include="src\Enemys\GhostEnemy.h" />

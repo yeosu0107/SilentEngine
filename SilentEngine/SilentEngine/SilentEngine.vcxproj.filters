@@ -233,7 +233,7 @@
     <ClCompile Include="src\Sound\SoundMgr.cpp">
       <Filter>SoundMgr</Filter>
     </ClCompile>
-    <ClCompile Include="GameOverScene.cpp">
+    <ClCompile Include="SceneState.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
   </ItemGroup>
@@ -382,7 +382,7 @@
     <ClInclude Include="src\Sound\SoundMgr.h">
       <Filter>SoundMgr</Filter>
     </ClInclude>
-    <ClInclude Include="GameOverScene.h">
+    <ClInclude Include="SceneState.h">
       <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
