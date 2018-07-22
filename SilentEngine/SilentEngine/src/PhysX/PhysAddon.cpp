@@ -2,6 +2,8 @@
 #include "PhysAddon.h"
 #include "..\Shaders\PaticleShader.h"
 
+unsigned char att_checker = 0;
+
 void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 {
 	auto CollisionObject = trigger->otherActor;
@@ -14,6 +16,21 @@ void PhysSimulation::PlayerToEnemy(PxTriggerPair * trigger)
 	GlobalVal::getInstance()->setPaticle(damage->paticleType, hitPoint);
 
 	GlobalVal::getInstance()->getSceneCamera()->ShakeInit();
+
+	if (damage->paticleType == 0) {
+		att_checker += 1;
+		if (att_checker >= 3) {
+			att_checker = 0;
+			SoundMgr::getInstance()->play(SOUND::HIT02, CHANNEL::FX);
+		}
+		else {
+			SoundMgr::getInstance()->play(SOUND::HIT01, CHANNEL::FX);
+		}
+	}
+	else {
+		SOUND fx_index = SOUNDEFFECT(damage->paticleType);
+		SoundMgr::getInstance()->play(fx_index, CHANNEL::FX);
+	}
 
 	for (UINT i = 0; i < *GlobalVal::getInstance()->getNumEnemy(); ++i) {
 		enemy = GlobalVal::getInstance()->getEnemy()[i];

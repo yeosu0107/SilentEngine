@@ -24,6 +24,18 @@ void SoundMgr::init()
 	m_fmod->createSound("res\\Sound\\scary_1.wav", FMOD_LOOP_NORMAL, nullptr, &m_sound[BGM_SCARY_1]);
 	m_fmod->createSound("res\\Sound\\scary_2.wav", FMOD_LOOP_NORMAL, nullptr, &m_sound[BGM_SCARY_2]);
 	m_fmod->createSound("res\\Sound\\scary_3.wav", FMOD_LOOP_NORMAL, nullptr, &m_sound[BGM_SCARY_3]);
+
+	//FX 荤款靛 积己
+	m_fmod->createSound("res\\Sound\\hit01.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[HIT01]);
+	m_fmod->createSound("res\\Sound\\hit02.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[HIT02]);
+	m_fmod->createSound("res\\Sound\\hit03.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[KICK01]);
+	m_fmod->createSound("res\\Sound\\hit04.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[KICK02]);
+	m_fmod->createSound("res\\Sound\\hit05.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[PUNCH01]);
+
+	//Player 荤款靛 积己
+	m_fmod->createSound("res\\Sound\\Attack01.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ATT01]);
+	m_fmod->createSound("res\\Sound\\Attack02.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ATT02]);
+	m_fmod->createSound("res\\Sound\\Attack03.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ATT03]);
 }
 
 void SoundMgr::play(SOUND index, CHANNEL chNum)

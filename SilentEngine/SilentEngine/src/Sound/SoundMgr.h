@@ -7,13 +7,22 @@
 
 using namespace FMOD;
 
+
+
 enum SOUND {
 	BGM_FANTASY_1 = 0, BGM_FANTASY_2 = 1, BGM_FANTASY_3,
-	BGM_SCARY_1, BGM_SCARY_2, BGM_SCARY_3
+	BGM_SCARY_1, BGM_SCARY_2, BGM_SCARY_3,
+	HIT01, KICK01, KICK02, PUNCH01, HIT02,
+	ATT01, ATT02, ATT03
 };
 
+inline SOUND SOUNDEFFECT(UINT index) {
+	//index를 넣으면 BGM 다음 인덱스를 반환
+	return static_cast<SOUND>(6 + index);
+}
+
 enum CHANNEL {
-	BGM = 0, FX = 1
+	BGM = 0, FX = 1, PLAYER = 2
 };
 
 class SoundMgr
@@ -23,7 +32,7 @@ private:
 
 	System*					m_fmod;
 	Channel*				m_ch[10];
-	Sound*					m_sound[10];
+	Sound*					m_sound[20];
 public:
 	static SoundMgr * getInstance();
 
