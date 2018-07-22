@@ -12,9 +12,9 @@ struct CB_UI_INFO {
 	UINT	 m_nTexType;
 	float	 m_fData;
 
+	float m_fData2 = 0.0f;
 	XMFLOAT2 m_xmf2Scale;
 	float    m_fAlpha = 1.0f;
-	float    m_fdump2 = 0;
 };
 
 class UIObject
@@ -33,7 +33,7 @@ public:
 
 	virtual void SetRootParameter(ID3D12GraphicsCommandList *pd3dCommandList);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList);
-	virtual bool CollisionUI(POINT* pPoint, float trueSetData, float falseSetData = 0.0f);
+	virtual bool CollisionUI(POINT* pPoint, XMFLOAT2& trueSetData, XMFLOAT2& falseSetData = XMFLOAT2(0.0f, 0.0f));
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 	virtual void CreateCollisionBox();
 	virtual void SetScreenSize(XMFLOAT2& size);
@@ -60,6 +60,8 @@ public:
 	XMUINT2		m_nSize;
 	UINT		m_nTexType;
 	float		m_fData = 0.0f;
+	float		m_fData2 = 0.0f;
+
 	float		m_fAlpha = 1.0f;
 
 	XMFLOAT2	m_xmf2Scale = XMFLOAT2(1.0f, 1.0f);

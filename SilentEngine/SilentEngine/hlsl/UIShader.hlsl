@@ -61,12 +61,19 @@ float4 PSMiniMap(VS_TEXTURED_OUTPUT input) : SV_Target
     float4 finalColor = (float4) 0.0f;
     float2 uv = input.uv;
  
-    uv = float2(input.uv.x / gnNumSprite.x + gfData / gnNumSprite.x, input.uv.y);
+    uv = float2(
+    input.uv.x / gnNumSprite.x + gfData / gnNumSprite.x, 
+    input.uv.y / gnNumSprite.y + gfData2 / gnNumSprite.y
+    );
 
     if (gnTexType == 0) 
         finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
     else if (gnTexType == 1)
         finalColor = gUITextures[1].Sample(gDefaultSamplerState, uv);
+    else if (gnTexType == 2)
+        finalColor = gUITextures[2].Sample(gDefaultSamplerState, uv);
+    else if (gnTexType == 3)
+        finalColor = gUITextures[3].Sample(gDefaultSamplerState, uv);
 
     finalColor.a *= gfAlpha;
 

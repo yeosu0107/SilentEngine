@@ -963,15 +963,6 @@ void Framework::OnKeyboardInput(const Timer& gt)
 	if (GetAsyncKeyState(VK_LCONTROL) & 0x0001){
 		m_bDebugGBuffers = !m_bDebugGBuffers;
 	}
-	if (GetAsyncKeyState(VK_RSHIFT) & 0x0001) {
-		m_bHDR = !m_bHDR;
-		m_HDRShader->EnableHDR(m_bHDR);
-	}
-	if (GetAsyncKeyState(VK_LSHIFT) & 0x0001) {
-		m_bBloom = !m_bBloom;
-		m_HDRShader->EnableBloom(m_bBloom);
-	}
-
 	if (GetAsyncKeyState(VK_F2) & 0x0001) {
 		m_HDRShader->UpGreyScale(0.01f);
 	}

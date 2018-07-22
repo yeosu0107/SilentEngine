@@ -100,6 +100,10 @@ using namespace std;
 const UINT MAX_MAP = 11;
 
 extern UINT	gnCbvSrvDescriptorIncrementSize;
+extern bool HDR_ON;
+extern bool BLOOM_ON;
+
+
 
 #define DIR_FORWARD				0x01
 #define DIR_BACKWARD			0x02

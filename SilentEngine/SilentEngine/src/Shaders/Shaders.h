@@ -7,6 +7,7 @@
 
 using namespace std;
 
+
 #define COMPILEDSHADERS CompiledShaders::Instance()
 #define ShadowShader ShadowDebugShader::Instance()
 
@@ -338,8 +339,6 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void DispatchComputePipeline(ID3D12GraphicsCommandList * pd3dCommandList, int index = 0);
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
-	virtual void EnableHDR(bool enabled);
-	virtual void EnableBloom(bool enabled);
 	virtual void Dispatch(ID3D12GraphicsCommandList * pd3dCommandList);
 	virtual void UpGreyScale(float addScale);
 	virtual void UpWhiteScale(float addScale);

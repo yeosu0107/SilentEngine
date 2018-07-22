@@ -1,36 +1,72 @@
 #include "stdafx.h"
 #include "SceneState.h"
 
-int virtualScene::CollisionToMouse(POINT * mousePos)
+int virtualScene::CollisionToMouseClick(POINT * mousePos)
 {
 	m_pButtons->SetPoint(mousePos);
-	return m_pButtons->CollisionButton();
+	return m_pButtons->ClickButton();
 }
 
+void virtualScene::ColiisionToMouseMove(POINT * mousePos)
+{
+	m_pButtons->SetPoint(mousePos);
+	m_pButtons->CollisionButton();
+}
 
 void PauseScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	vector<TextureDataForm> texutredata(2);
+	const float yStartPof = 555.0f;
+	const float yOffset = 75.0f;
+	int i = 0;
 
+	vector<TextureDataForm> texutredata(4);
+
+	////////////// HDR , BLOOM 글자 텍스쳐 출력 /////////////////
+	texutredata[0] = { L"res\\MainSceneTexture\\BLOOM.DDS", L"", 1.0f, 1.0f };
+	texutredata[1] = { L"res\\MainSceneTexture\\HDR.DDS", L"", 1.0f, 1.0f };
+
+	m_pTextureUI[0] = make_unique<UIShaders>();
+	m_pTextureUI[0]->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	m_pTextureUI[0]->SetPos(new XMFLOAT2(130.0f, yStartPof - (yOffset * i++)), 0);
+	m_pTextureUI[0]->SetScale(&XMFLOAT2(0.8f, 0.8f), 0);
+
+	m_pTextureUI[1] = make_unique<UIShaders>();
+	m_pTextureUI[1]->BuildObjects(pDevice, pCommandList, 1, &texutredata[1]);
+	m_pTextureUI[1]->SetPos(new XMFLOAT2(130.0f, yStartPof - (yOffset * i++)), 0);
+	m_pTextureUI[1]->SetScale(&XMFLOAT2(0.8f, 0.8f), 0);
+
+	i++;
+
+	////////////// 컨티뉴 , 메인화면으로 버튼 /////////////////
 	texutredata[0].m_texture = L"res\\Texture\\PauseGame.DDS";
 	m_pPauseScreen = make_unique<TextureToFullScreen>();
 	m_pPauseScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
-	texutredata[0].m_texture = L"res\\Texture\\Continue.DDS";
-	texutredata[1].m_texture = L"res\\Texture\\BackToMainMenu.DDS";
+	texutredata[0] = { L"res\\MainSceneTexture\\ONOFF.DDS", L"",	2.0f, 2.0f };
+	texutredata[1] = { L"res\\MainSceneTexture\\ONOFF.DDS", L"",	2.0f, 2.0f };
+	texutredata[2] = { L"res\\Texture\\Continue.DDS", L"",			2.0f, 1.0f };
+	texutredata[3] = { L"res\\Texture\\BackToMainMenu.DDS", L"",	2.0f, 1.0f };
 
 	m_pButtons = make_unique<UIButtonShaders>();
 	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
-	m_pButtons->SetPos(new XMFLOAT2(130.0f, 720.0f - 165.0f), 0); 
-	m_pButtons->SetPos(new XMFLOAT2(205.0f, 720.0f - 230.0f), 1);
+	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * 0)), 0);
+	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * 1)), 1);
+	m_pButtons->SetPos(new XMFLOAT2(130.0f, yStartPof - (yOffset * i++)), 2);
+	m_pButtons->SetPos(new XMFLOAT2(205.0f, yStartPof - (yOffset * i++)), 3);
+
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), OPTSETALL);
 	m_pButtons->CreateCollisionBox();
+
 }
 
 void PauseScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
 	m_pPauseScreen->Render(pCommandList);
 	m_pButtons->Render(pCommandList);
+
+	for (int i = 0; i < m_nTextureUI; ++i) {
+		m_pTextureUI[i]->Render(pCommandList);
+	}
 }
 
 
@@ -45,6 +81,8 @@ void GameOverScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList
 	m_pBlocks->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
 	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
+	texutredata[0].m_MaxX = 2.0f;
+	texutredata[0].m_MaxY = 1.0f;
 
 	m_pButtons = make_unique<UIButtonShaders>();
 	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
@@ -140,6 +178,8 @@ void ClearScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 	m_pBlocks->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
 	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
+	texutredata[0].m_MaxX = 2.0f;
+	texutredata[0].m_MaxY = 1.0f;
 
 	m_pButtons = make_unique<UIButtonShaders>();
 	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);

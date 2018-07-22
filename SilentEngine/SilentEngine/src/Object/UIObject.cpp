@@ -23,20 +23,23 @@ void UIObject::Render(ID3D12GraphicsCommandList * pd3dCommandList)
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
 }
 
-bool UIObject::CollisionUI(POINT * pPoint, float trueSetData, float falseSetData)
+bool UIObject::CollisionUI(POINT * pPoint, XMFLOAT2& trueSetData, XMFLOAT2& falseSetData)
 {
 	if (m_fAlpha < 1.0f) {
-		m_fData = falseSetData;
+		m_fData = falseSetData.x;
+		m_fData2 = falseSetData.y;
 		return false;
 	}
 
 	if (m_xmf2StartPos.x < pPoint->x && m_xmf2StartPos.y > pPoint->y) {
 		if (m_xmf2EndPos.x > pPoint->x && m_xmf2EndPos.y < pPoint->y) {
-			m_fData = trueSetData;
+			m_fData = trueSetData.x;
+			m_fData2 = trueSetData.y;
 			return true;
 		}
 	}
-	m_fData = falseSetData;
+	m_fData = falseSetData.x;
+	m_fData2 = falseSetData.y;
 	return false;
 }
 

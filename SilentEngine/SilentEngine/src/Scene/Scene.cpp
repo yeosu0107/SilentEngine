@@ -166,26 +166,17 @@ bool TestScene::Update(const Timer & gt)
 	RoomChange();	
 	RoomFade();		
 
-	m_nSceneState = static_cast<SceneType>(CalNowScene());
-	if (m_nSceneState != NORMALLY) {
-		m_pUIScenes[m_nSceneState]->CollisionToMouse(m_pCursorPos);
-		return m_pUIScenes[m_nSceneState]->Update(gt);
-	}
-
-	//if (m_bIsGameOver) {
-	//	return m_pGameOverScene->Update(gt);
-	//}
-	//
-	//
-	//if (!m_bMouseCapture) {
-	//	m_pPauseScene->CollisionToMouse(m_pCursorPos);
-	//	return false;
-	//}
-
 	//물리 시물레이트
 	m_physics->stepPhysics(false);
 	//플레이어 애니메이트
 	m_playerShader->Animate(gt.DeltaTime());
+
+	m_nSceneState = static_cast<SceneType>(CalNowScene());
+	if (m_nSceneState != NORMALLY) {
+		m_pUIScenes[m_nSceneState]->ColiisionToMouseMove(m_pCursorPos);
+		return m_pUIScenes[m_nSceneState]->Update(gt);
+	}
+
 	if (m_attackEvent) {
 		DWORD input = 0;
 		input |= ANI_ATTACK;
@@ -426,6 +417,12 @@ void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList *
 
 void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	// 플레이어가 죽었는지 탐지
+	if (m_testPlayer->GetStatus()->m_health <= 0.0f && !m_bIsGameOver) {
+		m_bIsGameOver = true;
+		::ReleaseCapture();
+		m_bMouseCapture = false;
+	}
 	
 	if (m_testPlayer->getHitted() == true) {
 		if(m_testPlayer->isLive() == true)
@@ -442,16 +439,6 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 	if (m_nSceneState != NORMALLY) {
 		m_pUIScenes[m_nSceneState]->Render(pDevice, pCommandList);
 	}
-	//if (!m_bMouseCapture && !m_bIsGameOver) {
-	//	m_pPauseScene->Render(pDevice, pCommandList);
-	//}
-	//
-	//
-	//if (m_bIsGameOver) {
-	//	m_pGameOverScene->Render(pDevice, pCommandList);
-	//	return;
-	//}
-
 
 	//페이트 INOUT 랜더링
 	m_pFadeEffectShader->Render(pCommandList, m_Camera.get());
@@ -486,6 +473,9 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 			m_bMouseCapture = true;
 			m_nSceneState = static_cast<SceneType>(CalNowScene());
 		}
+		else if (CalNowScene() == PAUSE) {
+			m_bMouseCapture = true;
+		}
 		else {
 			::ReleaseCapture();
 			m_bMouseCapture = false;
@@ -517,9 +507,6 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 
 	if (GetAsyncKeyState('P') & 0x0001) {
 		m_testPlayer->GetStatus()->m_health = 0.0f;
-		m_bIsGameOver = true;
-		::ReleaseCapture();
-		m_bMouseCapture = false;
 	}
 
 #ifdef _DEBUG
@@ -591,7 +578,7 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 
 			//collButon = m_bIsGameOver ? m_pGameOverScene->CollisionToMouse(m_pCursorPos) : m_pPauseScene->CollisionToMouse(m_pCursorPos);
 			m_nSceneState = static_cast<SceneType>(CalNowScene());
-			collButon = TranslateButton((m_nSceneState != NORMALLY) ? m_pUIScenes[m_nSceneState]->CollisionToMouse(m_pCursorPos) : 0);
+			collButon = TranslateButton((m_nSceneState != NORMALLY) ? m_pUIScenes[m_nSceneState]->CollisionToMouseClick(m_pCursorPos) : 0);
 			ActiveButton(collButon);
 			
 			return false;
@@ -824,10 +811,10 @@ UINT TestScene::TranslateButton(UINT nbutton)
 	case PAUSE:
 		switch (nbutton) {
 		case 0: return NONE;
-		case 1: return CONTINUE;
-		case 2: return EXIT;
+		case 1: return BLOOMONOFF;
+		case 2: return HDRONOFF;
 		case 3: return CONTINUE;
-		case 4: return CONTINUE;
+		case 4: return EXIT;
 		} break;
 	
 	case GAMEOVER:
@@ -864,9 +851,11 @@ void TestScene::ActiveButton(UINT nbuttonType)
 		return;
 
 	case HDRONOFF:
+		HDR_ON = !HDR_ON;
 		return;
 
 	case BLOOMONOFF:
+		BLOOM_ON = !BLOOM_ON;
 		return;
 	}
 
@@ -942,7 +931,12 @@ void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 	vector<TextureDataForm> texutredata(2);
 	texutredata[1].m_texture = L"res\\MainSceneTexture\\GameExit.dds";
+	texutredata[1].m_MaxX = 2.0f;
+	texutredata[1].m_MaxY = 1.0f;
+
 	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameStart.dds";
+	texutredata[0].m_MaxX = 2.0f;
+	texutredata[0].m_MaxY = 1.0f;
 
 	m_pButtons = new UIButtonShaders();
 	m_pButtons->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &texutredata);

@@ -124,9 +124,9 @@ cbuffer cbUIInfo : register(b9)
     uint    gnTexType;
     float   gfData;
 
+    float  gfData2;
     float2 gfScale;
     float  gfAlpha;
-    float  dump2;
 };
 
 cbuffer cbSceneBlurInfo : register(b10)

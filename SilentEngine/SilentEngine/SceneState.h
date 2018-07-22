@@ -2,13 +2,17 @@
 #include "UIShaders.h"
 #include "Timer.h"
 
+const int m_nTextureUI = 2;
+
 class virtualScene {
 public:
 	virtualScene() = default;
 	~virtualScene() = default;
 
 public:
-	virtual int CollisionToMouse(POINT* mousePos);
+	virtual int CollisionToMouseClick(POINT* mousePos);
+	virtual void ColiisionToMouseMove(POINT* mousePos);
+
 	virtual void SetPoint(POINT* pPoint) { m_pButtons->SetPoint(pPoint); }
 
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) {};
@@ -33,6 +37,8 @@ public:
 	virtual void Render(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	
 protected:
+
+	unique_ptr<UIShaders> m_pTextureUI[m_nTextureUI];
 	unique_ptr<TextureToFullScreen> m_pPauseScreen = nullptr;
 };
 

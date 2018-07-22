@@ -1770,6 +1770,7 @@ void HDRShader::CreateUAVResourceView(ID3D12Device *pd3dDevice, ID3D12GraphicsCo
 
 void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+
 	CTexture* pTexture = (CTexture *)pContext;
 
 	m_pTexture = make_unique<CTexture>(*pTexture);
@@ -1837,6 +1838,9 @@ void HDRShader::CreateComputeBuffer(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 void HDRShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
+	m_HDRToneMappData.m_EnableHDR = HDR_ON ? 1.0f : 0.0f;
+	m_HDRToneMappData.m_EnableBloom = BLOOM_ON ? 1.0f : 0.0f;
+
 	m_HDRDownScaleCB->CopyData(0, m_HDRDownScaleData);
 	m_HDRToneMappCB->CopyData(0, m_HDRToneMappData);
 
@@ -1909,16 +1913,6 @@ void HDRShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCa
 
 	pd3dCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	pd3dCommandList->DrawInstanced(6, 1, 0, 0);
-}
-
-void HDRShader::EnableHDR(bool enabled)
-{
-	m_HDRToneMappData.m_EnableHDR = enabled ? 1.0f : 0.0f;
-}
-
-void HDRShader::EnableBloom(bool enabled)
-{
-	m_HDRToneMappData.m_EnableBloom = enabled ? 1.0f : 0.0f;
 }
 
 void HDRShader::Dispatch(ID3D12GraphicsCommandList * pd3dCommandList)

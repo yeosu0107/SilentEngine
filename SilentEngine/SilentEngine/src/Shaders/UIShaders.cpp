@@ -167,6 +167,7 @@ void UIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandLis
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		cBuffer.m_fData = m_pUIObjects[i]->m_fData;
+		cBuffer.m_fData2 = m_pUIObjects[i]->m_fData2;
 		cBuffer.m_nNowSprite = m_pUIObjects[i]->m_nNowSprite;
 		cBuffer.m_nNumSprite = m_pUIObjects[i]->m_nNumSprite;
 		cBuffer.m_nSize = m_pUIObjects[i]->m_nSize;
@@ -476,8 +477,8 @@ void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 
 	for (int i = 0; i < m_nObjects; ++i) {
 		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
-		m_pUIObjects[i]->SetNumSprite(XMUINT2(2, 1), XMUINT2(0, 0));
-		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2(2, 1)));
+		m_pUIObjects[i]->SetNumSprite(XMUINT2((*textures)[i].m_MaxX, (*textures)[i].m_MaxY), XMUINT2(0, 0));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2((*textures)[i].m_MaxX, (*textures)[i].m_MaxY)));
 		m_pUIObjects[i]->SetType(i);
 		m_pUIObjects[i]->CreateCollisionBox();
 		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
@@ -487,8 +488,29 @@ void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 UINT UIButtonShaders::CollisionButton()
 {
 	UINT collision = 0;
+	XMFLOAT2 trueSetData = XMFLOAT2();
+	XMFLOAT2 falseSetData = XMFLOAT2();
 	for (UINT i = 0; i < m_nObjects; ++i) {
-		if(m_pUIObjects[i]->CollisionUI(m_pMousePosition, 1.0f, 0.0f))
+		trueSetData = XMFLOAT2( 1.0f, m_pUIObjects[i]->m_fData2);
+		falseSetData = XMFLOAT2( 0.0f, m_pUIObjects[i]->m_fData2);
+
+		if(m_pUIObjects[i]->CollisionUI(m_pMousePosition, trueSetData, falseSetData))
+			collision = i + 1;
+	}
+	return collision;
+}
+
+UINT UIButtonShaders::ClickButton()
+{
+	UINT collision = 0;
+	XMFLOAT2 trueSetData = XMFLOAT2();
+	XMFLOAT2 falseSetData = XMFLOAT2();
+	for (UINT i = 0; i < m_nObjects; ++i) {
+		UINT newYData = static_cast<UINT>((m_pUIObjects[i]->m_fData2) + 1) % m_pUIObjects[i]->m_nNumSprite.y;
+		trueSetData = XMFLOAT2(1.0f, static_cast<float>(newYData));
+		falseSetData = XMFLOAT2(0.0f, m_pUIObjects[i]->m_fData2);
+
+		if (m_pUIObjects[i]->CollisionUI(m_pMousePosition, trueSetData, falseSetData))
 			collision = i + 1;
 	}
 	return collision;

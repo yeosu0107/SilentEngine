@@ -2,6 +2,9 @@
 #include "D3DUtil.h"
 #include <comdef.h>
 
+bool HDR_ON = true;
+bool BLOOM_ON = true;
+
 DxException::DxException(HRESULT hr, const std::wstring & functionName, const std::wstring & filename, int lineNumber) :
 	ErrorCode(hr),
 	FunctionName(functionName),
