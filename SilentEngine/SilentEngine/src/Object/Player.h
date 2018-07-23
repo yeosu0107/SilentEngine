@@ -146,5 +146,5 @@ public:
 	void reset();
 
 	void roomClearBouns(ClearBouns index);
-	void roomClearBouns();
+	UINT roomClearBouns();
 };

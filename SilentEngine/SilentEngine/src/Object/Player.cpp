@@ -470,7 +470,7 @@ void Player::roomClearBouns(ClearBouns index)
 	}
 }
 
-void Player::roomClearBouns()
+UINT Player::roomClearBouns()
 {
 	UINT index = rand() % 7;
 #ifdef _DEBUG
@@ -509,4 +509,6 @@ void Player::roomClearBouns()
 #endif
 		break;
 	}
+
+	return index;
 }

@@ -359,7 +359,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	texutredata[0].m_MaxY = 1;
 
 	pSkill->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
-	pSkill->SetPosScreenRatio(XMFLOAT2( 1.2f / 6.0f, 0.1f));
+	pSkill->SetPosScreenRatio(XMFLOAT2( 0.5f, 0.045f));
 	m_ppUIShaders[2] = pSkill;
 
 	texutredata[0].m_texture = L"res\\Texture\\blood4_bullet.DDS";
