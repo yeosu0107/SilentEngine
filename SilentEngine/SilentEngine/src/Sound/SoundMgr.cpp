@@ -36,6 +36,10 @@ void SoundMgr::init()
 	m_fmod->createSound("res\\Sound\\Attack01.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ATT01]);
 	m_fmod->createSound("res\\Sound\\Attack02.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ATT02]);
 	m_fmod->createSound("res\\Sound\\Attack03.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ATT03]);
+	m_fmod->createSound("res\\Sound\\Skill01.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[SKILL01]);
+	m_fmod->createSound("res\\Sound\\Skill02.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[SKILL02]);
+	m_fmod->createSound("res\\Sound\\Skill03.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[SKILL03]);
+	m_fmod->createSound("res\\Sound\\Skill04.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[SKILL04]);
 }
 
 void SoundMgr::play(SOUND index, CHANNEL chNum)

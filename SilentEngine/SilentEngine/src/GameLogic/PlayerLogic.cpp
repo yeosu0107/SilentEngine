@@ -79,18 +79,21 @@ void PlayerLogic::changeState(STATE newState)
 	if (newState == STATE::kick) {
 		m_attackType = AttackType::Kick;
 		m_state = STATE::attack;
+		SoundMgr::getInstance()->play(SOUND::SKILL01, CHANNEL::PLAYER);
 		m_owner->ChangeAnimation(PlayerAni::KickAttack);
 		return;
 	}
 	if (newState == STATE::upper) {
 		m_attackType = AttackType::Upper;
 		m_state = STATE::attack;
+		SoundMgr::getInstance()->play(SOUND::SKILL02, CHANNEL::PLAYER);
 		m_owner->ChangeAnimation(PlayerAni::KickAttack2);
 		return;
 	}
 	if (newState == STATE::punch) {
 		m_attackType = AttackType::Punch;
 		m_state = STATE::attack;
+		SoundMgr::getInstance()->play(SOUND::SKILL03, CHANNEL::PLAYER);
 		m_owner->ChangeAnimation(PlayerAni::PowerPunch);
 		return;
 	}
@@ -141,6 +144,7 @@ void PlayerLogic::changeState(STATE newState)
 		m_owner->ChangeAnimation(PlayerAni::Move);
 		break;
 	case STATE::skill:
+		SoundMgr::getInstance()->play(SOUND::SKILL04, CHANNEL::PLAYER);
 		m_owner->ChangeAnimation(PlayerAni::Skill);
 		break;
 	default:
