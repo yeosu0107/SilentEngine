@@ -424,6 +424,12 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 		m_bMouseCapture = false;
 	}
 	
+	if(m_Room[m_nowRoom]->getType() == BOSS_ROOM && m_Room[m_nowRoom]->IsClear()){
+		m_bIsClear = true;
+		::ReleaseCapture();
+		m_bMouseCapture = false;
+	}
+
 	if (m_testPlayer->getHitted() == true) {
 		if(m_testPlayer->isLive() == true)
 			m_pTakeDamageScreen->SetFadeIn(true, 0.2f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
