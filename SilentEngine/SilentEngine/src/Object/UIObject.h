@@ -36,6 +36,7 @@ public:
 	virtual bool CollisionUI(POINT* pPoint, XMFLOAT2& trueSetData, XMFLOAT2& falseSetData = XMFLOAT2(0.0f, 0.0f));
 	virtual void BuildMaterials(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList) { }
 	virtual void CreateCollisionBox();
+	virtual void SetEnabled(bool enable) { m_bEnabled = enable; }
 	virtual void SetScreenSize(XMFLOAT2& size);
 	virtual void SetPosition(XMFLOAT2& pos);
 	virtual void SetScale(XMFLOAT2& scale);
@@ -47,7 +48,7 @@ public:
 
 public:
 	
-	bool										m_bEnabled;
+	bool										m_bEnabled = true;
 	float										m_fAnimationTime;
 	D3D12_GPU_DESCRIPTOR_HANDLE					m_d3dCbvGPUDescriptorHandle;
 

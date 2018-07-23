@@ -55,6 +55,22 @@ VS_TEXTURED_OUTPUT VSUITextured(uint nVertexID : SV_VertexID)
     return output;
 };
 
+float4 PSDefaultUI(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    float4 finalColor = (float4) 0.0f;
+    float2 uv = input.uv;
+ 
+    uv = float2(
+    input.uv.x / gnNumSprite.x + float(gnNowSprite.x) / float(gnNumSprite.x),
+    input.uv.y / gnNumSprite.y + float(gnNowSprite.y) / float(gnNumSprite.y)
+    );
+
+    finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+    finalColor.a *= gfAlpha;
+
+    return finalColor;
+}
+
 
 float4 PSMiniMap(VS_TEXTURED_OUTPUT input) : SV_Target
 {
@@ -111,6 +127,45 @@ float4 PSBlockUI(VS_TEXTURED_OUTPUT input) : SV_Target
  
     uv = float2(input.uv.x / gnNumSprite.x + gfData / gnNumSprite.x, input.uv.y);
 
+    finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+
+    finalColor.a *= gfAlpha;
+
+    return finalColor;
+}
+
+float4 PSCoolDownUI(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    float4 finalColor = (float4) 0.0f;
+    float2 uv = input.uv;
+    float2 newuv = uv;
+    float value  = 0.0f;
+    const float pi = 3.141592;
+    const float f = gfData;
+
+    if (f <= 0.5f)
+    {
+        float tan = -cos(f * 2.0f * pi) / sin(f * 2.0f * pi);
+        uv = float2(input.uv.x / gnNumSprite.x + float(gnNowSprite.x) / float(gnNumSprite.x), input.uv.y);  // 실제 텍스쳐 uv 변환
+        newuv = input.uv;
+        newuv = newuv * 2.0f - float2(1.0f, 1.0f); // 계산을 위해 -1 ~ 1로 변환
+        value = tan * newuv.x; // newuv 좌표는 -1 ~ 1  = - 붙혀줘야 
+        if (newuv.x > 0.0f && value > newuv.y)
+            return (float4) 0.0f;
+    }
+
+    else if( f <= 1.0f)
+    {
+        float tan = -cos(f * 2.0f * pi) / sin(f * 2.0f * pi);
+        uv = float2(input.uv.x / gnNumSprite.x + float(gnNowSprite.x) / float(gnNumSprite.x), input.uv.y); // 실제 텍스쳐 uv 변환
+        newuv = input.uv;
+        newuv = newuv * 2.0f - float2(1.0f, 1.0f); // 계산을 위해 -1 ~ 1로 변환
+        value = tan * newuv.x; // newuv 좌표는 -1 ~ 1  = - 붙혀줘야 
+
+        if (newuv.x <= 0.0f && value < newuv.y)   return (float4) 0.0f;
+        else if (newuv.x > 0.0f)                    return (float4) 0.0f;
+    }
+   
     finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
 
     finalColor.a *= gfAlpha;

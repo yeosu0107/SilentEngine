@@ -128,7 +128,9 @@ protected:
 	BillboardShader*										m_EffectShaders = nullptr;
 	//BillboardShader*										m_hitEffectShaders = nullptr;
 	vector<BillboardShader*>							m_hitEffectShaders;
-	
+
+	unique_ptr<SkillUIShaders>							m_SkilCooldown;
+	unique_ptr<UIShaders>								m_BonusShader;
 	ProjectileShader*									m_Projectile = nullptr;
 	
 	Room**													m_Room = nullptr;

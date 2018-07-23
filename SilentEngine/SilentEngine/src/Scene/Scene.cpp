@@ -151,7 +151,9 @@ void TestScene::UpdateShaderVarialbes() {
 
 bool TestScene::Update(const Timer & gt)
 {
-	
+	m_BonusShader->RefreshTimer(gt.DeltaTime());
+
+	m_SkilCooldown->Animate(gt.DeltaTime());
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	m_pTakeDamageScreen->Animate(gt.DeltaTime());
 	if (m_isGameEnd && m_changeFade == FADE_END) {
@@ -191,7 +193,8 @@ bool TestScene::Update(const Timer & gt)
 		if (m_Room[m_nowRoom]->IsStatBouns()) {
 			m_Room[m_nowRoom]->SetStatBouns(false);
 			//reinterpret_cast<Player*>(m_testPlayer)->roomClearBouns(ClearBouns::plusAtk);
-			reinterpret_cast<Player*>(m_testPlayer)->roomClearBouns();
+			UINT index = reinterpret_cast<Player*>(m_testPlayer)->roomClearBouns();
+			m_BonusShader->SetNowSprite(XMUINT2(0, index));
 		}
 	}
 
@@ -338,6 +341,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 
 void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	Player* player = dynamic_cast<Player*>(m_playerShader->getPlayer(0));
 	m_ppUIShaders.clear();
 	m_nUIShaders = 3;
 	m_ppUIShaders.resize(m_nUIShaders);
@@ -353,10 +357,30 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	pMinimap->BuildObjects(pDevice, pCommandList, 1);
 	m_ppUIShaders[1] = pMinimap;
 
-	UIShaders* pSkill = new UIShaders();
-	texutredata[0].m_texture = L"res\\Texture\\Skill.DDS";
-	texutredata[0].m_MaxX = 1;
-	texutredata[0].m_MaxY = 1;
+	texutredata[0].m_texture = L"res\\MainSceneTexture\\Cooldown.DDS";
+	texutredata[0].m_MaxX = 3;
+
+	m_SkilCooldown = make_unique<SkillUIShaders>();
+	m_SkilCooldown->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	m_SkilCooldown->LinkedSkillTime(player->getKickDelay(), 5000, 0);
+	m_SkilCooldown->LinkedSkillTime(player->getUpperDelay(), 5000, 1);
+	m_SkilCooldown->LinkedSkillTime(player->getPunchDelay(), 5000, 2);
+	m_SkilCooldown->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
+	m_SkilCooldown->SetPosScreenRatio(XMFLOAT2(0.5f, 0.045f), 0);
+	m_SkilCooldown->MovePos(XMFLOAT2(-75.0f, 0.0f), 0);
+	m_SkilCooldown->SetPosScreenRatio((XMFLOAT2(0.5f, 0.045f)), 1);
+	m_SkilCooldown->SetPosScreenRatio((XMFLOAT2(0.5f, 0.045f)), 2);
+	m_SkilCooldown->MovePos(XMFLOAT2(75.0f, 0.0f), 2);
+
+	m_BonusShader = make_unique<UIShaders>();
+	texutredata[0] = { L"res\\Texture\\EventMessage.DDS", L"", 1 , 7 };
+	m_BonusShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	m_BonusShader->SetPosScreenRatio(XMFLOAT2(0.5f, 0.5f));
+	m_BonusShader->SetTimer(0.5f, 2.0f, 0.5f);
+	m_BonusShader->SetEnable(false);
+
+	UIShaders* pSkill = new UIShaders();	
+	texutredata[0] = { L"res\\Texture\\Skill.DDS", L"", 1, 1 };
 
 	pSkill->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 	pSkill->SetPosScreenRatio(XMFLOAT2( 0.5f, 0.045f));
@@ -365,7 +389,6 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	texutredata[0].m_texture = L"res\\Texture\\blood4_bullet.DDS";
 	m_pTakeDamageScreen = new FadeEffectShader();
 	m_pTakeDamageScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
-
 
 	m_pUIScenes = new virtualScene*[m_nUIScenes];
 
@@ -436,10 +459,13 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 		m_testPlayer->setHitted(false);
 	}
 
+	m_BonusShader->Render(pCommandList);
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
 
 	for (UINT i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
+
+	m_SkilCooldown->Render(pCommandList);
 
 	m_nSceneState = static_cast<SceneType>(CalNowScene());
 	if (m_nSceneState != NORMALLY) {

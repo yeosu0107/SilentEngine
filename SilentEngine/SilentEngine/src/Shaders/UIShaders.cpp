@@ -55,6 +55,36 @@ void UIShaders::Animate(float fTimeElapsed)
 		m_pUIObjects[i]->Update(fTimeElapsed);
 }
 
+void UIShaders::RefreshTimer(float fTimeElapsed, UINT index)
+{
+	if (!m_pUIObjects[index]->m_bEnabled) return;
+
+	m_ElapsedTime += fTimeElapsed;
+
+	if (m_ElapsedTime >= 0.0f && m_ElapsedTime <= m_ApearTime) 
+		m_pUIObjects[index]->SetAlpha(D3DMath::Lerp(0.0f, 1.0f, m_ElapsedTime / m_ApearTime));
+		
+	else if (m_ElapsedTime >= m_ApearTime && m_ElapsedTime <= m_ApearTime + m_ExistTime) 
+		m_pUIObjects[index]->SetAlpha(1.0f);
+	
+	else if (m_ElapsedTime >= m_ApearTime + m_ExistTime && m_ElapsedTime <= m_ApearTime + m_ExistTime + m_RetreatTime)
+		m_pUIObjects[index]->SetAlpha(D3DMath::Lerp(1.0f, 0.0f, ((m_ElapsedTime - (m_ApearTime + m_ExistTime)) / m_RetreatTime)));
+
+	else 
+		m_pUIObjects[index]->m_bEnabled = false;
+	
+	return;
+}
+
+void UIShaders::SetNowSprite(XMUINT2 & nowSprite, UINT index)
+{
+	m_pUIObjects[index]->m_nNowSprite = nowSprite;
+	if (m_bTimeUI) {
+		m_pUIObjects[index]->m_bEnabled = true;
+		m_ElapsedTime = 0.0f;
+	}
+}
+
 void UIShaders::SetPosScreenRatio(XMFLOAT2& ratio, UINT index)
 {
 	m_pUIObjects[index]->m_xmf2ScreenPos = XMFLOAT2(
@@ -77,6 +107,13 @@ void UIShaders::SetScale(XMFLOAT2 * scale, const OPTIONSETALL)
 	}
 
 	CreateCollisionBox();
+}
+
+void UIShaders::MovePos(XMFLOAT2 & pos, UINT index)
+{
+	XMFLOAT2 originPos = m_pUIObjects[index]->m_xmf2ScreenPos;
+	XMFLOAT2 originScale = m_pUIObjects[index]->m_xmf2Scale;
+	m_pUIObjects[index]->SetPosition(XMFLOAT2(originPos.x + (pos.x * originScale.x), originPos.y + (pos.y * originScale.y)));
 }
 
 void UIShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
@@ -190,7 +227,7 @@ void UIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	CreatePipelineParts();
 
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSMiniMap", "ps_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSDefaultUI", "ps_5_0");
 
 	CTexture *pTexture = new CTexture(nTextures, RESOURCE_TEXTURE2D, 0);
 	for (int i = 0; i < nTextures; ++i) {
@@ -253,9 +290,18 @@ void UIShaders::Render(ID3D12GraphicsCommandList * pd3dCommandList)
 
 	for (unsigned int j = 0; j < m_nObjects; j++)
 	{
-		if (m_pUIObjects[j])
+		if (m_pUIObjects[j] && m_pUIObjects[j]->m_bEnabled)
 			m_pUIObjects[j]->Render(pd3dCommandList);
 	}
+}
+
+void UIShaders::SetTimer(float apearTime, float existTime, float retreatTime)
+{
+	m_bTimeUI		= true;
+	m_ApearTime		= apearTime;
+	m_RetreatTime	= retreatTime;
+	m_ExistTime		= existTime;
+	m_ElapsedTime	= 0.0f;
 }
 
 XMUINT2 UIShaders::GetSpriteSize(const int texIndex, CTexture* pTexture, XMUINT2& numSprite)
@@ -584,63 +630,71 @@ void UIFullScreenShaders::BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsC
 
 }
 
-void UIFullScreenShaders::Animate(float fTimeElapsed)
+void SkillUIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
+	TextureDataForm* textures = reinterpret_cast<TextureDataForm*>(pContext);
+	m_nObjects = textures->m_MaxX;	// 최대 쿨타임 개수
+	m_pCooldown.resize(m_nObjects);
+	m_pSkillTime.resize(m_nObjects);
+	m_nPSO = 1;
+
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSCoolDownUI", "ps_5_0");
+
+	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, textures->m_texture.c_str(), 0);
+
+	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 1, false);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	m_pUIObjects = vector<UIObject*>(m_nObjects);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	XMFLOAT2 scale = XMFLOAT2(1.1f, 1.0f);
+
+	for (int i = 0; i < m_nObjects; ++i) {
+
+		UIObject* cooldownUI;
+		cooldownUI = new UIObject();
+		cooldownUI->SetPosition(XMFLOAT2(100.0f * (i + 1) , 100.0f * (i + 1)));
+		cooldownUI->SetScale(scale);
+		m_pUIObjects[i] = cooldownUI;
+
+		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(0, pTexture, XMUINT2(m_nObjects, 1)));
+		m_pUIObjects[i]->SetType(0);
+		m_pUIObjects[i]->SetNumSprite(XMUINT2(m_nObjects, 1), XMUINT2(i, 1));	
+		m_pUIObjects[i]->CreateCollisionBox();
+		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+	}
 }
 
-void UIFullScreenShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+void SkillUIShaders::Animate(float fTimeElapsed)
 {
-	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
-
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2];
-	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, CBVUIInfo, 0, 0); // GameObject
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVUITextureMap, 0, 0); // Texture
-
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[2];
-	pd3dRootParameters[0].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
-
-	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
-	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
-
-	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
-		0,
-		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
-		0.0f,
-		1,
-		D3D12_COMPARISON_FUNC_ALWAYS,
-		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
-		0.0f,
-		D3D12_FLOAT32_MAX,
-		D3D12_SHADER_VISIBILITY_PIXEL
-	);
-
-
-	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
-	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
-	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
-	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
-	d3dRootSignatureDesc.NumStaticSamplers = 1;
-	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
-	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
-
-	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
-	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
-	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
-
-	if (pd3dErrorBlob != nullptr)
-	{
-		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
+	for (int i = 0; i < m_nObjects; ++i) {
+		if (m_pCooldown[i] > GetTickCount() - *m_pSkillTime[i]) {
+			m_pUIObjects[i]->m_bEnabled = true;
+			m_pUIObjects[i]->m_fData = static_cast<float>(GetTickCount() - *m_pSkillTime[i]) / static_cast<float>(m_pCooldown[i]);
+		}
+		else
+			m_pUIObjects[i]->m_bEnabled = false;
 	}
-	ThrowIfFailed(hr);
+}
 
-	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
-		pd3dSignatureBlob->GetBufferPointer(),
-		pd3dSignatureBlob->GetBufferSize(),
-		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
-	);
+void SkillUIShaders::LinkedSkillTime(DWORD * time, DWORD cooldown, UINT index)
+{
+	m_pCooldown[index] = cooldown;
+	m_pSkillTime[index] = time;
 }
