@@ -87,6 +87,7 @@ void GameOverScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList
 	m_pButtons = make_unique<UIButtonShaders>();
 	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
 	m_pButtons->SetAlpha(0.0f, 0);
+	m_pButtons->SetScale(&XMFLOAT2(1.5f, 1.5f), 0);
 	m_pButtons->SetPosScreenRatio(XMFLOAT2(0.5f, 2.25 / 9.0f));
 }
 
@@ -172,7 +173,7 @@ void ClearScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 	m_Anitype = CLOSE_FIRST;
 
 	vector<TextureDataForm> texutredata(1);
-	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameOver.dds";
+	texutredata[0].m_texture = L"res\\MainSceneTexture\\GameClear.dds";
 
 	m_pBlocks = make_unique<UIFullScreenShaders>();
 	m_pBlocks->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
@@ -184,5 +185,6 @@ void ClearScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 	m_pButtons = make_unique<UIButtonShaders>();
 	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
 	m_pButtons->SetAlpha(0.0f, 0);
+	m_pButtons->SetScale(&XMFLOAT2(1.5f, 1.5f), 0);
 	m_pButtons->SetPosScreenRatio(XMFLOAT2(0.5f, 2.25 / 9.0f));
 }
