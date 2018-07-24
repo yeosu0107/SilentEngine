@@ -82,7 +82,7 @@ public:
 	~UIMiniMapShaders() { };
 
 public:
-	virtual void SetNumObject(int nObject) { m_nObjects = nObject; }
+	virtual void SetNumObject(int nObject) { m_nObjects = nObject + 1; }
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Animate(float fTimeElapsed);
 	virtual void SetNowRoom(UINT* nowRoom) { m_pNowRoom = nowRoom; };

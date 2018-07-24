@@ -377,7 +377,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_BonusShader = make_unique<UIShaders>();
 	texutredata[0] = { L"res\\Texture\\EventMessage.DDS", L"", 1 , 7 };
 	m_BonusShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
-	m_BonusShader->SetPosScreenRatio(XMFLOAT2(0.5f, 0.5f));
+	m_BonusShader->SetPosScreenRatio(XMFLOAT2(0.5f, 0.8f));
 	m_BonusShader->SetTimer(0.5f, 2.0f, 0.5f);
 	m_BonusShader->SetEnable(false);
 
