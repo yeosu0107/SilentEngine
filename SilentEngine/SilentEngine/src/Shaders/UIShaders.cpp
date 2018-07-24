@@ -451,8 +451,8 @@ void UIMiniMapShaders::setRoomPos(void* pContext)
 	minimapBG->SetSize(GetSpriteSize(1, pTexture, minimapBG->m_nNumSprite));
 	minimapBG->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr);
 	minimapBG->SetPosition(XMFLOAT2(
-		static_cast<float>(FRAME_BUFFER_WIDTH) / 6.0f,
-		static_cast<float>((FRAME_BUFFER_HEIGHT) * 6.0f / 9.0f)
+		static_cast<float>(FRAME_BUFFER_WIDTH) * 7.05 / 8.0,
+		static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.0 / 8.0)
 	));
 	m_pUIObjects[0] = minimapBG;
 	m_pUIObjects[0]->CreateCollisionBox();
@@ -468,8 +468,8 @@ void UIMiniMapShaders::setRoomPos(void* pContext)
 		minimapObj->SetSize(GetSpriteSize(0, pTexture, minimapObj->m_nNumSprite));
 		minimapObj->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 		minimapObj->SetPosition(XMFLOAT2(
-			static_cast<float>(FRAME_BUFFER_WIDTH) / 9.6f + static_cast<float>(data[i - 1]->m_mapPosX * minimapObj->m_nSize.x) * sacle.x,
-			static_cast<float>((FRAME_BUFFER_HEIGHT) * 6.3 / 9.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y * sacle.y)
+			static_cast<float>(FRAME_BUFFER_WIDTH) * 6.6 / 8.0 + static_cast<float>(data[i - 1]->m_mapPosX * minimapObj->m_nSize.x),
+			static_cast<float>((FRAME_BUFFER_HEIGHT) * 7.3 / 8.0 - data[i - 1]->m_mapPosY * minimapObj->m_nSize.y)
 		));
 		m_pUIObjects[i] = minimapObj;
 		m_pUIObjects[i]->CreateCollisionBox();
