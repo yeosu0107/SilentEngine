@@ -114,8 +114,9 @@ public:
 public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Animate(float fTimeElapsed);
-	void LinkedSkillTime(DWORD* time, DWORD cooldown, UINT index);
+	void LinkedSkillTime(DWORD* time, DWORD cooldown, DWORD* bonus, UINT index);
 
 	vector<DWORD> m_pCooldown;		// 쿨타임
 	vector<DWORD*> m_pSkillTime;	// 현재까지 경과된 시간
+	vector<DWORD*> m_pBonus;	// 현재까지 경과된 시간
 };

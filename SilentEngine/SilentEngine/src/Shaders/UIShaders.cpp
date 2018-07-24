@@ -648,6 +648,8 @@ void SkillUIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 	m_nObjects = textures->m_MaxX;	// 최대 쿨타임 개수
 	m_pCooldown.resize(m_nObjects);
 	m_pSkillTime.resize(m_nObjects);
+	m_pBonus.resize(m_nObjects);
+
 	m_nPSO = 1;
 
 	CreatePipelineParts();
@@ -695,18 +697,27 @@ void SkillUIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComma
 
 void SkillUIShaders::Animate(float fTimeElapsed)
 {
+	float elapsedTime = 0.0f;
+	float coolTime = 0.0f;
+
 	for (int i = 0; i < m_nObjects; ++i) {
 		if (m_pCooldown[i] > GetTickCount() - *m_pSkillTime[i]) {
 			m_pUIObjects[i]->m_bEnabled = true;
-			m_pUIObjects[i]->m_fData = static_cast<float>(GetTickCount() - *m_pSkillTime[i]) / static_cast<float>(m_pCooldown[i]);
+
+			elapsedTime = static_cast<float>(GetTickCount() - *m_pSkillTime[i]);
+			coolTime = static_cast<float>(m_pCooldown[i]);				
+			coolTime -= (m_pBonus[i] == nullptr) ? 0.0f : *m_pBonus[i];	// 쿨타임 관련 보너스가 연결 되어 있으면 연결
+
+			m_pUIObjects[i]->m_fData = elapsedTime  / coolTime;
 		}
 		else
 			m_pUIObjects[i]->m_bEnabled = false;
 	}
 }
 
-void SkillUIShaders::LinkedSkillTime(DWORD * time, DWORD cooldown, UINT index)
+void SkillUIShaders::LinkedSkillTime(DWORD * time, DWORD cooldown, DWORD* bonus, UINT index)
 {
 	m_pCooldown[index] = cooldown;
 	m_pSkillTime[index] = time;
+	m_pBonus[index] = bonus;
 }

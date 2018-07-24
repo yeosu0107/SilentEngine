@@ -362,10 +362,10 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 
 	m_SkilCooldown = make_unique<SkillUIShaders>();
 	m_SkilCooldown->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
-	m_SkilCooldown->LinkedSkillTime(player->getKickDelay(), 5000, 0);
-	m_SkilCooldown->LinkedSkillTime(player->getUpperDelay(), 5000, 1);
-	m_SkilCooldown->LinkedSkillTime(player->getPunchDelay(), 5000, 2);
-	m_SkilCooldown->LinkedSkillTime(player->getAvoidDelay(), 5000, 3);
+	m_SkilCooldown->LinkedSkillTime(player->getKickDelay(),  5000, player->getCoolTimeBonus(), 0);
+	m_SkilCooldown->LinkedSkillTime(player->getUpperDelay(), 5000, player->getCoolTimeBonus(), 1);
+	m_SkilCooldown->LinkedSkillTime(player->getPunchDelay(), 5000, player->getCoolTimeBonus(), 2);
+	m_SkilCooldown->LinkedSkillTime(player->getAvoidDelay(), 5000, player->getCoolTimeBonus(), 3);
 
 	m_SkilCooldown->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
 	m_SkilCooldown->SetPosScreenRatio(XMFLOAT2(0.5f, 0.045f), OPTSETALL);

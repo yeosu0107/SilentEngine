@@ -139,10 +139,11 @@ public:
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);
 	
-	DWORD* getUpperDelay() { return &m_kick2Delay; }
-	DWORD* getPunchDelay() { return &m_punchDelay; }
-	DWORD* getKickDelay()  { return &m_kickDelay; }
-	DWORD* getAvoidDelay() { return &m_avoidDelay; }
+	DWORD* getCoolTimeBonus()	{ return&m_skillCostBouns; }
+	DWORD* getUpperDelay()		{ return &m_kick2Delay; }
+	DWORD* getPunchDelay()		{ return &m_punchDelay; }
+	DWORD* getKickDelay()		{ return &m_kickDelay; }
+	DWORD* getAvoidDelay()		{ return &m_avoidDelay; }
 
 	void SetCamera(Camera* tCamera, BasePhysX* phys);
 	void CalibrateLook(XMFLOAT3& look);
