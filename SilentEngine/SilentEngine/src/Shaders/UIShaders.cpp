@@ -95,6 +95,18 @@ void UIShaders::SetPosScreenRatio(XMFLOAT2& ratio, UINT index)
 	m_pUIObjects[index]->CreateCollisionBox();
 }
 
+void UIShaders::SetPosScreenRatio(XMFLOAT2& ratio, const OPTIONSETALL)
+{
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pUIObjects[i]->m_xmf2ScreenPos = XMFLOAT2(
+			static_cast<float>(FRAME_BUFFER_WIDTH) * ratio.x,
+			static_cast<float>(FRAME_BUFFER_HEIGHT) * ratio.y
+		);
+
+		m_pUIObjects[i]->CreateCollisionBox();
+	}
+}
+
 void UIShaders::SetAlpha(float alpha, UINT index)
 {
 	m_pUIObjects[index]->m_fAlpha = alpha;

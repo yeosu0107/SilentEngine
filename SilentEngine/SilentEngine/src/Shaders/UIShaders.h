@@ -21,6 +21,7 @@ public:
 	virtual void SetPos(XMFLOAT2* pos, UINT index = 0) { m_pUIObjects[index]->m_xmf2ScreenPos = *pos; }	
 	virtual void SetNowSprite(XMUINT2& nowSprite, UINT index = 0);	// 현재 스프라이트 수정
 	virtual void SetPosScreenRatio(XMFLOAT2& ratio, UINT index = 0);	// 위치를 스크린 비율로 조정
+	virtual void SetPosScreenRatio(XMFLOAT2& ratio, const OPTIONSETALL);	// 위치를 스크린 비율로 조정
 	virtual void SetAlpha(float alpha, UINT index = 0);			// ALpha값 수정
 	virtual void SetEnable(bool enable, UINT index = 0) { m_pUIObjects[index]->m_bEnabled = enable; }	// 시야에 보일지 확인
 	virtual void SetScale(XMFLOAT2* scale, UINT index = 0) { m_pUIObjects[index]->m_xmf2Scale = *scale; }
