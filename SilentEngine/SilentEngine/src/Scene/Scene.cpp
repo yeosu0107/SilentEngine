@@ -542,7 +542,6 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState('P') & 0x0001) {
 		m_testPlayer->GetStatus()->m_health = 0.0f;
 	}
-	
 #ifdef _DEBUG
 	if (GetAsyncKeyState('T') & 0x0001) {
 		m_Room[m_nowRoom]->SetClear(true);
@@ -732,8 +731,10 @@ void TestScene::RoomChange()
 	m_gateShader->SetPositions(roomPos);
 	//페이드 인아웃 설정
 	m_changeFade = FADE_IN;
-
-	SoundMgr::getInstance()->changeSound(SOUND::BGM_SCARY_3, CHANNEL::BGM);
+	if (m_Room[m_nowRoom]->getType() != BOSS_ROOM)
+		SoundMgr::getInstance()->changeSound(getRandomBGM(), CHANNEL::BGM);
+	else
+		SoundMgr::getInstance()->changeSound(SOUND::BOSS, CHANNEL::BGM);
 }
 
 void TestScene::RoomSetting()
@@ -988,7 +989,7 @@ void MainScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_fFadeOutTime = 1.0f;
 	m_bMouseCapture = false;
 
-	SoundMgr::getInstance()->play(SOUND::BGM_SCARY_2, CHANNEL::BGM);
+	SoundMgr::getInstance()->play(SOUND::MAIN, CHANNEL::BGM);
 }
 
 void MainScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)

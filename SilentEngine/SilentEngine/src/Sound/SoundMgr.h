@@ -7,18 +7,24 @@
 
 using namespace FMOD;
 
-
+const UINT NUM_BGM = 6;
 
 enum SOUND {
-	BGM_FANTASY_1 = 0, BGM_FANTASY_2 = 1, BGM_FANTASY_3,
-	BGM_SCARY_1, BGM_SCARY_2, BGM_SCARY_3,
+	MAIN = 0, 
+	BGM_FANTASY_1 = 1, BGM_FANTASY_2 = 2, BGM_FANTASY_3,
+	BGM_SCARY_1, BGM_SCARY_2, BGM_SCARY_3, BOSS,
 	HIT01, KICK01, KICK02, PUNCH01, HIT02,
-	ATT01, ATT02, ATT03, SKILL01, SKILL02, SKILL03, SKILL04
+	ATT01, ATT02, ATT03, SKILL01, SKILL02, SKILL03, SKILL04,
+	HURT01, HURT02
 };
+
+inline SOUND getRandomBGM() {
+	return static_cast<SOUND>((rand() % NUM_BGM) + 1);
+}
 
 inline SOUND SOUNDEFFECT(UINT index) {
 	//index를 넣으면 BGM 다음 인덱스를 반환
-	return static_cast<SOUND>(6 + index);
+	return static_cast<SOUND>(8 + index);
 }
 
 enum CHANNEL {
@@ -32,7 +38,7 @@ private:
 
 	System*					m_fmod;
 	Channel*				m_ch[10];
-	Sound*					m_sound[20];
+	Sound*					m_sound[25];
 public:
 	static SoundMgr * getInstance();
 

@@ -293,7 +293,7 @@ void Player::Hitted(int damage)
 	cout << "remain HP : " << m_status->m_health << endl;;
 #endif
 	m_playerLogic->changeState(STATE::hitted);
-
+	SoundMgr::getInstance()->play(SOUND::HURT01, CHANNEL::PLAYER);
 	m_pCamera->ShakeInit();
 }
 
@@ -315,7 +315,7 @@ void Player::Hitted(DamageVal& hitback)
 #endif
 	m_playerLogic->changeState(STATE::hitted);
 	hitBackstep = hitback.hitback;
-
+	SoundMgr::getInstance()->play(SOUND::HURT01, CHANNEL::PLAYER);
 	m_pCamera->ShakeInit();
 }
 
