@@ -60,4 +60,5 @@ public:
 	unsigned int FindPosition(float AnimationTime, const aiNodeAnim* pNodeAnim);
 
 	void ResetAnimation() { now_time = 0; }
+	void SetAnimFrame(float frame);
 };

@@ -242,3 +242,8 @@ void Enemy::reset()
 	m_status->reset();
 	m_State->changeState(STATE::idle);
 }
+
+void Enemy::AsyneAnim(float frame)
+{
+	m_ani[m_AnimIndex]->SetAnimFrame(frame);
+}

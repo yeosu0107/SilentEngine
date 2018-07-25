@@ -244,3 +244,10 @@ UINT LoadAnimation::FindPosition(float AnimationTime, const aiNodeAnim * pNodeAn
 	}
 	return 0;
 }
+
+void LoadAnimation::SetAnimFrame(float frame)
+{
+	if (frame >= end_time)
+		frame = end_time;
+	now_time = frame;
+}
