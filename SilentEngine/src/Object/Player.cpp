@@ -488,13 +488,19 @@ UINT Player::roomClearBouns()
 		m_damage += 2;
 		break;
 	case ClearBouns::plusHP:
-		m_status->m_maxhealth += 30;
+		m_status->m_maxhealth += 50;
+		m_status->m_health += 30;
+		if (m_status->m_health > m_status->m_maxhealth)
+			m_status->m_health = m_status->m_maxhealth;
 		break;
 	case ClearBouns::plusMP:
-		m_status->m_maxmp += 1;
+		m_status->m_maxmp += 2;
+		m_status->m_mp += 1;
+		if (m_status->m_mp > m_status->m_maxmp)
+			m_status->m_mp = m_status->m_maxmp;
 		break;
 	case ClearBouns::recoveryHP:
-		m_status->m_health += 50;
+		m_status->m_health += 100;
 		if (m_status->m_health > m_status->m_maxhealth)
 			m_status->m_health = m_status->m_maxhealth;
 		break;
