@@ -369,8 +369,8 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 
 	m_SkilCooldown->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
 	m_SkilCooldown->SetPosScreenRatio(XMFLOAT2(0.5f, 0.045f), OPTSETALL);
-	m_SkilCooldown->MovePos(XMFLOAT2(-75.0f, 0.0f), 0);
-	m_SkilCooldown->MovePos(XMFLOAT2(75.0f, 0.0f), 2);
+	m_SkilCooldown->MovePos(XMFLOAT2(-73.0f, 0.0f), 0);
+	m_SkilCooldown->MovePos(XMFLOAT2(71.0f, 0.0f), 2);
 	m_SkilCooldown->MovePos(XMFLOAT2(146.0f, 0.0f), 3);
 	
 
