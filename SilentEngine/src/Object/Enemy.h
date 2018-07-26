@@ -128,7 +128,7 @@ public:
 	
 	EnemyCollisionCallback* getCollisionCallback() { return &m_Callback; }
 	virtual void SetPhysController(BasePhysX* control, PxUserControllerHitReport* callback, PxExtendedVec3* pos);
-
+	virtual Status* GetStatus() { return m_status; };
 	virtual void SetAnimations(UINT num, LoadAnimation** tmp);
 
 	virtual void Idle();

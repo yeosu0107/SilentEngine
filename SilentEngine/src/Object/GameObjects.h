@@ -66,6 +66,14 @@ struct CB_EFFECT_INFO
 	UINT							m_nNowYcount;
 };
 
+struct CB_MONSTER_INFO
+{
+	float m_fHPRatio;
+	float m_fLive = 0.0f;
+	float dump2 = 0.0f;
+	float dump3 = 0.0f;
+};
+
 struct CB_FOG_INFO
 {
 	XMFLOAT4						m_xmf4FogColor;

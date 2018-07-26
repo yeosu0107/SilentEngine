@@ -55,6 +55,7 @@ protected:
 	virtual void RenderOutlineFog();
 	virtual void DispatchComputeShaders();
 	virtual void RenderHDR();
+	virtual void RenderHPBars();
 	virtual void Render();
 
 	virtual void OnKeyboardInput(const Timer& gt);

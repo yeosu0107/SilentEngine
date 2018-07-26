@@ -152,6 +152,14 @@ cbuffer cbHDRToneMapping : register(b12)
     float gBloomEnable : packoffset(c0.w);
 }
 
+cbuffer cbMonsterHPData : register(b13)
+{
+    float gMonHPRatio : packoffset(c0);
+    float gMonisLive : packoffset(c0.y);
+    float gDump2 : packoffset(c0.z);
+    float gDump3 : packoffset(c0.w);
+}
+
 static matrix gmtxTexture =
 {
     0.5f, 0.0f, 0.0f, 0.0f,

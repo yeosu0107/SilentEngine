@@ -43,7 +43,8 @@ enum SRVRegisterNumber {
 	SRVAverageValues1D				= 24,
 	SRVAverageValues				= 25,
 	SRVHDRDownScale					= 26,
-	SRVBloomInput					= 27 
+	SRVBloomInput					= 27,
+	SRVHPBarData					= 28
 };
 
 enum UAVRegisterNumber {
@@ -66,7 +67,8 @@ enum CBVRegisterNumber {
 	CBVUIInfo			= 9,
 	CBVBlurInfo			= 10,
 	CBVHDRDownScale		= 11,
-	CBVHDRToneMapp		= 12
+	CBVHDRToneMapp		= 12,
+	CBVMonsterHP		= 13
 };
 
 enum UABufferType {
@@ -103,6 +105,8 @@ extern UINT	gnCbvSrvDescriptorIncrementSize;
 extern bool HDR_ON;
 extern bool BLOOM_ON;
 
+struct OPTIONSETALL {};
+extern const DECLSPEC_SELECTANY OPTIONSETALL OPTSETALL;
 
 
 #define DIR_FORWARD				0x01

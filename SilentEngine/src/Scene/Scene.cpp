@@ -165,6 +165,11 @@ bool TestScene::Update(const Timer & gt)
 	for (int i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Animate(gt.DeltaTime());
 
+
+	if(m_Room[m_nowRoom] != nullptr)
+		m_MonsterHP->LinkedMonster(m_Room[m_nowRoom]->GetEnemyShader()->getObjects(OPTSETALL), m_Room[m_nowRoom]->getNumEnemy());
+	m_MonsterHP->Animate(gt.DeltaTime());
+
 	RoomChange();	
 	RoomFade();		
 
@@ -334,6 +339,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	m_testPlayer->GetPosition();
 	GlobalVal::getInstance()->setPlayer(m_testPlayer);
 	m_physics->registerPlayer(m_testPlayer);
+
 	//GlobalVal::getInstance()->setHitPaticle(m_hitEffectShaders);
 
 	BuildUI(pDevice, pCommandList);
@@ -345,6 +351,10 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_ppUIShaders.clear();
 	m_nUIShaders = 3;
 	m_ppUIShaders.resize(m_nUIShaders);
+
+	m_MonsterHP = new MonsterHPShaders();
+	m_MonsterHP->BuildObjects(pDevice, pCommandList, 2, globalEffects->getTextureFile(0));
+	m_MonsterHP->SetCamera(m_Camera.get());
 
 	vector<TextureDataForm> texutredata(2);
 
@@ -421,6 +431,7 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	D3D12_GPU_VIRTUAL_ADDRESS d3dcbMaterialsGpuVirtualAddress = MATERIAL_MANAGER->MaterialUploadBuffer()->Resource()->GetGPUVirtualAddress();
 	pCommandList->SetGraphicsRootConstantBufferView(2, d3dcbMaterialsGpuVirtualAddress); //Materials
 
+
 	//플레이어 랜더링
 	m_playerShader->Render(pCommandList, m_Camera.get());
 	//문 랜더링
@@ -436,12 +447,19 @@ void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pComm
 	//m_hitEffectShaders->Render(pCommandList, m_Camera.get());
 	
 	LIGHT_MANAGER->Render(pCommandList, m_Camera.get());
+	
+}
+
+void TestScene::RenderHPBars(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+	m_MonsterHP->Render(pCommandList, m_Camera.get());
 }
 
 void TestScene::RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList){ }
 
 void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+
 	// 플레이어가 죽었는지 탐지
 	if (m_testPlayer->GetStatus()->m_health <= 0.0f && !m_bIsGameOver) {
 		m_bIsGameOver = true;

@@ -4,6 +4,7 @@
 #include "UploadBuffer.h"
 #include "D3DMath.h"
 #include "GameObjects.h"
+#include "Enemy.h"
 
 using namespace std;
 
@@ -232,6 +233,34 @@ protected:
 	float m_fElapsedTime = 0.0f;
 
 	unique_ptr<UploadBuffer<CB_EFFECT_INFO>>	m_EffectCB = nullptr;
+};
+
+class MonsterHPShaders : public BillboardShader
+{
+public:
+	MonsterHPShaders() {};
+	~MonsterHPShaders() {};
+
+public:
+
+	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
+	virtual void CreateShaderVariables(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
+	
+	void LinkedMonster(GameObject** ppObj, UINT numObj) {
+		m_ppMonsters = ppObj;
+		m_nMonsters = numObj;
+	}
+
+protected:
+	const XMFLOAT3 HPPOS = XMFLOAT3(0.0f, 50.0f, 0.0f);
+	UINT m_nMonsters = 0;
+	unique_ptr<UploadBuffer<CB_MONSTER_INFO>>	m_MonsterRatioCB = nullptr;
+	GameObject** m_ppMonsters = nullptr;
+
+	
 };
 
 class TextureToFullScreen : public Shaders

@@ -3,8 +3,6 @@
 #include "UIObject.h"
 
 #define NUM_MAX_UITEXTURE 4
-struct OPTIONSETALL {};
-extern const DECLSPEC_SELECTANY OPTIONSETALL OPTSETALL;
 
 class UIShaders : public Shaders
 {

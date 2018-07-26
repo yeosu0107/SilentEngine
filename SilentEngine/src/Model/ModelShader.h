@@ -28,6 +28,7 @@ public:
 	virtual void setPosition(XMFLOAT3* pos, UINT num) {}
 	virtual UINT getRemainObjects() const { return 0; }
 	virtual GameObject** getObjects(UINT& num) { return nullptr; }
+	virtual GameObject** getObjects(const OPTIONSETALL) { return m_ppObjects.data(); }
 
 	void setScale(float scale);
 };

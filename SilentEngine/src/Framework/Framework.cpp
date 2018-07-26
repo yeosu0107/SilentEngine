@@ -379,7 +379,7 @@ void Framework::RenderDeffered()
 
 	
 	D3D12_CPU_DESCRIPTOR_HANDLE handle[2] = { m_pd3dRtvRenderTargetBufferCPUHandles[RTV_HDR], m_pd3dRtvLightMapBufferCPUHandle[0] };
-	m_pCommandList->OMSetRenderTargets(2, handle, TRUE, &DepthStencilView());
+	m_pCommandList->OMSetRenderTargets(2, handle, TRUE, nullptr);
 
 	m_pDeferredFullScreenShader->Render(m_pCommandList.Get(), m_pCamera);
 
@@ -398,14 +398,30 @@ void Framework::RenderHDR()
 	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[RTV_COLOR], pfClearColor/*Colors::Azure*/, 0, NULL);
-	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvRenderTargetBufferCPUHandles[RTV_COLOR], TRUE, &DepthStencilView());
+	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvRenderTargetBufferCPUHandles[RTV_COLOR], TRUE, nullptr);
 
 	m_HDRShader->Render(m_pCommandList.Get(), m_pCamera);
+	ExcuteCommandList();
+}
+
+void Framework::RenderHPBars()
+{
+	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_OUTLINENRM].Get(),
+		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	
+	D3D12_CPU_DESCRIPTOR_HANDLE renderTarget[2] = { m_pd3dRtvRenderTargetBufferCPUHandles[RTV_COLOR] , m_pd3dRtvRenderTargetBufferCPUHandles[RTV_OUTLINENRM] };
+	m_pCommandList->OMSetRenderTargets(2, renderTarget, TRUE, &DepthStencilView());
+
+	m_pScene[m_nNowScene]->RenderHPBars(m_pD3dDevice.Get(), m_pCommandList.Get());
+
+	ExcuteCommandList();
 }
 
 void Framework::RenderOutlineFog()
 {
+	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_OUTLINENRM].Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_COLOR].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 
@@ -420,14 +436,12 @@ void Framework::RenderOutlineFog()
 	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 	m_pCommandList->ClearRenderTargetView(m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], pfClearColor/*Colors::Azure*/, 0, NULL);
-	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], TRUE, &DepthStencilView());
+	m_pCommandList->OMSetRenderTargets(1, &m_pd3dRtvSwapChainBackBufferCPUHandles[m_nCurrBuffer], TRUE, nullptr);
 
 	m_OutlineShader->Render(m_pCommandList.Get(), m_pCamera);
 	m_pScene[m_nNowScene]->RenderUI(m_pD3dDevice.Get(), m_pCommandList.Get());
 	if (m_bDebugGBuffers)
 		m_GbufferDebug->Render(m_pCommandList.Get(), m_pCamera);
-
-
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
@@ -469,6 +483,7 @@ void Framework::Render()
 	RenderDeffered();
 	DispatchComputeShaders();
 	RenderHDR();
+	RenderHPBars();
 	RenderOutlineFog();
 
 	m_nCurrBuffer = (m_nCurrBuffer + 1) % m_nSwapChainBuffers;

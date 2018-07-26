@@ -2156,3 +2156,170 @@ void OutlineFogShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
 	);
 }
+
+
+void MonsterHPShaders::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
+{
+	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
+	int i = 0;
+
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
+
+	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVHPBarData, 0, 0);
+	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceData, 0, 0);
+	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexture2D, 0, 0);
+	
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[4];
+
+	pd3dRootParameters[0].InitAsConstantBufferView(1);
+	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_ALL);
+	pd3dRootParameters[3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_PIXEL);
+
+	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[1];
+	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
+
+	d3dSamplerDesc[0] = CD3DX12_STATIC_SAMPLER_DESC(
+		0,
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+		0.0f,
+		1,
+		D3D12_COMPARISON_FUNC_ALWAYS,
+		D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE,
+		0.0f,
+		D3D12_FLOAT32_MAX,
+		D3D12_SHADER_VISIBILITY_PIXEL
+	);
+
+
+	D3D12_ROOT_SIGNATURE_FLAGS d3dRootSignatureFlags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS | D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	D3D12_ROOT_SIGNATURE_DESC d3dRootSignatureDesc;
+	::ZeroMemory(&d3dRootSignatureDesc, sizeof(D3D12_ROOT_SIGNATURE_DESC));
+	d3dRootSignatureDesc.NumParameters = _countof(pd3dRootParameters);
+	d3dRootSignatureDesc.pParameters = pd3dRootParameters;
+	d3dRootSignatureDesc.NumStaticSamplers = 1;
+	d3dRootSignatureDesc.pStaticSamplers = d3dSamplerDesc;
+	d3dRootSignatureDesc.Flags = d3dRootSignatureFlags;
+
+	ComPtr<ID3DBlob> pd3dSignatureBlob = NULL;
+	ComPtr<ID3DBlob> pd3dErrorBlob = NULL;
+	HRESULT hr = D3D12SerializeRootSignature(&d3dRootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, pd3dSignatureBlob.GetAddressOf(), pd3dErrorBlob.GetAddressOf());
+
+	if (pd3dErrorBlob != nullptr)
+	{
+		::OutputDebugStringA((char*)pd3dErrorBlob->GetBufferPointer());
+	}
+	ThrowIfFailed(hr);
+
+	ThrowIfFailed(pd3dDevice->CreateRootSignature(0,
+		pd3dSignatureBlob->GetBufferPointer(),
+		pd3dSignatureBlob->GetBufferSize(),
+		IID_PPV_ARGS(m_RootSignature[PSO_OBJECT].GetAddressOf()))
+	);
+}
+
+void MonsterHPShaders::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	m_MonsterRatioCB = make_unique<UploadBuffer<CB_MONSTER_INFO>>(pd3dDevice, m_nObjects, false);
+	m_ObjectCB = make_unique<UploadBuffer<CB_GAMEOBJECT_INFO>>(pd3dDevice, m_nObjects, false);
+}
+
+void MonsterHPShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
+{
+	CB_GAMEOBJECT_INFO cBuffer;
+	CB_MONSTER_INFO cMonsterInfo;
+
+	for (unsigned int i = 0; i < m_nObjects; ++i) {
+		if (i >= m_nMonsters) {
+			cMonsterInfo.m_fLive = 0.0f;
+			m_MonsterRatioCB->CopyData(i, cMonsterInfo);
+			continue;
+		}
+		XMFLOAT3 monPos = m_ppMonsters[i]->GetPosition();
+		m_ppObjects[i]->SetPosition(Vector3::Add(HPPOS, monPos));
+
+		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
+		cBuffer.m_nMaterial = 0;
+		m_ObjectCB->CopyData(i, cBuffer);
+
+		Enemy* enemy = dynamic_cast<Enemy*>(m_ppMonsters[i]);
+		Status* stat = enemy->GetStatus();
+
+		cMonsterInfo.m_fHPRatio = static_cast<float>(stat->m_health) / static_cast<float>(stat->m_maxhealth);
+		cMonsterInfo.m_fLive = enemy->isLive() ? 1.0f : 0.0f;
+		m_MonsterRatioCB->CopyData(i, cMonsterInfo);
+	}
+}
+
+void MonsterHPShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	m_nObjects = 10;
+
+	m_nPSO = 1;
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSHPBar", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSHPBar", "ps_5_0");
+
+	TextureDataForm* mtexture = (TextureDataForm*)pContext;
+
+	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
+
+	unsigned int i = 0;
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 3);
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_MonsterRatioCB->Resource(), 1, i++, sizeof(XMFLOAT4), false);
+	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 2, i++, sizeof(CB_GAMEOBJECT_INFO), false);
+	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 3, 2, false);
+	
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	i = 0;
+	CBoardMeshIlluminatedTextured *pBoard = new CBoardMeshIlluminatedTextured(pd3dDevice, pd3dCommandList, 40.0f, 4.0f, 0.0f);
+
+	m_ppObjects = vector<GameObject*>(m_nObjects);
+
+	GameObject* pInstnaceObject = new GameObject();
+	pInstnaceObject->SetMesh(0, pBoard);
+	pInstnaceObject->SetRootParameterIndex(2);
+	pInstnaceObject->SetPosition(0, 0, 0);
+	pInstnaceObject->SetRotateXZLock(true);
+	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * 1));
+
+	m_ppObjects[i++] = pInstnaceObject;
+
+	for (UINT i = 1; i < m_nObjects; ++i) {
+		GameObject* pGameObjects = new GameObject();
+		pGameObjects->SetMesh(0, pBoard);
+		pGameObjects->SetPosition(0, 0, 0);
+		pGameObjects->SetRotateXZLock(true);
+		pGameObjects->SetRootParameterIndex(2);
+		pGameObjects->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize) * 1);
+		m_ppObjects[i] = pGameObjects;
+	}
+}
+
+void MonsterHPShaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
+{
+	Shaders::Render(pd3dCommandList, pCamera);
+
+	pCamera->UpdateShaderVariables(pd3dCommandList);
+
+	pd3dCommandList->SetGraphicsRootDescriptorTable(1, m_d3dCbvGPUDescriptorStartHandle);
+
+
+	if (m_pMaterial) m_pMaterial->UpdateShaderVariables(pd3dCommandList);
+
+	if (m_ppObjects[0])
+		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
+}

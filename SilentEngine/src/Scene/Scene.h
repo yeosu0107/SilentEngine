@@ -33,6 +33,7 @@ public:
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList) ;
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) ;
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) {};
+	virtual void RenderHPBars(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) {};
 	virtual void RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList) {};
 	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index = 0) {};
 	virtual bool OnKeyboardInput(const Timer& gt, HWND& hWin) { return false; };
@@ -93,6 +94,7 @@ public:
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildUI(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
+	virtual void RenderHPBars(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void CreateShadowMap(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList, int index = 0);
@@ -128,6 +130,8 @@ protected:
 	BillboardShader*										m_EffectShaders = nullptr;
 	//BillboardShader*										m_hitEffectShaders = nullptr;
 	vector<BillboardShader*>							m_hitEffectShaders;
+
+	MonsterHPShaders*							m_MonsterHP;
 
 	unique_ptr<SkillUIShaders>							m_SkilCooldown;
 	unique_ptr<UIShaders>								m_BonusShader;

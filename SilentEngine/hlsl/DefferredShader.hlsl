@@ -168,7 +168,7 @@ PS_MULTIRENDERTARGET_DEFFERED PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
 
     finalColor.rgb += unpack.norm.w * fresnelFactor * finalColor.rgb;
     finalColor = Blur(int2(input.position.xy), float4(finalColor.xyz, 1.0f));
-  
+
     output.color = finalColor;
    //return Fog(finalColor, unpack.pos, lightColor.a);
     return output;

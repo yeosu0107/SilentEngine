@@ -93,4 +93,5 @@ StructuredBuffer<float> gAverageValues: register(t25);
 Texture2D<float4> gHDRDownScaleTexture : register(t26);
 Texture2D<float4> gBloomInput : register(t27);
 
+StructuredBuffer<float4> gHPBarData : register(t28);
 #endif

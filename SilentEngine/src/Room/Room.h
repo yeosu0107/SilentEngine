@@ -49,6 +49,7 @@ private:
 
 	ModelShader*						m_mapShader;
 	ModelShader*		m_enemyShader;
+
 	ProjectileShader*				m_Projectile;
 	BillboardShader*					m_pFires;
 public:
@@ -91,17 +92,19 @@ public:
 	bool IsProjectile() const { return isProjectile; }
 	bool IsClear() const { return isClear; }
 	bool IsStatBouns() const { return isStatBouns; }
-
-	void SetClear(bool clear) { isClear = clear; }
+	
+	void SetClear(bool clear);
 	void SetStatBouns(bool stat) { isStatBouns = stat; }
 
 	XMFLOAT3* RegistShader(BasePhysX* phys, bool state, const char& loc);
 	XMFLOAT3* GetGatePos() { return m_gatePoint; }
 	UINT getType() const { return m_type; }
 	UINT* getNextRoom() { return m_nextRoom; }
-
+	UINT getNumEnemy() const { return m_numEnemy; }
 	ModelShader* GetMapShader() { return m_mapShader; }
-	ModelShader* GetEnemyShader() { return m_enemyShader; }
+	ModelShader* GetEnemyShader() { 
+		return m_enemyShader; 
+	}
 	ProjectileShader* GetProjectileShader() { return m_Projectile; }
 
 	void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);

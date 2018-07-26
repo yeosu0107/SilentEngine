@@ -92,6 +92,18 @@ void Room::ResetFire()
 	m_pFires->SetPos(m_pFirePos, 10);
 }
 
+void Room::SetClear(bool clear)
+{
+	isClear = clear; 
+	if (isClear) {
+		GameObject** obj = m_enemyShader->getObjects(OPTSETALL);
+		for (UINT i = 0; i < m_numEnemy; ++i) {
+			dynamic_cast<Enemy*>(obj[i])->GetStatus()->m_health = 0.0f;
+		}
+	
+	}
+}
+
 XMFLOAT3* Room::RegistShader(BasePhysX * phys, bool state, const char& loc)
 {
 	if (state) {
@@ -128,6 +140,7 @@ void Room::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera)
 		if (isProjectile)
 			m_Projectile->Render(pd3dCommandList, pCamera);
 	}
+
 }
 
 void Room::RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera, XMFLOAT3& cameraPos, float offset)
