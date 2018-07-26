@@ -77,7 +77,7 @@ void BaseAI::patrolState()
 	m_patrolTimer += 1;
 	if (m_patrolTimer > 120) {
 		m_patrolTimer = 0;
-		m_owner->Rotate(0, 90, 0);
+		m_owner->Rotate(0, rand()%180, 0);
 	}
 
 	if (recognize(playerPos, m_range))

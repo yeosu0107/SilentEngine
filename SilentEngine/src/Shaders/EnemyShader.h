@@ -83,7 +83,15 @@ public:
 		m_remainEnemy = m_nObjects;
 	}
 
-	UINT getRemainObjects() const { 
+	UINT getRemainObjects() { 
+		setAsyncAnimation();
 		return m_remainEnemy; 
+	}
+	void setAsyncAnimation() {
+		for (auto& p : m_ppObjects) {
+			p->Animate(1/60);
+			p->Animate(1/60);
+			reinterpret_cast<Enemy*>(p)->AsyneAnim(static_cast<float>(rand() % 50));
+		}
 	}
 };

@@ -758,9 +758,10 @@ void TestScene::RoomChange()
 void TestScene::RoomSetting()
 {
 	if (m_Room) {
-		for (int i = 0; i < m_nRoom; ++i)
+		for (int i = 0; i < m_nRoom; ++i) {
+			m_Room[i]->RegistShader(m_physics, false, START_NON);
 			delete m_Room[i];
-
+		}
 		delete[] m_Room;
 	}
 
