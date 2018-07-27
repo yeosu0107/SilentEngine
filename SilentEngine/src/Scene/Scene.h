@@ -121,7 +121,7 @@ protected:
 	bool												m_bIsClear = false;
 
 	SceneType											m_nSceneState = NORMALLY;
-	virtualScene**						m_pUIScenes;
+	virtualScene**									m_pUIScenes;
 	
 	FadeEffectShader*									m_pTakeDamageScreen = nullptr;
 

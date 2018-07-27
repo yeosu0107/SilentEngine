@@ -91,6 +91,14 @@ bool Player::Move(DWORD input, float fTime)
 	if (m_playerLogic->getState() > STATE::tracking)
 		return false;
 	if (input){
+
+		if (m_dash) {
+			m_moveSpeed = 240.0f;
+		}
+		else {
+			m_moveSpeed = 80.0f;
+		}
+
 		float fDist = m_moveSpeed * fTime;
 		XMFLOAT3 xmf3Shift = XMFLOAT3(0, 0, 0);
 		XMFLOAT3 tmpLook=XMFLOAT3(0,0,0);
@@ -159,17 +167,17 @@ bool Player::Movement(DWORD input)
 		else
 			m_playerLogic->changeState(STATE::attack);
 	}
-	if (input & ANI_SKILL) {
+	else if (input & ANI_SKILL) {
 		if (GetTickCount() - m_avoidDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
 			m_playerLogic->changeState(STATE::skill);
 			m_avoidDelay = GetTickCount();
 		}
 		
 	}
-	if (input & ANI_KICK) {
+	else if (input & ANI_KICK) {
 		if (GetTickCount() - m_kickDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
-			if (m_status->m_mp >= (1 - m_mpCostBouns)) {
-				m_status->m_mp -= (1 - m_mpCostBouns);
+			if (m_status->m_mp >= (10 - m_mpCostBouns)) {
+				m_status->m_mp -= (10 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::kick);
 				m_kickDelay = GetTickCount();
 			}
@@ -179,10 +187,10 @@ bool Player::Movement(DWORD input)
 #endif
 		}
 	}
-	if (input & ANI_UPPER) {
+	else if (input & ANI_UPPER) {
 		if (GetTickCount() - m_kick2Delay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
-			if (m_status->m_mp >= (2 - m_mpCostBouns)) {
-				m_status->m_mp -= (2 - m_mpCostBouns);
+			if (m_status->m_mp >= (15 - m_mpCostBouns)) {
+				m_status->m_mp -= (15 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::upper);
 				m_kick2Delay = GetTickCount();
 			}
@@ -193,10 +201,10 @@ bool Player::Movement(DWORD input)
 		}
 	}
 
-	if (input & ANI_PUNCH) {
+	else if (input & ANI_PUNCH) {
 		if (GetTickCount() - m_punchDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
-			if (m_status->m_mp >= (3 - m_mpCostBouns)) {
-				m_status->m_mp -= (3 - m_mpCostBouns);
+			if (m_status->m_mp >= (20 - m_mpCostBouns)) {
+				m_status->m_mp -= (20 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::punch);
 				m_punchDelay = GetTickCount();
 			}
@@ -208,11 +216,23 @@ bool Player::Movement(DWORD input)
 	}
 
 	if (input & SUPER_SPEED) {
-		if(m_moveSpeed<100.0f)
-			m_moveSpeed = 320.0f;
-		else
-			m_moveSpeed = 80.0f;
+		if (m_dash != true) {
+			m_ani[PlayerAni::Move]->saveAnimSpeed();
+			m_ani[PlayerAni::Move]->SetAnimSpeed(2.0f);
+		}
+		m_dash = true;
+		
+		return false;
 	}
+	else {
+		if (m_dash != false) {
+			m_ani[PlayerAni::Move]->loadAnimSpeed();
+		}
+		m_dash = false;
+		
+		//m_moveSpeed = 80.0f;
+	}
+	
 	if (input != 0)
 		return true;
 
@@ -241,6 +261,7 @@ void Player::Attack()
 		//memcpy(m_weaponTrigger->userData, &m_AttackDamage, sizeof(DamageVal));
 		//*(DamageVal*)m_weaponTrigger->userData = m_AttackDamage;
 		//*(int*)m_weaponTrigger->userData = m_damage;
+
 		m_weaponTrigger->setGlobalPose(tmpTr, true);
 	}
 }
@@ -250,6 +271,7 @@ void Player::Attack_Normal()
 	m_AttackDamage->baseDamage = m_damage;
 	m_AttackDamage->hitback = 0.0f;
 	m_AttackDamage->paticleType = 0;
+
 	Player::Attack();
 }
 
@@ -365,6 +387,7 @@ void Player::Animate(float fTime)
 		m_status->m_health = 0;
 		m_playerLogic->changeState(STATE::death);
 	}
+
 	ModelObject::Animate(fTime); //애니메이션
 	
 	if (m_Controller) {
@@ -438,27 +461,33 @@ void Player::roomClearBouns(ClearBouns index)
 #endif
 	switch (index) {
 	case ClearBouns::mpCost:
-		m_mpCostBouns = 1;
+		m_mpCostBouns = 10;
 		break;
 	case ClearBouns::skillCost:
 		m_skillCostBouns = 1000;
 		break;
 	case ClearBouns::plusAtk:
-		m_damage += 2;
+		m_damage += 5;
 		break;
 	case ClearBouns::plusHP:
-		m_status->m_maxhealth += 30;
-		break;
-	case ClearBouns::plusMP:
-		m_status->m_maxmp += 1;
-		break;
-	case ClearBouns::recoveryHP:
+		m_status->m_maxhealth += 50;
 		m_status->m_health += 50;
 		if (m_status->m_health > m_status->m_maxhealth)
 			m_status->m_health = m_status->m_maxhealth;
 		break;
+	case ClearBouns::plusMP:
+		m_status->m_maxmp += 50;
+		m_status->m_mp += 50;
+		if (m_status->m_mp > m_status->m_maxmp)
+			m_status->m_mp = m_status->m_maxmp;
+		break;
+	case ClearBouns::recoveryHP:
+		m_status->m_health += 100;
+		if (m_status->m_health > m_status->m_maxhealth)
+			m_status->m_health = m_status->m_maxhealth;
+		break;
 	case ClearBouns::recoveryMP:
-		m_status->m_mp += 3;
+		m_status->m_mp += 100;
 		if (m_status->m_mp > m_status->m_maxmp)
 			m_status->m_mp = m_status->m_maxmp;
 		break;
@@ -479,23 +508,23 @@ UINT Player::roomClearBouns()
 
 	switch (index) {
 	case ClearBouns::mpCost:
-		m_mpCostBouns = 1;
+		m_mpCostBouns = 10;
 		break;
 	case ClearBouns::skillCost:
 		m_skillCostBouns = 1000;
 		break;
 	case ClearBouns::plusAtk:
-		m_damage += 2;
+		m_damage += 5;
 		break;
 	case ClearBouns::plusHP:
 		m_status->m_maxhealth += 50;
-		m_status->m_health += 30;
+		m_status->m_health += 50;
 		if (m_status->m_health > m_status->m_maxhealth)
 			m_status->m_health = m_status->m_maxhealth;
 		break;
 	case ClearBouns::plusMP:
-		m_status->m_maxmp += 2;
-		m_status->m_mp += 1;
+		m_status->m_maxmp += 50;
+		m_status->m_mp += 50;
 		if (m_status->m_mp > m_status->m_maxmp)
 			m_status->m_mp = m_status->m_maxmp;
 		break;
@@ -505,7 +534,7 @@ UINT Player::roomClearBouns()
 			m_status->m_health = m_status->m_maxhealth;
 		break;
 	case ClearBouns::recoveryMP:
-		m_status->m_mp += 3;
+		m_status->m_mp += 100;
 		if (m_status->m_mp > m_status->m_maxmp)
 			m_status->m_mp = m_status->m_maxmp;
 		break;

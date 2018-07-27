@@ -156,6 +156,7 @@ bool TestScene::Update(const Timer & gt)
 	m_SkilCooldown->Animate(gt.DeltaTime());
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	m_pTakeDamageScreen->Animate(gt.DeltaTime());
+
 	if (m_isGameEnd && m_changeFade == FADE_END) {
 		m_isGameEnd = false;
 		m_bMouseCapture = true;
@@ -402,6 +403,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_pTakeDamageScreen = new FadeEffectShader();
 	m_pTakeDamageScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
+
 	m_pUIScenes = new virtualScene*[m_nUIScenes];
 
 	PauseScene* pauseScene = new PauseScene();
@@ -479,8 +481,11 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 		m_testPlayer->setHitted(false);
 	}
 
+	
+
 	m_BonusShader->Render(pCommandList);
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
+	
 
 	for (UINT i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
@@ -564,15 +569,17 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState('T') & 0x0001) {
 		m_Room[m_nowRoom]->SetClear(true);
 	}
-	if (GetAsyncKeyState(VK_SPACE) & 0x0001)
-		input |= SUPER_SPEED;
+	
 	if (GetAsyncKeyState(VK_RETURN) & 0x0001)
 		cout << m_testPlayer->GetPosition();
 #endif
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+		input |= SUPER_SPEED;
 
 	if (GetAsyncKeyState('Q') & 0x0001) {
 		input |= ANI_UPPER;
 	}
+
 	if (GetAsyncKeyState('E') & 0x0001) {
 		input |= ANI_PUNCH;
 	}
@@ -847,15 +854,31 @@ void TestScene::RoomSetting()
 		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
 		m_Room[i]->SetSpawnPoint(globalMaps->getNumOfSpawn(m_Room[i]->getType()), globalMaps->getSpawnPoint(m_Room[i]->getType()));
-		UINT index = i % (KindOfEnemy - 1);
-		//UINT index = rand() % (KindOfEnemy - 1);
+		//UINT index = i % (KindOfEnemy - 1);
+		UINT index = rand() % (KindOfEnemy - 1); //방에 적 스폰 랜덤하게 설정
+		//방에 출현하는 적 보정 
+		//(5번, 9번 방에서만 5번 몬스터가 스폰됨. 이외에 방에서 5번이 나오면 너무 어려움)
+		UINT tmpType = m_Room[i]->getType();
+		if ( (tmpType != 5 || tmpType !=9)
+			&& index == 5) {
+			if (i > 5)
+				index -= 2;
+			else
+				index -= 1;
+		}
+		if (tmpType == 5 || tmpType == 9) index = 5;
+
+		//방에 적 등록
 		m_Room[i]->SetEnemyShader(enemyShader[index]);
 		if (index >= 4)
 			m_Room[i]->SetProjectileShader(bullet);
 	}
+	//첫번째 방은 무조건 팔이 나옴
 	m_Room[0]->SetEnemyShader(enemyShader[0]);
 	m_Room[0]->SetProjectileShader(nullptr);
-	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[KindOfEnemy-1]);
+
+	//보스룸 설정
+	m_Room[m_nRoom - 1]->SetEnemyShader(enemyShader[KindOfEnemy-1]); 
 	m_Room[m_nRoom - 1]->SetProjectileShader(bullet);
 }
 

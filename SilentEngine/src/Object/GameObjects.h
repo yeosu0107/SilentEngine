@@ -254,6 +254,7 @@ public:
 	virtual void Hitted(DamageVal& tmp) {}
 	virtual void Death() {}
 	virtual void ChangeAnimation(UINT nextIndex) {}
+	virtual bool getDash() const { return false; }
 
 	UINT getAnimLoop() const { return m_loopCheck; }
 	virtual void stopAnim(bool stop) {}

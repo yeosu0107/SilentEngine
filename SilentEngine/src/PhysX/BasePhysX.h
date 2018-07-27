@@ -47,6 +47,7 @@ public:
 	PxBoxController*			getBoxController(PxExtendedVec3 pos, PxUserControllerHitReport* collisionCallback, XMFLOAT3 size, float slopeDegree = 0.0f, float step = 0.0f);
 
 	PxRigidStatic*				getTrigger(PxVec3& t, XMFLOAT3 size);
+	PxShape*					getShape(XMFLOAT3 size);
 
 	PxPhysics* getPhys() { return gPhysics; }
 	PxScene* getScene() { return gScene; }

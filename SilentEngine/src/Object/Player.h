@@ -100,6 +100,7 @@ protected:
 	//밀리세컨드 단위
 	const UINT						MAX_SKILL_DELAY = 5000;
 
+	bool								m_dash = false;
 	bool								m_avoid = false;
 	DWORD							m_kickDelay = 0;
 	DWORD							m_avoidDelay = 0;
@@ -138,6 +139,7 @@ public:
 
 	virtual void SetPosition(float x, float y, float z);
 	virtual void Animate(float fTime);
+	virtual bool getDash() const { return m_dash; }
 	
 	DWORD* getCoolTimeBonus()	{ return&m_skillCostBouns; }
 	DWORD* getUpperDelay()		{ return &m_kick2Delay; }
