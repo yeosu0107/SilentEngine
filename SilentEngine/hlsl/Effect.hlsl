@@ -81,7 +81,8 @@ PS_MULTIRENDERTARGET_MONHPBAR PSHPBar(VS_MONHPBAR_OUTPUT input)
     if (data.y < 1.0f) discard;
     if (input.uv.x > data.x) discard;
 
-    output.color = float4(1.0f, 0.0f, 0.0f, 1.0f);
+    output.color = float4(133.0f, 23.0f, 40.0f, 1.0f) / 255.0f;
+    output.color.a = 1.0f;
     output.normal = float4(0.0f, 0.0f, 0.0f, 1.0f);
     //if (cColor.a < 1.0f)
    //     discard;

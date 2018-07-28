@@ -1,7 +1,7 @@
 #ifndef UI_SHADER_HLSL
 #define UI_SHADER_HLSL
 
-#include "Cbuffer.hlsl"
+#include "UICbuffer.hlsl"
 #include "Texture.hlsl"
 #include "Sampler.hlsl"
 
@@ -166,6 +166,29 @@ float4 PSCoolDownUI(VS_TEXTURED_OUTPUT input) : SV_Target
         else if (newuv.x > 0.0f)                    return (float4) 0.0f;
     }
    
+    finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+
+    finalColor.a *= gfAlpha;
+
+    return finalColor;
+}
+
+float4 PSNumberUI(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+    //uint gNumberType; // 0 : float, 1 : float 분수 , 2 : float 퍼센트 , 3 : int , 4 : int 분수 , 5 : int 퍼센트
+    //uint gNumberMaximumLength; // 문자 최대 길이
+    //float gfNumber;
+    //float gfNumber2;
+
+    int pos = (int) (input.uv.x * gNumberMaximumLength) / 4;
+    int uint4pos = (int) (input.uv.x * gNumberMaximumLength) % 4;
+    // 0 -> 4 
+    float2 uv = (float2) 0.0f;
+    // 0 ~ 5
+    float4 finalColor = (float4) 0.0f;
+
+    uv = float2(gfNumber[pos][uint4pos] / 14.0f + frac(input.uv.x * gNumberMaximumLength) / 14.0f, input.uv.y);
+
     finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
 
     finalColor.a *= gfAlpha;

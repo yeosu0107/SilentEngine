@@ -3,6 +3,17 @@
 #include "UIObject.h"
 
 #define NUM_MAX_UITEXTURE 4
+#define NUM_MAXIMUMNUMBER_LENGTH 8
+
+enum UINumberType { NUM_TYPE_FLOAT_NONE, NUM_TYPE_FLOAT_DIVISION, NUM_TYPE_FLOAT_PERCENTAGE, NUM_TYPE_UINT_NONE, NUM_TYPE_UINT_DIVISION, NUM_TYPE_UINT_PERCENTAGE };
+
+struct CB_NUMBER_INFO {
+	UINT m_Type = 0.0f; // 0 : float, 1 : float 분수 , 2 : float 퍼센트 , 3 : int , 4 : int 분수 , 5 : int 퍼센트
+	UINT m_MaximumLength; // 문자 최대 길이
+	float m_fOriginNumber1;
+	float m_fOriginNumber2; 
+	UINT m_fNumber[NUM_MAXIMUMNUMBER_LENGTH] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+};
 
 class UIShaders : public Shaders
 {
@@ -114,7 +125,36 @@ public:
 	virtual void Animate(float fTimeElapsed);
 	void LinkedSkillTime(DWORD* time, DWORD cooldown, DWORD* bonus, UINT index);
 
+protected:
 	vector<DWORD> m_pCooldown;		// 쿨타임
 	vector<DWORD*> m_pSkillTime;	// 현재까지 경과된 시간
 	vector<DWORD*> m_pBonus;	// 현재까지 경과된 시간
+};
+
+class NumberUIShaders : public UIShaders
+{
+	enum NumberIndex { VOIDDIGIT = 10, POINT = 11, DIVISION = 12, PERCENTAGE = 13 };
+
+public:
+	NumberUIShaders() {};
+	~NumberUIShaders() {};
+
+public:
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList);
+	virtual void CreateGraphicsRootSignature(ID3D12Device * pd3dDevice);
+	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
+
+	virtual void SetData(float data1, float data2);
+	virtual void LinkData(void* data1, void* data2);
+	void SetNumberInfo(UINT type, UINT length);
+	void ConvertOptNoneToUINTArray(float data, UINT nLength, bool isFloat);
+	void ConvertOptDivisionToUINTArray(float data1, float data2, UINT nLength, bool isFloat);
+
+protected:
+	unique_ptr<UploadBuffer<CB_NUMBER_INFO>>	m_NumberInfoCB = nullptr;
+	CB_NUMBER_INFO	m_NumberInfo;
+
+	void* m_pData1 = nullptr;
+	void* m_pData2 = nullptr;
 };

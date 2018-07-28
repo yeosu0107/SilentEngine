@@ -82,6 +82,7 @@ class TestScene : public Scene
 {
 	enum SceneType{ PAUSE, GAMEOVER, CLEAR, NORMALLY };
 	enum BottonType{ NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF };
+	enum NumberIndex { NUM_HP, NUM_MP };
 public:
 	TestScene();
 	~TestScene();
@@ -93,6 +94,7 @@ public:
 	virtual bool Update(const Timer& gt);
 	virtual void BuildScene(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void BuildUI(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
+	void BuildNumberUI(ID3D12Device* pDevice, ID3D12GraphicsCommandList* pCommandList);
 	virtual void Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderHPBars(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
 	virtual void RenderShadow(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);
@@ -133,8 +135,12 @@ protected:
 
 	MonsterHPShaders*							m_MonsterHP;
 
+	unique_ptr<TextureToFullScreen>						m_SuperRunEffect;
 	unique_ptr<SkillUIShaders>							m_SkilCooldown;
 	unique_ptr<UIShaders>								m_BonusShader;
+
+	const UINT										m_nNumberShader = 2;
+	NumberUIShaders**							m_NumberShader;
 	ProjectileShader*									m_Projectile = nullptr;
 	
 	Room**													m_Room = nullptr;

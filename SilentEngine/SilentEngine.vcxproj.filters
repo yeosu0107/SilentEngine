@@ -435,6 +435,9 @@
     <FxCompile Include="hlsl\ComputeShaders.hlsl">
       <Filter>Shaders\hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\UICbuffer.hlsl">
+      <Filter>Shaders\hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="NormalSkyrim.cur">

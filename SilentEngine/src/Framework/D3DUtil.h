@@ -64,11 +64,16 @@ enum CBVRegisterNumber {
 	CBVEffect			= 6,
 	CBVFade				= 7,
 	CBVFog				= 8,
-	CBVUIInfo			= 9,
 	CBVBlurInfo			= 10,
 	CBVHDRDownScale		= 11,
 	CBVHDRToneMapp		= 12,
-	CBVMonsterHP		= 13
+	CBVMonsterHP		= 13,
+};
+
+
+enum UICBVRegisterNumber {
+	CBVUIInfo = 0,
+	CBVNumberUI = 1
 };
 
 enum UABufferType {

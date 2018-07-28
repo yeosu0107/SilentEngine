@@ -169,9 +169,9 @@ float4 PSFadeEffect(VS_TEXTURED_OUTPUT input) : SV_Target
     return finalColor;
 }
 
-float4 PSFullScreen(float4 position : SV_POSITION) : SV_Target
+float4 PSFullScreen(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-    return gBuffer[GBUFFER_COLOR][int2(position.xy)];
+    return gBuffer[GBUFFER_COLOR].Sample(gDefaultSamplerState, input.uv);
 }
 
 

@@ -6,6 +6,10 @@
     #define NUM_DIRECTION_LIGHTS 1
 #endif
 
+#ifndef NUM_MAXIMUMNUMBER_LENGTH
+    #define NUM_MAXIMUMNUMBER_LENGTH 8
+#endif
+
 #define MAX_LIGHTS			8 
 #define MAX_MATERIALS		8 
 

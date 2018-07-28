@@ -940,7 +940,7 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSFadeEffect", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFullScreen", "ps_5_0");
 
 	TextureDataForm* mtexture = (TextureDataForm*)pContext;
@@ -952,7 +952,6 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_pMaterial = new CMaterial();
 	m_pMaterial->SetTexture(pTexture);
 	m_pMaterial->SetReflection(1);
-
 
 	CreateGraphicsRootSignature(pd3dDevice);
 	Shaders::BuildPSO(pd3dDevice, nRenderTargets);

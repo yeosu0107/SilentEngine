@@ -403,7 +403,13 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_pTakeDamageScreen = new FadeEffectShader();
 	m_pTakeDamageScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
+	texutredata[0].m_texture = L"res\\Texture\\dash.DDS";
+	m_SuperRunEffect = make_unique<TextureToFullScreen>();
+	m_SuperRunEffect->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
+	BuildNumberUI(pDevice, pCommandList);
+
+	
 	m_pUIScenes = new virtualScene*[m_nUIScenes];
 
 	PauseScene* pauseScene = new PauseScene();
@@ -418,6 +424,40 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	ClearScene* clearScene = new ClearScene();
 	clearScene->BuildScene(pDevice, pCommandList);
 	m_pUIScenes[CLEAR] =clearScene;
+}
+
+void TestScene::BuildNumberUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
+{
+	Player* player = dynamic_cast<Player*>(m_playerShader->getPlayer(0));
+	vector<TextureDataForm> texutredata(2);
+
+	texutredata[0].m_texture = L"res\\Texture\\Number_BK.DDS";
+	
+	XMFLOAT2 pos = XMFLOAT2(
+		static_cast<float>(FRAME_BUFFER_WIDTH) / 6.0 + 100.0f,
+		static_cast<float>(FRAME_BUFFER_HEIGHT) * 8.0f / 9.0 + 38.0f
+	);
+
+	m_NumberShader = new NumberUIShaders*[m_nNumberShader];
+	Status* stat = player->GetStatus();
+	NumberUIShaders* HPnumShader = new NumberUIShaders();
+	HPnumShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	HPnumShader->SetNumberInfo(NUM_TYPE_UINT_DIVISION, 7);
+	HPnumShader->LinkData(&stat->m_health, &stat->m_maxhealth);
+	HPnumShader->SetScale(&XMFLOAT2(0.56f * 4, 0.36f), OPTSETALL);
+	HPnumShader->SetPos(&pos, 0);
+
+	m_NumberShader[NUM_HP] = HPnumShader;
+
+	pos.y -= 22.0f;
+	NumberUIShaders* MPnumShader = new NumberUIShaders();
+	MPnumShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	MPnumShader->SetNumberInfo(NUM_TYPE_UINT_DIVISION, 7);
+	MPnumShader->LinkData(&stat->m_mp, &stat->m_maxmp);
+	MPnumShader->SetScale(&XMFLOAT2(0.56f * 4, 0.36f), OPTSETALL);
+	MPnumShader->SetPos(&pos, 0);
+
+	m_NumberShader[NUM_MP] = MPnumShader;
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -481,16 +521,18 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 		m_testPlayer->setHitted(false);
 	}
 
-	
+	if (m_testPlayer->getDash()) {
+		m_SuperRunEffect->Render(pCommandList, m_Camera.get());
+	}
 
 	m_BonusShader->Render(pCommandList);
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
 	
-
 	for (UINT i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
-
 	m_SkilCooldown->Render(pCommandList);
+	for(UINT i = 0; i < m_nNumberShader; ++i)
+		m_NumberShader[i]->Render(pCommandList);
 
 	m_nSceneState = static_cast<SceneType>(CalNowScene());
 	if (m_nSceneState != NORMALLY) {
