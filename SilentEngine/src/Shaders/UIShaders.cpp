@@ -724,6 +724,16 @@ void SkillUIShaders::LinkedSkillTime(DWORD * time, DWORD cooldown, DWORD* bonus,
 	m_pBonus[index] = bonus;
 }
 
+float SkillUIShaders::RemainingCooldown(UINT index)
+{
+	float elapsedTime = static_cast<float>(GetTickCount() - *m_pSkillTime[index]);
+	float coolTime = static_cast<float>(m_pCooldown[index]);
+	coolTime -= (m_pBonus[index] == nullptr) ? 0.0f : *m_pBonus[index];	// 쿨타임 관련 보너스가 연결 되어 있으면 연결
+	coolTime = coolTime / 1000.0f;
+	elapsedTime = elapsedTime / 1000.0f;
+	return coolTime - elapsedTime;
+}
+
 void NumberUIShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	TextureDataForm* textures = reinterpret_cast<TextureDataForm*>(pContext);
@@ -846,6 +856,7 @@ void NumberUIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 	CB_UI_INFO cBuffer;
 
 	float data1, data2 = 0.0f;
+	
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		cBuffer.m_fData = m_pUIObjects[i]->m_fData;
@@ -877,6 +888,9 @@ void NumberUIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 	// 0 : float, 1 : float 분수 , 2 : float 퍼센트 , 3 : int , 4 : int 분수 , 5 : int 퍼센트
 	switch (m_NumberInfo.m_Type) {
 	case NUM_TYPE_FLOAT_NONE:
+		if (data1 < 0.1f) m_pUIObjects[0]->m_bEnabled = false;
+		else  m_pUIObjects[0]->m_bEnabled = true;
+
 		ConvertOptNoneToUINTArray(data1, m_NumberInfo.m_MaximumLength, true);
 		break;
 	case NUM_TYPE_FLOAT_DIVISION:
@@ -900,8 +914,8 @@ void NumberUIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 
 void NumberUIShaders::SetData(float data1, float data2)
 {
-	if (!data1 < 0.0f) m_NumberInfo.m_fOriginNumber1 = data1;
-	if (!data2 < 0.0f) m_NumberInfo.m_fOriginNumber2 = data2;
+	if (data1 >= 0.0f) m_NumberInfo.m_fOriginNumber1 = data1;
+	if (data2 >= 0.0f) m_NumberInfo.m_fOriginNumber2 = data2;
 }
 
 void NumberUIShaders::LinkData(void * data1, void * data2)

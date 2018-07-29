@@ -77,12 +77,12 @@ protected:
 	POINT*					m_pCursorPos = new POINT();
 };
 
-
 class TestScene : public Scene
 {
+	//
 	enum SceneType{ PAUSE, GAMEOVER, CLEAR, NORMALLY };
 	enum BottonType{ NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF };
-	enum NumberIndex { NUM_HP, NUM_MP };
+	enum NumberIndex { NUM_HP, NUM_MP, NUM_KICK, NUM_UPPER, NUM_PUNCH, NUM_AVOID };
 public:
 	TestScene();
 	~TestScene();
@@ -139,7 +139,7 @@ protected:
 	unique_ptr<SkillUIShaders>							m_SkilCooldown;
 	unique_ptr<UIShaders>								m_BonusShader;
 
-	const UINT										m_nNumberShader = 2;
+	const UINT										m_nNumberShader = 6;
 	NumberUIShaders**							m_NumberShader;
 	ProjectileShader*									m_Projectile = nullptr;
 	

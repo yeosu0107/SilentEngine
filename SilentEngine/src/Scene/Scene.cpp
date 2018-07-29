@@ -154,6 +154,9 @@ bool TestScene::Update(const Timer & gt)
 	m_BonusShader->RefreshTimer(gt.DeltaTime());
 
 	m_SkilCooldown->Animate(gt.DeltaTime());
+	for (int i = NUM_KICK; i <= NUM_AVOID; ++i) {
+		m_NumberShader[i]->SetData(m_SkilCooldown->RemainingCooldown(i - 2), 0.0f);
+	}
 	m_pFadeEffectShader->Animate(gt.DeltaTime());
 	m_pTakeDamageScreen->Animate(gt.DeltaTime());
 
@@ -386,7 +389,6 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_SkilCooldown->MovePos(XMFLOAT2(71.0f, 0.0f), 2);
 	m_SkilCooldown->MovePos(XMFLOAT2(146.0f, 0.0f), 3);
 	
-
 	m_BonusShader = make_unique<UIShaders>();
 	texutredata[0] = { L"res\\Texture\\EventMessage.DDS", L"", 1 , 7 };
 	m_BonusShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
@@ -433,7 +435,7 @@ void TestScene::BuildNumberUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList 
 	Player* player = dynamic_cast<Player*>(m_playerShader->getPlayer(0));
 	vector<TextureDataForm> texutredata(2);
 
-	texutredata[0].m_texture = L"res\\Texture\\Number_BK.DDS";
+	texutredata[0].m_texture = L"res\\Texture\\Number_WT.DDS";
 	
 	XMFLOAT2 pos = XMFLOAT2(
 		static_cast<float>(FRAME_BUFFER_WIDTH) / 6.0 + 100.0f,
@@ -460,6 +462,25 @@ void TestScene::BuildNumberUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList 
 	MPnumShader->SetPos(&pos, 0);
 
 	m_NumberShader[NUM_MP] = MPnumShader;
+
+	pos = XMFLOAT2(
+		static_cast<float>(FRAME_BUFFER_WIDTH) / 6.0 + 150.0f,
+		static_cast<float>(FRAME_BUFFER_HEIGHT) * 8.0f / 9.0 - 38.0f
+	);
+
+	for (int i = NUM_KICK; i <= NUM_AVOID; ++i) {
+
+		NumberUIShaders* SkillnumShader = new NumberUIShaders();
+		SkillnumShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+		SkillnumShader->SetNumberInfo(NUM_TYPE_FLOAT_NONE, 3);
+		SkillnumShader->SetData(m_SkilCooldown->RemainingCooldown(i - 2), 0.0f);
+		SkillnumShader->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
+		SkillnumShader->SetPosScreenRatio(XMFLOAT2(0.5f, 0.045f), OPTSETALL);
+		SkillnumShader->MovePos(XMFLOAT2(- 76.0f + (73.0f * (i - 2)), 0.0f), 0);
+		SkillnumShader->SetScale(&XMFLOAT2(0.5f * 2, 0.36f), OPTSETALL);
+
+		m_NumberShader[i] = SkillnumShader;
+	}
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)

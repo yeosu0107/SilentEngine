@@ -35,6 +35,7 @@ public:
 	virtual void SetEnable(bool enable, UINT index = 0) { m_pUIObjects[index]->m_bEnabled = enable; }	// 시야에 보일지 확인
 	virtual void SetScale(XMFLOAT2* scale, UINT index = 0) { m_pUIObjects[index]->m_xmf2Scale = *scale; }
 	virtual void SetScale(XMFLOAT2* scale, const OPTIONSETALL);	// 이 셰이더의 모든 오브젝트 Scale변경
+	virtual UIObject* getObejct(UINT index) { return m_pUIObjects[index]; }
 
 	virtual void MovePos(XMFLOAT2& pos, UINT index = 0);	// 현재 위치 기준으로 pos 픽셀만큼 이동 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
@@ -124,7 +125,7 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Animate(float fTimeElapsed);
 	void LinkedSkillTime(DWORD* time, DWORD cooldown, DWORD* bonus, UINT index);
-
+	float RemainingCooldown(UINT index);
 protected:
 	vector<DWORD> m_pCooldown;		// 쿨타임
 	vector<DWORD*> m_pSkillTime;	// 현재까지 경과된 시간
@@ -147,6 +148,8 @@ public:
 
 	virtual void SetData(float data1, float data2);
 	virtual void LinkData(void* data1, void* data2);
+	virtual void LinkEnable(bool* point) { m_pEnabled = point; }
+
 	void SetNumberInfo(UINT type, UINT length);
 	void ConvertOptNoneToUINTArray(float data, UINT nLength, bool isFloat);
 	void ConvertOptDivisionToUINTArray(float data1, float data2, UINT nLength, bool isFloat);
@@ -155,6 +158,7 @@ protected:
 	unique_ptr<UploadBuffer<CB_NUMBER_INFO>>	m_NumberInfoCB = nullptr;
 	CB_NUMBER_INFO	m_NumberInfo;
 
+	bool* m_pEnabled = nullptr;
 	void* m_pData1 = nullptr;
 	void* m_pData2 = nullptr;
 };

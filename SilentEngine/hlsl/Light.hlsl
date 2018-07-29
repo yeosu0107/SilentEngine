@@ -59,14 +59,14 @@ float CalcShadowFactor(float4 shadowPosH, int index)
         float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
     };
 
-    [unroll]
+    [unroll(9)]
     for (int i = 0; i < 9; ++i)
     {
         percentLit += gShadowMap[index].SampleCmpLevelZero(gsamShadow,
             shadowPosH.xy + offsets[i], depth).r;
     }
     
-    return saturate(percentLit / 9.0f + 0.3f);
+    return saturate(percentLit / 9.0f );
 }
 
 float4 DirectionalLight(int nIndex, float3 vNormal, float3 vToCamera, uint nMatindex, float fShadowFactor)
