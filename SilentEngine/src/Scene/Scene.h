@@ -135,7 +135,7 @@ protected:
 
 	MonsterHPShaders*							m_MonsterHP;
 
-	unique_ptr<TextureToFullScreen>						m_SuperRunEffect;
+	//unique_ptr<TextureToFullScreen>						m_SuperRunEffect;
 	unique_ptr<SkillUIShaders>							m_SkilCooldown;
 	unique_ptr<UIShaders>								m_BonusShader;
 

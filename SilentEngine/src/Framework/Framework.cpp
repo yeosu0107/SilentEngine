@@ -18,7 +18,7 @@ Framework::Framework(HINSTANCE hInstance)
 	m_pFramework = this;
 
 	GlobalVal::getInstance()->LoadModels(new ModelLoader("GameModelList.csv"));
-	GlobalVal::getInstance()->LoadMaps(new MapLoader("MapList.csv", "spawnpoint.csv"));
+	GlobalVal::getInstance()->LoadMaps(new MapLoader("MapList.csv", "spawn_easy.csv"));
 	GlobalVal::getInstance()->LoadEffects(new EffectLoader("EffectList.csv"));
 	GlobalVal::getInstance()->LoadFirePos(new FirePositionLoader("TochPosition.csv"));
 	SoundMgr::getInstance()->init();

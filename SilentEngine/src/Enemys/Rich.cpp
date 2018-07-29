@@ -5,7 +5,7 @@
 Rich::Rich(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 	: Enemy(model, pd3dDevice, pd3dCommandList)
 {
-	m_State->setValue(50, 50, 50, 200, 45, false);
+	m_State->setValue(400, 400, 50, 200, 45, false);
 	m_size = XMFLOAT2(1.0f, 10.0f);
 	m_status = m_State->getStatus();
 	m_damageVal->hitback = 1.5f;

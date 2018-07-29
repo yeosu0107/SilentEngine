@@ -127,17 +127,20 @@ void PlayerLogic::changeState(STATE newState)
 	case STATE::attack:
 		m_attackType = AttackType::Normal;
 		SoundMgr::getInstance()->play(SOUND::ATT01, CHANNEL::PLAYER);
+		SoundMgr::getInstance()->play(SOUND::WIND01, CHANNEL::PLAYER);
 		m_owner->ChangeAnimation(PlayerAni::Attack);
 		break;
 	case STATE::attack2:
 		m_attackType = AttackType::Normal;
 		SoundMgr::getInstance()->play(SOUND::ATT02, CHANNEL::PLAYER);
+		SoundMgr::getInstance()->play(SOUND::WIND01, CHANNEL::PLAYER);
 		m_state = STATE::attack;
 		m_owner->ChangeAnimation(PlayerAni::Attack2);
 		break;
 	case STATE::attack3:
 		m_attackType = AttackType::Normal;
 		SoundMgr::getInstance()->play(SOUND::ATT03, CHANNEL::PLAYER);
+		SoundMgr::getInstance()->play(SOUND::WIND02, CHANNEL::PLAYER);
 		m_state = STATE::attack;
 		m_owner->ChangeAnimation(PlayerAni::Attack3);
 		break;

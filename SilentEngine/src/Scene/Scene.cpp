@@ -201,6 +201,8 @@ bool TestScene::Update(const Timer & gt)
 			//reinterpret_cast<Player*>(m_testPlayer)->roomClearBouns(ClearBouns::plusAtk);
 			UINT index = reinterpret_cast<Player*>(m_testPlayer)->roomClearBouns();
 			m_BonusShader->SetNowSprite(XMUINT2(0, index));
+
+			SoundMgr::getInstance()->play(SOUND::ROOM_CLEAR, CHANNEL::FX);
 		}
 	}
 
@@ -403,9 +405,9 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_pTakeDamageScreen = new FadeEffectShader();
 	m_pTakeDamageScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
-	texutredata[0].m_texture = L"res\\Texture\\dash.DDS";
+	/*texutredata[0].m_texture = L"res\\Texture\\dash.DDS";
 	m_SuperRunEffect = make_unique<TextureToFullScreen>();
-	m_SuperRunEffect->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	m_SuperRunEffect->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);*/
 
 	BuildNumberUI(pDevice, pCommandList);
 
@@ -521,9 +523,9 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 		m_testPlayer->setHitted(false);
 	}
 
-	if (m_testPlayer->getDash()) {
+	/*if (m_testPlayer->getDash()) {
 		m_SuperRunEffect->Render(pCommandList, m_Camera.get());
-	}
+	}*/
 
 	m_BonusShader->Render(pCommandList);
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
