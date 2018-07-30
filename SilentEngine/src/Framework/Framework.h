@@ -16,7 +16,7 @@
 
 class Framework
 {
-	
+	enum Scene_State{Main_Scene, Game_Scene};
 public:
 
 	Framework(HINSTANCE hInstance);
@@ -158,8 +158,8 @@ protected:
 	RECT									m_clientRect;
 	POINT								pt1, pt2;
 
-	const UINT							m_nMaxScene = 3;
-	UINT								m_nNowScene = 0;
+	const UINT							m_nMaxScene = 2;
+	UINT								m_nNowScene = Main_Scene;
 
 protected:
 	Scene**								m_pScene;

@@ -406,9 +406,15 @@ void Framework::RenderHDR()
 
 void Framework::RenderHPBars()
 {
+	for (int i = 0; i < NUM_DEPTHGBUFFERS; ++i) {
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
+			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+	}
+
+
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_OUTLINENRM].Get(),
 		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	
+
 	D3D12_CPU_DESCRIPTOR_HANDLE renderTarget[2] = { m_pd3dRtvRenderTargetBufferCPUHandles[RTV_COLOR] , m_pd3dRtvRenderTargetBufferCPUHandles[RTV_OUTLINENRM] };
 	m_pCommandList->OMSetRenderTargets(2, renderTarget, TRUE, &DepthStencilView());
 
@@ -419,19 +425,25 @@ void Framework::RenderHPBars()
 
 void Framework::RenderOutlineFog()
 {
-	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_OUTLINENRM].Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+	
+	if (m_nNowScene == Game_Scene) {
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_COLOR].Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
 
-	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_COLOR].Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_OUTLINENRM].Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+
+
+		for (int i = 0; i < NUM_LIGHTMAP; ++i) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
+				D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
+		}
+	}
 
 	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(CurrentBackBuffer(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	for (int i = 0; i < NUM_LIGHTMAP; ++i) {
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
-			D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_GENERIC_READ));
-	}
 
 	float pfClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -478,12 +490,15 @@ void Framework::Render()
 	m_pCommandList->RSSetViewports(1, &m_ScreenViewport);
 	m_pCommandList->RSSetScissorRects(1, &m_ScissorRect);
 
-	ClearRTVnDSV();
-	RenderOBJ();
-	RenderDeffered();
-	DispatchComputeShaders();
-	RenderHDR();
-	RenderHPBars();
+	if (m_nNowScene == Game_Scene) {
+		ClearRTVnDSV();
+		RenderOBJ();
+		RenderDeffered();
+		DispatchComputeShaders();
+		RenderHDR();
+		RenderHPBars();
+	}
+
 	RenderOutlineFog();
 
 	m_nCurrBuffer = (m_nCurrBuffer + 1) % m_nSwapChainBuffers;
@@ -501,28 +516,42 @@ void Framework::ClearRTVnDSV()
 
 	int i = 0;
 
-	for (i = 0; i < NUM_RENDERTARGET; ++i) {
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[i].Get(),
+	if (m_nNowScene == Main_Scene) {
+		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[RTV_COLOR].Get(),
 			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
 	}
+	else {
+		for (i = 0; i < NUM_RENDERTARGET; ++i) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dRenderTargetBuffers[i].Get(),
+				D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+			ExcuteCommandList();
+		}
 
-	for (i = 0; i < NUM_HDRBUFFER; ++i) {
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dHDRBuffers[i].Get(),
-			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	}
-	for (int i = 0; i < NUM_LIGHTMAP; ++i) {
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
-			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	}
-   
-	for (i = 0; i < NUM_DEPTHGBUFFERS; ++i) {
-		m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
-			D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
-	}
 
-	for (i = 0; i < NUM_RENDERTARGET + NUM_HDRBUFFER; ++i) {
-		m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[i], pfClearColor, 0, NULL);
+		for (i = 0; i < NUM_HDRBUFFER; ++i) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dHDRBuffers[i].Get(),
+				D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+			ExcuteCommandList();
+		}
+
+		for (int i = 0; i < NUM_LIGHTMAP; ++i) {
+			m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppd3dLightMapBuffers[i].Get(),
+				D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_RENDER_TARGET));
+			ExcuteCommandList();
+		}
+
+		//for (i = 0; i < NUM_DEPTHGBUFFERS; ++i) {
+		//	m_pCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_pDepthStencilBuffer[i].Get(),
+		//		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_DEPTH_WRITE));
+		//	ExcuteCommandList();
+		//}
+
+		for (i = 0; i < NUM_RENDERTARGET + NUM_HDRBUFFER; ++i) {
+			m_pCommandList->ClearRenderTargetView(m_pd3dRtvRenderTargetBufferCPUHandles[i], pfClearColor, 0, NULL);
+			ExcuteCommandList();
+		}
 	}
+	
 }
 
 

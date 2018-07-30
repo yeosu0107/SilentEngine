@@ -1916,7 +1916,9 @@ void HDRShader::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCa
 
 void HDRShader::Dispatch(ID3D12GraphicsCommandList * pd3dCommandList)
 {
+	if (!HDR_ON && !BLOOM_ON) return;
 	for (int i = DownScaleFirstPass; i <= BloomBlurHorizon; ++i) {
+		if (i > DownScaleSecondPass && !BLOOM_ON) return;
 		DispatchComputePipeline(pd3dCommandList, i);
 		GetUADataInCurrentPipeline(pd3dCommandList, i);
 	}
