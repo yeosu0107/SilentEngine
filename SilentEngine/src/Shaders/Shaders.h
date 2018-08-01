@@ -218,7 +218,7 @@ public:
 	virtual void UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList);
 
 	virtual void Animate(float fTimeElapsed);
-
+	virtual void SetType(UINT* ntype, UINT num) {};
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
@@ -232,6 +232,7 @@ protected:
 	Camera * m_pCamera = nullptr;
 	float m_fElapsedTime = 0.0f;
 
+	vector<TextureDataForm>	m_TextureDatas;
 	unique_ptr<UploadBuffer<CB_EFFECT_INFO>>	m_EffectCB = nullptr;
 };
 

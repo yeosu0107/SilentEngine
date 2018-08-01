@@ -126,7 +126,6 @@ CMaterial::CMaterial()
 
 CMaterial::~CMaterial()
 {
-	if (m_pTexture) m_pTexture->Release();
 	if (m_pShader) m_pShader->Release();
 }
 

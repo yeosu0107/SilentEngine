@@ -1,6 +1,21 @@
 #include "stdafx.h"
 #include "ProjectileShader.h"
 
+void ProjectileShader::SetType(UINT* ntype, UINT num) {
+	UINT now = 0;
+
+	for (auto& p : m_ppObjects) {
+		if (p->isLive())
+			continue;
+		reinterpret_cast<Bullet*>(p)->m_nType = ntype[now];
+		reinterpret_cast<Bullet*>(p)->m_fMaxXCount = m_TextureDatas[ntype[now]].m_MaxX;
+		reinterpret_cast<Bullet*>(p)->m_fMaxYCount = m_TextureDatas[ntype[now]].m_MaxY;
+		now += 1;
+		if (now == num)
+			break;
+	}
+}
+
 void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_GAMEOBJECT_INFO cBuffer;
@@ -8,14 +23,6 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 	m_ActiveBullet = 0;
 	int index = 0;
 	Camera* pCamera = m_pCamera;
-
-	std::sort(m_ppObjects.begin(), m_ppObjects.end(), [pCamera](GameObject* a, GameObject* b) {
-
-		Camera* pLamdaCamera = (Camera*)pCamera;
-		float aLengthToCamera = Vector3::Length(Vector3::Subtract(pLamdaCamera->GetPosition(), a->GetPosition(), false));
-		float bLengthToCamera = Vector3::Length(Vector3::Subtract(pLamdaCamera->GetPosition(), b->GetPosition(), false));
-		return aLengthToCamera > bLengthToCamera; }
-	);
 
 	for (unsigned int i = 0; i < m_nObjects; ++i) {
 		if (m_ppObjects[i]->isLive()) {
@@ -29,6 +36,7 @@ void ProjectileShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 			cEffectBuffer.m_nMaxYcount = (UINT)reinterpret_cast<Bullet*>(m_ppObjects[i])->m_fMaxYCount;
 			cEffectBuffer.m_nNowYcount = (UINT)reinterpret_cast<Bullet*>(m_ppObjects[i])->m_fNowYCount;
 
+			cEffectBuffer.m_nType = reinterpret_cast<Bullet*>(m_ppObjects[i])->m_nType;
 			m_EffectCB->CopyData(index, cEffectBuffer);
 
 			index += 1;
@@ -44,18 +52,24 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-
 	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSEffect", "vs_5_0");
 	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSEffect", "ps_5_0");
 
-	TextureDataForm* mtexture = (TextureDataForm*)pContext;
+	int size = reinterpret_cast<vector<TextureDataForm>*>(pContext)->size();
 
-	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
-	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
+	m_TextureDatas.resize(size);
+	vector<TextureDataForm> mtexture = *reinterpret_cast<vector<TextureDataForm>*>(pContext);
+
+	CTexture *pTexture = new CTexture(size, RESOURCE_TEXTURE2D, 0);
+
+	for (int i = 0; i < size; ++i) {
+		pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture[i].m_texture.c_str(), i);
+		m_TextureDatas[i] = (*reinterpret_cast<vector<TextureDataForm>*>(pContext))[i];
+	}
 
 	unsigned int i = 0;
 
-	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 4);
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, 2 + size);
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_ObjectCB->Resource(), 1, i++, sizeof(CB_GAMEOBJECT_INFO), false);
 	CreateInstanceShaderResourceViews(pd3dDevice, pd3dCommandList, m_EffectCB->Resource(), 4, i++, sizeof(CB_EFFECT_INFO), false);
@@ -73,12 +87,11 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 
 	m_ppObjects = vector<GameObject*>(m_nObjects);
 
-
 	Bullet* pInstnaceObject = new Bullet();
 	pInstnaceObject->SetMesh(0, pBoard);
 	pInstnaceObject->SetPosition(0,0,0);
-	pInstnaceObject->m_fMaxXCount = mtexture->m_MaxX;
-	pInstnaceObject->m_fMaxYCount = mtexture->m_MaxY;
+	pInstnaceObject->m_fMaxXCount = mtexture[0].m_MaxX;
+	pInstnaceObject->m_fMaxYCount = mtexture[0].m_MaxY;
 	pInstnaceObject->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	pInstnaceObject->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (i + 1)));
 
@@ -88,8 +101,8 @@ void ProjectileShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 		Bullet* pGameObjects = new Bullet();
 		pGameObjects->SetMesh(0, pBoard);
 		pGameObjects->SetPosition(0,0,0);
-		pGameObjects->m_fMaxXCount = mtexture->m_MaxX;
-		pGameObjects->m_fMaxYCount = mtexture->m_MaxY;
+		pGameObjects->m_fMaxXCount = mtexture[0].m_MaxX;
+		pGameObjects->m_fMaxYCount = mtexture[0].m_MaxY;
 		pGameObjects->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize) * 0);
 		pGameObjects->SetEffectCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * (1)));
 

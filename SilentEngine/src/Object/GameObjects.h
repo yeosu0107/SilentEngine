@@ -64,6 +64,7 @@ struct CB_EFFECT_INFO
 	UINT							m_nMaxYcount;
 	UINT							m_nNowXcount;
 	UINT							m_nNowYcount;
+	UINT							m_nType = 0;
 };
 
 struct CB_MONSTER_INFO
@@ -108,9 +109,6 @@ private:
 	D3D12_GPU_DESCRIPTOR_HANDLE		*m_pd3dSamplerGpuDescriptorHandles = NULL;
 
 public:
-	void AddRef() { m_nReferences++; }
-	void Release() { if (--m_nReferences <= 0) delete this; }
-
 	void SetRootArgument(int nIndex, UINT nRootParameterIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dsrvGpuDescriptorHandle);
 	void SetSampler(int nIndex, D3D12_GPU_DESCRIPTOR_HANDLE d3dSamplerGpuDescriptorHandle);
 

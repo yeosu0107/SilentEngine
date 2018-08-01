@@ -1,7 +1,9 @@
 res\\Texture\\blackLight.dds,res\\Texture\\blackLight_n.dds,4,4
 res\\Texture\\exp.dds,res\\Texture\\exp_n.dds,8,6
-res\\Texture\\FireTexture.DDS,res\\Texture\\FireTexture_NRM.dds,8,4
+res\\Texture\\FireTexture_RED.DDS,res\\Texture\\FireTexture_NRM.dds,8,4
 res\\Texture\\hit_2.dds,res\\Texture\\hit_2.dds,4,2
 res\\Texture\\hit_4.dds,res\\Texture\\hit_4.dds,4,2
 res\\Texture\\hit_5.dds,res\\Texture\\hit_5.dds,4,2
 res\\Texture\\hit_3.dds,res\\Texture\\hit_3.dds,4,2
+res\\Texture\\FireTexture_BLUE.DDS,res\\Texture\\FireTexture_NRM.dds,8,4
+res\\Texture\\FireTexture.DDS,res\\Texture\\FireTexture_NRM.dds,6,6

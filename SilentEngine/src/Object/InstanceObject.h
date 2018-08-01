@@ -14,6 +14,7 @@ public:
 	float	m_fNowXCount = 0.0f;
 	float	m_fMaxYCount = 0.0f;
 	float	m_fNowYCount = 0.0f;
+	UINT	m_nType = 0;
 
 	EffectInstanceObject();
 	~EffectInstanceObject();

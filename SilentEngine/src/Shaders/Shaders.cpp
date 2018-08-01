@@ -662,19 +662,21 @@ void BillboardShader::CreateGraphicsRootSignature(ID3D12Device * pd3dDevice)
 	ComPtr<ID3D12RootSignature> pd3dGraphicsRootSignature = nullptr;
 	int i = 0;
 	
-	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[3];
+	CD3DX12_DESCRIPTOR_RANGE pd3dDescriptorRanges[2 + NUM_MAX_UITEXTURE];
 
 	pd3dDescriptorRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceData, 0, 0);
-	pd3dDescriptorRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVTexture2D, 0, 0);
-	pd3dDescriptorRanges[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceEffectData, 0, 0);
+	for(int i = 0; i < NUM_MAX_UITEXTURE; ++i) 
+		pd3dDescriptorRanges[1 + i].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVUITextureMap + i, 0, 0);
+	pd3dDescriptorRanges[5].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, SRVInstanceEffectData, 0, 0);
 	
-	CD3DX12_ROOT_PARAMETER pd3dRootParameters[4];
+	CD3DX12_ROOT_PARAMETER pd3dRootParameters[3 + NUM_MAX_UITEXTURE];
 
 	pd3dRootParameters[0].InitAsConstantBufferView(1);
 	pd3dRootParameters[1].InitAsDescriptorTable(1, &pd3dDescriptorRanges[0], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[2], D3D12_SHADER_VISIBILITY_ALL);
-	pd3dRootParameters[3].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1], D3D12_SHADER_VISIBILITY_PIXEL);
-	
+	pd3dRootParameters[2].InitAsDescriptorTable(1, &pd3dDescriptorRanges[5], D3D12_SHADER_VISIBILITY_ALL);
+	for (int i = 0; i < NUM_MAX_UITEXTURE; ++i)
+		pd3dRootParameters[3 + i].InitAsDescriptorTable(1, &pd3dDescriptorRanges[1 + i]);
+
 	D3D12_STATIC_SAMPLER_DESC d3dSamplerDesc[2];
 	::ZeroMemory(&d3dSamplerDesc, sizeof(D3D12_STATIC_SAMPLER_DESC));
 
@@ -827,6 +829,7 @@ void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 		cEffectBuffer.m_nMaxYcount = (UINT)reinterpret_cast<EffectInstanceObject*>(m_ppObjects[i])->m_fMaxYCount;
 		cEffectBuffer.m_nNowYcount = (UINT)reinterpret_cast<EffectInstanceObject*>(m_ppObjects[i])->m_fNowYCount;
 
+		cEffectBuffer.m_nType = reinterpret_cast<EffectInstanceObject*>(m_ppObjects[i])->m_nType;
 		m_EffectCB->CopyData(i, cEffectBuffer);
 	}
 }													  

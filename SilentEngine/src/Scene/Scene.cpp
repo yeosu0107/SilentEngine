@@ -263,43 +263,54 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	player->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, m_physics);
 	m_playerShader = player;
 	
+	vector<TextureDataForm> datas(1);
+	
+
 	PaticleShader<PaticleObject>* Explosion = new PaticleShader<PaticleObject>();
+	datas[0] = *globalEffects->getTextureFile(1);
 	Explosion->SetCamera(m_Camera.get());
-	Explosion->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(1));
+	Explosion->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &datas);
 	m_EffectShaders = Explosion;
 	
 	PaticleShader<HitPaticle>* hitShader = new PaticleShader<HitPaticle>();
+	datas[0] = *globalEffects->getTextureFile(3);
 	hitShader->SetCamera(m_Camera.get());
 	hitShader->setPaticleSize(100.0f);
-	hitShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(3));
+	hitShader->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &datas);
 	hitShader->setAnimSpeed(50.0f);
 	m_hitEffectShaders.emplace_back(hitShader);
 	//m_hitEffectShaders = hitShader;
 
 	PaticleShader<HitPaticle>* hitShader2 = new PaticleShader<HitPaticle>();
+	datas[0] = *globalEffects->getTextureFile(4);
 	hitShader2->SetCamera(m_Camera.get());
 	hitShader2->setPaticleSize(150.0f);
-	hitShader2->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(4));
+	hitShader2->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &datas);
 	hitShader2->setAnimSpeed(50.0f);
 	m_hitEffectShaders.emplace_back(hitShader2);
 
 	PaticleShader<HitPaticle>* hitShader3 = new PaticleShader<HitPaticle>();
+	datas[0] = *globalEffects->getTextureFile(5);
 	hitShader3->SetCamera(m_Camera.get());
 	hitShader3->setPaticleSize(150.0f);
-	hitShader3->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(5));
+	hitShader3->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &datas);
 	hitShader3->setAnimSpeed(50.0f);
 	m_hitEffectShaders.emplace_back(hitShader3);
 
 	PaticleShader<HitPaticle>* hitShader4 = new PaticleShader<HitPaticle>();
+	datas[0] = *globalEffects->getTextureFile(6);
 	hitShader4->SetCamera(m_Camera.get());
 	hitShader4->setPaticleSize(300.0f);
-	hitShader4->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(6));
+	hitShader4->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &datas);
 	hitShader4->setAnimSpeed(25.0f);
 	m_hitEffectShaders.emplace_back(hitShader4);
 
 	fireObjectShaders = new PaticleShader<PaticleObject>();
+	datas.resize(3);
+	datas = { *globalEffects->getTextureFile(2), *globalEffects->getTextureFile(7), *globalEffects->getTextureFile(8) };
+
 	fireObjectShaders->SetCamera(m_Camera.get());
-	fireObjectShaders->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, globalEffects->getTextureFile(2));
+	fireObjectShaders->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, &datas);
 	fireObjectShaders->setLoop(true);
 	fireObjectShaders->setAnimSpeed(50.0f);
 	fireObjectShaders->SetRotateLockXZ(true);
@@ -334,8 +345,11 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	enemyShader[3]->setScale(2.0f);
 
 	bullet = new ProjectileShader();
+	datas.resize(1);
+	datas = { *globalEffects->getTextureFile(0) };
+
 	bullet->SetCamera(m_Camera.get());
-	bullet->BuildObjects(pDevice, pCommandList , NUM_RENDERTARGET, globalEffects->getTextureFile(0));
+	bullet->BuildObjects(pDevice, pCommandList , NUM_RENDERTARGET, &datas);
 	bullet->setPhys(m_physics);
 
 	m_pFadeEffectShader = new FadeEffectShader();

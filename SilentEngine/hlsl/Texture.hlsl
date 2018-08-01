@@ -56,6 +56,7 @@ struct InstanceEffectData
 	uint				nMaxYCount;
 	uint				nNowXCount;
 	uint				nNowYCount;
+    uint                nType;
 };
 
 struct InstanceAnimateInfo

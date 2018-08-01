@@ -103,6 +103,7 @@ using namespace std;
 #define NUM_HDRBUFFER 1
 #define NUM_GBUFFERS NUM_RENDERTARGET + NUM_DEPTHGBUFFERS
 
+#define NUM_MAX_UITEXTURE 4
 
 const UINT MAX_MAP = 11;
 
