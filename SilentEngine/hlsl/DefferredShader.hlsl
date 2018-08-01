@@ -160,9 +160,13 @@ PS_MULTIRENDERTARGET_DEFFERED PS_DEFFERED_SHADER(VS_OUTPUT input) : SV_Target
 
     shadowFactor = CalcShadowFactor(mul(float4(unpack.pos, 1.0f), gmtxShadowProjection[0]), 0);
 
-    lightColor = Lighting(unpack.pos, unpack.norm.xyz, 0, shadowFactor);
-    output.lightColor = lightColor;
+    if (length(unpack.norm.xyz) > 0.1f)
+        lightColor = Lighting(unpack.pos, unpack.norm.xyz, 0, shadowFactor);
 
+    else
+        lightColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    
+    output.lightColor = lightColor;
     finalColor.rgb = unpack.color.rgb * lightColor.rgb;
     finalColor.a = unpack.color.a;
 

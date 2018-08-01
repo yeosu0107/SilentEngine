@@ -65,6 +65,7 @@ struct CB_EFFECT_INFO
 	UINT							m_nNowXcount;
 	UINT							m_nNowYcount;
 	UINT							m_nType = 0;
+	UINT							m_nIsTorch = 0;			// ºÒ²É¸¸ 
 };
 
 struct CB_MONSTER_INFO

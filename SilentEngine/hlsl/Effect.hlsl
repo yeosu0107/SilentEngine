@@ -6,13 +6,15 @@ struct VS_EFFECT_OUTPUT
     float3 positionW : POSITION;
     float2 uv : TEXCOORD;
     uint type : TEX_TYPE;
+    uint isTorch : EFFECT_TYPE;
 };
 
 
 struct PS_MULTIRENDERTARGET_MONHPBAR
 {
     float4 color : SV_TARGET0;
-    float4 normal : SV_TARGET1;
+    float4 outlinenormal : SV_TARGET1;
+    float4 normal : SV_TARGET2;
 };
 
 VS_EFFECT_OUTPUT VSEffect(VS_TEXTURED_INPUT input, uint instanceID : SV_InstanceID)
@@ -32,6 +34,7 @@ VS_EFFECT_OUTPUT VSEffect(VS_TEXTURED_INPUT input, uint instanceID : SV_Instance
 	float y = 1.0f / instEffectData.nMaxYCount;
 	output.uv = float2(input.uv.x * x + x * instEffectData.nNowXCount, input.uv.y * y + y * instEffectData.nNowYCount);
     output.type = instEffectData.nType;
+    output.isTorch = instEffectData.nIsTorch;
 
 	return output;
 }
@@ -63,8 +66,10 @@ PS_MULTIRENDERTARGET_MONHPBAR PSEffect(VS_EFFECT_OUTPUT input)
         discard;
     else
         output.color.a = 1.0f;
-    
-    output.normal = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.outlinenormal = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    float4 norm = (input.isTorch > 0) ? float4(0.0f, 0.0f, 0.0f, 1.0f) : float4(0.0f, 0.0f, 0.0f, 0.0f);
+    output.normal = PackingNorm(norm);
     return output;
 }
 
@@ -108,7 +113,8 @@ PS_MULTIRENDERTARGET_MONHPBAR PSHPBar(VS_MONHPBAR_OUTPUT input)
 
     output.color = float4(133.0f, 23.0f, 40.0f, 1.0f) / 255.0f;
     output.color.a = 1.0f;
-    output.normal = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.normal = PackingNorm(float4(0.0f, 0.0f, 0.0f, 1.0f));
+    output.outlinenormal = float4(0.0f, 0.0f, 0.0f, 1.0f);
     //if (cColor.a < 1.0f)
    //     discard;
 

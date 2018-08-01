@@ -121,4 +121,7 @@ public:
 	UINT getMaxFire(UINT index) const {
 		return m_PositionList[index].m_Position.size();
 	}
+	UINT* getType(UINT index) {
+		return m_PositionList[index].m_FireType.data();
+	}
 };

@@ -42,11 +42,19 @@ float3 NormalSampleToWorldSpace(float3 normalMapSample, float3 unitNormalW, floa
 
 float3 SchlickFresnel(float3 R0, float3 normal, float3 lightVec)
 {
-	float cosIncidentAngle = saturate(dot(normal, lightVec));
+    float3 reflectPercent = (float3) 0.0f;
+    if (length(normal) > 0.1f)
+    {    
+        float cosIncidentAngle = saturate(dot(normal, lightVec));
 
-	float f0 = 1.0f - cosIncidentAngle;
-	float3 reflectPercent = R0 + (1.0f - R0)*(f0*f0*f0*f0*f0);
+        float f0 = 1.0f - cosIncidentAngle;
+        float3 reflectPercent = R0 + (1.0f - R0) * (f0 * f0 * f0 * f0 * f0);
 
+        reflectPercent = float3(0.0f, 0.0f, 0.0f);
+
+    }
+    else
+        reflectPercent = float3(1.0f, 1.0f, 1.0f);
 	return reflectPercent;
 }
 

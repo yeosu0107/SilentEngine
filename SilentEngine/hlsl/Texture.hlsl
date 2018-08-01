@@ -57,6 +57,7 @@ struct InstanceEffectData
 	uint				nNowXCount;
 	uint				nNowYCount;
     uint                nType;
+    uint                nIsTorch;
 };
 
 struct InstanceAnimateInfo

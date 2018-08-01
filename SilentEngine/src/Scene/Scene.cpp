@@ -314,6 +314,7 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	fireObjectShaders->setLoop(true);
 	fireObjectShaders->setAnimSpeed(50.0f);
 	fireObjectShaders->SetRotateLockXZ(true);
+	fireObjectShaders->SetIsTorch(TRUE);
 	
 	map = new InstanceModelShader*[MAX_MAP];
 	for (UINT i = 0; i < MAX_MAP; ++i) {
@@ -931,6 +932,7 @@ void TestScene::RoomSetting()
 		m_Room[i]->SetMapShader(map[m_Room[i]->getType()]);
 		m_Room[i]->SetFireShader(fireObjectShaders);
 		m_Room[i]->SetFirePosition(loader->getPosition(m_Room[i]->getType()));
+		m_Room[i]->SetFireType(loader->getType(m_Room[i]->getType()));
 		m_Room[i]->SetStartPoint(globalMaps->getStartpoint(m_Room[i]->getType()).returnPoint());
 		m_Room[i]->SetSpawnPoint(globalMaps->getNumOfSpawn(m_Room[i]->getType()), globalMaps->getSpawnPoint(m_Room[i]->getType()));
 		//UINT index = i % (KindOfEnemy - 1);

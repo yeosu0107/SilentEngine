@@ -37,6 +37,7 @@ private:
 	UINT									m_nextRoom[4];
 	XMFLOAT3							m_spawnPoint[10];
 	XMFLOAT3*						m_pFirePos;
+	UINT*							m_pFireType;
 	float									m_yPos = -180.0f;
 	
 	UINT									m_type;
@@ -85,6 +86,7 @@ public:
 	void SetSpawnPoint(XMFLOAT3* point);
 	void SetSpawnPoint(UINT num, XMFLOAT2* point);
 	void SetFirePosition(XMFLOAT3* pos);
+	void SetFireType(UINT* type);
 	void ResetFire();
 	void setType(UINT type) { m_type = type; }
 

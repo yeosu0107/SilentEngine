@@ -86,9 +86,15 @@ void Room::SetFirePosition(XMFLOAT3 * pos)
 	m_pFirePos = pos;
 }
 
+void Room::SetFireType(UINT * type)
+{
+	m_pFireType = type;
+}
+
 void Room::ResetFire()
 {
 	m_pFires->SetLive(false, 10);
+	m_pFires->SetType(m_pFireType, 10);
 	m_pFires->SetPos(m_pFirePos, 10);
 }
 

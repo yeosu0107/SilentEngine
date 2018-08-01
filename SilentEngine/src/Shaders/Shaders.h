@@ -224,6 +224,7 @@ public:
 	void SetCamera(Camera* pCamera) { m_pCamera = pCamera; }
 	virtual void SetPos(XMFLOAT3* getPos, UINT num) {}
 	virtual void SetLive(const bool live, UINT num) {};
+	virtual void SetIsTorch(UINT isTorch) {};
 	virtual void SetRotateLockXZ(bool lock);
 	virtual void setLoop(bool tmp) {}
 

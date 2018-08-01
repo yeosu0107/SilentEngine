@@ -8,12 +8,15 @@ class PaticleShader : public BillboardShader
 {
 private:
 	UINT m_ActivePaticle;
+	UINT m_IsTorch = 0;
 	float paticleSize = 50.0f;
 public:
 	PaticleShader() : BillboardShader() {
 		m_ActivePaticle = 0;
 	}
 	~PaticleShader() {}
+
+	virtual void SetIsTorch(UINT isTorch) {	m_IsTorch = isTorch; }
 
 	virtual void SetType(UINT* ntype, UINT num) {
 		UINT now = 0;
@@ -51,6 +54,7 @@ public:
 				cEffectBuffer.m_nMaxYcount = (UINT)reinterpret_cast<T*>(m_ppObjects[i])->m_fMaxYCount;
 				cEffectBuffer.m_nNowYcount = (UINT)reinterpret_cast<T*>(m_ppObjects[i])->m_fNowYCount;
 
+				cEffectBuffer.m_nIsTorch = m_IsTorch;
 				cEffectBuffer.m_nType = type;
 				m_EffectCB->CopyData(index, cEffectBuffer);
 
