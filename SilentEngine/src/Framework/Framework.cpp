@@ -199,10 +199,43 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			m_pSwapChain->SetFullscreenState(!fullScreenState, NULL);
 			m_pScene[m_nNowScene]->CaptureCursor();
 			OnResize();
+
+			MouseLock_Screen();
 		}
 		return 0;
 	}
 	return DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+void Framework::MouseLock_Screen()
+{
+	//마우스를 클라이언트 영역에 가두기
+	GetClientRect(m_hMainWnd, &m_clientRect);
+	pt1.x = m_clientRect.left;
+	pt1.y = m_clientRect.top;
+	pt2.x = m_clientRect.right;
+	pt2.y = m_clientRect.bottom;
+
+	ClientToScreen(m_hMainWnd, &pt1);
+	ClientToScreen(m_hMainWnd, &pt2);
+
+	m_clientRect.left = pt1.x;
+	m_clientRect.top = pt1.y;
+	m_clientRect.right = pt2.x;
+	m_clientRect.bottom = pt2.y;
+
+	ClipCursor(&m_clientRect);
+	SetMousePos_Center();
+}
+
+void Framework::SetMousePos_Center()
+{
+	//POINT mousePos;
+	RECT rect;
+	GetWindowRect(m_hMainWnd, &rect);
+
+	//게임화면 중앙으로 이동
+	SetCursorPos(rect.left + FRAME_BUFFER_WIDTH / 2, rect.top + FRAME_BUFFER_HEIGHT / 2); 
 }
 
 void Framework::CreateRtvAndDsvDescriptorHeaps()
@@ -505,6 +538,7 @@ void Framework::Render()
 
 	if (m_bChangeScene) {
 		m_nNowScene = (m_nNowScene + 1) % 2;
+		SetMousePos_Center();
 		m_bChangeScene = false;
 	}
 }
@@ -605,21 +639,7 @@ bool Framework::InitMainWindow()
 	UpdateWindow(m_hMainWnd);
 	
 	//마우스를 클라이언트 영역에 가두기
-	GetClientRect(m_hMainWnd, &m_clientRect);
-	pt1.x = m_clientRect.left;
-	pt1.y = m_clientRect.top;
-	pt2.x = m_clientRect.right;
-	pt2.y = m_clientRect.bottom;
-
-	ClientToScreen(m_hMainWnd, &pt1);
-	ClientToScreen(m_hMainWnd, &pt2);
-
-	m_clientRect.left = pt1.x;
-	m_clientRect.top = pt1.y;
-	m_clientRect.right = pt2.x;
-	m_clientRect.bottom = pt2.y;
-
-	ClipCursor(&m_clientRect);
+	MouseLock_Screen();
 	return true;
 }
 
