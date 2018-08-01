@@ -93,13 +93,11 @@ protected:
 	PlayerLogic*					m_playerLogic;
 
 	float								hitBackstep = 0.0f;		
-	//게임 콘텐츠 관련
+	//플레이어 데미지
 	int									m_damage = 10;
 	DamageVal*					m_AttackDamage = new DamageVal(0.0f, 10);
 
-	//밀리세컨드 단위
-	const UINT						MAX_SKILL_DELAY = 5000;
-
+	//스킬 사용
 	bool								m_dash = false;
 	bool								m_avoid = false;
 	DWORD							m_kickDelay = 0;
@@ -142,7 +140,7 @@ public:
 	virtual bool getDash() const { return m_dash; }
 	
 	DWORD* getCoolTimeBonus()	{ return&m_skillCostBouns; }
-	DWORD* getUpperDelay()		{ return &m_kick2Delay; }
+	DWORD* getKick2Delay()		{ return &m_kick2Delay; }
 	DWORD* getPunchDelay()		{ return &m_punchDelay; }
 	DWORD* getKickDelay()		{ return &m_kickDelay; }
 	DWORD* getAvoidDelay()		{ return &m_avoidDelay; }
@@ -155,4 +153,10 @@ public:
 
 	void roomClearBouns(ClearBouns index);
 	UINT roomClearBouns();
+
+	//스킬 쿨타임
+	const DWORD					MAX_PUNCH_DELAY = 5000;
+	const DWORD					MAX_KICK_DELAY = 2000;
+	const DWORD					MAX_KICK2_DELAY = 3000;
+	const DWORD					MAX_AVOID_DELAY = 3000;
 };

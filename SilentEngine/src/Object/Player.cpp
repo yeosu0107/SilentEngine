@@ -168,14 +168,14 @@ bool Player::Movement(DWORD input)
 			m_playerLogic->changeState(STATE::attack);
 	}
 	else if (input & ANI_SKILL) {
-		if (GetTickCount() - m_avoidDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
+		if (GetTickCount() - m_avoidDelay > (MAX_AVOID_DELAY - m_skillCostBouns)) {
 			m_playerLogic->changeState(STATE::skill);
 			m_avoidDelay = GetTickCount();
 		}
 		
 	}
 	else if (input & ANI_KICK) {
-		if (GetTickCount() - m_kickDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
+		if (GetTickCount() - m_kickDelay > (MAX_KICK_DELAY - m_skillCostBouns)) {
 			if (m_status->m_mp >= (10 - m_mpCostBouns)) {
 				m_status->m_mp -= (10 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::kick);
@@ -187,8 +187,8 @@ bool Player::Movement(DWORD input)
 #endif
 		}
 	}
-	else if (input & ANI_UPPER) {
-		if (GetTickCount() - m_kick2Delay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
+	else if (input & ANI_KICK2) {
+		if (GetTickCount() - m_kick2Delay > (MAX_KICK2_DELAY - m_skillCostBouns)) {
 			if (m_status->m_mp >= (15 - m_mpCostBouns)) {
 				m_status->m_mp -= (15 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::upper);
@@ -202,7 +202,7 @@ bool Player::Movement(DWORD input)
 	}
 
 	else if (input & ANI_PUNCH) {
-		if (GetTickCount() - m_punchDelay > (MAX_SKILL_DELAY - m_skillCostBouns)) {
+		if (GetTickCount() - m_punchDelay > (MAX_PUNCH_DELAY - m_skillCostBouns)) {
 			if (m_status->m_mp >= (20 - m_mpCostBouns)) {
 				m_status->m_mp -= (20 - m_mpCostBouns);
 				m_playerLogic->changeState(STATE::punch);

@@ -21,7 +21,7 @@ class Shaders;
 #define ANI_IDLE					0x120
 #define SUPER_SPEED			0x130
 #define ANI_KICK					0x200
-#define ANI_UPPER					0x400
+#define ANI_KICK2					0x400
 #define ANI_PUNCH				0x800
 
 const UINT LOOP_IN					= 0;

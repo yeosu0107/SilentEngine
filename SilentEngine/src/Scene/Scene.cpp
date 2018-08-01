@@ -378,10 +378,10 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 
 	m_SkilCooldown = make_unique<SkillUIShaders>();
 	m_SkilCooldown->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
-	m_SkilCooldown->LinkedSkillTime(player->getKickDelay(),  5000, player->getCoolTimeBonus(), 0);
-	m_SkilCooldown->LinkedSkillTime(player->getUpperDelay(), 5000, player->getCoolTimeBonus(), 1);
-	m_SkilCooldown->LinkedSkillTime(player->getPunchDelay(), 5000, player->getCoolTimeBonus(), 2);
-	m_SkilCooldown->LinkedSkillTime(player->getAvoidDelay(), 5000, player->getCoolTimeBonus(), 3);
+	m_SkilCooldown->LinkedSkillTime(player->getKickDelay(),  player->MAX_KICK_DELAY, player->getCoolTimeBonus(), 0);
+	m_SkilCooldown->LinkedSkillTime(player->getKick2Delay(), player->MAX_KICK2_DELAY, player->getCoolTimeBonus(), 1);
+	m_SkilCooldown->LinkedSkillTime(player->getPunchDelay(), player->MAX_PUNCH_DELAY, player->getCoolTimeBonus(), 2);
+	m_SkilCooldown->LinkedSkillTime(player->getAvoidDelay(), player->MAX_AVOID_DELAY, player->getCoolTimeBonus(), 3);
 
 	m_SkilCooldown->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
 	m_SkilCooldown->SetPosScreenRatio(XMFLOAT2(0.5f, 0.045f), OPTSETALL);
@@ -642,7 +642,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 		input |= SUPER_SPEED;
 
 	if (GetAsyncKeyState('Q') & 0x0001) {
-		input |= ANI_UPPER;
+		input |= ANI_KICK2;
 	}
 
 	if (GetAsyncKeyState('E') & 0x0001) {
