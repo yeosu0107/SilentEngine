@@ -169,9 +169,8 @@ bool TestScene::Update(const Timer & gt)
 	for (int i = 0; i < m_nUIShaders; ++i)
 		m_ppUIShaders[i]->Animate(gt.DeltaTime());
 
-
 	if(m_Room[m_nowRoom] != nullptr)
-		m_MonsterHP->LinkedMonster(m_Room[m_nowRoom]->GetEnemyShader()->getObjects(OPTSETALL), m_Room[m_nowRoom]->getNumEnemy());
+		m_MonsterHP->LinkedMonster(m_Room[m_nowRoom]->GetEnemyShader()->getObjects(OPTSETALL), m_Room[m_nowRoom]->getNumEnemy(), m_Room[m_nowRoom]->GetEnemyShader()->ModelIndex());
 	m_MonsterHP->Animate(gt.DeltaTime());
 
 	RoomChange();	
@@ -331,14 +330,14 @@ void TestScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	enemyShader = new ModelShader*[KindOfEnemy];
 	int enemyNum[7] = { 10,10,10,10,10,10,1 };
 
-	enemyShader[0] = new EnemyShader<CreepArm>(4);
-	enemyShader[1] = new EnemyShader<Enemy>(3);
-	enemyShader[2] = new EnemyShader<Enemy>(0);
-	enemyShader[3] = new EnemyShader<Enemy>(7);
-	enemyShader[4] = new EnemyShader<Ghost>(2);
-	enemyShader[5] = new EnemyShader<Skull>(5);
-	enemyShader[6] = new EnemyShader<Rich>(6);
-
+	enemyShader[0] = new EnemyShader<CreepArm>(MON_ARM);
+	enemyShader[1] = new EnemyShader<Enemy>(MON_RHINO);
+	enemyShader[2] = new EnemyShader<Enemy>(MON_GOLEM);
+	enemyShader[3] = new EnemyShader<Enemy>(MON_MUTANT);
+	enemyShader[4] = new EnemyShader<Ghost>(MON_GHOST);
+	enemyShader[5] = new EnemyShader<Skull>(MON_SKULL);
+	enemyShader[6] = new EnemyShader<Rich>(MON_RICH);
+	
 	for (int i = 0; i < KindOfEnemy; ++i) {
 		enemyShader[i]->BuildObjects(pDevice, pCommandList, NUM_RENDERTARGET, (int*)enemyNum[i]);
 	}
@@ -825,6 +824,7 @@ void TestScene::RoomChange()
 
 	//실제 방이동
 	m_nowRoom = m_isRoomChange.m_roomNum;
+
 	//방이동이 완료하였으므로 change플레그를 false로 바꿔줌
 	m_isRoomChange.m_isChange = false;
 	//std::cout << m_nowRoom << endl;

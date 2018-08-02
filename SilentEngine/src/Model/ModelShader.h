@@ -22,6 +22,7 @@ public:
 	virtual void Render(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera);
 	virtual void RenderToDepthBuffer(ID3D12GraphicsCommandList * pd3dCommandList, Camera * pCamera, XMFLOAT3& cameraPos, float offset);
 	virtual void Animate(float fTimeElapsed);
+	virtual UINT ModelIndex() const { return modelIndex; }
 
 	virtual void setPhys(BasePhysX* phys) {}
 	virtual void releasePhys() {}

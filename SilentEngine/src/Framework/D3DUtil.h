@@ -88,6 +88,16 @@ enum RTVType {
 	RTV_HDR
 };
 
+enum MonType { 
+	MON_GOLEM	= 0, 
+	MON_GHOST	= 2, 
+	MON_RHINO	= 3, 
+	MON_ARM		= 4, 
+	MON_SKULL	= 5, 
+	MON_RICH	= 6, 
+	MON_MUTANT	= 7 
+};
+
 extern const int gNumFrameResources;
 
 using namespace Microsoft::WRL;

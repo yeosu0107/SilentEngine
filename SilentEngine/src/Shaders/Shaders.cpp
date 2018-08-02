@@ -2243,7 +2243,7 @@ void MonsterHPShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCom
 			continue;
 		}
 		XMFLOAT3 monPos = m_ppMonsters[i]->GetPosition();
-		m_ppObjects[i]->SetPosition(Vector3::Add(HPPOS, monPos));
+		m_ppObjects[i]->SetPosition(Vector3::Add(GetHPPos(m_nMonType), monPos));
 
 		XMStoreFloat4x4(&cBuffer.m_xmf4x4World, XMMatrixTranspose(XMLoadFloat4x4(&m_ppObjects[i]->m_xmf4x4World)));
 		cBuffer.m_nMaterial = 0;
@@ -2326,4 +2326,25 @@ void MonsterHPShaders::Render(ID3D12GraphicsCommandList * pd3dCommandList, Camer
 
 	if (m_ppObjects[0])
 		m_ppObjects[0]->Render(pd3dCommandList, m_nObjects, pCamera);
+}
+
+XMFLOAT3 MonsterHPShaders::GetHPPos(UINT modelIndex)
+{
+	switch(modelIndex) {
+	case MON_GOLEM:		return XMFLOAT3(0.0f, 75.0f, 0.0f);
+
+	case MON_GHOST:		return XMFLOAT3(0.0f, 40.0f, 0.0f);
+
+	case MON_RHINO:		return XMFLOAT3(0.0f, 60.0f, 0.0f);
+
+	case MON_ARM:		return XMFLOAT3(0.0f, 40.0f, 0.0f);
+		
+	case MON_SKULL:		return XMFLOAT3(0.0f, 60.0f, 0.0f);
+
+	case MON_RICH:		return XMFLOAT3(0.0f, 100.0f, 0.0f);
+
+	case MON_MUTANT:	return XMFLOAT3(0.0f, 75.0f, 0.0f);
+	}
+	
+	return XMFLOAT3();
 }

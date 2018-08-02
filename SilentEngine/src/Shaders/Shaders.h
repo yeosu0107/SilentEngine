@@ -251,14 +251,17 @@ public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
 	virtual void Render(ID3D12GraphicsCommandList *pd3dCommandList, Camera *pCamera);
 	
-	void LinkedMonster(GameObject** ppObj, UINT numObj) {
+	XMFLOAT3 GetHPPos(UINT modelIndex);
+	void LinkedMonster(GameObject** ppObj, UINT numObj, UINT monType) {
 		m_ppMonsters = ppObj;
 		m_nMonsters = numObj;
+		m_nMonType = monType;
 	}
 
 protected:
 	const XMFLOAT3 HPPOS = XMFLOAT3(0.0f, 50.0f, 0.0f);
 	UINT m_nMonsters = 0;
+	UINT m_nMonType = 0;
 	unique_ptr<UploadBuffer<CB_MONSTER_INFO>>	m_MonsterRatioCB = nullptr;
 	GameObject** m_ppMonsters = nullptr;
 
