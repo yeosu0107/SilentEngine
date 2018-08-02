@@ -6,6 +6,7 @@ Skull::Skull(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	: Enemy(model, pd3dDevice, pd3dCommandList)
 {
 	m_State->setValue(50, 50, 50, 200, 45, false);
+	m_State->setCoolTime(5000);	//5초마다 스킬 수행
 	m_size = XMFLOAT2(1.0f, 10.0f);
 	m_status = m_State->getStatus();
 	//m_hitback = 0.0f;

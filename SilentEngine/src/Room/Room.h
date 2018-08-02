@@ -49,7 +49,7 @@ private:
 	bool									isStatBouns;
 
 	ModelShader*						m_mapShader;
-	ModelShader*		m_enemyShader;
+	ModelShader*						m_enemyShader;
 
 	ProjectileShader*				m_Projectile;
 	BillboardShader*					m_pFires;

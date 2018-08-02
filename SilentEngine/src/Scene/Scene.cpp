@@ -836,6 +836,8 @@ void TestScene::RoomChange()
 	m_gateShader->SetPositions(roomPos);
 	//페이드 인아웃 설정
 	m_changeFade = FADE_IN;
+	//보스룸이 아니면 랜덤한 BGM 플레이
+	//보스룸이면 전용 BGM
 	if (m_Room[m_nowRoom]->getType() != BOSS_ROOM)
 		SoundMgr::getInstance()->changeSound(getRandomBGM(), CHANNEL::BGM);
 	else

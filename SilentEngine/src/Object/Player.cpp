@@ -380,16 +380,25 @@ void Player::Animate(float fTime)
 {
 	m_weaponTrigger->setGlobalPose(PxTransform(100, 100, 100), false); //공격 트리거 박스 초기화
 	m_avoid = false;
-	m_playerLogic->update(fTime); //상태머신 수행
+	//플레이어 로직 수행
+	m_playerLogic->update(fTime); 
 	if (m_playerLogic->getState() != STATE::hitted)
 		hitBackstep = 0.0f;
+
+	//플레이어 사망조건
 	if (m_status->m_health <= 0 || m_status->m_health > 10000) {
 		m_status->m_health = 0;
 		m_playerLogic->changeState(STATE::death);
 	}
+	if (GetPosition().y <= -500.0f) {
+		m_status->m_health = 0;
+		m_playerLogic->changeState(STATE::death);
+	}
 
-	ModelObject::Animate(fTime); //애니메이션
+	//애니메이션
+	ModelObject::Animate(fTime); 
 	
+	//physX 객체 상호작용
 	if (m_Controller) {
 		//중력작용 처리
 		m_Controller->move(PxVec3(0, m_Jump.getHeight(fTime), 0), 0.1f, fTime, m_ControllerFilter);
@@ -413,10 +422,9 @@ void Player::Animate(float fTime)
 		m_pCamera->RegenerateViewMatrix();
 	}
 
+	//중력 작용
 	if (!m_Jump.mJump)
-		m_Jump.startJump(PxF32(0)); //중력 작용
-
-	
+		m_Jump.startJump(PxF32(0));
 }
 
 void Player::SetCamera(Camera * tCamera, BasePhysX* phys)
@@ -499,51 +507,64 @@ void Player::roomClearBouns(ClearBouns index)
 	}
 }
 
+#define SELECT_BOUNS 10
+
 UINT Player::roomClearBouns()
 {
-	UINT index = rand() % 7;
+	UINT index = SELECT_BOUNS;
 #ifdef _DEBUG
 	cout << "clear bouns number : " << index << endl;
 #endif
-
-	switch (index) {
-	case ClearBouns::mpCost:
-		m_mpCostBouns = 10;
-		break;
-	case ClearBouns::skillCost:
-		m_skillCostBouns = 1000;
-		break;
-	case ClearBouns::plusAtk:
-		m_damage += 5;
-		break;
-	case ClearBouns::plusHP:
-		m_status->m_maxhealth += 50;
-		m_status->m_health += 50;
-		if (m_status->m_health > m_status->m_maxhealth)
-			m_status->m_health = m_status->m_maxhealth;
-		break;
-	case ClearBouns::plusMP:
-		m_status->m_maxmp += 50;
-		m_status->m_mp += 50;
-		if (m_status->m_mp > m_status->m_maxmp)
-			m_status->m_mp = m_status->m_maxmp;
-		break;
-	case ClearBouns::recoveryHP:
-		m_status->m_health += 100;
-		if (m_status->m_health > m_status->m_maxhealth)
-			m_status->m_health = m_status->m_maxhealth;
-		break;
-	case ClearBouns::recoveryMP:
-		m_status->m_mp += 100;
-		if (m_status->m_mp > m_status->m_maxmp)
-			m_status->m_mp = m_status->m_maxmp;
-		break;
-	default:
+	while (index == SELECT_BOUNS) {
+		index = rand() % 7;
+		switch (index) {
+		case ClearBouns::mpCost:
+			//mpCost 보너스는 2번만 수행됨.
+			//3번째 선택되면 다른 보너스를 선택
+			if (m_mpCostBouns >= 10)
+				index = SELECT_BOUNS;
+			else
+				m_mpCostBouns += 5;
+			break;
+		case ClearBouns::skillCost:
+			//skillCost 보너스는 1번만 수행됨.
+			//2번째 선택되면 다른 보너스를 선택
+			if(m_skillCostBouns>=1000)
+				index = SELECT_BOUNS;
+			else
+				m_skillCostBouns = 1000;
+			break;
+		case ClearBouns::plusAtk:
+			m_damage += 5;
+			break;
+		case ClearBouns::plusHP:
+			m_status->m_maxhealth += 50;
+			m_status->m_health += 50;
+			if (m_status->m_health > m_status->m_maxhealth)
+				m_status->m_health = m_status->m_maxhealth;
+			break;
+		case ClearBouns::plusMP:
+			m_status->m_maxmp += 50;
+			m_status->m_mp += 50;
+			if (m_status->m_mp > m_status->m_maxmp)
+				m_status->m_mp = m_status->m_maxmp;
+			break;
+		case ClearBouns::recoveryHP:
+			m_status->m_health += 100;
+			if (m_status->m_health > m_status->m_maxhealth)
+				m_status->m_health = m_status->m_maxhealth;
+			break;
+		case ClearBouns::recoveryMP:
+			m_status->m_mp += 100;
+			if (m_status->m_mp > m_status->m_maxmp)
+				m_status->m_mp = m_status->m_maxmp;
+			break;
+		default:
 #ifdef _DEBUG
-		cout << "undefined bouns" << endl;
+			cout << "undefined bouns" << endl;
 #endif
-		break;
+			break;
+		}
 	}
-
 	return index;
 }

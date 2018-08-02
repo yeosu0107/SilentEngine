@@ -12,6 +12,7 @@ public:
 
 	virtual void SetAnimations(UINT num, LoadAnimation ** tmp);
 
+	virtual void Attack();
 	virtual void Skill();
 	virtual void Hitted(int damage);
 	virtual void Hitted(DamageVal& damage);

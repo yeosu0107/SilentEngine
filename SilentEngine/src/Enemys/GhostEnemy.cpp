@@ -5,11 +5,10 @@
 Ghost::Ghost(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList)
 	: Enemy(model, pd3dDevice, pd3dCommandList)
 {
-	m_shootDelay = 0;
 	if (m_State)
 		delete m_State;
 	m_State = new GhostAI(this);
-	m_State->setValue(10, 50, 50, 300, 150, false);
+	m_State->setValue(1, 50, 50, 300, 150, false);
 	m_State->setFunc();
 	m_status = m_State->getStatus();
 	m_size = XMFLOAT2(2.0f, 10.0f);
@@ -24,16 +23,12 @@ void Ghost::SetAnimations(UINT num, LoadAnimation ** tmp)
 {
 	ModelObject::SetAnimations(num, tmp);
 	m_ani[EnemyAni::AniIdle]->EnableLoof();
-	//m_ani[EnemyAni::AniAttack]->SetAnimSpeed(2.0f);
 }
 
 
 
 void Ghost::Attack()
 {
-	//ChangeAnimation(EnemyAni::Attack);
-
-
 	ProjectileShader* myProjectile = reinterpret_cast<ProjectileShader*>
 		(GlobalVal::getInstance()->getProjectile());
 
@@ -43,36 +38,37 @@ void Ghost::Attack()
 	playerPos.y += 20.0f;
 
 	myProjectile->Shoot(myPos, playerPos);
-
-	//m_shootDelay = 0;
-
 }
 
 
 void Ghost::Hitted(int damage)
 {
-	m_State->Death();
-	/*if (m_State->getState() == STATE::death)
+	if (m_State->getState() == STATE::death)
 		return;
 	m_status->m_health -= damage;
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
-	m_State->changeState(STATE::hitted);*/
+	m_State->changeState(STATE::hitted);
 }
 
 void Ghost::Hitted(DamageVal & damage)
 {
-	m_State->Death();
-	/*if (m_State->getState() == STATE::death)
+	//바로 객체 사망 함수를 호출 시 
+	//물리객체 콜백함수의 호출과 물리객체 소멸함수의 호출이 동시에 수행되면서
+	//에러메시지가 출력
+	//m_State->Death();
+
+	if (m_State->getState() == STATE::death)
 		return;
 	m_status->m_health -= damage.baseDamage;
 	cout << "Enemy Hit!" << "\t";
 	cout << "remain HP : " << m_status->m_health << endl;
-	m_State->changeState(STATE::hitted);*/
+	m_State->changeState(STATE::hitted);
 }
 
 void Ghost::Death()
 {
+	//사망애니메이션 없음
 	//ChangeAnimation(EnemyAni::AniMove);
 }
 
@@ -86,6 +82,11 @@ void Ghost::Animate(float fTime)
 GhostAI::GhostAI(GameObject * tmp) :
 	BaseAI(tmp) { }
 
+
+void GhostAI::idleState()
+{
+	changeState(STATE::patrol);
+}
 
 void GhostAI::patrolState()
 {
@@ -139,3 +140,7 @@ void GhostAI::hittedState()
 		changeState(STATE::patrol);
 }
 
+void GhostAI::deathState()
+{
+	Death();
+}

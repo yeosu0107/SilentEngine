@@ -41,10 +41,15 @@ void BaseAI::trackingState()
 			return;
 		}
 		if (recognize(playerPos, m_range)) {
-			if (rand() % 100 > 98) {
+			if (GetTickCount() - m_nowCoolTime > m_skillCoolTime) {
+				m_nowCoolTime = GetTickCount();
 				changeState(STATE::skill);
 				return;
 			}
+			/*if (rand() % 100 > 98) {
+				changeState(STATE::skill);
+				return;
+			}*/
 		}
 		
 	}
@@ -144,10 +149,7 @@ void BaseAI::deathState()
 {
 	m_owner->Death();
 	if (m_owner->getAnimLoop() == LOOP_END) {
-		m_owner->SetLive(false);
-		reinterpret_cast<Enemy*>(m_owner)->releasePhys();
-		*GlobalVal::getInstance()->getRemainEnemy() -= 1;
-		//cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
+		Death();
 	}
 }
 

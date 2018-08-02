@@ -6,11 +6,13 @@ Rich::Rich(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	: Enemy(model, pd3dDevice, pd3dCommandList)
 {
 	m_State->setValue(400, 400, 50, 200, 45, false);
+	m_State->setCoolTime(10000); //10초마다 메테오 시전
 	m_size = XMFLOAT2(1.0f, 10.0f);
 	m_status = m_State->getStatus();
-	m_damageVal->hitback = 1.5f;
+	m_damageVal->hitback = 3.5f;
+	
 	//m_hitback = 1.5f;
-	SetScale(0.3f);
+	SetScale(0.5f);
 }
 
 Rich::~Rich()
@@ -23,6 +25,23 @@ void Rich::SetAnimations(UINT num, LoadAnimation ** tmp)
 	
 	ModelObject::SetAnimations(num, tmp);
 	m_ani[EnemyAni::AniHitted]->SetAnimSpeed(2.0f);
+}
+
+void Rich::Attack()
+{
+	ChangeAnimation(EnemyAni::AniAttack);
+	if (m_loopCheck == LOOP_TRIGGER) {
+		PxTransform tmpTr(m_Controller->getPosition().x,
+			m_Controller->getPosition().y,
+			m_Controller->getPosition().z);
+
+		tmpTr = tmpTr.transform(PxTransform(XMtoPX(
+			Vector3::ScalarProduct(GetLook(), -30, false)
+		)));
+		m_damageVal->baseDamage = m_baseDamage;
+		m_damageVal->randDamage();
+		m_attackTrigger->setGlobalPose(tmpTr, true);
+	}
 }
 
 void Rich::Skill()

@@ -75,6 +75,9 @@ protected:
 
 	UINT						m_patrolTimer = 0;
 	float						m_personalRange;
+
+	DWORD					m_skillCoolTime = 0;
+	DWORD					m_nowCoolTime = 0;
 public:
 	BaseAI(GameObject* tmp);
 	~BaseAI() {}
@@ -94,5 +97,7 @@ public:
 	XMFLOAT3 trackDir(XMFLOAT3& pos);
 	float rotDir(XMFLOAT3& pos);
 
+	void setCoolTime(DWORD cooltime) { m_skillCoolTime = cooltime; }
+	void resetCoolTime() { m_nowCoolTime = GetTickCount(); }
 	void Death();
 };

@@ -5,7 +5,6 @@
 class Ghost : public Enemy
 {
 private:
-	UINT m_shootDelay;
 public:
 	Ghost(LoadModel* model, ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList);
 	~Ghost();
@@ -30,7 +29,9 @@ public:
 	GhostAI(GameObject* tmp);
 	~GhostAI() {}
 
+	virtual void idleState();
 	virtual void patrolState();
 	virtual void attackState();
 	virtual void hittedState();
+	virtual void deathState();
 };

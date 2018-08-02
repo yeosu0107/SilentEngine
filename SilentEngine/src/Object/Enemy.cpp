@@ -203,9 +203,14 @@ void Enemy::Death()
 void Enemy::Animate(float fTime)
 {
 	m_attackTrigger->setGlobalPose(PxTransform(100, 100, 100), false);
+	//상태머신 수행
 	m_State->update(fTime);
-	if (m_status->m_health <= 0)
+	//객체 사망조건
+	if (m_status->m_health <= 0) {
 		m_State->changeState(STATE::death);
+	}
+
+
 	XMFLOAT3 hitback = XMFLOAT3(0,0,0);
 	if (m_State->getState() != STATE::hitted)
 		m_hitback = 0.0f;
@@ -238,7 +243,8 @@ void Enemy::teleport(XMFLOAT3 pos)
 void Enemy::reset()
 {
 	SetLive(true);
-	//m_status->m_health = m_status->prev_health;
+	//플레이어가 방에 들어가자마자 스킬쏘는 것 방지
+	m_State->resetCoolTime();
 	m_status->reset();
 	m_State->changeState(STATE::idle);
 }

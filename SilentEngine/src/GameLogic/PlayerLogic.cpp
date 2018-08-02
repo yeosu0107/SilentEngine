@@ -5,7 +5,7 @@ PlayerLogic::PlayerLogic(GameObject * tmp) :
 	m_owner(tmp)
 {
 	//m_status = new Status(200, 100, 80);
-	m_status = new Status(200, 200, 100, 80);
+	m_status = new Status(200, 100, 100, 80);
 	m_attackType = AttackType::Normal;
 }
 

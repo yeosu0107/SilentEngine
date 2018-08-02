@@ -25,6 +25,8 @@ enum PlayerAni
 
 enum ClearBouns
 {
+	//최대HP증가&회복, 최대MP증가&회복, HP회복, MP회복, 공격력증가,
+	//mp소모값감소, 스킬쿨타임감소
 	plusHP = 0, plusMP = 1, recoveryHP, recoveryMP, plusAtk,
 	mpCost, skillCost
 };
