@@ -36,7 +36,7 @@ public:
 	virtual void SetScale(XMFLOAT2* scale, UINT index = 0) { m_pUIObjects[index]->m_xmf2Scale = *scale; }
 	virtual void SetScale(XMFLOAT2* scale, const OPTIONSETALL);	// 이 셰이더의 모든 오브젝트 Scale변경
 	virtual UIObject* getObejct(UINT index) { return m_pUIObjects[index]; }
-
+	
 	virtual void MovePos(XMFLOAT2& pos, UINT index = 0);	// 현재 위치 기준으로 pos 픽셀만큼 이동 
 	virtual void CreateGraphicsRootSignature(ID3D12Device *pd3dDevice);
 	virtual void CreateCollisionBox();	// 버튼 충돌 박스생성
@@ -68,6 +68,17 @@ public:
 
 public:
 	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+};
+
+class UIBossHPBarShaders : public UIHPBarShaders
+{
+public:
+	UIBossHPBarShaders() {};
+	~UIBossHPBarShaders() {};
+
+public:
+	virtual void BuildObjects(ID3D12Device *pd3dDevice, ID3D12GraphicsCommandList *pd3dCommandList, int nRenderTargets = 1, void *pContext = NULL);
+	virtual void SetMaxLine(float fMaxline) { m_pUIObjects[1]->m_fData2 = fMaxline; }
 };
 
 class UIButtonShaders : public UIShaders
@@ -153,7 +164,7 @@ public:
 	void SetNumberInfo(UINT type, UINT length);
 	void ConvertOptNoneToUINTArray(float data, UINT nLength, bool isFloat);
 	void ConvertOptDivisionToUINTArray(float data1, float data2, UINT nLength, bool isFloat);
-
+	void ConvertOptPercentageToUINTArray(float data1, float data2, UINT nLength, bool isFloat);
 protected:
 	unique_ptr<UploadBuffer<CB_NUMBER_INFO>>	m_NumberInfoCB = nullptr;
 	CB_NUMBER_INFO	m_NumberInfo;

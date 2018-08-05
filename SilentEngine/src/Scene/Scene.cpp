@@ -369,7 +369,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 {
 	Player* player = dynamic_cast<Player*>(m_playerShader->getPlayer(0));
 	m_ppUIShaders.clear();
-	m_nUIShaders = 3;
+	m_nUIShaders = 4;
 	m_ppUIShaders.resize(m_nUIShaders);
 
 	m_MonsterHP = new MonsterHPShaders();
@@ -416,6 +416,12 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	pSkill->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 	pSkill->SetPosScreenRatio(XMFLOAT2( 0.5f, 0.045f));
 	m_ppUIShaders[2] = pSkill;
+
+
+	m_BossHP = make_unique<UIBossHPBarShaders>();
+	m_BossHP->BuildObjects(pDevice, pCommandList, 1, enemyShader[KindOfEnemy - 1]->getObjects(OPTSETALL)[0]);
+	m_BossHP->SetMaxLine(3.0f);		// 최대 HP 줄 수 
+	m_ppUIShaders[3] = m_BossHP.get();
 
 	texutredata[0].m_texture = L"res\\Texture\\blood4_bullet.DDS";
 	m_pTakeDamageScreen = new FadeEffectShader();
@@ -484,17 +490,32 @@ void TestScene::BuildNumberUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList 
 
 	for (int i = NUM_KICK; i <= NUM_AVOID; ++i) {
 
-		NumberUIShaders* SkillnumShader = new NumberUIShaders();
-		SkillnumShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
-		SkillnumShader->SetNumberInfo(NUM_TYPE_FLOAT_NONE, 3);
-		SkillnumShader->SetData(m_SkilCooldown->RemainingCooldown(i - 2), 0.0f);
-		SkillnumShader->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
-		SkillnumShader->SetPosScreenRatio(XMFLOAT2(0.5f, 0.045f), OPTSETALL);
-		SkillnumShader->MovePos(XMFLOAT2(- 76.0f + (73.0f * (i - 2)), 0.0f), 0);
-		SkillnumShader->SetScale(&XMFLOAT2(0.5f * 2, 0.36f), OPTSETALL);
+		NumberUIShaders* skillnumShader = new NumberUIShaders();
+		skillnumShader->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+		skillnumShader->SetNumberInfo(NUM_TYPE_FLOAT_NONE, 3);
+		skillnumShader->SetData(m_SkilCooldown->RemainingCooldown(i - 2), 0.0f);
+		skillnumShader->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
+		skillnumShader->SetPosScreenRatio(XMFLOAT2(0.5f, 0.045f), OPTSETALL);
+		skillnumShader->MovePos(XMFLOAT2(- 76.0f + (73.0f * (i - 2)), 0.0f), 0);
+		skillnumShader->SetScale(&XMFLOAT2(0.5f * 2, 0.36f), OPTSETALL);
 
-		m_NumberShader[i] = SkillnumShader;
+		m_NumberShader[i] = skillnumShader;
 	}
+
+	pos = m_ppUIShaders[3]->getObejct(0)->m_xmf2ScreenPos;
+	XMFLOAT2 scale = m_ppUIShaders[3]->getObejct(0)->m_xmf2Scale;
+	pos.x += (220.0f * scale.x);
+	Status* status = dynamic_cast<Enemy*>(enemyShader[KindOfEnemy - 1]->getObjects(OPTSETALL)[0])->GetStatus();
+	NumberUIShaders* bossHPPerct = new NumberUIShaders();
+	bossHPPerct->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	bossHPPerct->SetNumberInfo(NUM_TYPE_UINT_PERCENTAGE, 6);
+	bossHPPerct->LinkData(&status->m_health, &status->m_maxhealth);
+	bossHPPerct->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
+	bossHPPerct->SetPos(&pos, 0);
+	bossHPPerct->SetScale(&XMFLOAT2(1.8f, 0.5f), OPTSETALL);
+
+	m_NumberShader[NUM_BOSSHP] = bossHPPerct;
+
 }
 
 void TestScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
@@ -565,11 +586,16 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 	m_BonusShader->Render(pCommandList);
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
 	
-	for (UINT i = 0; i < m_nUIShaders; ++i)
+	for (UINT i = 0; i < m_nUIShaders - 1; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
 	m_SkilCooldown->Render(pCommandList);
-	for(UINT i = 0; i < m_nNumberShader; ++i)
-		m_NumberShader[i]->Render(pCommandList);
+	for(UINT j = 0; j < m_nNumberShader - 1; ++j)
+		m_NumberShader[j]->Render(pCommandList);
+
+	if (m_nowRoom == m_nRoom - 1) {		// 보스방인 경우 보스 HP 출력
+		m_ppUIShaders[m_nUIShaders - 1]->Render(pCommandList);
+		m_NumberShader[NUM_BOSSHP]->Render(pCommandList);
+	}
 
 	m_nSceneState = static_cast<SceneType>(CalNowScene());
 	if (m_nSceneState != NORMALLY) {

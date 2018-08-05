@@ -897,6 +897,7 @@ void NumberUIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 		ConvertOptDivisionToUINTArray(data1, data2, m_NumberInfo.m_MaximumLength, true);
 		break;
 	case NUM_TYPE_FLOAT_PERCENTAGE:
+		ConvertOptPercentageToUINTArray(data1, data2, m_NumberInfo.m_MaximumLength, true);
 		break;
 	case NUM_TYPE_UINT_NONE:
 		ConvertOptNoneToUINTArray(data1, m_NumberInfo.m_MaximumLength, false);
@@ -905,6 +906,7 @@ void NumberUIShaders::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dComm
 		ConvertOptDivisionToUINTArray(data1, data2, m_NumberInfo.m_MaximumLength, false);
 		break;
 	case NUM_TYPE_UINT_PERCENTAGE:
+		ConvertOptPercentageToUINTArray(data1, data2, m_NumberInfo.m_MaximumLength, true);
 		break;
 	}
 	
@@ -992,4 +994,94 @@ void NumberUIShaders::ConvertOptDivisionToUINTArray(float data1, float data2, UI
 
 		udata2 -= digit * unit;
 	}
+}
+
+void NumberUIShaders::ConvertOptPercentageToUINTArray(float data1, float data2, UINT nLength, bool isFloat)
+{
+	UINT udata1 = static_cast<UINT>(data1);
+	UINT udata2 = static_cast<UINT>(data2);
+	UINT percentData = ((udata1 * 100) / udata2) * 10;
+
+	int length = isFloat ? nLength - 3 : nLength - 1; 
+	int frontZero = 0;
+	for (int i = 0; i < length; ++i) {
+		UINT unit = pow(10, length - i);
+		UINT digit = percentData / unit;
+		if (digit == 0 && i == frontZero && i != length - 1) {
+			m_NumberInfo.m_fNumber[i] = VOIDDIGIT;
+			frontZero++;
+		}
+		else
+			m_NumberInfo.m_fNumber[i] = digit;
+
+		percentData -= digit * unit;
+	}
+
+	if (isFloat) {
+		m_NumberInfo.m_fNumber[nLength - 3] = POINT;
+		m_NumberInfo.m_fNumber[nLength - 2] = percentData;
+	}
+	m_NumberInfo.m_fNumber[nLength - 1] = PERCENTAGE;
+}
+
+void UIBossHPBarShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
+{
+	m_nObjects = 2;
+	m_nPSO = 1;
+
+	CreatePipelineParts();
+
+	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "VSUITextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\UIShader.hlsl", nullptr, "PSBossUIHPBAR", "ps_5_0");
+
+	CTexture *pTexture = new CTexture(m_nObjects, RESOURCE_TEXTURE2D, 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\BossHPTedori.dds", 0);
+	pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, L"res\\Texture\\BossHP.dds", 1);
+
+	UINT ncbElementBytes = D3DUtil::CalcConstantBufferByteSize(sizeof(CB_UI_INFO));
+
+	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, m_nObjects, pTexture->GetTextureCount());
+	CreateShaderVariables(pd3dDevice, pd3dCommandList);
+	CreateConstantBufferViews(pd3dDevice, pd3dCommandList, m_nObjects, m_ObjectCB->Resource(), ncbElementBytes);
+	CreateShaderResourceViews(pd3dDevice, pd3dCommandList, pTexture, 1, true);
+
+	CreateGraphicsRootSignature(pd3dDevice);
+	BuildPSO(pd3dDevice, nRenderTargets);
+
+	m_pUIObjects = vector<UIObject*>(m_nObjects);
+
+	m_pMaterial = new CMaterial();
+	m_pMaterial->SetTexture(pTexture);
+	m_pMaterial->SetReflection(1);
+
+	XMFLOAT2 pos = XMFLOAT2(
+		static_cast<float>(FRAME_BUFFER_WIDTH) * 1.1 / 2.0,
+		static_cast<float>(FRAME_BUFFER_HEIGHT) * 8.0f / 9.0
+	);
+	XMFLOAT2 scale = XMFLOAT2(0.5f, 0.4f);
+	XMUINT2 hpTedoriSize = GetSpriteSize(0, pTexture, XMUINT2(1, 1));
+
+	UIObject* HPTedori;
+	HPTedori = new UIObject();
+	HPTedori->SetPosition(pos);
+	HPTedori->SetScale(scale);
+	m_pUIObjects[0] = HPTedori;
+
+	pos.x += (6.0f * scale.x);
+
+	HPBarObject* hpBar;
+	hpBar = new HPBarObject();
+	hpBar->SetPosition(XMFLOAT2(pos));
+	hpBar->SetPlayerStatus(reinterpret_cast<GameObject*>(pContext)->GetStatus());
+	hpBar->SetScale(scale);
+	m_pUIObjects[1] = hpBar;
+
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2(1, 1)));
+		m_pUIObjects[i]->SetType(i);
+		m_pUIObjects[i]->CreateCollisionBox();
+		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
+	}
+
 }

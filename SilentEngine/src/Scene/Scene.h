@@ -82,7 +82,7 @@ class TestScene : public Scene
 	//
 	enum SceneType{ PAUSE, GAMEOVER, CLEAR, NORMALLY };
 	enum BottonType{ NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF };
-	enum NumberIndex { NUM_HP, NUM_MP, NUM_KICK, NUM_UPPER, NUM_PUNCH, NUM_AVOID };
+	enum NumberIndex { NUM_HP, NUM_MP, NUM_KICK, NUM_UPPER, NUM_PUNCH, NUM_AVOID, NUM_BOSSHP };
 public:
 	TestScene();
 	~TestScene();
@@ -134,12 +134,12 @@ protected:
 	vector<BillboardShader*>							m_hitEffectShaders;
 
 	MonsterHPShaders*							m_MonsterHP;
-
+	unique_ptr<UIBossHPBarShaders>							m_BossHP;
 	//unique_ptr<TextureToFullScreen>						m_SuperRunEffect;
 	unique_ptr<SkillUIShaders>							m_SkilCooldown;
 	unique_ptr<UIShaders>								m_BonusShader;
 
-	const UINT										m_nNumberShader = 6;
+	const UINT										m_nNumberShader = 7;
 	NumberUIShaders**							m_NumberShader;
 	ProjectileShader*									m_Projectile = nullptr;
 	

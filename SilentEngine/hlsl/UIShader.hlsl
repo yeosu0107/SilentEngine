@@ -120,6 +120,68 @@ float4 PSUIHPBar(VS_TEXTURED_OUTPUT input) : SV_Target
 
 }
 
+float4 LineColor(float4 color, int nline)
+{
+    [branch]
+    switch (nline)
+    {
+        case +0:
+        {
+            return color.rgba;
+        }
+        case +1:
+        {
+            return color.rrba;
+        }
+        case +2:
+        {
+            return color.grba;
+        }
+    }
+    return color;
+}
+
+float4 PSBossUIHPBAR(VS_TEXTURED_OUTPUT input) : SV_Target
+{
+
+    float4 finalColor = (float4) 0.0f;
+    float2 uv = input.uv;
+    float data = gfData;
+ 
+    if (gnTexType == 0) 
+        finalColor = gUITextures[0].Sample(gDefaultSamplerState, uv);
+    else if (gnTexType == 1)
+    {
+        if (data < 0.0f)
+            data = 0.0f;
+        float damage = 1.0f - data; // 받은 피해
+
+        float newgaData = data * gfData2; // 2.0f
+        float newLine = gfData2 - (damage * gfData2); // 
+
+        newgaData = frac(newgaData);
+        finalColor = gUITextures[1].Sample(gDefaultSamplerState, uv);
+
+        if (uv.x < newgaData)
+            finalColor = LineColor(finalColor, floor(newLine));
+        else
+        {
+            if (floor(newLine - 1.0f) < 0)
+                discard;
+            finalColor = LineColor(finalColor, floor(newLine - 1.0f));
+        }
+    }
+    else if (gnTexType == 2)
+    {
+        if (uv.x < data)
+            finalColor = gUITextures[2].Sample(gDefaultSamplerState, uv);
+    }
+    finalColor.a *= gfAlpha;
+
+    return finalColor;
+
+}
+
 float4 PSBlockUI(VS_TEXTURED_OUTPUT input) : SV_Target
 {
     float4 finalColor = (float4) 0.0f;
