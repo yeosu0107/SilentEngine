@@ -62,14 +62,7 @@ void BaseAI::trackingState()
 			return;
 		}
 	}
-	XMFLOAT3 track = trackDir(playerPos);
-
-	float angle = Vector3::Angle(track, m_owner->GetLook());
-
-	if (rotDir(track) > 0)
-		angle *= -1;
-
-	m_owner->Rotate(&m_owner->GetUp(), angle);
+	LookToPlayer();
 	m_owner->Move(fTimeElapsed);		//플레이어 방향으로 이동
 }
 
@@ -97,14 +90,7 @@ void BaseAI::attackState()
 		changeState(STATE::skill);*/
 
 	if (!m_melee) {
-		XMFLOAT3 track = trackDir(playerPos);
-
-		float angle = Vector3::Angle(track, m_owner->GetLook());
-
-		if (rotDir(track) > 0)
-			angle *= -1;
-
-		m_owner->Rotate(&m_owner->GetUp(), angle);
+		LookToPlayer();
 	}
 
 	m_owner->Attack();
@@ -118,14 +104,7 @@ void BaseAI::attackState()
 void BaseAI::skillState()
 {
 	if (!m_melee) {
-		XMFLOAT3 track = trackDir(GlobalVal::getInstance()->getPlayer()->GetPosition());
-
-		float angle = Vector3::Angle(track, m_owner->GetLook());
-
-		if (rotDir(track) > 0)
-			angle *= -1;
-
-		m_owner->Rotate(&m_owner->GetUp(), angle);
+		LookToPlayer();
 	}
 
 	m_owner->Skill();
@@ -178,12 +157,12 @@ XMFLOAT3 BaseAI::trackDir(XMFLOAT3&  pos)
 	return Vector3::Subtract(m_owner->GetPosition(), pos, true);
 }
 
-float BaseAI::rotDir(XMFLOAT3& pos)
-{
-	//스칼라 삼중적
-	return Vector3::DotProduct(m_owner->GetUp(), 
-		Vector3::CrossProduct(pos, m_owner->GetLook()));
-}
+//float BaseAI::rotDir(XMFLOAT3& pos)
+//{
+//	//스칼라 삼중적
+//	return Vector3::DotProduct(m_owner->GetUp(), 
+//		Vector3::CrossProduct(pos, m_owner->GetLook()));
+//}
 
 void BaseAI::Death()
 {
@@ -192,4 +171,26 @@ void BaseAI::Death()
 	reinterpret_cast<Enemy*>(m_owner)->releasePhys();
 	*GlobalVal::getInstance()->getRemainEnemy() -= 1;
 	//cout << "remain : " << *GlobalVal::getInstance()->getRemainEnemy() << endl;
+}
+
+void BaseAI::LookToPlayer()
+{
+	//플레이어 바라보기
+	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
+
+	XMFLOAT3 track = trackDir(playerPos);
+	track = Vector3::DecompVector(track, true, false, true);
+
+	XMFLOAT3 look = Vector3::DecompVector(m_owner->GetLook(), true, false, true);
+	float angle = Vector3::Angle(track, look);
+
+	//스칼라 삼중적 회전방향 결정
+	if (Vector3::DotProduct(m_owner->GetUp(),
+		Vector3::CrossProduct(track, m_owner->GetLook())) > 0)
+		angle *= -1;
+
+	//if (rotDir(track) > 0)
+	//	angle *= -1;
+
+	m_owner->Rotate(&m_owner->GetUp(), angle);
 }

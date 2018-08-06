@@ -512,9 +512,7 @@ void Player::roomClearBouns(ClearBouns index)
 UINT Player::roomClearBouns()
 {
 	UINT index = SELECT_BOUNS;
-#ifdef _DEBUG
-	cout << "clear bouns number : " << index << endl;
-#endif
+
 	while (index == SELECT_BOUNS) {
 		index = rand() % 7;
 		switch (index) {
@@ -535,7 +533,12 @@ UINT Player::roomClearBouns()
 				m_skillCostBouns = 1000;
 			break;
 		case ClearBouns::plusAtk:
-			m_damage += 5;
+			//atkPlus 보너스는 2번만 수행됨
+			//3번째 선택되면 다른 보너스를 선택
+			if (m_damage >= 20)
+				index = SELECT_BOUNS;
+			else
+				m_damage += 5;
 			break;
 		case ClearBouns::plusHP:
 			m_status->m_maxhealth += 50;
@@ -566,5 +569,8 @@ UINT Player::roomClearBouns()
 			break;
 		}
 	}
+#ifdef _DEBUG
+	cout << "clear bouns number : " << index << endl;
+#endif
 	return index;
 }

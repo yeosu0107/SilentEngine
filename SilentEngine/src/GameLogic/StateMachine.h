@@ -95,9 +95,11 @@ public:
 
 	bool recognize(XMFLOAT3& pos, float range);
 	XMFLOAT3 trackDir(XMFLOAT3& pos);
-	float rotDir(XMFLOAT3& pos);
+	//float rotDir(XMFLOAT3& pos);
 
 	void setCoolTime(DWORD cooltime) { m_skillCoolTime = cooltime; }
 	void resetCoolTime() { m_nowCoolTime = GetTickCount(); }
 	void Death();
+
+	void LookToPlayer();
 };

@@ -109,17 +109,8 @@ void GhostAI::patrolState()
 
 void GhostAI::attackState()
 {
-	XMFLOAT3 playerPos = GlobalVal::getInstance()->getPlayer()->GetPosition();
-
 	if (!m_melee) {
-		XMFLOAT3 track = trackDir(playerPos);
-
-		float angle = Vector3::Angle(track, m_owner->GetLook());
-
-		if (rotDir(track) > 0)
-			angle *= -1;
-		prevAngle += angle;
-		m_owner->Rotate(&m_owner->GetUp(), angle);
+		LookToPlayer();
 	}
 	attack_timer += 1;
 

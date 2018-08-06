@@ -556,6 +556,17 @@ namespace Vector3
 	{
 		return (DotProduct(xmf3Up, CrossProduct(xmf3PlayerToDist, xmf3Look)));
 	}
+
+	inline XMFLOAT3 DecompVector(XMFLOAT3& origin, bool x, bool y, bool z)
+	{
+		//∫§≈Õ ∫–«ÿ
+		float xVal = 0.0f, yVal = 0.0f, zVal = 0.0f;
+		if (x) xVal = origin.x;
+		if (y) yVal = origin.y;
+		if (z) zVal = origin.z;
+
+		return XMFLOAT3(xVal, yVal, zVal);
+	}
 }
 
 namespace Vector4
