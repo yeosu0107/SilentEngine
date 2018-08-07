@@ -44,7 +44,7 @@ public:
 	void SetMousePos_Center();
 
 protected:
-
+	virtual void ChangeFullScreen();
 	virtual void CreateRtvAndDsvDescriptorHeaps();
 	virtual void CreateSwapChainRenderTargetViews(D3D12_CPU_DESCRIPTOR_HANDLE& descHandle);
 

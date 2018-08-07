@@ -81,7 +81,7 @@ class TestScene : public Scene
 {
 	//
 	enum SceneType{ PAUSE, GAMEOVER, CLEAR, NORMALLY };
-	enum BottonType{ NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF };
+	enum BottonType{ NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF, FULLSCREEN };
 	enum NumberIndex { NUM_HP, NUM_MP, NUM_KICK, NUM_UPPER, NUM_PUNCH, NUM_AVOID, NUM_BOSSHP };
 public:
 	TestScene();
@@ -113,7 +113,7 @@ public:
 	void RoomSetting();
 
 	UINT TranslateButton(UINT nbutton);
-	void ActiveButton(UINT nbuttonType);
+	UINT ActiveButton(UINT nbuttonType);
 	UINT CalNowScene();
 	virtual void CaptureCursor();
 	void ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList);

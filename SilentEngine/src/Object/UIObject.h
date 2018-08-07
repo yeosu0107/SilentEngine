@@ -59,7 +59,7 @@ public:
 	XMUINT2		m_nNowSprite;
 
 	XMUINT2		m_nSize;
-	UINT		m_nTexType;
+	UINT		m_nTexType = -1;
 	float		m_fData = 0.0f;
 	float		m_fData2 = 0.0f;
 

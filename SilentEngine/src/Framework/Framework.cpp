@@ -100,7 +100,7 @@ bool Framework::Initialize()
 
 	return true;
 }
-BOOL fullScreenState = FALSE;
+
 LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
@@ -182,25 +182,7 @@ LRESULT Framework::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		//	Set4xMassState(!m_b4xMassState);
 
 		if (wParam == VK_F9) {
-			m_pSwapChain->GetFullscreenState(&fullScreenState, NULL);
-			if (!fullScreenState) {
-				DXGI_MODE_DESC dxgiTarget;
-				dxgiTarget.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				dxgiTarget.Width = m_nClientWidth;
-				dxgiTarget.Height = m_nClientHeight;
-
-				dxgiTarget.RefreshRate.Numerator = 60;
-				dxgiTarget.RefreshRate.Denominator = 1;
-
-				dxgiTarget.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-				dxgiTarget.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-				m_pSwapChain->ResizeTarget(&dxgiTarget);
-			}
-			m_pSwapChain->SetFullscreenState(!fullScreenState, NULL);
-			m_pScene[m_nNowScene]->CaptureCursor();
-			OnResize();
-
-			MouseLock_Screen();
+			ChangeFullScreen();
 		}
 		return 0;
 	}
@@ -236,6 +218,29 @@ void Framework::SetMousePos_Center()
 
 	//게임화면 중앙으로 이동
 	SetCursorPos(rect.left + FRAME_BUFFER_WIDTH / 2, rect.top + FRAME_BUFFER_HEIGHT / 2); 
+}
+
+void Framework::ChangeFullScreen()
+{
+	m_pSwapChain->GetFullscreenState(&fullScreenState, NULL);
+	if (!fullScreenState) {
+		DXGI_MODE_DESC dxgiTarget;
+		dxgiTarget.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		dxgiTarget.Width = m_nClientWidth;
+		dxgiTarget.Height = m_nClientHeight;
+
+		dxgiTarget.RefreshRate.Numerator = 60;
+		dxgiTarget.RefreshRate.Denominator = 1;
+
+		dxgiTarget.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+		dxgiTarget.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+		m_pSwapChain->ResizeTarget(&dxgiTarget);
+	}
+	m_pSwapChain->SetFullscreenState(!fullScreenState, NULL);
+	m_pScene[m_nNowScene]->CaptureCursor();
+	OnResize();
+
+	MouseLock_Screen();
 }
 
 void Framework::CreateRtvAndDsvDescriptorHeaps()
@@ -1062,6 +1067,9 @@ void Framework::OnMouseDown(WPARAM btnState, UINT nMessageID, int x, int y)
 		/*m_pScene[1]->BuildScene(m_pD3dDevice.Get(), m_pCommandList.Get());
 		m_pDeferredFullScreenShader->SetPlayer(reinterpret_cast<TestScene*>(m_pScene[1])->GetPlayer());
 		m_pCamera = m_pScene[1]->GetCamera();*/
+	}
+	if (m_nNowScene == 1 && state == true) {
+		ChangeFullScreen();
 	}
 }
 

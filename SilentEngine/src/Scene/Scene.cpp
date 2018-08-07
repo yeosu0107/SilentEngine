@@ -369,7 +369,7 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 {
 	Player* player = dynamic_cast<Player*>(m_playerShader->getPlayer(0));
 	m_ppUIShaders.clear();
-	m_nUIShaders = 4;
+	m_nUIShaders = 5;
 	m_ppUIShaders.resize(m_nUIShaders);
 
 	m_MonsterHP = new MonsterHPShaders();
@@ -422,6 +422,16 @@ void TestScene::BuildUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCom
 	m_BossHP->BuildObjects(pDevice, pCommandList, 1, enemyShader[KindOfEnemy - 1]->getObjects(OPTSETALL)[0]);
 	m_BossHP->SetMaxLine(3.0f);		// 최대 HP 줄 수 
 	m_ppUIShaders[3] = m_BossHP.get();
+
+	texutredata[0] = { L"res\\Texture\\RichKing.DDS", L"", 1, 1 };
+	UIShaders* pBossName = new UIShaders();
+	pBossName->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
+	XMFLOAT2 pos = m_ppUIShaders[3]->getObejct(0)->m_xmf2ScreenPos;
+	XMFLOAT2 scale = m_ppUIShaders[3]->getObejct(0)->m_xmf2Scale;
+	pos.x -= (220.0f * scale.x);
+	pBossName->SetPos(&pos, 0);
+	pBossName->SetScale(&XMFLOAT2(0.4f, 0.5f), OPTSETALL);
+	m_ppUIShaders[4] = pBossName;
 
 	texutredata[0].m_texture = L"res\\Texture\\blood4_bullet.DDS";
 	m_pTakeDamageScreen = new FadeEffectShader();
@@ -512,7 +522,7 @@ void TestScene::BuildNumberUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList 
 	bossHPPerct->LinkData(&status->m_health, &status->m_maxhealth);
 	bossHPPerct->SetScale(&XMFLOAT2(0.7f, 0.7f), OPTSETALL);
 	bossHPPerct->SetPos(&pos, 0);
-	bossHPPerct->SetScale(&XMFLOAT2(1.8f, 0.5f), OPTSETALL);
+	bossHPPerct->SetScale(&XMFLOAT2(2.1f, 0.5f), OPTSETALL);
 
 	m_NumberShader[NUM_BOSSHP] = bossHPPerct;
 
@@ -586,15 +596,16 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 	m_BonusShader->Render(pCommandList);
 	m_pTakeDamageScreen->Render(pCommandList, m_Camera.get());
 	
-	for (UINT i = 0; i < m_nUIShaders - 1; ++i)
+	for (UINT i = 0; i < m_nUIShaders - 2; ++i)
 		m_ppUIShaders[i]->Render(pCommandList);
 	m_SkilCooldown->Render(pCommandList);
 	for(UINT j = 0; j < m_nNumberShader - 1; ++j)
 		m_NumberShader[j]->Render(pCommandList);
 
 	if (m_nowRoom == m_nRoom - 1) {		// 보스방인 경우 보스 HP 출력
-		m_ppUIShaders[m_nUIShaders - 1]->Render(pCommandList);
+		m_ppUIShaders[m_nUIShaders - 2]->Render(pCommandList);
 		m_NumberShader[NUM_BOSSHP]->Render(pCommandList);
+		m_ppUIShaders[m_nUIShaders - 1]->Render(pCommandList);
 	}
 
 	m_nSceneState = static_cast<SceneType>(CalNowScene());
@@ -742,8 +753,9 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 			//collButon = m_bIsGameOver ? m_pGameOverScene->CollisionToMouse(m_pCursorPos) : m_pPauseScene->CollisionToMouse(m_pCursorPos);
 			m_nSceneState = static_cast<SceneType>(CalNowScene());
 			collButon = TranslateButton((m_nSceneState != NORMALLY) ? m_pUIScenes[m_nSceneState]->CollisionToMouseClick(m_pCursorPos) : 0);
-			ActiveButton(collButon);
+			UINT commandButton = ActiveButton(collButon);
 			
+			if (commandButton == FULLSCREEN) return true;
 			return false;
 		}
 		break;
@@ -759,7 +771,7 @@ bool TestScene::OnMouseDown(HWND& hWin, WPARAM btnState, UINT nMessageID, int x,
 	default:
 		break;
 	}
-	return true;
+	return false;
 }
 
 bool TestScene::OnMouseUp(HWND& hWin, WPARAM btnState, UINT nMessageID, int x, int y)
@@ -1001,6 +1013,7 @@ UINT TestScene::TranslateButton(UINT nbutton)
 		case 2: return HDRONOFF;
 		case 3: return CONTINUE;
 		case 4: return EXIT;
+		case 5: return FULLSCREEN;
 		} break;
 	
 	case GAMEOVER:
@@ -1017,35 +1030,38 @@ UINT TestScene::TranslateButton(UINT nbutton)
 	return NONE;
 }
 
-void TestScene::ActiveButton(UINT nbuttonType)
+UINT TestScene::ActiveButton(UINT nbuttonType)
 {
 	//NONE, EXIT, CONTINUE, HDRONOFF, BLOOMONOFF
 	switch (nbuttonType) {
 	case NONE:
-		return;
+		return NONE;
 
 	case EXIT:
 		m_changeFade = FADE_IN;
 		m_isGameEnd = true;
 		m_Room[m_nowRoom]->RegistShader(m_physics, false, START_NON);
-		return;
+		return EXIT;
 
-	case CONTINUE: 
+	case CONTINUE:
 		::GetCursorPos(&m_ptOldCursorPos);
 		m_bMouseCapture = true;
 		m_nSceneState = static_cast<SceneType>(CalNowScene());
-		return;
+		return CONTINUE;
 
 	case HDRONOFF:
 		HDR_ON = !HDR_ON;
-		return;
+		return HDRONOFF;
 
 	case BLOOMONOFF:
 		BLOOM_ON = !BLOOM_ON;
-		return;
+		return BLOOMONOFF;
+
+	case FULLSCREEN:
+		return FULLSCREEN;
 	}
 
-	return;
+	return 0;
 }
 
 

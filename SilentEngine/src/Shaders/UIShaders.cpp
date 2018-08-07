@@ -121,6 +121,7 @@ void UIShaders::SetScale(XMFLOAT2 * scale, const OPTIONSETALL)
 	CreateCollisionBox();
 }
 
+
 void UIShaders::MovePos(XMFLOAT2 & pos, UINT index)
 {
 	XMFLOAT2 originPos = m_pUIObjects[index]->m_xmf2ScreenPos;
@@ -490,12 +491,23 @@ void UIMiniMapShaders::setRoomPos(void* pContext)
 	m_pPreRoom = 1;
 }
 
+void UIButtonShaders::SetType(UINT * pType, const OPTIONSETALL)
+{
+	m_pType.resize(m_nObjects);
+	for (int i = 0; i < m_nObjects; ++i) {
+		m_pType[i] = pType[i];
+		if (!m_pUIObjects.empty())
+			m_pUIObjects[i]->m_nTexType = pType[i];
+	}
+}
+
 void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandList * pd3dCommandList, int nRenderTargets, void * pContext)
 {
 	vector<TextureDataForm>* textures = reinterpret_cast<vector<TextureDataForm>*>(pContext);
 	UINT nTextures = textures->size();
 
-	m_nObjects = nTextures;
+	if(m_nObjects == 0)
+		m_nObjects = nTextures;
 	m_nPSO = 1;
 
 	CreatePipelineParts();
@@ -532,12 +544,15 @@ void UIButtonShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsComm
 		button1->SetScale(scale);
 		m_pUIObjects[i] = button1;
 	}
-
+	
+	bool nonSetTexType = m_pType.empty();
 	for (int i = 0; i < m_nObjects; ++i) {
+		int texType = nonSetTexType ? i : m_pType[i];
+
 		m_pUIObjects[i]->SetScreenSize(XMFLOAT2(static_cast<float>(FRAME_BUFFER_WIDTH), static_cast<float>(FRAME_BUFFER_HEIGHT)));
-		m_pUIObjects[i]->SetNumSprite(XMUINT2((*textures)[i].m_MaxX, (*textures)[i].m_MaxY), XMUINT2(0, 0));
-		m_pUIObjects[i]->SetSize(GetSpriteSize(i, pTexture, XMUINT2((*textures)[i].m_MaxX, (*textures)[i].m_MaxY)));
-		m_pUIObjects[i]->SetType(i);
+		m_pUIObjects[i]->SetNumSprite(XMUINT2((*textures)[texType].m_MaxX, (*textures)[texType].m_MaxY), XMUINT2(0, 0));
+		m_pUIObjects[i]->SetSize(GetSpriteSize(texType, pTexture, XMUINT2((*textures)[texType].m_MaxX, (*textures)[texType].m_MaxY)));
+		m_pUIObjects[i]->SetType(texType);
 		m_pUIObjects[i]->CreateCollisionBox();
 		m_pUIObjects[i]->SetCbvGPUDescriptorHandlePtr(m_d3dCbvGPUDescriptorStartHandle.ptr + (::gnCbvSrvDescriptorIncrementSize * i));
 	}
@@ -571,6 +586,7 @@ UINT UIButtonShaders::ClickButton()
 		if (m_pUIObjects[i]->CollisionUI(m_pMousePosition, trueSetData, falseSetData))
 			collision = i + 1;
 	}
+	std::cout << collision << std::endl;
 	return collision;
 }
 

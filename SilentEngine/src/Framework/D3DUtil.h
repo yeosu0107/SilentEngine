@@ -120,6 +120,7 @@ const UINT MAX_MAP = 11;
 extern UINT	gnCbvSrvDescriptorIncrementSize;
 extern bool HDR_ON;
 extern bool BLOOM_ON;
+extern BOOL fullScreenState;
 
 struct OPTIONSETALL {};
 extern const DECLSPEC_SELECTANY OPTIONSETALL OPTSETALL;

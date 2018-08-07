@@ -42,17 +42,21 @@ void PauseScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 	m_pPauseScreen = make_unique<TextureToFullScreen>();
 	m_pPauseScreen->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
 
+	texutredata.resize(3);
 	texutredata[0] = { L"res\\MainSceneTexture\\ONOFF.DDS", L"",	2.0f, 2.0f };
-	texutredata[1] = { L"res\\MainSceneTexture\\ONOFF.DDS", L"",	2.0f, 2.0f };
-	texutredata[2] = { L"res\\Texture\\Continue.DDS", L"",			2.0f, 1.0f };
-	texutredata[3] = { L"res\\Texture\\BackToMainMenu.DDS", L"",	2.0f, 1.0f };
+	texutredata[1] = { L"res\\Texture\\Continue.DDS", L"",			2.0f, 1.0f };
+	texutredata[2] = { L"res\\Texture\\BackToMainMenu.DDS", L"",	2.0f, 1.0f };
 
+	UINT types[5] = { 0, 0, 1, 2, 0 };			// 버튼이 사용할 텍스쳐 인덱스 
 	m_pButtons = make_unique<UIButtonShaders>();
+	m_pButtons->SetNumObject(5);				// 버튼 개수
+	m_pButtons->SetType(types, OPTSETALL);		
 	m_pButtons->BuildObjects(pDevice, pCommandList, 1, &texutredata);
 	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * 0)), 0);
 	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * 1)), 1);
 	m_pButtons->SetPos(new XMFLOAT2(130.0f, yStartPof - (yOffset * i++)), 2);
 	m_pButtons->SetPos(new XMFLOAT2(205.0f, yStartPof - (yOffset * i++)), 3);
+	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * i++)), 4);
 
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), OPTSETALL);
 	m_pButtons->CreateCollisionBox();
@@ -61,6 +65,7 @@ void PauseScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 
 void PauseScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
+	m_pButtons->getObejct(4)->m_fData2 = fullScreenState == TRUE ? 1.0f : 0.0f;
 	m_pPauseScreen->Render(pCommandList);
 	m_pButtons->Render(pCommandList);
 
