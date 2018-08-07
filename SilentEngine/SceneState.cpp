@@ -20,10 +20,11 @@ void PauseScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 	int i = 0;
 
 	vector<TextureDataForm> texutredata(4);
-
+	//FullScreen
 	////////////// HDR , BLOOM 글자 텍스쳐 출력 /////////////////
 	texutredata[0] = { L"res\\MainSceneTexture\\BLOOM.DDS", L"", 1.0f, 1.0f };
 	texutredata[1] = { L"res\\MainSceneTexture\\HDR.DDS", L"", 1.0f, 1.0f };
+	texutredata[2] = { L"res\\MainSceneTexture\\FullScreen.DDS", L"", 1.0f, 1.0f };
 
 	m_pTextureUI[0] = make_unique<UIShaders>();
 	m_pTextureUI[0]->BuildObjects(pDevice, pCommandList, 1, &texutredata[0]);
@@ -34,6 +35,11 @@ void PauseScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 	m_pTextureUI[1]->BuildObjects(pDevice, pCommandList, 1, &texutredata[1]);
 	m_pTextureUI[1]->SetPos(new XMFLOAT2(130.0f, yStartPof - (yOffset * i++)), 0);
 	m_pTextureUI[1]->SetScale(&XMFLOAT2(0.8f, 0.8f), 0);
+
+	m_pTextureUI[2] = make_unique<UIShaders>();
+	m_pTextureUI[2]->BuildObjects(pDevice, pCommandList, 1, &texutredata[2]);
+	m_pTextureUI[2]->SetPos(new XMFLOAT2(130.0f, yStartPof - (yOffset * i++)), 0);
+	m_pTextureUI[2]->SetScale(&XMFLOAT2(0.8f, 0.8f), 0);
 
 	i++;
 
@@ -56,7 +62,7 @@ void PauseScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * 1)), 1);
 	m_pButtons->SetPos(new XMFLOAT2(130.0f, yStartPof - (yOffset * i++)), 2);
 	m_pButtons->SetPos(new XMFLOAT2(205.0f, yStartPof - (yOffset * i++)), 3);
-	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * i++)), 4);
+	m_pButtons->SetPos(new XMFLOAT2(350.0f, yStartPof - (yOffset * 2)), 4);
 
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), OPTSETALL);
 	m_pButtons->CreateCollisionBox();

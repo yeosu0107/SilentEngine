@@ -2,7 +2,7 @@
 #include "UIShaders.h"
 #include "Timer.h"
 
-const int m_nTextureUI = 2;
+const int m_nTextureUI = 3;
 
 class virtualScene {
 public:
