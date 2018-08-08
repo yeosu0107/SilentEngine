@@ -163,6 +163,7 @@ bool TestScene::Update(const Timer & gt)
 	if (m_isGameEnd && m_changeFade == FADE_END) {
 		m_isGameEnd = false;
 		m_bMouseCapture = true;
+		SoundMgr::getInstance()->changeSound(SOUND::MAIN, CHANNEL::BGM);
 		return true;
 	}
 
@@ -577,15 +578,21 @@ void TestScene::RenderUI(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCo
 		m_bMouseCapture = false;
 	}
 	
-	if(m_Room[m_nowRoom]->getType() == BOSS_ROOM && m_Room[m_nowRoom]->IsClear()){
+	if(m_Room[m_nowRoom]->getType() == BOSS_ROOM 
+		&& m_Room[m_nowRoom]->IsClear() 
+		&& m_bIsClear == false)
+	{
 		m_bIsClear = true;
 		::ReleaseCapture();
 		m_bMouseCapture = false;
+		SoundMgr::getInstance()->changeSound(SOUND::VICTORY, CHANNEL::BGM);
 	}
 
 	if (m_testPlayer->getHitted() == true) {
-		if(m_testPlayer->isLive() == true)
+		if (m_testPlayer->isLive() == true) {
+			SoundMgr::getInstance()->play(SOUND::HITTED, CHANNEL::PLAYER);
 			m_pTakeDamageScreen->SetFadeIn(true, 0.2f, true, XMFLOAT3(1.0f, 1.0f, 1.0f));
+		}
 		m_testPlayer->setHitted(false);
 	}
 

@@ -9,6 +9,7 @@ Rich::Rich(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	m_State->setCoolTime(10000); //10초마다 메테오 시전
 	m_size = XMFLOAT2(1.0f, 10.0f);
 	m_status = m_State->getStatus();
+	m_triggerSize = XMFLOAT3(30, 30, 30);
 	m_damageVal->hitback = 3.5f;
 	
 	//m_hitback = 1.5f;

@@ -35,6 +35,8 @@ void SoundMgr::init()
 	m_fmod->createSound("res\\Sound\\hit05.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[PUNCH01]);
 
 	m_fmod->createSound("res\\Sound\\room_clear.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ROOM_CLEAR]);
+	m_fmod->createSound("res\\Sound\\die.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[DIE]);
+	m_fmod->createSound("res\\Sound\\victory.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[VICTORY]);
 
 	//Player 사운드 생성
 	m_fmod->createSound("res\\Sound\\Attack01.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[ATT01]);
@@ -48,6 +50,7 @@ void SoundMgr::init()
 	m_fmod->createSound("res\\Sound\\hurt02.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[HURT02]);
 	m_fmod->createSound("res\\Sound\\wind_01.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[WIND01]);
 	m_fmod->createSound("res\\Sound\\wind_02.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[WIND02]);
+	m_fmod->createSound("res\\Sound\\player_hitted.mp3", FMOD_LOOP_OFF, nullptr, &m_sound[HITTED]);
 }
 
 void SoundMgr::play(SOUND index, CHANNEL chNum)

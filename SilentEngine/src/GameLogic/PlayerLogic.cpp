@@ -69,6 +69,7 @@ void PlayerLogic::deathState()
 	//m_owner->Idle();
 	if (m_owner->getAnimLoop() == LOOP_END) {
 		//m_owner->SetLive(false);
+		
 		m_owner->stopAnim(true);
 		m_owner->SetLive(false);
 	}
@@ -76,32 +77,36 @@ void PlayerLogic::deathState()
 
 void PlayerLogic::changeState(STATE newState)
 {
-	if (newState == STATE::kick) {
-		m_attackType = AttackType::Kick;
-		m_state = STATE::attack;
-		SoundMgr::getInstance()->play(SOUND::SKILL01, CHANNEL::PLAYER);
-		m_owner->ChangeAnimation(PlayerAni::KickAttack);
+	if (newState == STATE::hitted) {
+		m_state = STATE::hitted;
+		m_owner->ChangeAnimation(PlayerAni::Hitted);
 		return;
 	}
-	if (newState == STATE::upper) {
-		m_attackType = AttackType::Upper;
-		m_state = STATE::attack;
-		SoundMgr::getInstance()->play(SOUND::SKILL02, CHANNEL::PLAYER);
-		m_owner->ChangeAnimation(PlayerAni::KickAttack2);
-		return;
+	if (m_state != STATE::hitted ||
+		(m_state == STATE::hitted && m_owner->getAnimLoop() == LOOP_SKIP) ) {
+		if (newState == STATE::kick) {
+			m_attackType = AttackType::Kick;
+			m_state = STATE::attack;
+			SoundMgr::getInstance()->play(SOUND::SKILL01, CHANNEL::PLAYER);
+			m_owner->ChangeAnimation(PlayerAni::KickAttack);
+			return;
+		}
+		if (newState == STATE::upper) {
+			m_attackType = AttackType::Upper;
+			m_state = STATE::attack;
+			SoundMgr::getInstance()->play(SOUND::SKILL02, CHANNEL::PLAYER);
+			m_owner->ChangeAnimation(PlayerAni::KickAttack2);
+			return;
+		}
+		if (newState == STATE::punch) {
+			m_attackType = AttackType::Punch;
+			m_state = STATE::attack;
+			SoundMgr::getInstance()->play(SOUND::SKILL03, CHANNEL::PLAYER);
+			m_owner->ChangeAnimation(PlayerAni::PowerPunch);
+			return;
+		}
 	}
-	if (newState == STATE::punch) {
-		m_attackType = AttackType::Punch;
-		m_state = STATE::attack;
-		SoundMgr::getInstance()->play(SOUND::SKILL03, CHANNEL::PLAYER);
-		m_owner->ChangeAnimation(PlayerAni::PowerPunch);
-		return;
-	}
-	//if (newState == STATE::hitted) {
-	//	m_state = STATE::hitted;
-	//	m_owner->ChangeAnimation(PlayerAni::Hitted);
-	//	return;
-	//}
+
 	if (m_state > STATE::tracking) {
 		if (m_state == STATE::attack || m_state == STATE::attack2 || m_state == STATE::attack3 ||
 			m_state == STATE::kick || m_state==STATE::punch) {
@@ -122,6 +127,8 @@ void PlayerLogic::changeState(STATE newState)
 		m_owner->ChangeAnimation(PlayerAni::Hitted);
 		break;
 	case STATE::death:
+		SoundMgr::getInstance()->ch_stop(CHANNEL::BGM);
+		SoundMgr::getInstance()->play(SOUND::DIE, CHANNEL::FX);
 		m_owner->ChangeAnimation(PlayerAni::die);
 		break;
 	case STATE::attack:

@@ -16,7 +16,8 @@ enum SOUND {
 	ROOM_CLEAR,
 	HIT01, KICK01, KICK02, PUNCH01, HIT02,
 	ATT01, ATT02, ATT03, SKILL01, SKILL02, SKILL03, SKILL04,
-	HURT01, HURT02, WIND01, WIND02
+	HURT01, HURT02, WIND01, WIND02,
+	DIE, HITTED, VICTORY
 };
 
 inline SOUND getRandomBGM() {
@@ -39,7 +40,7 @@ private:
 
 	System*					m_fmod;
 	Channel*				m_ch[10];
-	Sound*					m_sound[25];
+	Sound*					m_sound[30];
 public:
 	static SoundMgr * getInstance();
 
