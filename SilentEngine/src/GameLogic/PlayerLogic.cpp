@@ -77,47 +77,44 @@ void PlayerLogic::deathState()
 
 void PlayerLogic::changeState(STATE newState)
 {
-	if (newState == STATE::hitted) {
+	if (newState == STATE::kick) {
+		m_attackType = AttackType::Kick;
+		m_state = STATE::attack;
+		SoundMgr::getInstance()->play(SOUND::SKILL01, CHANNEL::PLAYER);
+		m_owner->ChangeAnimation(PlayerAni::KickAttack);
+		return;
+	}
+	if (newState == STATE::upper) {
+		m_attackType = AttackType::Upper;
+		m_state = STATE::attack;
+		SoundMgr::getInstance()->play(SOUND::SKILL02, CHANNEL::PLAYER);
+		m_owner->ChangeAnimation(PlayerAni::KickAttack2);
+		return;
+	}
+	if (newState == STATE::punch) {
+		m_attackType = AttackType::Punch;
+		m_state = STATE::attack;
+		SoundMgr::getInstance()->play(SOUND::SKILL03, CHANNEL::PLAYER);
+		m_owner->ChangeAnimation(PlayerAni::PowerPunch);
+		return;
+	}
+	/*if (newState == STATE::hitted) {
 		m_state = STATE::hitted;
 		m_owner->ChangeAnimation(PlayerAni::Hitted);
 		return;
-	}
-	if (m_state != STATE::hitted ||
-		(m_state == STATE::hitted && m_owner->getAnimLoop() == LOOP_SKIP) ) {
-		if (newState == STATE::kick) {
-			m_attackType = AttackType::Kick;
-			m_state = STATE::attack;
-			SoundMgr::getInstance()->play(SOUND::SKILL01, CHANNEL::PLAYER);
-			m_owner->ChangeAnimation(PlayerAni::KickAttack);
-			return;
-		}
-		if (newState == STATE::upper) {
-			m_attackType = AttackType::Upper;
-			m_state = STATE::attack;
-			SoundMgr::getInstance()->play(SOUND::SKILL02, CHANNEL::PLAYER);
-			m_owner->ChangeAnimation(PlayerAni::KickAttack2);
-			return;
-		}
-		if (newState == STATE::punch) {
-			m_attackType = AttackType::Punch;
-			m_state = STATE::attack;
-			SoundMgr::getInstance()->play(SOUND::SKILL03, CHANNEL::PLAYER);
-			m_owner->ChangeAnimation(PlayerAni::PowerPunch);
-			return;
-		}
-	}
+	}*/
 
 	if (m_state > STATE::tracking) {
 		if (m_state == STATE::attack || m_state == STATE::attack2 || m_state == STATE::attack3 ||
-			m_state == STATE::kick || m_state==STATE::punch) {
+			m_state == STATE::kick || m_state == STATE::punch) {
 			if (m_owner->getAnimLoop() == LOOP_TRIGGER || m_owner->getAnimLoop() == LOOP_IN)
 				return;
 		}
 
-		else if(m_owner->getAnimLoop() != LOOP_END)
+		else if (m_owner->getAnimLoop() != LOOP_END)
 			return;
 	}
-	
+
 	m_state = newState;
 	switch (m_state) {
 	case STATE::idle:
@@ -151,10 +148,10 @@ void PlayerLogic::changeState(STATE newState)
 		m_state = STATE::attack;
 		m_owner->ChangeAnimation(PlayerAni::Attack3);
 		break;
-	/*case STATE::kick:
-		m_owner->ChangeAnimation(PlayerAni::KickAttack);
-		m_state = STATE::attack;
-		break;*/
+		/*case STATE::kick:
+			m_owner->ChangeAnimation(PlayerAni::KickAttack);
+			m_state = STATE::attack;
+			break;*/
 	case STATE::tracking:
 		m_owner->ChangeAnimation(PlayerAni::Move);
 		break;
