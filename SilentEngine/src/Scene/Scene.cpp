@@ -694,9 +694,9 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 		DamageVal* superDamage = new DamageVal(0.0f, 0);
 		superDamage->baseDamage = 255;
 		for (int i = 0; i < *GlobalVal::getInstance()->getRemainEnemy(); ++i) {
-			if (enemies[i]->isLive() != false) {
-				enemies[i]->Hitted(*superDamage);
-			}
+			//if (enemies[i]->isLive() != false) {
+			enemies[i]->Hitted(*superDamage);
+			//}
 		}
 	}
 #ifdef _DEBUG
