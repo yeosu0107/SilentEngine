@@ -33,7 +33,7 @@ private:
 	char randDamageVal[7] = { -3, -2, -1, 0, 1, 2, 3 };
 public:
 	float hitback;
-	char baseDamage;
+	unsigned char baseDamage;
 	char paticleType;
 
 	DamageVal(float back, int damage) {

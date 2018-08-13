@@ -25,7 +25,7 @@ res\\MonsterData\\d_idle.FBX,6,res\\Texture\\Rhino_Diffuse_COLOR.dds
 res\\MonsterData\\d_idle.FBX,0,0
 res\\MonsterData\\d_walk.FBX,0,0
 res\\MonsterData\\d_attack01.FBX,0,0
-res\\MonsterData\\d_attack02.FBX,0,0
+res\\MonsterData\\d_attack02.FBX,27,0
 res\\MonsterData\\d_hitted.FBX,0,0
 res\\MonsterData\\d_death.FBX,0,0
 res\\MonsterData\\CreepyArms@Idle.FBX,4,res\\Texture\\arm.dds
@@ -43,14 +43,14 @@ res\\MonsterData\\skull@Die.FBX,0,0
 res\\MonsterData\\Lich@Idle.FBX,6,res\\Texture\\lich.dds
 res\\MonsterData\\Lich@Idle.FBX,0,0
 res\\MonsterData\\Lich@FlyForward.FBX,0,0
-res\\MonsterData\\Lich@MeleeAttack.FBX,0,0
+res\\MonsterData\\Lich@MeleeAttack.FBX,23,47
 res\\MonsterData\\Lich@SpinAttack.FBX,0,0
 res\\MonsterData\\Lich@TakeDamage.FBX,0,0
 res\\MonsterData\\Lich@Die.FBX,0,0
 res\\MonsterData\\mutant_idle.FBX,6,res\\Texture\\mutant.dds
 res\\MonsterData\\mutant_idle.FBX,0,0
 res\\MonsterData\\mutant_walk.FBX,0,0
-res\\MonsterData\\mutant_attack01.FBX,0,0
-res\\MonsterData\\mutant_attack02.FBX,0,0
+res\\MonsterData\\mutant_attack01.FBX,10,28
+res\\MonsterData\\mutant_attack02.FBX,39,75
 res\\MonsterData\\mutant_hitted.FBX,0,0
 res\\MonsterData\\mutant_death.FBX,0,0

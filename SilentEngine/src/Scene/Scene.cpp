@@ -688,6 +688,17 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 	if (GetAsyncKeyState('P') & 0x0001) {
 		m_testPlayer->GetStatus()->m_health = 0.0f;
 	}
+	if (GetAsyncKeyState('T') & 0x0001) {
+		//m_Room[m_nowRoom]->SetClear(true);
+		GameObject** enemies = GlobalVal::getInstance()->getEnemy();
+		DamageVal* superDamage = new DamageVal(0.0f, 0);
+		superDamage->baseDamage = 255;
+		for (int i = 0; i < *GlobalVal::getInstance()->getRemainEnemy(); ++i) {
+			if (enemies[i]->isLive() != false) {
+				enemies[i]->Hitted(*superDamage);
+			}
+		}
+	}
 #ifdef _DEBUG
 	if (GetAsyncKeyState('T') & 0x0001) {
 		m_Room[m_nowRoom]->SetClear(true);
