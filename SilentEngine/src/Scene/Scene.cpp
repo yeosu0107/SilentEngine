@@ -693,7 +693,7 @@ bool TestScene::OnKeyboardInput(const Timer& gt, HWND& hWin)
 		GameObject** enemies = GlobalVal::getInstance()->getEnemy();
 		DamageVal* superDamage = new DamageVal(0.0f, 0);
 		superDamage->baseDamage = 255;
-		for (int i = 0; i < *GlobalVal::getInstance()->getRemainEnemy(); ++i) {
+		for (int i = 0; i < *GlobalVal::getInstance()->getNumEnemy(); ++i) {
 			//if (enemies[i]->isLive() != false) {
 			enemies[i]->Hitted(*superDamage);
 			//}
@@ -858,6 +858,8 @@ void TestScene::RoomChange()
 		));
 
 		*GlobalVal::getInstance()->getRemainEnemy()
+			= m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getRemainObjects();
+		*GlobalVal::getInstance()->getNumEnemy()
 			= m_Room[m_isRoomChange.m_roomNum]->GetEnemyShader()->getRemainObjects();
 		//*GlobalVal::getInstance()->getRemainEnemy() = m_Room[m_isRoomChange.m_roomNum].get
 	}
