@@ -66,12 +66,12 @@ void PauseScene::BuildScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * 
 
 	m_pButtons->SetScale(new XMFLOAT2(1.0f, 1.0f), OPTSETALL);
 	m_pButtons->CreateCollisionBox();
-
 }
 
 void PauseScene::Render(ID3D12Device * pDevice, ID3D12GraphicsCommandList * pCommandList)
 {
-	m_pButtons->getObejct(4)->m_fData2 = fullScreenState == TRUE ? 1.0f : 0.0f;
+	m_pButtons->getObejct(4)->m_fData2 = (fullScreenState == TRUE) ? 0.0f : 1.0f;
+
 	m_pPauseScreen->Render(pCommandList);
 	m_pButtons->Render(pCommandList);
 
