@@ -98,11 +98,11 @@ void PlayerLogic::changeState(STATE newState)
 		m_owner->ChangeAnimation(PlayerAni::PowerPunch);
 		return;
 	}
-	/*if (newState == STATE::hitted) {
+	if (newState == STATE::hitted) {
 		m_state = STATE::hitted;
 		m_owner->ChangeAnimation(PlayerAni::Hitted);
 		return;
-	}*/
+	}
 
 	if (m_state > STATE::tracking) {
 		if (m_state == STATE::attack || m_state == STATE::attack2 || m_state == STATE::attack3 ||

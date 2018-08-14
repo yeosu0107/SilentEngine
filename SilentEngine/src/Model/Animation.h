@@ -64,4 +64,6 @@ public:
 
 	void ResetAnimation() { now_time = 0; }
 	void SetAnimFrame(float frame);
+
+	float getAnimTime() const { return now_time; }
 };

@@ -42,16 +42,80 @@ void Rich::Attack()
 		m_damageVal->baseDamage = m_baseDamage;
 		m_damageVal->randDamage();
 		m_attackTrigger->setGlobalPose(tmpTr, true);
+
+		//GlobalVal::getInstance()->getPlayer()->Hitted(*m_damageVal);
 	}
 }
 
 void Rich::Skill()
 {
+	if (skillKind == 0)
+		Meteor();
+	else if (skillKind == 1)
+		PushBackSkill();
+	else {
+#ifdef _DEBUG
+		printf("Unknown boss skill type\n");
+#endif
+		Meteor();
+	}
+}
+
+void Rich::Hitted(int damage)
+{
+	if (avoid)
+		return;
+
+	Enemy::Hitted(damage);
+}
+
+void Rich::Hitted(DamageVal & damage)
+{
+	if (avoid)
+		return;
+
+	if (m_State->getState() == STATE::death)
+		return;
+	m_damageStack += damage.baseDamage;
+	m_status->m_health -= damage.baseDamage;
+	m_hitback = damage.hitback;
+#ifdef _DEBUG
+	cout << "Enemy Hit!" << "\t";
+	cout << "remain HP : " << m_status->m_health << endl;
+#endif
+	if (m_damageStack > 100) {
+		ChangeAnimation(EnemyAni::AniHitted);
+		m_damageStack = 0;
+	}
+	else if (m_damageStack > 70) {
+		skillKind = 1;
+		m_State->changeState(STATE::skill);
+		return;
+	}
+	
+
+	m_State->changeState(STATE::hitted);
+}
+
+void Rich::PushBackSkill()
+{
+	ChangeAnimation(EnemyAni::AniSkill);
+	
+	//트리거 타임 하드코딩
+	if (m_ani[m_AnimIndex]->getAnimTime() > 23) {
+		DamageVal* skillval = new DamageVal(4.0f, m_baseDamage*2);
+		GlobalVal::getInstance()->getPlayer()->Hitted(*skillval);
+		skillKind = 0;
+	}
+}
+
+void Rich::Meteor()
+{
 	ChangeAnimation(EnemyAni::AniSkill);
 	if (m_loopCheck == LOOP_TRIGGER ||
-		m_loopCheck==LOOP_STOP) {
+		m_loopCheck == LOOP_STOP) {
 		avoid = true;
-		if(bulletTime<100)
+		if (bulletTime<100)
 			stopAnim(true);
 		else {
 			stopAnim(false);
@@ -76,21 +140,4 @@ void Rich::Skill()
 
 		myProjectile->Shoot(startPos, playerPos);
 	}
-	
-}
-
-void Rich::Hitted(int damage)
-{
-	if (avoid)
-		return;
-
-	Enemy::Hitted(damage);
-}
-
-void Rich::Hitted(DamageVal & damage)
-{
-	if (avoid)
-		return;
-
-	Enemy::Hitted(damage);
 }

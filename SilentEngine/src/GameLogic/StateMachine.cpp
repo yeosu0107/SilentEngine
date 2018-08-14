@@ -109,8 +109,10 @@ void BaseAI::skillState()
 
 	m_owner->Skill();
 
-	if (m_owner->getAnimLoop() == LOOP_END)
+	if (m_owner->getAnimLoop() == LOOP_END) {
+		//m_nowCoolTime = GetTickCount();
 		changeState(STATE::tracking);
+	}
 }
 
 void BaseAI::avoidState()
