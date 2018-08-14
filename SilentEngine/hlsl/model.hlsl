@@ -1,9 +1,3 @@
-//***************************************************************************************
-// color.hlsl by Frank Luna (C) 2015 All Rights Reserved.
-//
-// Transforms and colors geometry.
-//***************************************************************************************
-
 #include "Light.hlsl"
 #include "FogShader.hlsl"
 

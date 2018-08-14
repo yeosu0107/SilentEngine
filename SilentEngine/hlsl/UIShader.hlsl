@@ -237,10 +237,6 @@ float4 PSCoolDownUI(VS_TEXTURED_OUTPUT input) : SV_Target
 
 float4 PSNumberUI(VS_TEXTURED_OUTPUT input) : SV_Target
 {
-    //uint gNumberType; // 0 : float, 1 : float 분수 , 2 : float 퍼센트 , 3 : int , 4 : int 분수 , 5 : int 퍼센트
-    //uint gNumberMaximumLength; // 문자 최대 길이
-    //float gfNumber;
-    //float gfNumber2;
 
     int pos = (int) (input.uv.x * gNumberMaximumLength) / 4;
     int uint4pos = (int) (input.uv.x * gNumberMaximumLength) % 4;

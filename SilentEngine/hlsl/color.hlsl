@@ -65,9 +65,6 @@ static int2 gnOffsets[9] = { { -1,-1 },{ 0,-1 },{ 1,-1 },{ -1,0 },{ 0,0 },{ 1,0 
 
 float4 PSDeferredFullScreen(float4 position : SV_Position) : SV_Target
 {
-    //return float4(gShadowMap[1][int2(position.xy)].rrr, 1.0f);
-	//return(gBuffer[GBUFFER_OUTLINENRM][int2(position.xy)]);
-
 	float fEdgeness = 0.0f;
 	float3 cEdgeness = float3(0.0f, 0.0f, 0.0f);
 	

@@ -22,8 +22,6 @@ struct UNPACK_DATA
     float4 color;
     float3 pos;
     float4 norm;
-    //float specular;
-    //float specpow;
 };
 
 float ConvertZToLinearDepth(float depth)
@@ -89,7 +87,6 @@ float4 Blur(int2 position, float4 cColor)
     float fEdgeness = 0.0f;
     float3 cEdgeness = float3(0.0f, 0.0f, 0.0f);
     const int2 scale = int2(gBlurScale.x / 2, gBlurScale.y / 2);
-    //gBlurScale / 2;
 
     if (gEnable >= 1.0f)
     {
