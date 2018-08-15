@@ -102,4 +102,7 @@ public:
 	void Death();
 
 	void LookToPlayer();
+
+	void ReduceCoolTime(DWORD val) { m_nowCoolTime -= val; }
+	void ResetCoolTime() { m_nowCoolTime = GetTickCount(); }
 };

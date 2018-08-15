@@ -813,6 +813,12 @@ void BillboardShader::setAnimSpeed(float speed)
 	}
 }
 
+void BillboardShader::DisableAll()
+{
+	for (auto& p : m_ppObjects)
+		p->SetLive(false);
+}
+
 void BillboardShader::UpdateShaderVariables(ID3D12GraphicsCommandList * pd3dCommandList)
 {
 	CB_GAMEOBJECT_INFO cBuffer;

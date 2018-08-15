@@ -211,11 +211,11 @@ bool TestScene::Update(const Timer & gt)
 
 	//발사체 있을 경우 발사체 경로계산 및 발사
 	if (m_Projectile) {
-		XMFLOAT3* pos;
+		XMFLOAT3* tpos;
 		UINT collisionCount=0;
-		pos = m_Projectile->returnCollisionPos(collisionCount);
+		tpos = m_Projectile->returnCollisionPos(collisionCount);
 		if(collisionCount>0)
-			m_EffectShaders->SetPos(pos, collisionCount);
+			m_EffectShaders->SetPos(tpos, collisionCount);
 	}
 	//적 및 발사체 애니메이트 
 	m_Room[m_nowRoom]->Animate(gt.DeltaTime(), m_testPlayer->GetPosition(), m_isRoomChange);
@@ -1126,6 +1126,11 @@ void TestScene::ResetScene(ID3D12Device * pDevice, ID3D12GraphicsCommandList * p
 	}
 
 	reinterpret_cast<Player*>(m_testPlayer)->reset();
+
+	//이펙트 셰이더 버그 수정
+	m_EffectShaders->DisableAll();
+	for (auto& p : m_hitEffectShaders)
+		p->DisableAll();
 }
 
 

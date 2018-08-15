@@ -229,6 +229,7 @@ public:
 	virtual void setLoop(bool tmp) {}
 
 	void setAnimSpeed(float speed);
+	void DisableAll();
 protected:
 	Camera * m_pCamera = nullptr;
 	float m_fElapsedTime = 0.0f;

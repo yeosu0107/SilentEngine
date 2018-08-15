@@ -6,7 +6,7 @@ Rich::Rich(LoadModel * model, ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLi
 	: Enemy(model, pd3dDevice, pd3dCommandList)
 {
 	m_State->setValue(400, 400, 50, 200, 45, false);
-	m_State->setCoolTime(10000); //10초마다 메테오 시전
+	m_State->setCoolTime(9000); //10초마다 메테오 시전
 	m_size = XMFLOAT2(1.0f, 10.0f);
 	m_status = m_State->getStatus();
 	m_triggerSize = XMFLOAT3(30, 30, 30);
@@ -103,10 +103,15 @@ void Rich::PushBackSkill()
 	
 	//트리거 타임 하드코딩
 	if (m_ani[m_AnimIndex]->getAnimTime() > 23) {
-		DamageVal* skillval = new DamageVal(4.0f, m_baseDamage*2);
+		DamageVal* skillval = new DamageVal(7.0f, m_baseDamage*2);
 		GlobalVal::getInstance()->getPlayer()->Hitted(*skillval);
 		skillKind = 0;
+		m_State->ReduceCoolTime(6000); //메테오의 쿨타임 단축
 	}
+	//if (m_loopCheck == LOOP_END) {
+	//	skillKind = 0;
+	//	m_State->ReduceCoolTime(9000); //메테오의 쿨타임을 5초 단축
+	//}
 }
 
 void Rich::Meteor()
@@ -115,12 +120,13 @@ void Rich::Meteor()
 	if (m_loopCheck == LOOP_TRIGGER ||
 		m_loopCheck == LOOP_STOP) {
 		avoid = true;
-		if (bulletTime<100)
+		if (bulletTime<80)
 			stopAnim(true);
 		else {
 			stopAnim(false);
 			bulletTime = 0;
 			avoid = false;
+			m_State->resetCoolTime();
 		}
 		bulletTime += 1;
 
@@ -139,5 +145,9 @@ void Rich::Meteor()
 		startPos.z += 100 * (rand() % 10);
 
 		myProjectile->Shoot(startPos, playerPos);
+		SoundMgr::getInstance()->play(SOUND::MISSILE, CHANNEL::FX);
 	}
+	//if (m_loopCheck == LOOP_END) {
+	//	m_State->resetCoolTime();
+	//}
 }

@@ -293,6 +293,7 @@ void Player::Attack_Upper()
 
 void Player::Attack_Power()
 {
+	m_avoid = true;
 	m_AttackDamage->baseDamage = m_damage * 5;
 	m_AttackDamage->hitback = 0.0f;
 	m_AttackDamage->paticleType = 3;
