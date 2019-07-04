@@ -8,11 +8,12 @@ CompiledShaders::CompiledShaders()
 {
 }
 
-ComPtr<ID3DBlob> CompiledShaders::GetCompiledShader(const wstring & filename, const D3D_SHADER_MACRO * defines, const string & entrypoint, const string & target)
+ComPtr<ID3DBlob> CompiledShaders::GetCompiledShader(const wstring & filename, 
+	const D3D_SHADER_MACRO * defines, const string & entrypoint, const string & target)
 {
-	// Ã£°íÀÚ ÇÏ´Â ÄÄÆÄÀÏµÈ ¼ÎÀÌ´õ°¡ ¾øÀ» °æ¿ì 
+	// ì°¾ê³ ìž í•˜ëŠ” ì»´íŒŒì¼ëœ ì…°ì´ë”ê°€ ì—†ì„ ê²½ìš° 
 	if(m_CompiledShader.find(entrypoint) == m_CompiledShader.end())
-		// ÄÄÆÄÀÏ µÈ ¼ÎÀÌ´õ ÄÚµå¸¦ »ðÀÔ
+		// ì»´íŒŒì¼ ëœ ì…°ì´ë” ì½”ë“œë¥¼ ì‚½ìž…
 		m_CompiledShader[entrypoint] = D3DUtil::CompileShader(filename, defines, entrypoint, target);
 	
 	return m_CompiledShader[entrypoint];
@@ -58,7 +59,7 @@ void Shaders::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D1
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
 	int nTextures = pTexture->GetTextureCount();
 	
-	//nInstanceParameterCount = Index¾Õ¿¡ Á¸ÀçÇÏ´Â ÀÎ½ºÅÏ½º SRV°³¼ö
+	//nInstanceParameterCount = Indexì•žì— ì¡´ìž¬í•˜ëŠ” ì¸ìŠ¤í„´ìŠ¤ SRVê°œìˆ˜
 
 	d3dSrvCPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
 	d3dSrvGPUDescriptorHandle.ptr += ::gnCbvSrvDescriptorIncrementSize * nInstanceParameterCount;
@@ -185,9 +186,9 @@ void Shaders::CreateInstanceShaderResourceViews(ID3D12Device * pd3dDevice, ID3D1
 	D3D12_CPU_DESCRIPTOR_HANDLE d3dSrvCPUDescriptorHandle = m_d3dSrvCPUDescriptorStartHandle;
 	D3D12_GPU_DESCRIPTOR_HANDLE d3dSrvGPUDescriptorHandle = m_d3dSrvGPUDescriptorStartHandle;
 	/*
-		nPreInstanceBuffers = ÀÌÀü¿¡ ¼±¾ðÇÑ ÀÎ½ºÅÏ½º ¹öÆÛÀÇ °³¼ö
+		nPreInstanceBuffers = ì´ì „ì— ì„ ì–¸í•œ ì¸ìŠ¤í„´ìŠ¤ ë²„í¼ì˜ ê°œìˆ˜
 			ex) 
-			3°³ÀÇ ÀÎ½ºÅÏ½º ¹öÆÛ°¡ ÀÖ´Ù´Â °¡Á¤ÇÏ¿¡
+			3ê°œì˜ ì¸ìŠ¤í„´ìŠ¤ ë²„í¼ê°€ ìžˆë‹¤ëŠ” ê°€ì •í•˜ì—
 			1. nPreInstanceBuffers = 0
 			2. nPreInstanceBuffers = 1
 			3. nPreInstanceBuffers = 2
@@ -1491,7 +1492,7 @@ void FadeEffectShader::Animate(float fTimeElapsed)
 	
 	m_Color.w +=( m_bFadeType ? (fTimeElapsed / m_fExistTime) : (-fTimeElapsed / m_fExistTime));
 
-	// ÆäÀÌµå ÀÎ, ¾Æ¿ôÀÌ ³¡³­ °æ¿ì
+	// íŽ˜ì´ë“œ ì¸, ì•„ì›ƒì´ ëë‚œ ê²½ìš°
 	if ((m_bFadeType && m_Color.w > 1.0f) || (!m_bFadeType && m_Color.w < 0.0f)) {
 		m_Color.w = m_bFadeType ? 1.0f : 0.0f;
 		m_bFadeOn = m_bAutoChange;
