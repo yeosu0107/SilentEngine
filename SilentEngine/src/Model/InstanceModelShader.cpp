@@ -160,8 +160,8 @@ void InstanceModelShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceModel", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSStaticInstanceModel", "ps_5_0");
 
 	m_nObjects = 4;
 	m_ppObjects = vector<GameObject*>(m_nObjects);
@@ -246,10 +246,10 @@ void MapShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_nPSO = 2;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceNORMModel", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "PSModelNormalMap", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceNORMModel", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\NormalMap.hlsl", nullptr, "PSModelNormalMap", "ps_5_0");
 	
-	m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceNORMModel", "vs_5_0");
+	m_VSByteCode[1] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSStaticInstanceNORMModel", "vs_5_0");
 	m_PSByteCode[1] = nullptr;
 
 	m_nObjects = 1;

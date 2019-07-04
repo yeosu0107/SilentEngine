@@ -5,9 +5,7 @@
 #include "D3DMath.h"
 #include "GameObjects.h"
 #include "Enemy.h"
-
-using namespace std;
-
+#include "SingleTone.h"
 
 #define COMPILEDSHADERS CompiledShaders::Instance()
 #define ShadowShader ShadowDebugShader::Instance()
@@ -37,21 +35,20 @@ struct CB_HDR_DOWNSCALE_INFO
 };
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
-class CompiledShaders
+class CompiledShaders final : public SingleTone<CompiledShaders>
 {
 public:
 	CompiledShaders();
 	~CompiledShaders() {};
 
 public:
-	unordered_map<string, ComPtr<ID3DBlob>> CompiledShader;
+	// 컴파일 된 코드 명과 컴파일된 Blob Com객체의 정보를 담고 있는 unordered_map컨테이너
+	unordered_map<string, ComPtr<ID3DBlob>> m_CompiledShader;
 	
 	ComPtr<ID3DBlob> GetCompiledShader(const wstring& filename,
 		const D3D_SHADER_MACRO* defines,
 		const string& entrypoint,
 		const string& target);
-
-	static CompiledShaders* Instance();
 };
 
 class Shaders

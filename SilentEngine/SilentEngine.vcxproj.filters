@@ -385,6 +385,9 @@
     <ClInclude Include="SceneState.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\Framework\SingleTone.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\Sampler.hlsl">

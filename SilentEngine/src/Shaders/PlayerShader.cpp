@@ -106,10 +106,10 @@ void PlayerShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\multiTexturemodel.hlsl", nullptr, "VSMultiTexDynamicModel", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\multiTexturemodel.hlsl", nullptr, "PSMultiTexDynamicModel", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\multiTexturemodel.hlsl", nullptr, "VSMultiTexDynamicModel", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\multiTexturemodel.hlsl", nullptr, "PSMultiTexDynamicModel", "ps_5_0");
 
-	m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\multiTexturemodel.hlsl", nullptr, "VSMultiTexDynamicModel", "vs_5_0");
+	m_VSByteCode[1] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\multiTexturemodel.hlsl", nullptr, "VSMultiTexDynamicModel", "vs_5_0");
 	m_PSByteCode[1] = nullptr;
 
 	m_nObjects = 1;

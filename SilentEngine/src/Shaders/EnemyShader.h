@@ -18,10 +18,10 @@ public:
 		m_nPSO = 2;
 		CreatePipelineParts();
 
-		m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
-		m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicModel", "ps_5_0");
+		m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
+		m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "PSDynamicModel", "ps_5_0");
 
-		m_VSByteCode[1] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
+		m_VSByteCode[1] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\model.hlsl", nullptr, "VSDynamicModel", "vs_5_0");
 		m_PSByteCode[1] = nullptr;
 
 		m_nObjects = (int)(pContext);

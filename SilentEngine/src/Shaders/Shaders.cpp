@@ -10,17 +10,12 @@ CompiledShaders::CompiledShaders()
 
 ComPtr<ID3DBlob> CompiledShaders::GetCompiledShader(const wstring & filename, const D3D_SHADER_MACRO * defines, const string & entrypoint, const string & target)
 {
-	if(CompiledShader[entrypoint] == nullptr)
-		CompiledShader[entrypoint] = D3DUtil::CompileShader(filename, defines, entrypoint, target);
+	// 찾고자 하는 컴파일된 셰이더가 없을 경우 
+	if(m_CompiledShader.find(entrypoint) == m_CompiledShader.end())
+		// 컴파일 된 셰이더 코드를 삽입
+		m_CompiledShader[entrypoint] = D3DUtil::CompileShader(filename, defines, entrypoint, target);
 	
-	return CompiledShader[entrypoint];
-}
-
-CompiledShaders * CompiledShaders::Instance()
-{
-	static CompiledShaders instance;
-
-	return &instance;
+	return m_CompiledShader[entrypoint];
 }
 
 void Shaders::BuildPSO(ID3D12Device * pd3dDevice, UINT nRenderTargets, int index)
@@ -949,8 +944,8 @@ void TextureToFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12Graphics
 
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSFadeEffect", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFullScreen", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSFadeEffect", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFullScreen", "ps_5_0");
 
 	TextureDataForm* mtexture = (TextureDataForm*)pContext;
 	CTexture *pTexture = new CTexture(1, RESOURCE_TEXTURE2D, 0);
@@ -1110,8 +1105,8 @@ void DeferredFullScreen::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "VS_DEFFERED_SHADER", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "PS_DEFFERED_SHADER", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "VS_DEFFERED_SHADER", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "PS_DEFFERED_SHADER", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -1313,8 +1308,8 @@ void ShadowDebugShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCo
 	m_nObjects = 1;
 	CreatePipelineParts();
 	
-	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
-	m_PSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PS", "ps_5_0");
+	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSDeferredFullScreen", "vs_5_0");
+	m_PSByteCode[PSO_OBJECT] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PS", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -1478,8 +1473,8 @@ void FadeEffectShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 		m_pTexture->LoadTextureFromFile(pd3dDevice, pd3dCommandList, mtexture->m_texture.c_str(), 0);
 	}
 
-	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSFadeEffect", "vs_5_0");
-	m_PSByteCode[PSO_OBJECT] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFadeEffect", "ps_5_0");
+	m_VSByteCode[PSO_OBJECT] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "VSFadeEffect", "vs_5_0");
+	m_PSByteCode[PSO_OBJECT] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\color.hlsl", nullptr, "PSFadeEffect", "ps_5_0");
 
 	if (mtexture != nullptr) {
 		CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
@@ -1573,8 +1568,8 @@ void DrawGBuffers::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommand
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\RTDraw.hlsl", nullptr, "VSRTTextured", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\RTDraw.hlsl", nullptr, "PSRTTextured", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\RTDraw.hlsl", nullptr, "VSRTTextured", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\RTDraw.hlsl", nullptr, "PSRTTextured", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -1795,13 +1790,13 @@ void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_pTexture->AddTexture(m_pComputeOutputBuffers[DownScaleSecondPass].Get(), nullptr, RESOURCE_BUFFER_FLOAT32);
 	m_pTexture->AddTexture(m_pComputeOutputBuffers[HandleHorizonBloomBuffer].Get(), nullptr, RESOURCE_TEXTURE2D_HDR);
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSHDR", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSHDR", "ps_5_0");
-	m_CSByteCode[DownScaleFirstPass] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleFirstPass", "cs_5_0");
-	m_CSByteCode[DownScaleSecondPass] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleSecondPass", "cs_5_0");
-	m_CSByteCode[BloomAvgLum] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "BloomPass", "cs_5_0");
-	m_CSByteCode[BloomBlurVertical] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "VerticalBloomFilter", "cs_5_0");
-	m_CSByteCode[BloomBlurHorizon] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "HorizonBloomFilter", "cs_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSHDR", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSHDR", "ps_5_0");
+	m_CSByteCode[DownScaleFirstPass] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleFirstPass", "cs_5_0");
+	m_CSByteCode[DownScaleSecondPass] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleSecondPass", "cs_5_0");
+	m_CSByteCode[BloomAvgLum] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "BloomPass", "cs_5_0");
+	m_CSByteCode[BloomBlurVertical] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "VerticalBloomFilter", "cs_5_0");
+	m_CSByteCode[BloomBlurHorizon] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "HorizonBloomFilter", "cs_5_0");
 
 	
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
@@ -2046,8 +2041,8 @@ void OutlineFogShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "VS_DEFFERED_SHADER", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "PS_FOG_OUTLINE_SHADE", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "VS_DEFFERED_SHADER", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\DefferredShader.hlsl", nullptr, "PS_FOG_OUTLINE_SHADE", "ps_5_0");
 
 	CreateCbvAndSrvDescriptorHeaps(pd3dDevice, pd3dCommandList, 0, m_pTexture->GetTextureCount());
 	CreateShaderVariables(pd3dDevice, pd3dCommandList);
@@ -2271,8 +2266,8 @@ void MonsterHPShaders::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCom
 	m_nPSO = 1;
 	CreatePipelineParts();
 
-	m_VSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSHPBar", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS->GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSHPBar", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "VSHPBar", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\Effect.hlsl", nullptr, "PSHPBar", "ps_5_0");
 
 	TextureDataForm* mtexture = (TextureDataForm*)pContext;
 
