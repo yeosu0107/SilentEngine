@@ -28,27 +28,20 @@ struct CB_HDR_TONEMAPPING_INFO
 
 struct CB_HDR_DOWNSCALE_INFO
 {
-	XMUINT2 m_Res;			// È­¸é Å©±â
-	UINT	m_Domain;		// ´Ù¿î ½ºÄÉÀÏµÈ ÀÌ¹ÌÁö ÇÈ¼¿ ¼ö 
-	UINT	m_GroupSize;	// Ã¹ ÆĞ½º¿¡ Àû¿ëµÈ ±×·ì ¼ö 
-	float	m_BloomThreshold; // ºí·ë ÀÓ°è°ª
+	XMUINT2 m_Res;			// í™”ë©´ í¬ê¸°
+	UINT	m_Domain;		// ë‹¤ìš´ ìŠ¤ì¼€ì¼ëœ ì´ë¯¸ì§€ í”½ì…€ ìˆ˜ 
+	UINT	m_GroupSize;	// ì²« íŒ¨ìŠ¤ì— ì ìš©ëœ ê·¸ë£¹ ìˆ˜ 
+	float	m_BloomThreshold; // ë¸”ë£¸ ì„ê³„ê°’
 };
 
 D3D12_SHADER_RESOURCE_VIEW_DESC GetShaderResourceViewDesc(D3D12_RESOURCE_DESC d3dResourceDesc, UINT nTextureType);
 class CompiledShaders final : public SingleTone<CompiledShaders>
 {
+...
 public:
-	CompiledShaders();
-	~CompiledShaders() {};
-
-public:
-	// ÄÄÆÄÀÏ µÈ ÄÚµå ¸í°ú ÄÄÆÄÀÏµÈ Blob Com°´Ã¼ÀÇ Á¤º¸¸¦ ´ã°í ÀÖ´Â unordered_mapÄÁÅ×ÀÌ³Ê
+	// ì»´íŒŒì¼ ëœ ì½”ë“œ ëª…ê³¼ ì»´íŒŒì¼ëœ Blob Comê°ì²´ì˜ ì •ë³´ë¥¼ ë‹´ê³  ìˆëŠ” unordered_mapì»¨í…Œì´ë„ˆ
 	unordered_map<string, ComPtr<ID3DBlob>> m_CompiledShader;
-	
-	ComPtr<ID3DBlob> GetCompiledShader(const wstring& filename,
-		const D3D_SHADER_MACRO* defines,
-		const string& entrypoint,
-		const string& target);
+...
 };
 
 class Shaders
@@ -340,23 +333,23 @@ protected:
 	XMFLOAT4 m_Color;
 	
 	bool m_bFadeOn;
-	bool m_bFadeType; // true : ÆäÀÌµå ÀÎ , false : ÆäÀÌµå ¾Æ¿ô
-	bool m_bAutoChange;	// ÀÚµ¿ ÆäÀÌµå º¯È¯
+	bool m_bFadeType; // true : í˜ì´ë“œ ì¸ , false : í˜ì´ë“œ ì•„ì›ƒ
+	bool m_bAutoChange;	// ìë™ í˜ì´ë“œ ë³€í™˜
 	
 	float m_fExistTime;
 };
 
 class HDRShader : public DeferredFullScreen
 {
-	// °è»ê¼ÎÀÌ´õ1 -> °á°ú -> °è»ê¼ÎÀÌ´õ2 SRV·Î ÀÔ·Â -> °á°ú -> °è»ê¼ÎÀÌ´õ ¸¶Áö¸·À¸·Î ÀÔ·Â 
-	enum { DownScaleFirstPass, DownScaleSecondPass, BloomAvgLum, BloomBlurVertical, BloomBlurHorizon };	// ComputeShader ÀÎµ¦½º
+	// ê³„ì‚°ì…°ì´ë”1 -> ê²°ê³¼ -> ê³„ì‚°ì…°ì´ë”2 SRVë¡œ ì…ë ¥ -> ê²°ê³¼ -> ê³„ì‚°ì…°ì´ë” ë§ˆì§€ë§‰ìœ¼ë¡œ ì…ë ¥ 
+	enum { DownScaleFirstPass, DownScaleSecondPass, BloomAvgLum, BloomBlurVertical, BloomBlurHorizon };	// ComputeShader ì¸ë±ìŠ¤
 
-	enum { FirstPassAverageLumBuffer, SecondPassAverageLumBuffer, HDRDownScaleBuffer, HandleAverageBloomBuffer, HandleVerticalBloomBuffer, HandleHorizonBloomBuffer };	// Buffer ÀÎµ¦½º
+	enum { FirstPassAverageLumBuffer, SecondPassAverageLumBuffer, HDRDownScaleBuffer, HandleAverageBloomBuffer, HandleVerticalBloomBuffer, HandleHorizonBloomBuffer };	// Buffer ì¸ë±ìŠ¤
 
-	enum { CBDownScale, SRHDR, SRAverageValues1DOutput, SRAverageValuesOutput, UAAverageLumInput, UAHDRDownScale, SRHDRDownScale, UABloom, SRBloomInput, UABloomOutput };	// RootSignature ÀÎµ¦½º
+	enum { CBDownScale, SRHDR, SRAverageValues1DOutput, SRAverageValuesOutput, UAAverageLumInput, UAHDRDownScale, SRHDRDownScale, UABloom, SRBloomInput, UABloomOutput };	// RootSignature ì¸ë±ìŠ¤
 
 	enum { HandleFirstPassAverageLumUAV, HandleFirstPassAverageLumSRV, HandleSecondPassAverageLumUAV, HandleSecondPassAverageLumSRV, HandleHDRDownScaleUAV, HandleHDRDownScaleSRV,
-		HandleAverageBloomUAV, HandleAverageBloomSRV, HandleVerticalBloomUAV, HandleVerticalBloomSRV, HandleHorizonBloomUAV, HandleHorizonBloomSRV };	// UAVHandle ÀÎµ¦½º
+		HandleAverageBloomUAV, HandleAverageBloomSRV, HandleVerticalBloomUAV, HandleVerticalBloomSRV, HandleHorizonBloomUAV, HandleHorizonBloomSRV };	// UAVHandle ì¸ë±ìŠ¤
 	
 public:
 	HDRShader() {};
