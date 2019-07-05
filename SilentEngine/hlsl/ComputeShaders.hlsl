@@ -11,7 +11,8 @@
 static const uint MAX_GROUP = 64;
 static const uint MAX_THREAD = 1024;
 static const float4 LUM_FACTOR = float4(0.299, 0.587, 0.114, 0);
-static const float SAMPLE_WEIGHTS[13] = {
+static const float GAUSSIAN_WEIGHTS[13] =
+{
     0.002216,
     0.008764,
     0.026995,
@@ -27,7 +28,7 @@ static const float SAMPLE_WEIGHTS[13] = {
     0.002216
 };
 
-// ¾²·¹µå ±×·ì µ¿±âÈ­ ¸Ş¸ğ¸®
+// ì“°ë ˆë“œ ê·¸ë£¹ ë™ê¸°í™” ë©”ëª¨ë¦¬
 groupshared float SharedPosition[MAX_THREAD];
 groupshared float SharedFinal[MAX_GROUP];
 
@@ -40,31 +41,31 @@ float HDRDownScale4x4(uint2 position, uint groupThreadID)
         int3 nFullScreenPos = int3(position * 4, 0);
         float4 fDownScales = (float4) 0.0f;
 
-        // »ö»ó Æò±Õ °è»ê
+        // ìƒ‰ìƒ í‰ê·  ê³„ì‚°
         [unroll]
         for (int i = 0; i < 4; ++i)
         {
             [unroll]
             for (int j = 0; j < 4; ++j)
             {
-                // 16°³ÀÇ ÇÈ¼¿À» ÀĞ¾î¿È
+                // 16ê°œì˜ í”½ì…€ì„ ì½ì–´ì˜´
                 fDownScales += gHDRBuffer[0].Load(nFullScreenPos, int2(j, i));
             }
         }
         fDownScales /= 16.0f;
         gHDRDownScale[position] = fDownScales;
-        avgLum = dot(fDownScales, LUM_FACTOR); // ÈÖµµ °è»ê
+        avgLum = dot(fDownScales, LUM_FACTOR); // íœ˜ë„ ê³„ì‚°
 
         SharedPosition[groupThreadID] = avgLum;
     }
 
-     // ¾²·¹µå ±×·ì µ¿±âÈ­
+     // ì“°ë ˆë“œ ê·¸ë£¹ ë™ê¸°í™”
     GroupMemoryBarrierWithGroupSync();
 
     return avgLum;
 };
 
-// 4°³¾¿ Æò±Õ ÈÖµµ¸¦ °è»ê
+// 4ê°œì”© í‰ê·  íœ˜ë„ë¥¼ ê³„ì‚°
 float DownScaleLumto4(uint dispatchTreadID, uint groupThreadID, float avgLum)
 {
     [unroll]
@@ -110,18 +111,18 @@ void DownScaleto1(uint dispatchTreadID, uint groupThreadID, uint groupID, float 
 };
 
 [numthreads(1024, 1, 1)]
-void DownScaleFirstPass(uint3 groupID: SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID)
+void DownScaleFirstPass(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID)
 {
     uint2 position = uint2(dispatchThreadID.x % Res.x, dispatchThreadID.x / Res.x);
     float avgLum = 0.0f;
 
-    // ÇÈ¼¿ 16Ä­ Æò±Õ °è»ê & ÈÖµµ °è»ê
+    // í”½ì…€ 16ì¹¸ í‰ê·  ê³„ì‚° & íœ˜ë„ ê³„ì‚°
     avgLum = HDRDownScale4x4(position, groupThreadID.x);
  
-    // 1024ÀÇ ÈÖµµ¸¦ 4°³·Î ´Ù¿î ½ºÄÉÀÏ
+    // 1024ì˜ íœ˜ë„ë¥¼ 4ê°œë¡œ ë‹¤ìš´ ìŠ¤ì¼€ì¼
     avgLum = DownScaleLumto4(dispatchThreadID.x, groupThreadID.x, avgLum);
     
-    // 4¿¡¼­ 1·Î ´Ù¿î ½ºÄÉÀÏ & ¹öÆÛ¿¡ ÀúÀå
+    // 4ì—ì„œ 1ë¡œ ë‹¤ìš´ ìŠ¤ì¼€ì¼ & ë²„í¼ì— ì €ì¥
     DownScaleto1(dispatchThreadID.x, groupThreadID.x, groupID.x, avgLum);
 };
 
@@ -151,7 +152,7 @@ void DownScaleSecondPass(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV
     SharedFinal[dispatchThreadID.x] = avgLum;
     GroupMemoryBarrierWithGroupSync();
 
-    // 1/4·Î ´Ù¿î ½ºÄÉÀÏ
+    // 1/4ë¡œ ë‹¤ìš´ ìŠ¤ì¼€ì¼
     if (dispatchThreadID.x % 4 == 0)
     {
         float addAvgLum = AddAvgLumtoDownScale(dispatchThreadID.x, 4, 0, avgLum);
@@ -161,7 +162,7 @@ void DownScaleSecondPass(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV
 
     GroupMemoryBarrierWithGroupSync();
 
-    // 1/16À¸·Î ´Ù¿î ½ºÄÉÀÏ
+    // 1/16ìœ¼ë¡œ ë‹¤ìš´ ìŠ¤ì¼€ì¼
     if (dispatchThreadID.x % 16 == 0)
     {
         float addAvgLum = AddAvgLumtoDownScale(dispatchThreadID.x, 4, 1, avgLum);
@@ -171,7 +172,7 @@ void DownScaleSecondPass(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV
 
     GroupMemoryBarrierWithGroupSync();
 
-     // 1/64À¸·Î ´Ù¿î ½ºÄÉÀÏ
+     // 1/64ìœ¼ë¡œ ë‹¤ìš´ ìŠ¤ì¼€ì¼
     if (dispatchThreadID.x == 0)
     {
         float addFinalAvgLum = AddAvgLumtoDownScale(dispatchThreadID.x, 4, 2, avgLum);
@@ -183,7 +184,6 @@ void DownScaleSecondPass(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV
 ////////////////////////////////// Bloom ///////////////////////////////////////////////
 
 groupshared float4 SharedInput[BLOOM_GROUP_THREAD];
-// ºí·ë ÈÖµµ °è»ê
 [numthreads(1024, 1, 1)]
 void BloomPass(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
@@ -194,58 +194,37 @@ void BloomPass(uint3 dispatchThreadID : SV_DispatchThreadID)
         float lum = dot(color, LUM_FACTOR);
         float avgLum = gAverageLum[0];
        
+        // í•´ë‹¹ í”½ì…€ íœ˜ë„ - ( í˜„ì¬ ìŠ¤í¬ë¦°ì˜ í‰ê·  íœ˜ë„ * ë¸”ë£¸ ì„ê³„ê°’ )
         float colorScale = saturate(lum - avgLum * BloomThreshold);
 
+        // ë¸”ë£¸ ì„ê³„ê°’ë³´ë‹¤ í° ìƒ‰ìƒì„ ê°€ì§„ í”½ì…€ì˜ ë¸”ë£¸ ê°’ë¥¼ ì €ì¥
         gBloom[position] = color * colorScale;
     }
 }
  
-// ¼öÁ÷ ÇÊÅÍ¸µ
+// ìˆ˜ì§ í•„í„°ë§
 [numthreads(BLOOM_GROUP_THREAD, 1, 1)]
 void VerticalBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIndex)
 {
-    int2 position = int2(groupID.x, groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.y);
-    position = clamp(position, int2(0, 0), int2(Res.x - 1, Res.y - 1)); // ÅØ½ºÃÄ ¹üÀ§ ³»¿¡¼­¸¸ ÀĞ°Ô ¹üÀ§ Á¦ÇÑ
-
-    SharedInput[groupIndex] = gBloomInput.Load(int3(position, 0));
-
-    GroupMemoryBarrierWithGroupSync();
-
-    // °¡ÁßÄ¡¸¦ ÀÌ¿ëÇØ ¼¯±â À§ÇØ ¹üÀ§ Á¦ÇÑ
+    ...
+    
+    // ê°€ì¤‘ì¹˜ë¥¼ ì´ìš©í•´ ì„ê¸° ìœ„í•œ ë²”ìœ„ ì œí•œ
     if (groupIndex >= BLOOM_KERNELHALF && groupIndex < (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF) &&
         (groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.y) < Res.y)
     {
         float4 outColor = (float4) 0.0f;
+        // ë²ˆì§ íš¨ê³¼ë¥¼ ìœ„í•´ ì“°ë ˆë“œ ê³µìœ  ë©”ëª¨ë¦¬ì—ì„œ ë¸”ë£¸ê°’ì„ ì½ì–´ì™€ ê°€ìš°ì‹œì•ˆ ê°€ì¤‘ì¹˜ë¥¼ ê³±í•œ ë’¤ ì €ì¥
         [unroll]
         for (int i = -BLOOM_KERNELHALF; i <= BLOOM_KERNELHALF; ++i)
-            outColor += SharedInput[groupIndex + i] * SAMPLE_WEIGHTS[i + BLOOM_KERNELHALF];
+            outColor += SharedInput[groupIndex + i] * GAUSSIAN_WEIGHTS[i + BLOOM_KERNELHALF];
 
         gBloomOutput[position] = float4(outColor.rgb, 1.0f);
     }
-
 }
 
-// ¼öÆò ÇÊÅÍ¸µ
+// ìˆ˜í‰ í•„í„°ë§ ìˆ˜ì§ í•„í„°ë§ê³¼ ê±°ì˜ ë™ì¼í•œ ë°©ì‹ìœ¼ë¡œ ì§„í–‰ 
 [numthreads(BLOOM_GROUP_THREAD, 1, 1)]
 void HorizonBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIndex)
 {
-    int2 position = int2(groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.x, groupID.y);
-    position = clamp(position, int2(0, 0), int2(Res.x - 1, Res.y - 1));
-
-    // Bloom Input°ªÀ» ±×·ì °ø¿ë ¸Ş¸ğ¸®¿¡ ÀúÀå
-    SharedInput[groupIndex] = gBloomInput.Load(int3(position, 0));
-
-    GroupMemoryBarrierWithGroupSync();
-
-    if (groupIndex >= BLOOM_KERNELHALF && groupIndex < (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF) &&
-        (groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.x) < Res.x)
-    {
-        float4 outColor = (float4) 0.0f;
-        [unroll]
-        for (int i = -BLOOM_KERNELHALF; i <= BLOOM_KERNELHALF; ++i)
-            outColor += SharedInput[groupIndex + i] * SAMPLE_WEIGHTS[i + BLOOM_KERNELHALF];
-        
-        gBloomOutput[position] = float4(outColor.rgb, 1.0f);
-    }
-}
+    ...
 #endif
