@@ -152,8 +152,9 @@ cbuffer cbHDRToneMapping : register(b12)
 {
     float gMiddleGrey : packoffset(c0);
     float gLumWhiteSqr : packoffset(c0.y);
-    float gHDREnable : packoffset(c0.z);
-    float gBloomEnable : packoffset(c0.w);
+    float gBloomScale : packoffset(c0.z);
+    float gHDREnable : packoffset(c0.w);
+    float gBloomEnable : packoffset(c1);
 }
 
 cbuffer cbMonsterHPData : register(b13)

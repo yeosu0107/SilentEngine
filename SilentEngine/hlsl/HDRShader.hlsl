@@ -68,7 +68,7 @@ float4 PSHDR(VS_TEXTURED_OUTPUT input) : SV_Target
     finalColor = gHDRBuffer[0].Sample(gDefaultSamplerState, uv);
 
     if (gBloomEnable >= 1.0f)
-        finalColor.xyz += gBloomInput.Sample(gDefaultSamplerState, uv).xyz;
+        finalColor.xyz += gBloomInput.Sample(gDefaultSamplerState, uv).xyz * gBloomScale;
 
     if (gHDREnable >= 1.0f)
         finalColor.xyz = ToneMApping(finalColor.xyz);

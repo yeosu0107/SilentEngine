@@ -21,6 +21,7 @@ struct CB_HDR_TONEMAPPING_INFO
 {
 	float m_MiddleGrey;
 	float m_LumWhiteSqr;
+	float m_BloomScale;
 	float m_EnableHDR;
 	float m_EnableBloom;
 };

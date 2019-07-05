@@ -1616,6 +1616,7 @@ void HDRShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_HDRToneMappData.m_LumWhiteSqr = 1.5f;
 	m_HDRToneMappData.m_MiddleGrey = 0.35f;
 	m_HDRToneMappData.m_EnableHDR = 1.0f;
+	m_HDRToneMappData.m_BloomScale = 1.3f;
 	m_HDRToneMappData.m_EnableBloom = 1.0f;
 }
 
