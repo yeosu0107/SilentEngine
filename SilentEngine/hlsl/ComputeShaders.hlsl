@@ -11,7 +11,8 @@
 static const uint MAX_GROUP = 64;
 static const uint MAX_THREAD = 1024;
 static const float4 LUM_FACTOR = float4(0.299, 0.587, 0.114, 0);
-static const float SAMPLE_WEIGHTS[13] = {
+static const float GAUSSIAN_WEIGHTS[13] =
+{
     0.002216,
     0.008764,
     0.026995,
@@ -110,7 +111,7 @@ void DownScaleto1(uint dispatchTreadID, uint groupThreadID, uint groupID, float 
 };
 
 [numthreads(1024, 1, 1)]
-void DownScaleFirstPass(uint3 groupID: SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID)
+void DownScaleFirstPass(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV_DispatchThreadID, uint3 groupThreadID : SV_GroupThreadID)
 {
     uint2 position = uint2(dispatchThreadID.x % Res.x, dispatchThreadID.x / Res.x);
     float avgLum = 0.0f;
@@ -183,7 +184,6 @@ void DownScaleSecondPass(uint3 groupID : SV_GroupID, uint3 dispatchThreadID : SV
 ////////////////////////////////// Bloom ///////////////////////////////////////////////
 
 groupshared float4 SharedInput[BLOOM_GROUP_THREAD];
-// 블룸 휘도 계산
 [numthreads(1024, 1, 1)]
 void BloomPass(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
@@ -194,8 +194,10 @@ void BloomPass(uint3 dispatchThreadID : SV_DispatchThreadID)
         float lum = dot(color, LUM_FACTOR);
         float avgLum = gAverageLum[0];
        
+        // 해당 픽셀 휘도 - ( 현재 스크린의 평균 휘도 * 블룸 임계값 )
         float colorScale = saturate(lum - avgLum * BloomThreshold);
 
+        // 블룸 임계값보다 큰 색상을 가진 픽셀의 블룸 값를 저장
         gBloom[position] = color * colorScale;
     }
 }
@@ -205,24 +207,26 @@ void BloomPass(uint3 dispatchThreadID : SV_DispatchThreadID)
 void VerticalBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIndex)
 {
     int2 position = int2(groupID.x, groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.y);
-    position = clamp(position, int2(0, 0), int2(Res.x - 1, Res.y - 1)); // 텍스쳐 범위 내에서만 읽게 범위 제한
+     // 텍스쳐 범위 내에서만 읽게 범위 제한
+    position = clamp(position, int2(0, 0), int2(Res.x - 1, Res.y - 1));
 
+   // Bloom값을 그룹 공용 메모리에 저장
     SharedInput[groupIndex] = gBloomInput.Load(int3(position, 0));
 
     GroupMemoryBarrierWithGroupSync();
 
-    // 가중치를 이용해 섞기 위해 범위 제한
+    // 가중치를 이용해 섞기 위한 범위 제한
     if (groupIndex >= BLOOM_KERNELHALF && groupIndex < (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF) &&
         (groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.y) < Res.y)
     {
         float4 outColor = (float4) 0.0f;
+        // 번짐 효과를 위해 쓰레드 공유 메모리에서 현재 인덱스 -6 ~ +6값을 읽어와 가우시안 가중치를 곱한 뒤 저장
         [unroll]
         for (int i = -BLOOM_KERNELHALF; i <= BLOOM_KERNELHALF; ++i)
-            outColor += SharedInput[groupIndex + i] * SAMPLE_WEIGHTS[i + BLOOM_KERNELHALF];
+            outColor += SharedInput[groupIndex + i] * GAUSSIAN_WEIGHTS[i + BLOOM_KERNELHALF];
 
         gBloomOutput[position] = float4(outColor.rgb, 1.0f);
     }
-
 }
 
 // 수평 필터링
@@ -232,7 +236,6 @@ void HorizonBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIn
     int2 position = int2(groupIndex - BLOOM_KERNELHALF + (BLOOM_GROUP_THREAD - BLOOM_KERNELHALF * 2) * groupID.x, groupID.y);
     position = clamp(position, int2(0, 0), int2(Res.x - 1, Res.y - 1));
 
-    // Bloom Input값을 그룹 공용 메모리에 저장
     SharedInput[groupIndex] = gBloomInput.Load(int3(position, 0));
 
     GroupMemoryBarrierWithGroupSync();
@@ -243,7 +246,7 @@ void HorizonBloomFilter(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIn
         float4 outColor = (float4) 0.0f;
         [unroll]
         for (int i = -BLOOM_KERNELHALF; i <= BLOOM_KERNELHALF; ++i)
-            outColor += SharedInput[groupIndex + i] * SAMPLE_WEIGHTS[i + BLOOM_KERNELHALF];
+            outColor += SharedInput[groupIndex + i] * GAUSSIAN_WEIGHTS[i + BLOOM_KERNELHALF];
         
         gBloomOutput[position] = float4(outColor.rgb, 1.0f);
     }
