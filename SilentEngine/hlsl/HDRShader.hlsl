@@ -14,7 +14,7 @@ float3 ToneMApping(float3 color)
     // 픽셀의 Luminance Scale계산
     float lumScale = dot(color, LUM_FACTOR.xyz);
     
-    // ToneMapping 공식
+    // ToneMapping식 적용
     lumScale *= gMiddleGrey / gAverageValues[0];
     lumScale = (lumScale + (lumScale * lumScale) / gLumWhiteSqr) / (1.0f + lumScale);
 
