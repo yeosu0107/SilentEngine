@@ -18,7 +18,7 @@ float3 ToneMApping(float3 color)
 
 }
 
-VS_TEXTURED_OUTPUT VSHDR(uint nVertexID : SV_VertexID)
+VS_TEXTURED_OUTPUT VSPostProcessing(uint nVertexID : SV_VertexID)
 {
     VS_TEXTURED_OUTPUT output = (VS_TEXTURED_OUTPUT) 0.0f;
    
@@ -60,18 +60,20 @@ VS_TEXTURED_OUTPUT VSHDR(uint nVertexID : SV_VertexID)
     return output;
 };
 
-float4 PSHDR(VS_TEXTURED_OUTPUT input) : SV_Target
+float4 PSPostProcessing(VS_TEXTURED_OUTPUT input) : SV_Target
 {
     float4 finalColor = (float4) 0.0f;
     float2 uv = input.uv;
  
     finalColor = gHDRBuffer[0].Sample(gDefaultSamplerState, uv);
 
-    if (gBloomEnable >= 1.0f)
-        finalColor.xyz += gBloomInput.Sample(gDefaultSamplerState, uv).xyz * gBloomScale;
-
+    // 톤매핑 적용
     if (gHDREnable >= 1.0f)
         finalColor.xyz = ToneMApping(finalColor.xyz);
+
+    // 블룸 분포 적용
+    if (gBloomEnable >= 1.0f)
+        finalColor.xyz += gBloomInput.Sample(gDefaultSamplerState, uv).xyz * gBloomScale;
 
     return float4(finalColor.xyz, 1.0f);
 }

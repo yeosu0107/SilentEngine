@@ -1603,7 +1603,7 @@ void HDRShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 	m_HDRDownScaleData.m_Res = XMUINT2(FRAME_BUFFER_WIDTH / 4, FRAME_BUFFER_HEIGHT / 4);
 	m_HDRDownScaleData.m_Domain = m_HDRDownScaleData.m_Res.x * m_HDRDownScaleData.m_Res.y;
 	m_HDRDownScaleData.m_GroupSize = (UINT)ceil((float)(FRAME_BUFFER_WIDTH * FRAME_BUFFER_HEIGHT / 16) / 1024.0f);
-	m_HDRDownScaleData.m_BloomThreshold = 3.5f;
+	m_HDRDownScaleData.m_BloomThreshold = 1.2f;
 
 	m_nComputeThreadCount[DownScaleFirstPass]	= XMUINT3(m_HDRDownScaleData.m_GroupSize, 1, 1);
 	m_nComputeThreadCount[DownScaleSecondPass]	= XMUINT3(1, 1, 1);
@@ -1613,10 +1613,10 @@ void HDRShader::CreateShaderVariables(ID3D12Device * pd3dDevice, ID3D12GraphicsC
 
 	m_HDRToneMappCB = make_unique<UploadBuffer<CB_HDR_TONEMAPPING_INFO>>(pd3dDevice, 1, true);
 
-	m_HDRToneMappData.m_LumWhiteSqr = 1.5f;
-	m_HDRToneMappData.m_MiddleGrey = 0.35f;
+	m_HDRToneMappData.m_LumWhiteSqr = 1.2f;
+	m_HDRToneMappData.m_MiddleGrey = 0.27f;
 	m_HDRToneMappData.m_EnableHDR = 1.0f;
-	m_HDRToneMappData.m_BloomScale = 1.3f;
+	m_HDRToneMappData.m_BloomScale = 2.0f;
 	m_HDRToneMappData.m_EnableBloom = 1.0f;
 }
 
@@ -1791,8 +1791,8 @@ void HDRShader::BuildObjects(ID3D12Device * pd3dDevice, ID3D12GraphicsCommandLis
 	m_pTexture->AddTexture(m_pComputeOutputBuffers[DownScaleSecondPass].Get(), nullptr, RESOURCE_BUFFER_FLOAT32);
 	m_pTexture->AddTexture(m_pComputeOutputBuffers[HandleHorizonBloomBuffer].Get(), nullptr, RESOURCE_TEXTURE2D_HDR);
 
-	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSHDR", "vs_5_0");
-	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSHDR", "ps_5_0");
+	m_VSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "VSPostProcessing", "vs_5_0");
+	m_PSByteCode[0] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\HDRShader.hlsl", nullptr, "PSPostProcessing", "ps_5_0");
 	m_CSByteCode[DownScaleFirstPass] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleFirstPass", "cs_5_0");
 	m_CSByteCode[DownScaleSecondPass] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "DownScaleSecondPass", "cs_5_0");
 	m_CSByteCode[BloomAvgLum] = COMPILEDSHADERS.GetCompiledShader(L"hlsl\\ComputeShaders.hlsl", nullptr, "BloomPass", "cs_5_0");
